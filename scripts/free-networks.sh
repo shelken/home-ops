@@ -52,7 +52,7 @@ if [ "$DELETE_MODE" = false ]; then
     sudo tee -a \"\$FILE\" << EOF
 HTTP_PROXY=http://$PROXY_IP:$PORT
 HTTPS_PROXY=http://$PROXY_IP:$PORT
-NO_PROXY=localhost,::1,$PROXY_IP,127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.cluster.local,.cluster.local,.svc
+NO_PROXY=localhost,::1,$PROXY_IP,127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.cluster.local.,.cluster.local,.svc
 EOF"
 fi
 
