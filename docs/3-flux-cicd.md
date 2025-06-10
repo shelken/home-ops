@@ -24,9 +24,11 @@ flux bootstrap github \
 --branch=main \
 --path=clusters/staging \
 --personal \
---token-auth
+--token-auth \ 
+--private
 
 # 如果使用ssh，可以带上--private-key-file=~/.ssh/id_ed25519参数，去掉token-auth
+# --private 如果是私有仓库的话加上
 
 ```
 
