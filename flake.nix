@@ -15,10 +15,12 @@
     in {
       devShells.default = pkgs.mkShell {
         name = "base template";
-        
+
         packages = with pkgs; [
           fluxcd
           k9s
+
+          kustomize
         ];
 
         shellHook = ''
