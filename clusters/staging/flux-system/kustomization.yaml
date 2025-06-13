@@ -8,8 +8,6 @@ patches:
   - patch: |
       apiVersion: apps/v1
       kind: Deployment
-      metadata:
-        name: all
       spec:
         template:
           spec:
