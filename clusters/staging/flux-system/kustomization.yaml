@@ -4,26 +4,48 @@ resources:
 - gotk-components.yaml
 - gotk-sync.yaml
 
-# patches:
-#   - patch: |
-#       apiVersion: apps/v1
-#       kind: Deployment
-#       metadata:
-#         name: all
-#       spec:
-#         template:
-#           spec:
-#             containers:
-#               - name: manager
-#                 env:
-#                   - name: "HTTPS_PROXY"
-#                     value: "http://192.168.6.248:7890"
-#                   - name: "NO_PROXY"
-#                     value: ".cluster.local.,.cluster.local,.svc"
-#                   - name: "https_proxy"
-#                     value: "http://192.168.6.248:7890"
-#                   - name: "no_proxy"
-#                     value: ".cluster.local.,.cluster.local,.svc"     
-#     target:
-#       kind: Deployment
-#       labelSelector: app.kubernetes.io/part-of=flux
+patches:
+  - target:
+      kind: Deployment
+      name: source-controller
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env
+        value:
+          - name: HTTPS_PROXY
+            value: "http://192.168.6.248:7890"
+          - name: NO_PROXY
+            value: ".svc,.cluster.local"
+  - target:
+      kind: Deployment
+      name: kustomize-controller
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env
+        value:
+          - name: HTTPS_PROXY
+            value: "http://192.168.6.248:7890"
+          - name: NO_PROXY
+            value: ".svc,.cluster.local"
+  - target:
+      kind: Deployment
+      name: helm-controller
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env
+        value:
+          - name: HTTPS_PROXY
+            value: "http://192.168.6.248:7890"
+          - name: NO_PROXY
+            value: ".svc,.cluster.local"
+  - target:
+      kind: Deployment
+      name: notification-controller
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env
+        value:
+          - name: HTTPS_PROXY
+            value: "http://192.168.6.248:7890"
+          - name: NO_PROXY
+            value: ".svc,.cluster.local"
