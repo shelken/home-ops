@@ -8,6 +8,9 @@ patches:
   - patch: |
       apiVersion: apps/v1
       kind: Deployment
+      metadata:
+        name: source-controller
+        namespace: flux-system
       spec:
         template:
           spec:
