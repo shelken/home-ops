@@ -5,47 +5,29 @@ resources:
 - gotk-sync.yaml
 
 patches:
-  - target:
+  - patch: |
+      apiVersion: apps/v1
       kind: Deployment
-      name: source-controller
-    patch: |-
-      - op: add
-        path: /spec/template/spec/containers/0/env
-        value:
-          - name: HTTPS_PROXY
-            value: "http://192.168.6.248:7890"
-          - name: NO_PROXY
-            value: ".svc,.cluster.local"
-  - target:
+      metadata:
+        name: all
+      spec:
+        template:
+          spec:
+            containers:
+              - name: manager
+                env:
+                  - name: "HTTPS_PROXY"
+                    value: "http://192.168.6.248:7890"
+                  - name: "NO_PROXY"
+                    value: "localhost,::1,127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.cluster.local.,.cluster.local,.svc"
+                  - name: "HTTP_PROXY"
+                    value: "http://192.168.6.248:7890"
+                  - name: "https_proxy"
+                    value: "http://192.168.6.248:7890"
+                  - name: "no_proxy"
+                    value: "localhost,::1,127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.cluster.local.,.cluster.local,.svc"
+                  - name: "http_proxy"
+                    value: "http://192.168.6.248:7890"    
+    target:
       kind: Deployment
-      name: kustomize-controller
-    patch: |-
-      - op: add
-        path: /spec/template/spec/containers/0/env
-        value:
-          - name: HTTPS_PROXY
-            value: "http://192.168.6.248:7890"
-          - name: NO_PROXY
-            value: ".svc,.cluster.local"
-  - target:
-      kind: Deployment
-      name: helm-controller
-    patch: |-
-      - op: add
-        path: /spec/template/spec/containers/0/env
-        value:
-          - name: HTTPS_PROXY
-            value: "http://192.168.6.248:7890"
-          - name: NO_PROXY
-            value: ".svc,.cluster.local"
-  - target:
-      kind: Deployment
-      name: notification-controller
-    patch: |-
-      - op: add
-        path: /spec/template/spec/containers/0/env
-        value:
-          - name: HTTPS_PROXY
-            value: "http://192.168.6.248:7890"
-          - name: NO_PROXY
-            value: ".svc,.cluster.local"
+      labelSelector: app.kubernetes.io/part-of=flux
