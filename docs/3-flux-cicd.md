@@ -40,3 +40,8 @@ flux bootstrap github \
 
 可以使用以下命令强制 Flux 立刻尝试重新同步（reconcile）这个 Git 源，而不是等待它的定时周期。
 `flux reconcile source git flux-system`
+
+### 为flux的控制器加上代理
+
+> 参考 [code](https://github.com/shelken/home-ops/commit/2af8e80051bf0ad8f265bc2667ea9ab8464cfa91)
+> 
