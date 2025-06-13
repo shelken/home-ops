@@ -4,6 +4,7 @@ resources:
 - gotk-components.yaml
 - gotk-sync.yaml
 
+# 必须三个变量一起设置，官方文档只写了两个变量会有问题，不能缺少http_proxy
 patches:
   - patch: |
       apiVersion: apps/v1
