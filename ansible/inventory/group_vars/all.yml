@@ -1,0 +1,12 @@
+---
+# 所有节点通用系统配置
+# proxy_env:
+#   http_proxy: "http://192.168.6.248:7890"
+#   https_proxy: "http://192.168.6.248:7890"
+
+system_timezone: "Asia/Shanghai"
+system_packages:
+  - curl
+  - wget
+  - vim
+  - htop

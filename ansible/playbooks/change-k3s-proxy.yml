@@ -1,0 +1,61 @@
+---
+- name: 配置 K3s 代理
+  hosts: all
+  become: true
+  vars:
+    k3s_proxy_ip: "192.168.6.248"
+    k3s_proxy_port: "7890"
+    delete_proxy: false
+  tasks:
+    # 步骤 1: 统一检查所有可能的目标文件是否存在
+    - name: 检查 k3s 和 k3s-agent 的环境文件是否存在
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop:
+        - /etc/systemd/system/k3s-agent.service.env
+        - /etc/systemd/system/k3s.service.env
+      register: k3s_env_files
+
+    # 步骤 2: 删除现有代理配置。如果发生变更，则通知 handler。
+    - name: 删除所有旧的代理配置行
+      ansible.builtin.lineinfile:
+        path: "{{ item.item }}"
+        regexp: "^(CONTAINERD_HTTP_PROXY|CONTAINERD_HTTPS_PROXY|CONTAINERD_NO_PROXY|HTTP_PROXY|HTTPS_PROXY|NO_PROXY)="
+        state: absent
+      loop: "{{ k3s_env_files.results }}"
+      when: item.stat.exists # 只对存在的文件操作
+      notify: # <-- 关键修正：删除操作也需要触发重启
+        - Reload systemd
+        - Restart k3s services
+
+    # 步骤 3: 如果不是删除模式，则添加新的代理配置。如果发生变更，也通知 handler。
+    - name: 添加新的代理配置
+      ansible.builtin.blockinfile:
+        path: "{{ item.item }}"
+        block: |
+          HTTP_PROXY=http://{{ k3s_proxy_ip }}:{{ k3s_proxy_port }}
+          HTTPS_PROXY=http://{{ k3s_proxy_ip }}:{{ k3s_proxy_port }}
+          NO_PROXY=localhost,::1,{{ k3s_proxy_ip }},127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.cluster.local.,.cluster.local,.svc
+        marker: "# {mark} ANSIBLE MANAGED BLOCK - K3S PROXY CONFIG"
+      loop: "{{ k3s_env_files.results }}"
+      # 当不是删除模式，并且文件存在或可以被创建时执行
+      when: not delete_proxy and item.stat.exists
+      notify:
+        - Reload systemd
+        - Restart k3s services
+
+  # Handlers: 只有在被 notify 通知时才会运行，并且在所有 tasks 结束后只运行一次
+  handlers:
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: yes
+      ignore_errors: true
+
+    - name: Restart k3s services
+      ansible.builtin.service:
+        name: "{{ 'k3s' if k3s_control_node == 'true' else 'k3s-agent' }}"
+        state: restarted
+
+      # 通过检查服务是否存在来避免在 Master/Agent 节点上报错
+      listen: "Restart k3s services"
+      ignore_errors: true
