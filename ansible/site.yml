@@ -1,0 +1,43 @@
+---
+- name: 准备 Kubernetes 节点
+  hosts: all
+  become: true
+  tasks:
+    - name: 更新系统包
+      apt:
+        update_cache: yes
+        upgrade: yes
+      when: ansible_os_family == "Debian"
+
+    # - name: 安装必要的系统包
+    #   package:
+    #     name: "{{ system_packages }}"
+    #     state: present
+
+    - name: 设置时区
+      timezone:
+        name: "{{ system_timezone }}"
+
+    # - name: 配置 sysctl 参数
+    #   sysctl:
+    #     name: "{{ item.key }}"
+    #     value: "{{ item.value }}"
+    #     state: present
+    #     reload: yes
+    #   with_dict: "{{ sysctl_config }}"
+
+# - name: 配置控制平面节点
+#   hosts: control_plane
+#   become: true
+#   tasks:
+#     - name: 设置主机名
+#       hostname:
+#         name: "{{ inventory_hostname }}"
+
+# - name: 配置工作节点
+#   hosts: workers
+#   become: true
+#   tasks:
+#     - name: 设置主机名
+#       hostname:
+#         name: "{{ inventory_hostname }}"

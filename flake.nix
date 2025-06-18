@@ -21,11 +21,15 @@
           k9s
 
           kustomize
+
+          ansible
+          k3sup
         ];
 
         shellHook = ''
           echo "环境初始化成功"
           export KUBECONFIG=`pwd`/kubeconfig
+          export ANSIBLE_CONFIG=`pwd`/ansible/ansible.cfg
         '';
 
         # Now we can execute any commands within the virtual environment.
