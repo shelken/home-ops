@@ -3,6 +3,9 @@
 ipam:
   mode: kubernetes
 
+l2announcements:
+  enabled: true
+
 kubeProxyReplacement: true
 ingressController:
   enabled: true
