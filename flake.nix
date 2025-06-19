@@ -26,6 +26,8 @@
           k3sup
 
           opentofu
+
+          kubernetes-helm
         ];
 
         shellHook = ''
