@@ -1,0 +1,11 @@
+# 配置：https://docs.cilium.io/en/latest/helm-reference
+
+ipam:
+  mode: kubernetes
+
+kubeProxyReplacement: true
+ingressController:
+  enabled: true
+  loadbalancerMode: shared
+  default: true
+
