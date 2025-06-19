@@ -22,6 +22,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: my-nginx-service # Ingress 将会把流量导向这个 Service
+  namespace: nginx
 spec:
   type: ClusterIP # Ingress 的后端必须是 ClusterIP
   selector:
