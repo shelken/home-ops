@@ -24,6 +24,8 @@
 
           ansible
           k3sup
+
+          opentofu
         ];
 
         shellHook = ''
