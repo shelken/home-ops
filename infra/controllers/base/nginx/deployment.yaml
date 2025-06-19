@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-nginx-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-nginx
+  template:
+    metadata:
+      labels:
+        app: my-nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest # 使用官方的 Nginx 镜像
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-nginx-service # Ingress 将会把流量导向这个 Service
+spec:
+  type: ClusterIP # Ingress 的后端必须是 ClusterIP
+  selector:
+    app: my-nginx
+  ports:
+  - protocol: TCP
+    port: 80 # Service 的端口
+    targetPort: 80 # Pod 的端口

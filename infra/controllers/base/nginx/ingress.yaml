@@ -13,6 +13,6 @@ spec:
         path: "/"
         backend:
           service:
-            name: nginx-ingress-controller 
+            name: my-nginx-service
             port: 
               number: 80
