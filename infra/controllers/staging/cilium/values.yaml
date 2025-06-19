@@ -1,7 +1,7 @@
 # 配置：https://docs.cilium.io/en/latest/helm-reference
 
 ipam:
-  mode: kubernetes
+  mode: cluster-pool
 
 l2announcements:
   enabled: true
