@@ -4,6 +4,7 @@ namespace: kube-system
 resources: 
   - repository.yaml
   - release.yaml
+  - ingress.yaml
 
 configurations:
   - kustomizeconfig.yaml
