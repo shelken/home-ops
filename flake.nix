@@ -37,6 +37,7 @@
           echo "环境初始化成功"
           export KUBECONFIG=`pwd`/kubeconfig
           export ANSIBLE_CONFIG=`pwd`/ansible/ansible.cfg
+          export SOPS_AGE_KEY_FILE=~/.config/sops/age/home-ops.txt
         '';
 
         # Now we can execute any commands within the virtual environment.
