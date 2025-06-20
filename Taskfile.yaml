@@ -1,0 +1,49 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: '3'
+
+set: [pipefail]
+shopt: [globstar]
+
+vars:
+  TEST: "test"
+
+# includes: []
+
+tasks:
+  default: task --list
+
+  encrypt-all:
+    desc: "加密目录下所有sops.yaml结尾的文件"
+    cmds:
+      - for: { var: SECRET_FILES }
+        cmd: |
+          echo "Encrypting {{.ITEM}}"
+          if sops filestatus "{{.ITEM}}" | jq --exit-status ".encrypted == false" &>/dev/null; then
+              sops encrypt -i "{{.ITEM}}"
+          fi
+    vars:
+      SECRET_FILES:
+        sh: find {{.ROOT_DIR}} -type f -name "*.sops.yaml" ! -name '.sops.yaml' -print
+    preconditions:
+      # - test -f ~/.config/sops/age/keys.txt
+      - '[ -n "$SOPS_AGE_KEY_FILE" ]'
+      - test -f {{.ROOT_DIR}}/.sops.yaml
+      - which jq sops
+
+  updatekey-all:
+    desc: "更新目录下所有sops.yaml结尾的文件"
+    cmds:
+      - for: { var: SECRET_FILES }
+        cmd: |
+          if sops filestatus "{{.ITEM}}" | jq --exit-status ".encrypted == true" &>/dev/null; then
+              sops updatekeys "{{.ITEM}}"
+          fi
+    vars:
+      SECRET_FILES:
+        sh: find {{.ROOT_DIR}} -type f -name "*.sops.yaml" ! -name '.sops.yaml' -print
+    preconditions:
+      - '[ -n "$SOPS_AGE_KEY_FILE" ]'
+      - test -f {{.ROOT_DIR}}/.sops.yaml
+      - which jq sops
+

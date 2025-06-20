@@ -1,0 +1,12 @@
+keys:
+  - &admin_mio age1ajrupd6znrpz2jxs9dnmdjhu2j2lf27q769dnlnyhfk9460a446q9ez9wl
+creation_rules:
+  - path_regex: (apps|infra)/.+\.sops\.(ya?ml)
+    encrypted_regex: "^(data|stringData)$"
+    mac_only_encrypted: true
+    key_groups:
+      - age:
+        - *admin_mio
+stores:
+  yaml:
+    indent: 2
