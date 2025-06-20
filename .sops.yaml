@@ -1,5 +1,6 @@
 keys:
   - &admin_mio age1ajrupd6znrpz2jxs9dnmdjhu2j2lf27q769dnlnyhfk9460a446q9ez9wl
+  - &home-ops age1pmdvhcfqdcfdf25lsz9fkkxq3tajsjud0t9sw2wg7lsdrx6yw9vqesylyg
 creation_rules:
   - path_regex: (apps|infra)/.+\.sops\.(ya?ml)
     encrypted_regex: "^(data|stringData)$"
@@ -7,6 +8,7 @@ creation_rules:
     key_groups:
       - age:
         - *admin_mio
+        - *home-ops
 stores:
   yaml:
     indent: 2
