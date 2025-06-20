@@ -17,7 +17,7 @@
         name = "base template";
 
         packages = with pkgs; [
-          fluxcd
+          # fluxcd
           k9s
 
           kustomize
@@ -35,6 +35,7 @@
 
         shellHook = ''
           echo "环境初始化成功"
+          alias flux=/opt/brew/bin/flux
           export KUBECONFIG=`pwd`/kubeconfig
           export ANSIBLE_CONFIG=`pwd`/ansible/ansible.cfg
           export SOPS_AGE_KEY_FILE=~/.config/sops/age/home-ops.txt
