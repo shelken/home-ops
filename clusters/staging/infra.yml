@@ -13,6 +13,8 @@ spec:
   path: ./infra/controllers/staging
   prune: true
   wait: true
+  dependsOn:
+    - name: flux-repositories
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
