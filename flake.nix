@@ -28,6 +28,9 @@
           opentofu
 
           kubernetes-helm
+
+          sops
+          go-task
         ];
 
         shellHook = ''
