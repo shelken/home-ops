@@ -4,11 +4,10 @@ metadata:
   name: apps
   namespace: flux-system
 spec:
-  spec:
-    decryption:
-      provider: sops
-      secretRef:
-        name: sops-age
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
   interval: 10m0s
   dependsOn:
     - name: infra-configs
