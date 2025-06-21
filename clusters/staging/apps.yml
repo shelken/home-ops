@@ -10,7 +10,7 @@ spec:
       name: sops-age
   interval: 10m0s
   dependsOn:
-    - name: infra-configs
+    - name: infra
   sourceRef:
     kind: GitRepository
     name: flux-system
