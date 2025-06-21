@@ -31,6 +31,8 @@
 
           sops
           go-task
+
+          helmfile
         ];
 
         shellHook = ''
