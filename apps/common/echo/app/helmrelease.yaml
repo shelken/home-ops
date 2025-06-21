@@ -82,6 +82,7 @@ spec:
         className: cilium
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.ooooo.space"
+          cert-manager.io/cluster-issuer: letsencrypt-production
         hosts:
           - host: "{{ .Release.Name }}.ooooo.space"
             paths:
@@ -92,4 +93,4 @@ spec:
         tls:
           - hosts:
               - "{{ .Release.Name }}.ooooo.space"
-            secretName: ooooo-space-tls
+            secretName: echo-ooooo-space-tls
