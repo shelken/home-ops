@@ -3,3 +3,4 @@ kind: Kustomization
 resources: 
   - clusterissuer.yaml
   - secret.sops.yaml
+  - certificate.yaml
