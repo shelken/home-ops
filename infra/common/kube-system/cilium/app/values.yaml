@@ -21,7 +21,6 @@ ingressController:
 # k8sClientRateLimit:
 #   qps: 30
 #   burst: 50
-
 bpf:
   masquerade: true
   # Ref: https://github.com/siderolabs/talos/issues/10002
