@@ -52,24 +52,24 @@ envoy:
        enabled: false
 hubble:
   enabled: false
-  relay:
-    enabled: true
-  ui:
-    enabled: false
+  # relay:
+  #   enabled: false
+  # ui:
+  #   enabled: false
 operator:
-  dashboards:
-    enabled: false
-  prometheus:
-    enabled: true
-    serviceMonitor:
-      enabled: false
+  # dashboards:
+  #   enabled: false
+  # prometheus:
+  #   enabled: true
+  #   serviceMonitor:
+  #     enabled: false
   replicas: 1
   rollOutPods: true
-prometheus:
-  enabled: false
-  serviceMonitor:
-    enabled: true
-    trustCRDsExist: true
+# prometheus:
+#   enabled: false
+#   serviceMonitor:
+#     enabled: true
+#     trustCRDsExist: true
 
 rollOutCiliumPods: true
 securityContext:

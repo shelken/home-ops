@@ -20,12 +20,12 @@ spec:
   valuesFrom:
     - kind: ConfigMap
       name: cilium-values
-  values:
-    hubble:
-      enabled: true
-      relay:
-        enabled: true
-        rollOutPods: true
-      ui:
-        enabled: true
-        rollOutPods: true
+  # values:
+  #   hubble:
+  #     enabled: true
+  #     relay:
+  #       enabled: true
+  #       rollOutPods: true
+  #     ui:
+  #       enabled: true
+  #       rollOutPods: true
