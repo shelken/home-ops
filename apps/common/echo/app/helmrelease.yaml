@@ -77,20 +77,14 @@ spec:
     #         path: /metrics
     #         interval: 1m
     #         scrapeTimeout: 10s
-    ingress:
+    route:
       app:
-        className: cilium
-        annotations:
-          external-dns.alpha.kubernetes.io/target: "external.ooooo.space"
-          cert-manager.io/cluster-issuer: letsencrypt-production
-        hosts:
-          - host: "{{ .Release.Name }}.ooooo.space"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - "{{ .Release.Name }}.ooooo.space"
-            secretName: echo-ooooo-space-tls
+        hostnames: ["{{ .Release.Name }}.ooooo.space"]
+        parentRefs:
+          - name: external
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
