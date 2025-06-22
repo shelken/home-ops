@@ -34,7 +34,7 @@ spec:
   # ref: https://github.com/kubernetes-sigs/external-dns/blob/master/docs/sources/crd.md
   values:
     image:
-      repository: ghcr.io/kubernetes-sigs/external-dns/external-dns
+      repository: k8s.m.daocloud.io/external-dns/external-dns
     fullnameOverride: *app
     provider:
       name: cloudflare
