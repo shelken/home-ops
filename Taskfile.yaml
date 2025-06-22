@@ -8,47 +8,27 @@ shopt: [globstar]
 vars:
   TEST: "test"
 
-# includes: []
+includes:
+  sops: .taskfile/sops.yaml
 
 tasks:
   default: task --list
 
-  encrypt-all:
-    desc: "加密目录下所有sops.yaml结尾的文件"
-    cmds:
-      - for: { var: SECRET_FILES }
-        cmd: |
-          echo "Encrypting {{.ITEM}}"
-          if sops filestatus "{{.ITEM}}" | jq --exit-status ".encrypted == false" &>/dev/null; then
-              sops encrypt -i "{{.ITEM}}"
-          fi
-    vars:
-      SECRET_FILES:
-        sh: find {{.ROOT_DIR}} -type f -name "*.sops.yaml" ! -name '.sops.yaml' -print
-    preconditions:
-      # - test -f ~/.config/sops/age/keys.txt
-      - '[ -n "$SOPS_AGE_KEY_FILE" ]'
-      - test -f {{.ROOT_DIR}}/.sops.yaml
-      - which jq sops
-
-  updatekey-all:
-    desc: "更新目录下所有sops.yaml结尾的文件"
-    cmds:
-      - for: { var: SECRET_FILES }
-        cmd: |
-          if sops filestatus "{{.ITEM}}" | jq --exit-status ".encrypted == true" &>/dev/null; then
-              sops updatekeys "{{.ITEM}}"
-          fi
-    vars:
-      SECRET_FILES:
-        sh: find {{.ROOT_DIR}} -type f -name "*.sops.yaml" ! -name '.sops.yaml' -print
-    preconditions:
-      - '[ -n "$SOPS_AGE_KEY_FILE" ]'
-      - test -f {{.ROOT_DIR}}/.sops.yaml
-      - which jq sops
-
   deploy-secret:
-    desc: "部署sops加密的Secret"
+    desc: "部署sops加密的Secret让flux kustomization能够解密"
     cmds:
       - cmd: |
           sops exec-file "{{.ROOT_DIR}}/components/common/sops/secret.sops.yaml" "kubectl --namespace flux-system apply --server-side --filename {}"
+
+  add-gateway-crd:
+    desc: "添加gateway的CRD"
+    cmds:
+      - cmd: |
+          kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/experimental-install.yaml --server-side
+
+  add-external-dns-crd:
+    desc: "添加external-dns的CRD"
+    cmds:
+      - cmd: |
+          # https://github.com/kubernetes-sigs/external-dns/blob/master/docs/sources/crd.md
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/external-dns/refs/tags/v0.17.0/config/crd/standard/dnsendpoint.yaml --server-side

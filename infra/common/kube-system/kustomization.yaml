@@ -5,3 +5,4 @@ components:
   - ../../../components/common
 resources: 
   - cilium/ks.yaml
+  - reloader/ks.yaml
