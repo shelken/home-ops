@@ -49,6 +49,7 @@ spec:
           secretKeyRef:
             name: *secret
             key: zone-id
+    # ref: https://github.com/kubernetes-sigs/external-dns/blob/master/docs/flags.md
     extraArgs:
       - --cloudflare-dns-records-per-page=1000
       # - --cloudflare-proxied
