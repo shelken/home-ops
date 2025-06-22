@@ -26,6 +26,6 @@ spec:
     - start: "192.168.6.118"
       stop: "192.168.6.120"
 
-  serviceSelector:
-    matchLabels:
-      cilium.io/ingress: "true"
+  # serviceSelector:
+  #   matchLabels:
+  #     cilium.io/ingress: "true"
