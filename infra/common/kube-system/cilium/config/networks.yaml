@@ -1,22 +1,25 @@
 apiVersion: "cilium.io/v2alpha1"
 kind: CiliumL2AnnouncementPolicy
 metadata:
-  name: ingress-policy
+  name: l2-policy
   namespace: kube-system
 spec:
-  serviceSelector:
-    matchLabels:
-      cilium.io/ingress: "true"
+  # serviceSelector:
+  #   matchLabels:
+  #     cilium.io/ingress: "true"
 
   # IMPORTANT: if externalIPss is desired, externalIPs.enabled=true must be set in values.yaml
   # externalIPs: true
   loadBalancerIPs: true
+  nodeSelector:
+    matchLabels:
+      kubernetes.io/os: linux
 
 ---
 apiVersion: "cilium.io/v2alpha1"
 kind: CiliumLoadBalancerIPPool
 metadata:
-  name: ingress-pool
+  name: pool
   namespace: kube-system
 spec:
   blocks:
