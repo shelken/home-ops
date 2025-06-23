@@ -41,7 +41,7 @@ spec:
     namespace: flux-system
   dependsOn:
     - name: cilium
-      namespace: flux-system
+      namespace: kube-system
   wait: false
 
 ---
@@ -69,4 +69,4 @@ spec:
     - name: cert-manager
       namespace: cert-manager
     - name: cilium
-      namespace: flux-system
+      namespace: kube-system
