@@ -3,13 +3,13 @@
 
 ipam:
   mode: kubernetes
-k8sServiceHost: 192.168.6.110
-k8sServicePort: 6443
+# k8sServiceHost: 192.168.6.110
+# k8sServicePort: 6443
 kubeProxyReplacement: true
 kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
-routingMode: native # defult is tunnel
-autoDirectNodeRoutes: true
-ipv4NativeRoutingCIDR: 10.42.0.0/16
+# routingMode: native # defult is tunnel
+# autoDirectNodeRoutes: true
+# ipv4NativeRoutingCIDR: 10.42.0.0/16
 l2announcements:
   enabled: true
 gatewayAPI:
@@ -21,13 +21,13 @@ gatewayAPI:
   # service:
   #   annotations:
   #     io.cilium/lb-ipam-ips: 192.168.6.40
-k8sClientRateLimit:
-  qps: 50
-  burst: 50
-bpf:
-  masquerade: true
-  # Ref: https://github.com/siderolabs/talos/issues/10002
-  hostLegacyRouting: true
+# k8sClientRateLimit:
+#   qps: 50
+#   burst: 50
+# bpf:
+#   masquerade: true
+#   # Ref: https://github.com/siderolabs/talos/issues/10002
+#   hostLegacyRouting: true
 
 # cni:
 #   # Required for pairing with Multus CNI
@@ -38,12 +38,12 @@ cgroup:
   hostRoot: /sys/fs/cgroup
 # NOTE: devices might need to be set if you have more than one active NIC on your hosts
 # devices: eno+ eth+
-endpointRoutes:
-  enabled: true
-loadBalancer:
-  algorithm: maglev
-  mode: dsr # default is snat
-localRedirectPolicy: true
+# endpointRoutes:
+#   enabled: true
+# loadBalancer:
+#   algorithm: maglev
+#   mode: dsr # default is snat
+# localRedirectPolicy: true
 
 # monitor
 dashboards:
