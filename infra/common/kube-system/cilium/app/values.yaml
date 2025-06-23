@@ -16,11 +16,14 @@ gatewayAPI:
   enabled: true
 ingressController:
   enabled: true
-  loadbalancerMode: shared
   default: true
-# k8sClientRateLimit:
-#   qps: 30
-#   burst: 50
+  loadbalancerMode: shared
+  # service:
+  #   annotations:
+  #     io.cilium/lb-ipam-ips: 192.168.6.40
+k8sClientRateLimit:
+  qps: 50
+  burst: 50
 bpf:
   masquerade: true
   # Ref: https://github.com/siderolabs/talos/issues/10002
