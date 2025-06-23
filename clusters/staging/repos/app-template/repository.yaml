@@ -13,3 +13,4 @@ spec:
   ref:
     tag: 4.1.1
   url: oci://ghcr.io/bjw-s-labs/helm/app-template
+  #ref: https://github.com/bjw-s-labs/helm-charts/blob/main/charts/library/common/values.yaml
