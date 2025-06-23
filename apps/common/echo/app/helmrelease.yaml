@@ -70,6 +70,9 @@ spec:
           - name: internal
             namespace: kube-system
             sectionName: https
+          - name: internal
+            namespace: kube-system
+            sectionName: http
         rules:
           - backendRefs:
               - identifier: app
