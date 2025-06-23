@@ -54,11 +54,11 @@ envoy:
      serviceMonitor:
        enabled: false
 hubble:
-  enabled: false
-  # relay:
-  #   enabled: false
-  # ui:
-  #   enabled: false
+  enabled: true
+  relay:
+    enabled: true
+  ui:
+    enabled: true
 operator:
   # dashboards:
   #   enabled: false
