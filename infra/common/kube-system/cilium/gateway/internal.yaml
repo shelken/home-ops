@@ -23,7 +23,7 @@ spec:
       hostname: "*.ooooo.space"
       allowedRoutes:
         namespaces:
-          from: Same
+          from: All
     - name: https
       protocol: HTTPS
       port: 443
