@@ -54,7 +54,7 @@ spec:
         rules:
           - backendRefs:
               - identifier: app
-                port: http
+                port: 3000
     # persistence:
     #   config:
     #     enabled: true
