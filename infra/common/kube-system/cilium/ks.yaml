@@ -39,6 +39,9 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
+  dependsOn:
+    - name: cilium
+      namespace: flux-system
   wait: false
 
 ---
@@ -65,3 +68,5 @@ spec:
   dependsOn:
     - name: cert-manager
       namespace: cert-manager
+    - name: cilium
+      namespace: flux-system
