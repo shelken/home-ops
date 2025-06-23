@@ -17,9 +17,6 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
-  # dependsOn:
-  #   - name: cloudflared
-  #     namespace: network
   values:
     controllers:
       echo:
@@ -28,7 +25,7 @@ spec:
           app:
             image:
               repository: ghcr.io/mendhak/http-https-echo
-              tag: 36
+              tag: 37
             env:
               HTTP_PORT: &port 80
               LOG_WITHOUT_NEWLINE: true
@@ -61,22 +58,11 @@ spec:
         runAsNonRoot: true
         runAsUser: 65534
         runAsGroup: 65534
-        seccompProfile: { type: RuntimeDefault }
     service:
       app:
-        controller: echo
         ports:
           http:
             port: *port
-    # serviceMonitor:
-    #   app:
-    #     serviceName: echo
-    #     endpoints:
-    #       - port: http
-    #         scheme: http
-    #         path: /metrics
-    #         interval: 1m
-    #         scrapeTimeout: 10s
     route:
       app:
         hostnames: ["{{ .Release.Name }}.ooooo.space"]
