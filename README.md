@@ -1,6 +1,8 @@
 # home-ops
 homelab
 
+
+
 ## 设备网络
 
 > lb ip range: 192.168.6.40 ~ 192.168.6.49
