@@ -30,9 +30,14 @@ apt install qemu-guest-agent
 ip a
 
 # 完全克隆 1002 模板 成新的110实例
-qm clone 1002 110 --name test-ubuntu-2
+qm clone 1002 110 --name test-ubuntu-1
+qm clone 1002 111 --name test-ubuntu-2
+qm clone 1002 112 --name test-ubuntu-3
 
 # 静态ip
+qm set 110 --ipconfig0 ip=192.168.6.110/24,gw=192.168.6.1
+qm set 111 --ipconfig0 ip=192.168.6.111/24,gw=192.168.6.1
+qm set 112 --ipconfig0 ip=192.168.6.114/24,gw=192.168.6.1
 
 # 用ssh尝试连接
 
