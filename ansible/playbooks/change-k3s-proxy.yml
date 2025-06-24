@@ -34,8 +34,11 @@
         path: "{{ item.item }}"
         block: |
           HTTP_PROXY=http://{{ k3s_proxy_ip }}:{{ k3s_proxy_port }}
+          CONTAINERD_HTTP_PROXY=http://{{ k3s_proxy_ip }}:{{ k3s_proxy_port }}
           HTTPS_PROXY=http://{{ k3s_proxy_ip }}:{{ k3s_proxy_port }}
+          CONTAINERD_HTTPS_PROXY=http://{{ k3s_proxy_ip }}:{{ k3s_proxy_port }}
           NO_PROXY=localhost,::1,{{ k3s_proxy_ip }},127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.cluster.local.,.cluster.local,.svc
+          CONTAINERD_NO_PROXY=localhost,::1,{{ k3s_proxy_ip }},127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.cluster.local.,.cluster.local,.svc
         marker: "# {mark} ANSIBLE MANAGED BLOCK - K3S PROXY CONFIG"
       loop: "{{ k3s_env_files.results }}"
       # 当不是删除模式，并且文件存在或可以被创建时执行
@@ -48,8 +51,8 @@
   handlers:
     - name: Reload systemd
       ansible.builtin.systemd:
-        daemon_reload: yes
-      ignore_errors: true
+        daemon_reload: true
+      failed_when: false
 
     - name: Restart k3s services
       ansible.builtin.service:
@@ -58,4 +61,4 @@
 
       # 通过检查服务是否存在来避免在 Master/Agent 节点上报错
       listen: "Restart k3s services"
-      ignore_errors: true
+      failed_when: false
