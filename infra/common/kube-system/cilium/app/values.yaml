@@ -32,6 +32,10 @@ gatewayAPI:
   enabled: true
   enableAlpn: true
   xffNumTrustedHops: 1
+ingressController:
+  enabled: true
+  default: true
+  loadbalancerMode: shared
 hubble:
   enabled: false
 ipam:
