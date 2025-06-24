@@ -28,11 +28,13 @@
           opentofu
 
           kubernetes-helm
+          cilium-cli
 
           sops
           go-task
 
-          helmfile
+          # helmfile
+          # talosctl
         ];
 
         shellHook = ''
