@@ -18,29 +18,6 @@ spec:
     name: flux-system
     namespace: flux-system
   wait: false
-
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: cilium-config
-  namespace: &namespace kube-system
-spec:
-  targetNamespace: *namespace
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: cilium
-      app.kubernetes.io/component: config
-  interval: 30m
-  timeout: 5m
-  path: "./infra/common/kube-system/cilium/config"
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-    namespace: flux-system
-  wait: false
-
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -66,6 +43,4 @@ spec:
     - name: cert-manager
       namespace: cert-manager
     - name: cilium
-      namespace: kube-system
-    - name: cilium-config
       namespace: kube-system
