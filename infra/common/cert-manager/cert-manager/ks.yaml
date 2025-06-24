@@ -18,6 +18,9 @@ spec:
     name: flux-system
     namespace: flux-system
   wait: true
+  dependsOn:
+    - name: cilium
+      namespace: kube-system
 
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
