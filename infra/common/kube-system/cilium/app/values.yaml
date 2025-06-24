@@ -1,9 +1,8 @@
 # 配置：https://docs.cilium.io/en/latest/helm-reference
 # ref：https://github.com/cilium/cilium/blob/v1.17.5/install/kubernetes/cilium/values.yaml
 autoDirectNodeRoutes: true
-bandwidthManager:
-  enabled: true
-  bbr: true
+# bandwidthManager:
+#   enabled: true
 bpf:
   # datapathMode: netkit
   masquerade: true
