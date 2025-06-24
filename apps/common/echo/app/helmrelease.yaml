@@ -67,12 +67,9 @@ spec:
       app:
         hostnames: ["{{ .Release.Name }}.ooooo.space"]
         parentRefs:
-          - name: internal
+          - name: external
             namespace: kube-system
             sectionName: https
-          - name: internal
-            namespace: kube-system
-            sectionName: http
         rules:
           - backendRefs:
               - identifier: app

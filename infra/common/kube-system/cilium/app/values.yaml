@@ -10,7 +10,7 @@ ipam:
 # k8sServiceHost: 192.168.6.110
 # k8sServicePort: 6443
 kubeProxyReplacement: true
-kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
+# kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
 # routingMode: native # defult is tunnel
 # autoDirectNodeRoutes: true
 # ipv4NativeRoutingCIDR: 10.42.0.0/16
@@ -18,10 +18,10 @@ l2announcements:
   enabled: true
 gatewayAPI:
   enabled: true
-# ingressController:
-#   enabled: true
-#   default: true
-#   loadbalancerMode: shared
+ingressController:
+  enabled: true
+  default: true
+  loadbalancerMode: shared
   # service:
   #   annotations:
   #     io.cilium/lb-ipam-ips: 192.168.6.40
@@ -50,28 +50,28 @@ cgroup:
 # localRedirectPolicy: true
 
 # monitor
-dashboards:
-  enabled: false
-envoy:
-  rollOutPods: true
-  prometheus:
-     serviceMonitor:
-       enabled: false
+# dashboards:
+#   enabled: false
+# envoy:
+#   rollOutPods: true
+  # prometheus:
+  #    serviceMonitor:
+  #      enabled: false
 hubble:
   enabled: true
   relay:
     enabled: true
   ui:
     enabled: true
-operator:
-  # dashboards:
-  #   enabled: false
-  # prometheus:
-  #   enabled: true
-  #   serviceMonitor:
-  #     enabled: false
-  replicas: 1
-  rollOutPods: true
+# operator:
+#   # dashboards:
+#   #   enabled: false
+#   # prometheus:
+#   #   enabled: true
+#   #   serviceMonitor:
+#   #     enabled: false
+#   replicas: 1
+#   rollOutPods: true
 # prometheus:
 #   enabled: false
 #   serviceMonitor:
