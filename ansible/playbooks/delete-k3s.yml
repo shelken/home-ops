@@ -2,12 +2,12 @@
 - hosts: all
   tasks:
     - name: "Run k3s-agent-uninstall.sh"
-      become: yes
+      become: true
       command:
         cmd: k3s-agent-uninstall.sh
         removes: /usr/local/bin/k3s-agent-uninstall.sh
     - name: "Run k3s-uninstall.sh"
-      become: yes
+      become: true
       command:
         cmd: k3s-uninstall.sh
         removes: /usr/local/bin/k3s-uninstall.sh
