@@ -6,9 +6,15 @@ metadata:
 spec:
   releaseName: cilium
   interval: 1h
-  chartRef:
-    kind: OCIRepository
-    name: cilium
+  chart:
+    spec:
+      chart: cilium
+      interval: 30m
+      sourceRef:
+        kind: HelmRepository
+        name: cilium
+        namespace: kube-system
+      version: 1.16.6
   install:
     remediation:
       retries: -1
