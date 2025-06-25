@@ -3,11 +3,11 @@
   hosts: all
   become: true
   tasks:
-    - name: 更新系统包
-      apt:
-        update_cache: yes
-        upgrade: yes
-      when: ansible_os_family == "Debian"
+    # - name: 更新系统包
+    #   apt:
+    #     update_cache: yes
+    #     upgrade: yes
+    #   when: ansible_os_family == "Debian"
 
     # - name: 安装必要的系统包
     #   package:

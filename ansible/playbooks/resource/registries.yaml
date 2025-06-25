@@ -1,22 +1,24 @@
 mirrors:
-  "*":
-    endpoint:
-      - "https://dhp.ooooo.space"
-      - "https://docker.m.daocloud.io"
   docker.io:
     endpoint:
+      - "https://docker.mirror.ooooo.space"
       - "https://dhp.ooooo.space"
       - "https://docker.m.daocloud.io"
       - "https://hub.mirrorify.net"
   quay.io:
     endpoint:
+      - "https://quay.mirror.ooooo.space"
       - "https://quay.m.daocloud.io"
       - "https://quay.mirrorify.net"
   registry.k8s.io:
     endpoint:
+      - "https://k8s.mirror.ooooo.space"
       - "https://k8s.m.daocloud.io"
       - "https://k8s.mirrorify.net"
   ghcr.io:
     endpoint:
-      - "https://ghcr.m.daocloud.io"
+      - "https://ghcr.mirror.ooooo.space"
       - "https://ghcr.mirrorify.net"
+  gcr.io:
+    endpoint:
+      - "https://gcr.mirrorify.net"

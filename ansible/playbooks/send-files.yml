@@ -8,10 +8,13 @@
     #   k3s_proxy_port: "7890"
     #   delete_proxy: false
   tasks:
-    - name: Check if /etc/rancher/k3s directory exists
-      ansible.builtin.stat:
+    - name: 创建 k3s 配置目录
+      ansible.builtin.file:
         path: /etc/rancher/k3s
-      register: k3s_dir
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
     - name: 复制本地文件到远程并强制覆盖
       ansible.builtin.copy:
         src: "{{ playbook_dir }}/resource/registries.yaml"
@@ -20,9 +23,9 @@
         group: root
         mode: "0600"
         force: true
-      when: k3s_dir.stat.exists
+      # when: k3s_dir.stat.exists
     - name: 重启k3s
       ansible.builtin.service:
-        name: "k3s"
+        name: "{{ 'k3s' if k3s_control_node == 'true' else 'k3s-agent' }}"
         state: restarted
-      when: k3s_dir.stat.exists
+      # when: k3s_dir.stat.exists
