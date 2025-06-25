@@ -3,6 +3,8 @@
 
 ipam:
   mode: kubernetes
+  operator:
+    clusterPoolIPv4PodCIDRList: 10.42.0.0/16
 cni:
   exclusive: false
 k8sServiceHost: 192.168.6.110
@@ -25,7 +27,7 @@ operator:
 
 gatewayAPI:
   enabled: true
-  xffNumTrustedHops: 1 # X-Forwarded-For 头
+  # xffNumTrustedHops: 1 # X-Forwarded-For 头
 ingressController:
   enabled: true
   default: true
