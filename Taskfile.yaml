@@ -33,3 +33,16 @@ tasks:
       - cmd: |
           # https://github.com/kubernetes-sigs/external-dns/blob/master/docs/sources/crd.md
           kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/external-dns/refs/tags/v0.17.0/config/crd/standard/dnsendpoint.yaml --server-side
+
+  show-route:
+    silent: true
+    cmds:
+      - cmd: |
+          kubectl get httproutes --all-namespaces -o json | jq -r '
+          .items[] |
+          {
+            namespace: .metadata.namespace,
+            name: .metadata.name,
+            gateways: (.spec.parentRefs // []) | map(.name) | join(",")
+          } | "Gateways: \(.gateways)\t\(.namespace)/\(.name)\t"
+          '
