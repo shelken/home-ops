@@ -48,8 +48,8 @@ securityContext:
       - IPC_LOCK
       - SYS_ADMIN
       - SYS_RESOURCE
-      # - PERFMON
-      # - BPF
+      - PERFMON
+      - BPF
       - DAC_OVERRIDE
       - FOWNER
       - SETGID
@@ -64,9 +64,8 @@ socketLB:
 # autoDirectNodeRoutes: true
 # routingMode: native
 # ipv4NativeRoutingCIDR: 10.42.0.0/16
-# bpf:
-#   masquerade: true
+bpf:
+  masquerade: true
 #   # Ref: https://github.com/siderolabs/talos/issues/10002
 #   hostLegacyRouting: false # default is false
-# enableIPv4BIGTCP: true
 # kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
