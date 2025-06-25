@@ -1,5 +1,6 @@
 # 配置：https://docs.cilium.io/en/latest/helm-reference
 # ref：https://github.com/cilium/cilium/blob/v1.17.5/install/kubernetes/cilium/values.yaml
+# gateway-api: https://docs.cilium.io/en/stable/network/servicemesh/gateway-api/gateway-api
 
 ipam:
   mode: kubernetes

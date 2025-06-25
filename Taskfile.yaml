@@ -24,8 +24,9 @@ tasks:
     desc: "添加gateway的CRD"
     cmds:
       - cmd: |
-          kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/experimental-install.yaml --server-side
-
+          # cilium 1.17.5 官方文档使用1.2.0的standard安装
+          kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/standard-install.yaml --server-side
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.2.0/config/crd/experimental/gateway.networking.k8s.io_tlsroutes.yaml
   add-external-dns-crd:
     desc: "添加external-dns的CRD"
     cmds:
