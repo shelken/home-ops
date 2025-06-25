@@ -2,8 +2,8 @@
 crds:
   enabled: true
 replicaCount: 1
-dns01RecursiveNameservers: https://223.5.5.5:443/dns-query,https://223.6.6.6:443/dns-query
-dns01RecursiveNameserversOnly: false
+dns01RecursiveNameservers: https://cfdns.ooooo.space/dns-query,https://223.5.5.5:443/dns-query,https://223.6.6.6:443/dns-query
+dns01RecursiveNameserversOnly: true
 # prometheus:
 #   enabled: true
 #   servicemonitor:
