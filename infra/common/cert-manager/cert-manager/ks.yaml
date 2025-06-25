@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -9,6 +10,11 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *appname
+  healthChecks:
+    - kind: HelmRelease
+      apiVersion: helm.toolkit.fluxcd.io/v2
+      name: *appname
+      namespace: *namespace
   interval: 30m
   timeout: 5m
   path: "./infra/common/cert-manager/cert-manager/app"
@@ -18,9 +24,6 @@ spec:
     name: flux-system
     namespace: flux-system
   wait: true
-  dependsOn:
-    - name: cilium
-      namespace: kube-system
 
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
@@ -35,11 +38,10 @@ spec:
   dependsOn:
     - name: cert-manager
       namespace: cert-manager
-  healthCheckExprs:
-    - apiVersion: cert-manager.io/v1
-      kind: Certificate
-      failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
-      current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
+  healthChecks:
+    - kind: ClusterIssuer
+      apiVersion: cert-manager.io/v1
+      name: letsencrypt-production
   interval: 1h
   path: ./infra/common/cert-manager/cert-manager/tls
   prune: true
