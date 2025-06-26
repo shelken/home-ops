@@ -1,0 +1,44 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/en/configs/settings
+title: Shelken's Homepage
+language: zh-CN
+#instanceName: public
+#background: https://gcore.jsdelivr.net/gh/shelken/picbed@main/uPic/2024-01/z2YYAJ.jpeg # 芙莉莲
+background: https://gcore.jsdelivr.net/gh/shelken/picbed@main/uPic/2024-01/zszSjh.jpeg # 
+backgroundOpacity: 0.35
+providers:
+  openweathermap: openweathermapapikey
+  weatherapi: weatherapiapikey
+quicklaunch:
+    searchDescriptions: true
+    hideInternetSearch: false
+    hideVisitURL: false
+statusStyle: "dot"
+maxGroupColumns: 7
+useEqualHeights: true
+disableCollapse: false
+fullWidth: true
+
+layout: 
+  控制:
+    状态汇总:
+      header: false
+    智能家居:
+      header: false
+    监控:
+      header: false
+    容器管理:
+      header: false
+  设备:
+    icon: mdi-desktop-classic
+  媒体管理:
+
+  媒体:
+
+  文章:
+  网络:
+  misc:
+    未分类:
+    密码管理:
+    容器更新:
