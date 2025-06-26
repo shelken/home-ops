@@ -22,7 +22,7 @@ spec:
       homepage:
         pod:
           annotations:
-            # configmap.reloader.stakater.com/reload: &config homepage-config
+            configmap.reloader.stakater.com/reload: &config homepage-config
             # secret.reloader.stakater.com/reload: homepage-secret
         containers:
           app:
@@ -55,23 +55,23 @@ spec:
           - backendRefs:
               - identifier: app
                 port: 3000
-    # persistence:
-    #   config:
-    #     enabled: true
-    #     type: configMap
-    #     name: *config
-    #     globalMounts:
-    #       - subPath: bookmarks.yaml
-    #         path: /app/config/bookmarks.yaml
-    #       - subPath: docker.yaml
-    #         path: /app/config/docker.yaml
-    #       - subPath: kubernetes.yaml
-    #         path: /app/config/kubernetes.yaml
-    #       - subPath: services.yaml
-    #         path: /app/config/services.yaml
-    #       - subPath: settings.yaml
-    #         path: /app/config/settings.yaml
-    #       - subPath: widgets.yaml
-    #         path: /app/config/widgets.yaml
+    persistence:
+      config:
+        enabled: true
+        type: configMap
+        name: *config
+        globalMounts:
+          # - subPath: bookmarks.yaml
+          #   path: /app/config/bookmarks.yaml
+          # - subPath: docker.yaml
+          #   path: /app/config/docker.yaml
+          # - subPath: kubernetes.yaml
+          #   path: /app/config/kubernetes.yaml
+          - subPath: services.yaml
+            path: /app/config/services.yaml
+          - subPath: settings.yaml
+            path: /app/config/settings.yaml
+          # - subPath: widgets.yaml
+          #   path: /app/config/widgets.yaml
     # serviceAccount:
     #   create: true

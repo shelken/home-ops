@@ -1,0 +1,68 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/en/configs/services
+
+# - 状态汇总:
+# - 测试:
+#     - 测试:
+#         widget: 
+#             type: iframe
+#             name: myIframe
+#             src: http://192.168.6.141:5230/m/159/embed
+
+- 媒体:
+    - Emby:
+        icon: emby.png
+        href: http://192.168.0.80:8096
+        description: 影音库
+        # widget:
+        #     type: emby
+        #     url: http://192.168.0.80:8096
+        #     key: ***REMOVED***
+        #     enableBlocks: true # optional, defaults to false
+        #     enableNowPlaying: false # optional, defaults to true
+
+
+- 媒体管理:
+    - 群晖文件:
+        icon: synology-file-station.png
+        href: http://192.168.0.80:5000/file
+        description: 文件
+
+- 文章:
+    - 博客:
+        icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/avatar/mio-1.webp
+        href: https://blog.ooooo.space
+        description: 博客
+    - Xlog:
+        icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/avatar/mio-1.webp
+        href: https://xlog.ooooo.space
+        description: Xlog
+- 设备:
+    - PVE:
+        icon: proxmox.png
+        href: https://192.168.6.213:8006
+        description: 
+    - 群晖:
+        icon: synology-dsm.png
+        href: http://192.168.0.80:5000
+        description: 
+    - 我的路由:
+        icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/uPic/2024-01/RdRn6J.png
+        href: http://192.168.6.1
+        description: 
+    - 家路由:
+        icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/uPic/2024-01/AaQpSo.png
+        href: http://192.168.0.1
+        description: 
+    - F50:
+        icon: https://api.iconify.design/heroicons/wifi-solid.svg
+        href: http://192.168.10.1
+        description: 随身wifi
+- 网络:
+    - 我的路由器代理:
+        icon: clash.png
+        href: http://192.168.6.1:9090/ui/yacd/#/proxies
+        description: 我的路由器代理
+        # server: nas-docker
+        # container: clash1
