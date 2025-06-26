@@ -35,6 +35,7 @@ spec:
                 memory: 50Mi
             env:
               LOG_LEVEL: debug
+              HOMEPAGE_ALLOWED_HOSTS: "{{ .Release.Name }}.${MAIN_DOMAIN}"
             # envFrom:
             #   - secretRef:
             #       name: homepage-secret
@@ -46,9 +47,9 @@ spec:
             port: 3000
     route:
       app:
-        hostnames: ["{{ .Release.Name }}.ooooo.space"]
+        hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
         parentRefs:
-          - name: external
+          - name: internal
             namespace: kube-system
             sectionName: https
         rules:
