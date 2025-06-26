@@ -11,10 +11,10 @@ spec:
       app.kubernetes.io/name: *app
   interval: 1h
   path: ./apps/common/echo/app
-  # postBuild:
-  #   substituteFrom:
-  #     - name: cluster-secrets
-  #       kind: Secret
+  postBuild:
+    substituteFrom:
+      - name: cluster-secrets
+        kind: Secret
   prune: true
   retryInterval: 2m
   sourceRef:
@@ -38,10 +38,10 @@ spec:
       app.kubernetes.io/name: *app
   interval: 1h
   path: ./apps/common/homepage/app
-  # postBuild:
-  #   substituteFrom:
-  #     - name: cluster-secrets
-  #       kind: Secret
+  postBuild:
+    substituteFrom:
+      - name: cluster-secrets
+        kind: Secret
   prune: true
   retryInterval: 2m
   sourceRef:
