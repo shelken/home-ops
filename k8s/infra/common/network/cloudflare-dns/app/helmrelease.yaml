@@ -62,7 +62,7 @@ spec:
     sources: ["crd", "gateway-httproute"]
     txtOwnerId: default
     txtPrefix: k8s.
-    domainFilters: ["${MAIN_DOMAIN}"]
+    domainFilters: ["ooooo.space"]
     serviceMonitor:
       enabled: false
     podAnnotations:

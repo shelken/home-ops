@@ -65,7 +65,7 @@ spec:
             port: *port
     route:
       app:
-        hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
+        hostnames: ["{{ .Release.Name }}.ooooo.space"]
         parentRefs:
           - name: external
             namespace: kube-system
@@ -78,10 +78,10 @@ spec:
     #   app:
     #     className: cilium
     #     annotations:
-    #       # external-dns.alpha.kubernetes.io/target: "homelab-external.${MAIN_DOMAIN}"
+    #       # external-dns.alpha.kubernetes.io/target: "homelab-external.ooooo.space"
     #       cert-manager.io/cluster-issuer: letsencrypt-production
     #     hosts:
-    #       - host: "{{ .Release.Name }}.${MAIN_DOMAIN}"
+    #       - host: "{{ .Release.Name }}.ooooo.space"
     #         paths:
     #           - path: /
     #             service:
@@ -89,5 +89,5 @@ spec:
     #               port: http
     #     tls:
     #       - hosts:
-    #           - "{{ .Release.Name }}.${MAIN_DOMAIN}"
+    #           - "{{ .Release.Name }}.ooooo.space"
     #         secretName: ooooo-space-tls
