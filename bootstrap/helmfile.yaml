@@ -11,7 +11,7 @@ releases:
   #   namespace: kube-system
   #   chart: oci://ghcr.io/home-operations/charts-mirror/cilium
   #   version: 1.17.5
-  #   values: ['../infra/common/kube-system/cilium/app/values.yaml']
+  #   values: ['../k8s/infra/common/kube-system/cilium/app/values.yaml']
 
   # - name: coredns
   #   namespace: kube-system
@@ -31,7 +31,7 @@ releases:
     namespace: cert-manager
     chart: oci://quay.io/jetstack/charts/cert-manager
     version: v1.17.2
-    values: ['../infra/common/cert-manager/cert-manager/app/values.yaml']
+    values: ['../k8s/infra/common/cert-manager/cert-manager/app/values.yaml']
     # needs: ['kube-system/spegel']
 
   # - name: external-secrets
