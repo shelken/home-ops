@@ -18,7 +18,8 @@ tasks:
     desc: "部署sops加密的Secret让flux kustomization能够解密"
     cmds:
       - cmd: |
-          sops exec-file "{{.ROOT_DIR}}/components/common/sops/secret.sops.yaml" "kubectl --namespace flux-system apply --server-side --filename {}"
+          sops exec-file "{{.ROOT_DIR}}/k8s/components/common/sops/secret.sops.yaml" "kubectl --namespace flux-system apply --server-side --filename {}"
+          sops exec-file "{{.ROOT_DIR}}/k8s/components/common/sops/cluster-secret.sops.yaml" "kubectl --namespace flux-system apply --server-side --filename {}"
 
   add-gateway-crd:
     desc: "添加gateway的CRD"
