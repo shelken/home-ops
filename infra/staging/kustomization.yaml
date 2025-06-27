@@ -4,3 +4,4 @@ resources:
   - ../common/cert-manager
   - ../common/network
   - ../common/kube-system
+  - ../common/external-secrets
