@@ -1,0 +1,46 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/upgrade.cattle.io/plan_v1.json
+# ref: https://github.com/rancher/system-upgrade-controller/blob/master/examples/k3s-upgrade.yaml
+apiVersion: upgrade.cattle.io/v1
+kind: Plan
+metadata:
+  name: k3s-server
+spec:
+  version: ${K3S_VERSION}
+  concurrency: 1
+  exclusive: true
+  cordon: true
+  serviceAccountName: system-upgrade-controller
+  # secrets:
+  #   - name: system-upgrade-controller
+  #     path: /var/run/secrets/talos.dev
+  #     ignoreUpdates: true
+  nodeSelector:
+    matchExpressions:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+  upgrade:
+    image: rancher/k3s-upgrade
+---
+# Agent plan
+apiVersion: upgrade.cattle.io/v1
+kind: Plan
+metadata:
+  name: k3s-agent
+spec:
+  version: ${K3S_VERSION}
+  concurrency: 1
+  cordon: true
+  nodeSelector:
+    matchExpressions:
+      - key: node-role.kubernetes.io/control-plane
+        operator: DoesNotExist
+  serviceAccountName: system-upgrade-controller
+  prepare:
+    args:
+      - prepare
+      - k3s-server
+    image: rancher/k3s-upgrade
+  upgrade:
+    image: rancher/k3s-upgrade
+  
