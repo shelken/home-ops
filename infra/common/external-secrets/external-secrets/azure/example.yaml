@@ -36,8 +36,8 @@ spec:
     template:
       type: Opaque
       data:
-        TEST_VAR: "{{.test-value}}"
+        TEST_VAR: "{{.testValue}}"
   data:
-    - secretKey: test-value
+    - secretKey: testValue
       remoteRef:
         key: test-value2
