@@ -1,0 +1,19 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: example-credentials
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: azure-store
+
+  target:
+    name: example-credentials
+    creationPolicy: Owner
+
+  data:
+  # name of the SECRET in the Azure KV (no prefix is by default a SECRET)
+  - secretKey: test-value
+    remoteRef:
+      key: test-value2
