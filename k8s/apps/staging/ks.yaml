@@ -10,7 +10,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   interval: 1h
-  path: ./apps/common/echo/app
+  path: ./k8s/apps/common/echo/app
   prune: true
   retryInterval: 2m
   sourceRef:
@@ -33,7 +33,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   interval: 1h
-  path: ./apps/common/homepage/app
+  path: ./k8s/apps/common/homepage/app
   postBuild:
     substituteFrom:
       - name: cluster-secrets
