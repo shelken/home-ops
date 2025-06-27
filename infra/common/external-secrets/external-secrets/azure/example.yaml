@@ -1,15 +1,15 @@
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: example-credentials
+  name: &secret example-credentials
 spec:
-  refreshInterval: 1h
+  refreshInterval: 24h
   secretStoreRef:
     kind: ClusterSecretStore
     name: azure-store
 
   target:
-    name: example-credentials
+    name: *secret
     creationPolicy: Owner
 
   data:
@@ -17,3 +17,27 @@ spec:
   - secretKey: test-value
     remoteRef:
       key: test-value2
+
+---
+# ref: https://external-secrets.io/latest/api/externalsecret/
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: &secret example2-credentials
+spec:
+  refreshInterval: 24h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: azure-store
+
+  target:
+    name: *secret
+    deletionPolicy: Delete
+    template:
+      type: Opaque
+      data:
+        TEST_VAR: "{{.test-value}}"
+  data:
+    - secretKey: test-value
+      remoteRef:
+        key: test-value2
