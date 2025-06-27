@@ -20,7 +20,7 @@ spec:
     name: flux-system
   path: ./k8s/infra/staging
   prune: true
-  wait: true
+  wait: false
   patches:
     - # Add Sops decryption to child Kustomizations
       patch: |-
