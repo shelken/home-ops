@@ -23,7 +23,7 @@ spec:
     name: flux-system
   path: ./k8s/apps/staging
   prune: true
-  wait: true
+  wait: false
   timeout: 5m0s
   # 该patch为apps/staging目录下的所有kustomize.toolkit.fluxcd.io/Kustomization打上加上sops解密patch
   patches:
