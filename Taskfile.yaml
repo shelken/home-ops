@@ -46,3 +46,14 @@ tasks:
             gateways: (.spec.parentRefs // []) | map(.name) | join(",")
           } | "Gateways: \(.gateways)\t\(.namespace)/\(.name)\t"
           '
+  deploy-azure-creds:
+    silent: false
+    preconditions:
+      - '[ -n "$ClientID" ]'
+      - '[ -n "$ClientSecret" ]'
+    cmds:
+      - |
+        kubectl create secret -n external-secrets generic azure-creds \                                         
+        --from-literal=ClientID={{.ClientID}} \
+        --from-literal=ClientSecret={{.ClientSecret}} --dry-run=client -o yaml \
+        | kubectl apply -f -
