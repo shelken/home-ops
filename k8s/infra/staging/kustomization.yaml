@@ -5,3 +5,4 @@ resources:
   - ../common/network
   - ../common/kube-system
   - ../common/external-secrets
+  - ../common/system-upgrade
