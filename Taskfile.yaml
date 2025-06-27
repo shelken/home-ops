@@ -35,6 +35,7 @@ tasks:
           kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/external-dns/refs/tags/v0.17.0/config/crd/standard/dnsendpoint.yaml --server-side
 
   show-route:
+    desc: "显示gateway和对应的服务"
     silent: true
     cmds:
       - cmd: |
@@ -47,6 +48,7 @@ tasks:
           } | "Gateways: \(.gateways)\t\(.namespace)/\(.name)\t"
           '
   deploy-azure-creds:
+    desc: "部署 azure 的验证信息让 external-secrets 访问我们的 KeyVault"
     silent: false
     preconditions:
       - '[ -n "$ClientID" ]'
