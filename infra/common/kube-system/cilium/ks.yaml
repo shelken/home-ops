@@ -30,10 +30,6 @@ spec:
     labels:
       app.kubernetes.io/name: cilium
       app.kubernetes.io/component: gateway
-  postBuild:
-    substituteFrom:
-      - name: cluster-secrets
-        kind: Secret
   interval: 1h
   timeout: 15m
   path: "./infra/common/kube-system/cilium/gateway"
