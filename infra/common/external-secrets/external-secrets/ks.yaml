@@ -9,10 +9,6 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  # postBuild:
-  #   substituteFrom:
-  #     - name: cluster-secrets
-  #       kind: Secret
   interval: 1h
   path: ./infra/common/external-secrets/external-secrets/app
   prune: true
