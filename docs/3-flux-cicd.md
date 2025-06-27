@@ -22,7 +22,7 @@ flux bootstrap github \
 --owner=shelken \
 --repository=home-ops \
 --branch=main \
---path=clusters/staging \
+--path=k8s/clusters/staging \
 --personal \
 --token-auth \ 
 
