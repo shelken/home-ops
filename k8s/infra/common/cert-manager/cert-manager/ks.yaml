@@ -17,7 +17,7 @@ spec:
       namespace: *namespace
   interval: 30m
   timeout: 5m
-  path: "./infra/common/cert-manager/cert-manager/app"
+  path: "./k8s/infra/common/cert-manager/cert-manager/app"
   prune: true
   sourceRef:
     kind: GitRepository
@@ -43,7 +43,7 @@ spec:
       apiVersion: cert-manager.io/v1
       name: letsencrypt-production
   interval: 1h
-  path: ./infra/common/cert-manager/cert-manager/tls
+  path: ./k8s/infra/common/cert-manager/cert-manager/tls
   prune: true
   retryInterval: 2m
   sourceRef:

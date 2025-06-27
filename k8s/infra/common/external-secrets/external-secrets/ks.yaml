@@ -10,7 +10,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   interval: 1h
-  path: ./infra/common/external-secrets/external-secrets/app
+  path: ./k8s/infra/common/external-secrets/external-secrets/app
   prune: true
   retryInterval: 2m
   sourceRef:
@@ -31,7 +31,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   interval: 30m
-  path: ./infra/common/external-secrets/external-secrets/azure
+  path: ./k8s/infra/common/external-secrets/external-secrets/azure
   prune: true
   retryInterval: 2m
   sourceRef:
