@@ -1,7 +1,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: infra
+  name: apps
   namespace: flux-system
 spec:
   decryption:
@@ -10,17 +10,22 @@ spec:
       name: sops-age
   postBuild:
     substituteFrom:
+      # - name: cluster-settings
+      #   kind: ConfigMap
+      #   optional: false
       - name: cluster-secrets
         kind: Secret
-  interval: 1h
-  retryInterval: 1m
-  timeout: 5m
+  interval: 10m0s
+  dependsOn:
+    - name: infra
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./infra/staging
+  path: ./k8s/apps/staging
   prune: true
   wait: true
+  timeout: 5m0s
+  # 该patch为apps/staging目录下的所有kustomize.toolkit.fluxcd.io/Kustomization打上加上sops解密patch
   patches:
     - # Add Sops decryption to child Kustomizations
       patch: |-

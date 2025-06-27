@@ -18,7 +18,7 @@ spec:
     #   kind: CustomResourceDefinition
     #   name: dnsendpoints.externaldns.k8s.io
   interval: 1h
-  path: ./infra/common/network/cloudflare-dns/app
+  path: ./k8s/infra/common/network/cloudflare-dns/app
   prune: true
   retryInterval: 2m
   sourceRef:
