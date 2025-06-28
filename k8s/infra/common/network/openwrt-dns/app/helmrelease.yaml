@@ -1,0 +1,93 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/source.toolkit.fluxcd.io/ocirepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: openwrt-dns
+spec:
+  interval: 5m
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 1.17.0
+  url: oci://ghcr.io/home-operations/charts-mirror/external-dns
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app openwrt-dns
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: openwrt-dns
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  # ref: https://github.com/renanqts/external-dns-openwrt-webhook/blob/main/example/values.yaml
+  values:
+    fullnameOverride: *app
+    provider:
+      name: webhook
+      webhook: 
+        image:
+          repository: docker.io/renanqts/external-dns-openwrt-webhook
+          tag: v0.1.0
+        env:
+          - name: SHUTDOWN_TIMEOUT_SECONDS
+            value: "5"
+          - name: LOG_LEVEL
+            value: info
+          - name: LOG_STACK_TRACE
+            value: "false"
+          - name: LOG_ENCODING
+            value: json
+          - name: ROUTER_HEALTHCHECK_INTERVAL
+            value: /ping
+          - name: ROUTER_HEALTHCHECK_PORT
+            value: &port 8888
+          - name: ROUTER_GIN_RELEASE_MODE
+            value: "true"
+          - name: PROVIDER_OPENWRT_LUCIRPC_HOSTNAME
+            value: "192.168.6.1"
+          - name: PROVIDER_OPENWRT_LUCIRPC_PORT
+            value: "80"
+          - name: PROVIDER_OPENWRT_LUCIRPC_SSL
+            value: "false"
+          - name: PROVIDER_OPENWRT_LUCIRPC_RPC_ID
+            value: "1"
+          - name: PROVIDER_OPENWRT_LUCIRPC_TIMEOUT
+            value: "15"
+          - name: PROVIDER_OPENWRT_LUCIRPC_INSECURE_SKIP_VERIFY
+            value: "true"
+          - name: PROVIDER_OPENWRT_LUCIRPC_AUTH_USERNAME
+            value: root
+          - name: PROVIDER_OPENWRT_LUCIRPC_AUTH_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: &secret openwrt-dns-secret
+                key: AUTH_PASSWORD
+        livenessProbe: &probes
+          httpGet:
+            path: /ping
+            port: *port
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+        readinessProbe: *probes
+    # ref: https://github.com/kubernetes-sigs/external-dns/blob/master/docs/flags.md
+    policy: upsert-only
+    triggerLoopOnEvent: true
+    sources: ["gateway-httproute", "service"]
+    txtOwnerId: main
+    txtPrefix: k8s.main.
+    domainFilters: ["ooooo.space"]
+    serviceMonitor:
+      enabled: false
+    podAnnotations:
+      secret.reloader.stakater.com/reload: *secret
