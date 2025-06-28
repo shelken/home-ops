@@ -81,9 +81,8 @@ spec:
           timeoutSeconds: 5
         readinessProbe: *probes
     # ref: https://github.com/kubernetes-sigs/external-dns/blob/master/docs/flags.md
-    extraArgs:
-      - --registry=none
     policy: upsert-only
+    registry: none
     triggerLoopOnEvent: true
     sources: ["gateway-httproute", "service"]
     # txtOwnerId: main
