@@ -6,3 +6,4 @@ resources:
   - network
   - external-secrets
   - system-upgrade
+  - longhorn
