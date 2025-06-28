@@ -51,7 +51,7 @@ spec:
           - name: ROUTER_HEALTHCHECK_INTERVAL
             value: /ping
           - name: ROUTER_HEALTHCHECK_PORT
-            value: &port 8888
+            value: "8888"
           - name: ROUTER_GIN_RELEASE_MODE
             value: "true"
           - name: PROVIDER_OPENWRT_LUCIRPC_HOSTNAME
@@ -76,7 +76,7 @@ spec:
         livenessProbe: &probes
           httpGet:
             path: /ping
-            port: *port
+            port: 8888
           initialDelaySeconds: 10
           timeoutSeconds: 5
         readinessProbe: *probes
