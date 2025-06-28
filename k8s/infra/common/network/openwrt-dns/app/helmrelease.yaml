@@ -82,7 +82,7 @@ spec:
         readinessProbe: *probes
     # ref: https://github.com/kubernetes-sigs/external-dns/blob/master/docs/flags.md
     policy: upsert-only
-    registry: nonp
+    registry: noop
     triggerLoopOnEvent: true
     sources: ["gateway-httproute", "service"]
     # txtOwnerId: main
