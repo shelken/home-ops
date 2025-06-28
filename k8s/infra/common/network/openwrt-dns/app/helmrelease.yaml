@@ -86,8 +86,8 @@ spec:
     policy: upsert-only
     triggerLoopOnEvent: true
     sources: ["gateway-httproute", "service"]
-    txtOwnerId: main
-    txtPrefix: k8s.main.
+    # txtOwnerId: main
+    # txtPrefix: k8s.main.
     domainFilters: ["ooooo.space"]
     serviceMonitor:
       enabled: false
