@@ -20,6 +20,9 @@ spec:
   values:
     controllers:
       kity:
+        pod:
+          annotations:
+            secret.reloader.stakater.com/reload: &secret kity-secret
         strategy: RollingUpdate
         containers:
           app:
@@ -31,7 +34,7 @@ spec:
               ENABLE_ANALYTICS: false
             envFrom:
               - secretRef:
-                  name: kity-secret
+                  name: *secret
             probes:
               liveness: &probes
                 enabled: true
@@ -82,7 +85,7 @@ spec:
       app:
         hostnames: ["{{ .Release.Name }}.ooooo.space"]
         parentRefs:
-          - name: external
+          - name: internal
             namespace: kube-system
             sectionName: https
         rules:
