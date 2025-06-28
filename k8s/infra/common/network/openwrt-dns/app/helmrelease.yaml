@@ -82,7 +82,7 @@ spec:
         readinessProbe: *probes
     # ref: https://github.com/kubernetes-sigs/external-dns/blob/master/docs/flags.md
     extraArgs:
-      - "--registry=none"
+      - --registry=none
     policy: upsert-only
     triggerLoopOnEvent: true
     sources: ["gateway-httproute", "service"]
