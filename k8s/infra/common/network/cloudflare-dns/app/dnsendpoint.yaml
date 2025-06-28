@@ -9,6 +9,6 @@ spec:
     - dnsName: "homelab-external.ooooo.space"
       recordType: A
       targets: ["192.168.6.45"]
-    - dnsName: "homelab-internal.ooooo.space"
-      recordType: A
-      targets: ["192.168.6.46"]
+    # - dnsName: "homelab-internal.ooooo.space"
+    #   recordType: A
+    #   targets: ["192.168.6.46"]
