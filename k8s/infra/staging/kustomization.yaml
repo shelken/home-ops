@@ -6,4 +6,5 @@ resources:
   - ../common/kube-system
   - ../common/external-secrets
   - ../common/system-upgrade
-  - ../common/longhorn
+  # - ../common/longhorn
+  - ../common/openebs-system
