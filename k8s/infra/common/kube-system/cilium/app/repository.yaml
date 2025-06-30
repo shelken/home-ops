@@ -10,12 +10,3 @@ spec:
   ref:
     tag: 1.17.5
   url: oci://ghcr.io/home-operations/charts-mirror/cilium
-
----
-apiVersion: source.toolkit.fluxcd.io/v1
-kind: HelmRepository
-metadata:
-  name: cilium
-spec:
-  interval: 30m
-  url: https://helm.cilium.io
