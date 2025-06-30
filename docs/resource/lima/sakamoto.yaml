@@ -13,10 +13,22 @@ cpus: 4
 memory: 8GiB
 disk: 30GiB
 
+# ssh:
+#   loadDotSSHPubKeys: true
+
+# user:
+#   name: &username shelken
+
 # https://lima-vm.io/docs/config/network/vmnet/
 # arm架构使用vznat
+# 如果要获取路由器网络ip，使用bridged（需要安装vmnet_socket）
 networks:
-- vzNAT: true
+- lima: bridged
+  interface: lima1
+  macAddress: "52:55:55:37:34:56"
+# - lima: shared
+#   interface: lima2
+# - vzNAT: true
 
 images:
 # Try to use release-yyyyMMdd image if available. Note that release-yyyyMMdd will be removed after several months.
@@ -32,14 +44,9 @@ containerd:
   system: false
   user: false
 
-# 每次实例启动执行
+# 实例启动或初次安装执行
 provision: []
-# - mode: 
-  # script: |
-  #   #!/bin/sh
-  #   if [ ! -d /var/lib/rancher/k3s ]; then
-  #           curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="agent --server " sh -
-  #   fi
+
 # 健康探针
 probes: []
 # - script: |
