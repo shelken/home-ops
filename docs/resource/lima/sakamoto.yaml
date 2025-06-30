@@ -1,0 +1,66 @@
+env:
+  http_proxy: ""
+  https_proxy: ""
+  no_proxy: ""
+
+# Mounts are disabled in this template, but can be enabled optionally.
+mounts: 
+  - location: "/Volumes/sakamoto-data/k8s/lima"
+    mountPoint: "/mnt/data"
+    writable: true
+
+cpus: 4
+memory: 8GiB
+disk: 30GiB
+
+# https://lima-vm.io/docs/config/network/vmnet/
+# arm架构使用vznat
+networks:
+- vzNAT: true
+
+images:
+# Try to use release-yyyyMMdd image if available. Note that release-yyyyMMdd will be removed after several months.
+- location: "https://cloud-images.ubuntu.com/releases/oracular/release/ubuntu-24.10-server-cloudimg-amd64.img"
+  arch: "x86_64"
+  # digest: "sha256:eacac65efe9e9bae0cbcb3f9d5c2b5e8c5313fa78a3bc401c3fb28b2d48cefc0"
+- location: "https://cloud-images.ubuntu.com/releases/oracular/release/ubuntu-24.10-server-cloudimg-arm64.img"
+  arch: "aarch64"
+  # digest: "sha256:103f31c5a5b7f031a60ce3555c8fbd56317fd8ffbaaa7e17002879e6157d546d"
+
+# containerd is managed by k3s, not by Lima, so the values are set to false here.
+containerd:
+  system: false
+  user: false
+
+# 每次实例启动执行
+provision: []
+# - mode: 
+  # script: |
+  #   #!/bin/sh
+  #   if [ ! -d /var/lib/rancher/k3s ]; then
+  #           curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="agent --server " sh -
+  #   fi
+# 健康探针
+probes: []
+# - script: |
+#     #!/bin/bash
+#     set -eux -o pipefail
+#     if ! timeout 30s bash -c "until test -f /etc/rancher/k3s/k3s.yaml; do sleep 3; done"; then
+#             echo >&2 "k3s is not running yet"
+#             exit 1
+#     fi
+#   hint: |
+#     The k3s kubeconfig file has not yet been created.
+#     Run "limactl shell k3s sudo journalctl -u k3s" to check the log.
+#     If that is still empty, check the bottom of the log at "/var/log/cloud-init-output.log".
+# 从虚拟机靠拷贝出文件
+copyToHost: []
+# - guest: "/etc/rancher/k3s/k3s.yaml"
+#   host: "{{.Dir}}/copied-from-guest/kubeconfig.yaml"
+#   deleteOnStop: true
+# message: |
+#   To run `kubectl` on the host (assumes kubectl is installed), run the following commands:
+#   ------
+#   export KUBECONFIG="{{.Dir}}/copied-from-guest/kubeconfig.yaml"
+#   kubectl ...
+#   ------
