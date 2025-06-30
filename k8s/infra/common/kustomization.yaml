@@ -7,3 +7,4 @@ resources:
   - external-secrets
   - system-upgrade
   - longhorn
+  - openebs-system
