@@ -33,8 +33,6 @@ spec:
     defaultSettings:
       # defaultDataPath: /mnt/data/longhorn # 默认是 /var/lib/longhorn
       defaultReplicaCount: *replicaCount
-      orphanAutoDeletion: true
-      # replicaAutoBalance: best-effort
       storageMinimalAvailablePercentage: 5 # 默认 25
       storageReservedPercentageForDefaultDisk: 10 # longhorn用90%
     longhornUI:
