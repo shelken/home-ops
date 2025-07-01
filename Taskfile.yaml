@@ -18,6 +18,7 @@ tasks:
     desc: "部署sops加密的Secret让flux kustomization能够解密"
     cmds:
       - cmd: |
+          kubectl get namespace flux-system >/dev/null 2>&1 || kubectl create namespace flux-system
           sops exec-file "{{.ROOT_DIR}}/k8s/components/common/sops/secret.sops.yaml" "kubectl --namespace flux-system apply --server-side --filename {}"
           sops exec-file "{{.ROOT_DIR}}/k8s/components/common/sops/cluster-secret.sops.yaml" "kubectl --namespace flux-system apply --server-side --filename {}"
 
@@ -34,7 +35,7 @@ tasks:
       - cmd: |
           # https://github.com/kubernetes-sigs/external-dns/blob/master/docs/sources/crd.md
           # renovate: datasource=github-releases depName=kubernetes-sigs/external-dns
-          kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/external-dns/refs/tags/v0.18.0/config/crd/standard/dnsendpoint.yaml --server-side
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/external-dns/refs/tags/v0.17.0/config/crd/standard/dnsendpoint.yaml --server-side
 
   show-route:
     desc: "显示gateway和对应的服务"
@@ -57,7 +58,8 @@ tasks:
       - '[ -n "$ClientSecret" ]'
     cmds:
       - |
-        kubectl create secret -n external-secrets generic azure-creds \                                         
+        kubectl get namespace external-secrets >/dev/null 2>&1 || kubectl create namespace external-secrets
+        kubectl create secret -n external-secrets generic azure-creds \
         --from-literal=ClientID={{.ClientID}} \
         --from-literal=ClientSecret={{.ClientSecret}} --dry-run=client -o yaml \
         | kubectl apply -f -
