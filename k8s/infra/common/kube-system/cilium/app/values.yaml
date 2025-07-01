@@ -21,8 +21,8 @@ cgroup:
     enabled: false
   hostRoot: /sys/fs/cgroup
 
-envoy:
-  rollOutPods: true
+# envoy:
+#   rollOutPods: true
 
 gatewayAPI:
   enabled: true
@@ -69,12 +69,12 @@ bpf:
 
 # 在所有节点都在同一个l2网段时可以启用
 # https://docs.cilium.io/en/stable/network/concepts/routing/
-autoDirectNodeRoutes: true
-routingMode: native
-ipv4NativeRoutingCIDR: 10.42.0.0/16
-endpointRoutes:
-  enabled: true
+# autoDirectNodeRoutes: true
+# routingMode: native
+# ipv4NativeRoutingCIDR: 10.42.0.0/16
+# endpointRoutes:
+#   enabled: true
 
-loadBalancer:
-  algorithm: maglev
-  mode: "dsr"
+# loadBalancer:
+#   algorithm: maglev
+  # mode: "dsr"
