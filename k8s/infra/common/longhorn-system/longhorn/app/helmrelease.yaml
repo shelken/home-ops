@@ -31,7 +31,7 @@ spec:
       defaultClassReplicaCount: &replicaCount 2 # 副本数量
       # defaultDataLocality: best-effort # 副本倾向放在pod所在位置
     defaultSettings:
-      defaultDataPath: /mnt/data/longhorn # 默认是 /var/lib/longhorn
+      # defaultDataPath: /mnt/data/longhorn # 默认是 /var/lib/longhorn
       defaultReplicaCount: *replicaCount
       orphanAutoDeletion: true
       # replicaAutoBalance: best-effort
