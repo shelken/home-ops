@@ -75,7 +75,7 @@ ipv4NativeRoutingCIDR: 10.42.0.0/16
 
 loadBalancer:
   algorithm: maglev
-  mode: "dsr"
+  # mode: "dsr"
 
 # endpointRoutes:
 #   enabled: true
