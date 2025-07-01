@@ -72,9 +72,10 @@ bpf:
 autoDirectNodeRoutes: true
 routingMode: native
 ipv4NativeRoutingCIDR: 10.42.0.0/16
-# endpointRoutes:
-#   enabled: true
 
 loadBalancer:
   algorithm: maglev
-  # mode: "dsr"
+  mode: "dsr"
+
+# endpointRoutes:
+#   enabled: true
