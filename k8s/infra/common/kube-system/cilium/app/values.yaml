@@ -21,8 +21,8 @@ cgroup:
     enabled: false
   hostRoot: /sys/fs/cgroup
 
-# envoy:
-#   rollOutPods: true
+envoy:
+  rollOutPods: true
 
 gatewayAPI:
   enabled: true
@@ -62,7 +62,7 @@ securityContext:
 socketLB:
   hostNamespaceOnly: true
 
-# rollOutCiliumPods: true
+rollOutCiliumPods: true
 # localRedirectPolicy: true
 bpf:
   masquerade: true
@@ -72,8 +72,8 @@ bpf:
 autoDirectNodeRoutes: true
 routingMode: native
 ipv4NativeRoutingCIDR: 10.42.0.0/16
-# endpointRoutes:
-#   enabled: true
+endpointRoutes:
+  enabled: true
 
 # loadBalancer:
 #   algorithm: maglev
