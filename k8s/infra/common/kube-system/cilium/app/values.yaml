@@ -6,11 +6,9 @@ ipam:
   mode: kubernetes
   operator:
     clusterPoolIPv4PodCIDRList: [ "10.42.0.0/16" ]
-# cni:
-#   exclusive: false
+
 k8sServiceHost: 192.168.6.80
 k8sServicePort: 6443
-# devices: eth+
 l2announcements:
   enabled: true
 
@@ -64,22 +62,21 @@ hubble:
 
 rollOutCiliumPods: true
 # localRedirectPolicy: true
-# bpf:
-#   masquerade: true
+bpf:
+  masquerade: true
   # hostLegacyRouting: true
   # tproxy: true
 
 # 在所有节点都在同一个l2网段时可以启用
 # https://docs.cilium.io/en/stable/network/concepts/routing/
-# autoDirectNodeRoutes: true
-# routingMode: native
-# ipv4NativeRoutingCIDR: "10.42.0.0/16"
-# devices: lima1 eth+
+autoDirectNodeRoutes: true
+routingMode: native
+ipv4NativeRoutingCIDR: "10.42.0.0/16"
+devices: lima1 eth+
 
-# loadBalancer:
-#   algorithm: maglev
-#   # mode: dsr
-#   acceleration: best-effort
+loadBalancer:
+  algorithm: maglev
+  mode: dsr
 
-# endpointRoutes:
-#   enabled: true
+endpointRoutes:
+  enabled: true
