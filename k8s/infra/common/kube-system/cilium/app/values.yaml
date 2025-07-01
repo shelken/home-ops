@@ -5,7 +5,7 @@
 ipam:
   mode: kubernetes
   operator:
-    clusterPoolIPv4PodCIDRList: 10.42.0.0/16
+    clusterPoolIPv4PodCIDRList: [ "10.42.0.0/16" ]
 cni:
   exclusive: false
 k8sServiceHost: 192.168.6.80
@@ -72,7 +72,8 @@ bpf:
 # https://docs.cilium.io/en/stable/network/concepts/routing/
 autoDirectNodeRoutes: true
 routingMode: native
-ipv4NativeRoutingCIDR: 10.42.0.0/16
+ipv4NativeRoutingCIDR: "10.42.0.0/16"
+devices: lima1 eth+
 
 loadBalancer:
   algorithm: maglev
