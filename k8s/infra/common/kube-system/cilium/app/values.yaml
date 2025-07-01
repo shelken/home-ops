@@ -73,7 +73,7 @@ bpf:
 # https://docs.cilium.io/en/stable/network/concepts/routing/
 # autoDirectNodeRoutes: true
 # routingMode: native
-ipv4NativeRoutingCIDR: "10.42.0.0/16"
+# ipv4NativeRoutingCIDR: "10.42.0.0/16"
 # devices: lima1 eth+
 
 loadBalancer:
