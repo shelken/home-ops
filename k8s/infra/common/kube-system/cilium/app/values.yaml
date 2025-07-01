@@ -78,7 +78,7 @@ devices: lima1 eth+
 
 loadBalancer:
   algorithm: maglev
-  mode: dsr
+  # mode: dsr
   acceleration: best-effort
 
 endpointRoutes:
