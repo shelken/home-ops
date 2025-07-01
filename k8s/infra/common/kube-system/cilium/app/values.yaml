@@ -66,7 +66,7 @@ rollOutCiliumPods: true
 # localRedirectPolicy: true
 bpf:
   masquerade: true
-  hostLegacyRouting: true
+  # hostLegacyRouting: true
   # tproxy: true
 
 # 在所有节点都在同一个l2网段时可以启用
@@ -74,12 +74,12 @@ bpf:
 # autoDirectNodeRoutes: true
 # routingMode: native
 ipv4NativeRoutingCIDR: "10.42.0.0/16"
-devices: lima1 eth+
+# devices: lima1 eth+
 
 loadBalancer:
   algorithm: maglev
   # mode: dsr
   acceleration: best-effort
 
-endpointRoutes:
-  enabled: true
+# endpointRoutes:
+#   enabled: true
