@@ -20,12 +20,25 @@ spec:
     remediation:
       retries: 3
   values:
+    # ref: https://github.com/longhorn/charts/blob/v1.9.x/charts/longhorn/values.yaml
+    # ref: https://github.com/blackjid/home-ops/blob/236881774e9e0fe48266db255d61ca220e64af5f/kubernetes/apps/longhorn-system/longhorn/app/helmrelease.yaml
     csi:
       attacherReplicaCount: 1
       provisionerReplicaCount: 1
       resizerReplicaCount: 1
       snapshotterReplicaCount: 1
     persistence:
-      defaultClassReplicaCount: 2
+      defaultClassReplicaCount: &replicaCount 2 # 副本数量
+      defaultDataLocality: best-effort # 副本倾向放在pod所在位置
+    defaultSettings:
+      defaultDataPath: /mnt/data/longhorn # 默认是 /var/lib/longhorn
+      defaultReplicaCount: *replicaCount
+      orphanAutoDeletion: true
+      replicaAutoBalance: true
+      storageMinimalAvailablePercentage: 5 # 默认 25
+      storageReservedPercentageForDefaultDisk: 10 # longhorn用90%
     longhornUI:
       replicas: 1
+    # metrics:
+    #   serviceMonitor:
+    #     enabled: true
