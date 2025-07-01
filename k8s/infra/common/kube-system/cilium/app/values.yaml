@@ -72,7 +72,7 @@ bpf:
 # 在所有节点都在同一个l2网段时可以启用
 # https://docs.cilium.io/en/stable/network/concepts/routing/
 autoDirectNodeRoutes: true
-routingMode: native
+# routingMode: native
 ipv4NativeRoutingCIDR: "10.42.0.0/16"
 devices: lima1 eth+
 
