@@ -64,8 +64,8 @@ socketLB:
 
 rollOutCiliumPods: true
 # localRedirectPolicy: true
-bpf:
-  masquerade: true
+# bpf:
+#   masquerade: true
   # hostLegacyRouting: true
   # tproxy: true
 
@@ -76,10 +76,10 @@ bpf:
 # ipv4NativeRoutingCIDR: "10.42.0.0/16"
 # devices: lima1 eth+
 
-loadBalancer:
-  algorithm: maglev
-  # mode: dsr
-  acceleration: best-effort
+# loadBalancer:
+#   algorithm: maglev
+#   # mode: dsr
+#   acceleration: best-effort
 
 # endpointRoutes:
 #   enabled: true
