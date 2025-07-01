@@ -80,8 +80,6 @@ loadBalancer:
   algorithm: maglev
   mode: dsr
   acceleration: best-effort
-  l7:
-    backend: envoy
 
 endpointRoutes:
   enabled: true
