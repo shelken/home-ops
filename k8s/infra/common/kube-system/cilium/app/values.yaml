@@ -67,6 +67,7 @@ rollOutCiliumPods: true
 bpf:
   masquerade: true
   hostLegacyRouting: true
+  tproxy: true
 
 # 在所有节点都在同一个l2网段时可以启用
 # https://docs.cilium.io/en/stable/network/concepts/routing/
