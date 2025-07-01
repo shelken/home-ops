@@ -13,6 +13,9 @@ cpus: 4
 memory: 8GiB
 disk: 30GiB
 
+additionalDisks:
+  - "longhorn"
+
 # ssh:
 #   loadDotSSHPubKeys: true
 
