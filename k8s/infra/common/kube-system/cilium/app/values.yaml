@@ -63,7 +63,7 @@ socketLB:
   hostNamespaceOnly: true
 
 rollOutCiliumPods: true
-localRedirectPolicy: true
+# localRedirectPolicy: true
 bpf:
   masquerade: true
 
