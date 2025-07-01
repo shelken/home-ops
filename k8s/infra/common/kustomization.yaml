@@ -6,5 +6,5 @@ resources:
   - network
   - external-secrets
   - system-upgrade
-  - longhorn
+  - longhorn-system
   - openebs-system
