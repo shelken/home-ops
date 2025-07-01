@@ -66,6 +66,7 @@ rollOutCiliumPods: true
 # localRedirectPolicy: true
 bpf:
   masquerade: true
+  hostLegacyRouting: true
 
 # 在所有节点都在同一个l2网段时可以启用
 # https://docs.cilium.io/en/stable/network/concepts/routing/
@@ -75,7 +76,7 @@ ipv4NativeRoutingCIDR: 10.42.0.0/16
 
 loadBalancer:
   algorithm: maglev
-  # mode: "dsr"
+  mode: dsr
 
-# endpointRoutes:
-#   enabled: true
+endpointRoutes:
+  enabled: true
