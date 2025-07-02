@@ -63,3 +63,13 @@ tasks:
         --from-literal=ClientID={{.ClientID}} \
         --from-literal=ClientSecret={{.ClientSecret}} --dry-run=client -o yaml \
         | kubectl apply -f -
+
+  restart-cilium:
+    desc: "restart-cilium"
+    silent: false
+    # preconditions:
+    cmds:
+      - |
+        kubectl rollout restart deployment  -n kube-system cilium-operator && \
+        kubectl rollout restart daemonset -n kube-system cilium && \
+        kubectl rollout restart daemonset -n kube-system cilium-envoy
