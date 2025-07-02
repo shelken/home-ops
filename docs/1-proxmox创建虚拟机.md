@@ -58,5 +58,9 @@ qm set 112 --ipconfig0 ip=192.168.6.114/24,gw=192.168.6.1
 
 # 用ssh尝试连接
 
+# cpu额外参数，有些容器需要x86-64-v2, 例如volsync，下面配置让pve传递cpu的指令集
+# note: pve不指定cpu时使用kvm64
+qm set 110 --args="-cpu kvm64,+cx16,+lahf_lm,+popcnt,+sse3,+ssse3,+sse4.1,+sse4.2"
+
 ```
 

@@ -4,10 +4,10 @@ env:
   no_proxy: ""
 
 # Mounts are disabled in this template, but can be enabled optionally.
-mounts: 
-  - location: "/Volumes/sakamoto-data/k8s/lima"
-    mountPoint: "/mnt/data"
-    writable: true
+# mounts: 
+#   - location: "/Volumes/sakamoto-data/k8s/lima"
+#     mountPoint: "/mnt/data"
+#     writable: true
 
 cpus: 4
 memory: 8GiB
