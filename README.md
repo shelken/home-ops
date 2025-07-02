@@ -40,3 +40,9 @@ homelab
 直接升级cli版本，然后Bootstrap 让flux自动升级。
 
 ocirepo 在 2.6上才是v1，在2.5上配置是v1beta2
+
+2. 卸载longhorn（删除helmrelease）前
+
+```shell
+kubectl -n longhorn-system patch -p '{"value": "true"}' --type=merge lhs deleting-confirmation-flag
+```
