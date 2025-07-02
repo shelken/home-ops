@@ -7,8 +7,8 @@ metadata:
 spec:
   endpoints:
     - dnsName: "homelab-external.ooooo.space"
-      recordType: A
-      targets: ["192.168.6.45"]
+      recordType: CNAME
+      targets: ["tvbox.ooooo.space"]
     # - dnsName: "homelab-internal.ooooo.space"
     #   recordType: A
     #   targets: ["192.168.6.46"]
