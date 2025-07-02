@@ -8,3 +8,4 @@ resources:
   - ../common/system-upgrade
   - ../common/longhorn-system
   - ../common/openebs-system
+  - ../common/volsync-system
