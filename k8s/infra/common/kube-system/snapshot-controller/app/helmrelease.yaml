@@ -34,7 +34,18 @@ spec:
       retries: 3
   values:
     # ref: https://artifacthub.io/packages/helm/piraeus-charts/snapshot-controller
+    # ref: https://github.com/blackjid/home-ops/blob/13430e8c4b704bdff1a3bb33f82692147116b632/kubernetes/apps/kube-system/snapshot-controller/app/helmrelease.yaml
     controller:
       replicaCount: 1
       # serviceMonitor:
       #   create: true
+      volumeSnapshotClasses:
+        - name: longhorn-snapclass
+          annotations:
+            snapshot.storage.kubernetes.io/is-default-class: "true"
+          driver: driver.longhorn.io
+          deletionPolicy: Delete
+          parameters:
+            # needed for successful VolumeSnapshots
+            # see: https://github.com/longhorn/longhorn/issues/2534#issuecomment-1010508714
+            type: snap
