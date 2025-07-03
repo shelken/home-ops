@@ -40,8 +40,8 @@ spec:
                 cpu: 10m
               limits:
                 memory: 100M
-        serviceAccount:
-          identifier: *app
+        # serviceAccount:
+        #   identifier: *app
     # defaultPodOptions:
     #   securityContext:
     #     runAsNonRoot: true
