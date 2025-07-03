@@ -86,7 +86,7 @@ spec:
       APP: *app
       VOLSYNC_CAPACITY: 2Gi
   interval: 1h
-  path: ./k8s/apps/common/kity/memos
+  path: ./k8s/apps/common/memos
   prune: true
   retryInterval: 2m
   sourceRef:
