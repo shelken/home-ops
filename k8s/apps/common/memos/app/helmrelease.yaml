@@ -54,6 +54,11 @@ spec:
         ports:
           http:
             port: *port
+      grpc:
+        ports:
+          http:
+            port: *port
+            appProtocol: kubernetes.io/h2c
     route:
       app:
         hostnames: ["{{ .Release.Name }}-2.ooooo.space"]
@@ -74,7 +79,7 @@ spec:
             sectionName: https
         rules:
           - backendRefs:
-              - identifier: app
+              - identifier: grpc
                 port: *port
     persistence:
       data:
