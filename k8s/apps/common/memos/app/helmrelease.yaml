@@ -54,12 +54,12 @@ spec:
         ports:
           http:
             port: *port
-      grpc:
-        ports:
-          http:
-            port: *port
-            appProtocol: kubernetes.io/h2c
-            protocol: HTTPS
+      # grpc:
+      #   ports:
+      #     http:
+      #       port: *port
+      #       appProtocol: kubernetes.io/h2c
+      #       protocol: HTTPS
     route:
       app:
         hostnames: ["{{ .Release.Name }}-2.ooooo.space"]
@@ -82,6 +82,20 @@ spec:
           - backendRefs:
               - identifier: grpc
                 port: *port
+    ingress:
+      main:
+        enabled: true
+        className: nginx
+        hosts:
+          - host: &host "memos-2.ooooo.space"
+            paths:
+              - path: /
+                service:
+                  name: app
+                  port: http
+        tls:
+          - hosts:
+              - *host
     persistence:
       data:
         existingClaim: memos
