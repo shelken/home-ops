@@ -30,15 +30,15 @@ spec:
           # external-dns.alpha.kubernetes.io/hostname: &hostname external.devbu.io
           lbipam.cilium.io/ips: 192.168.6.47
       ingressClassResource:
-        name: external
+        name: nginx
         default: false
-        controllerValue: k8s.io/external
+        controllerValue: k8s.io/nginx
       admissionWebhooks:
         objectSelector:
           matchExpressions:
             - key: ingress-class
               operator: In
-              values: ["external"]
+              values: ["nginx"]
       config:
         allow-snippet-annotations: true
         annotations-risk-level: Critical
@@ -67,12 +67,12 @@ spec:
         proxy-buffer-size: 16k
         ssl-protocols: TLSv1.3 TLSv1.2
         use-forwarded-headers: "true"
-      metrics:
-        enabled: true
-        serviceMonitor:
-          enabled: true
-          namespaceSelector:
-            any: true
+      # metrics:
+      #   enabled: true
+      #   serviceMonitor:
+      #     enabled: true
+      #     namespaceSelector:
+      #       any: true
       extraArgs:
         default-ssl-certificate: cert-manager/ooooo-space-tls
         # publish-status-address: *hostname
