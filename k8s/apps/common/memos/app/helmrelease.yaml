@@ -84,18 +84,14 @@ spec:
       #           port: *port
     ingress:
       main:
-        enabled: true
         className: nginx
         hosts:
-          - host: &host "memos-2.ooooo.space"
+          - host: memos-2.ooooo.space
             paths:
               - path: /
                 service:
-                  name: *app
-                  port: *port
-        tls:
-          - hosts:
-              - *host
+                  identifier: app
+                  port: http
     persistence:
       data:
         existingClaim: memos
