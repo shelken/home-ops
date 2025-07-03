@@ -26,7 +26,7 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/usememos/memos
+              repository: docker.io/neosmemo/memos
               tag: 0.21.0
             env:
               TZ: Asia/Shanghai
