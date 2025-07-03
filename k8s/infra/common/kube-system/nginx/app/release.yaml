@@ -74,7 +74,7 @@ spec:
       #     namespaceSelector:
       #       any: true
       extraArgs:
-        default-ssl-certificate: cert-manager/ooooo-space-tls
+        default-ssl-certificate: kube-system/ooooo-space-tls
         # publish-status-address: *hostname
       terminationGracePeriodSeconds: 120
       publishService:
