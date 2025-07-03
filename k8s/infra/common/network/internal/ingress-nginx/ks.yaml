@@ -2,8 +2,8 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &appname nginx
-  namespace: &namespace kube-system
+  name: &appname nginx-internal
+  namespace: &namespace network
 spec:
   targetNamespace: *namespace
   commonMetadata:
@@ -11,10 +11,13 @@ spec:
       app.kubernetes.io/name: *appname
   interval: 30m
   timeout: 5m
-  path: "./k8s/infra/common/kube-system/nginx/app"
+  path: ./k8s/infra/common/network/internal/ingress-nginx/app
   prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
+  dependsOn:
+    - name: cert-manager-tls
+      namespace: cert-manager
   wait: false

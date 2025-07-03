@@ -7,4 +7,3 @@ resources:
   - cilium/ks.yaml
   - reloader/ks.yaml
   - snapshot-controller/ks.yaml
-  - nginx/ks.yaml
