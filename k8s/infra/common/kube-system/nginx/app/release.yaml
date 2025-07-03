@@ -28,7 +28,7 @@ spec:
       service:
         annotations:
           # external-dns.alpha.kubernetes.io/hostname: &hostname external.devbu.io
-          lbipam.cilium.io/ips: 192.168.6.47
+          lbipam.cilium.io/ips: 192.168.6.48
       ingressClassResource:
         name: nginx
         default: false
