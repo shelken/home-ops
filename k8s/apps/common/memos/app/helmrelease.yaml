@@ -65,6 +65,17 @@ spec:
           - backendRefs:
               - identifier: app
                 port: *port
+      grpc:
+        kind: GRPCRoute
+        hostnames: ["{{ .Release.Name }}-2.ooooo.space"]
+        parentRefs:
+          - name: internal
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
     persistence:
       data:
         existingClaim: memos
