@@ -59,6 +59,7 @@ spec:
           http:
             port: *port
             appProtocol: kubernetes.io/h2c
+            protocol: HTTPS
     route:
       app:
         hostnames: ["{{ .Release.Name }}-2.ooooo.space"]
