@@ -77,7 +77,8 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   components:
-    - ../../../components/volsync/init
+    # - ../../../components/volsync/init
+    - ../../../components/volsync
   dependsOn:
     - name: longhorn
       namespace: longhorn-system
