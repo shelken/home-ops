@@ -10,7 +10,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   interval: 1h
-  path: ./k8s/infra/common/network/k8s-gateway/app
+  path: ./k8s/infra/common/network/internal/k8s-gateway/app
   prune: true
   retryInterval: 2m
   sourceRef:
