@@ -93,3 +93,17 @@ tasks:
     preconditions:
       - { msg: "Start file not found", sh: "test -f {{ .start }}" }
       - { msg: "End file not found", sh: "test -d {{ .end }}" }
+
+  azsecret: 
+    desc: 显示azure key vault的secret的value
+    silent: true
+    # requires:
+    #   vars: ["name"]
+    # vars:
+    #   name: {{ .name }}
+    cmd: |
+      if [ -n "{{ .name }}" ]; then
+        az keyvault secret show --vault-name shelken-vault --name "{{ .name }}" --query value -otsv
+        exit 0
+      fi
+      az keyvault secret list --vault-name shelken-vault --query "[].name"
