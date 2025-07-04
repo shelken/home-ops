@@ -23,9 +23,15 @@
         group: root
         mode: "0600"
         force: true
-      # when: k3s_dir.stat.exists
+      when: k3s_dir.stat.exists
+    - name: 检查 k3s 服务是否存在
+      ansible.builtin.systemd:
+        name: "{{ 'k3s' if k3s_control_node == 'true' else 'k3s-agent' }}"
+      register: k3s_service_check
+      failed_when: false
+      changed_when: false
     - name: 重启k3s
       ansible.builtin.service:
         name: "{{ 'k3s' if k3s_control_node == 'true' else 'k3s-agent' }}"
         state: restarted
-      # when: k3s_dir.stat.exists
+      when: k3s_service_check.status.LoadState != "not-found"
