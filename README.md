@@ -46,3 +46,7 @@ ocirepo 在 2.6上才是v1，在2.5上配置是v1beta2
 ```shell
 kubectl -n longhorn-system patch -p '{"value": "true"}' --type=merge lhs deleting-confirmation-flag
 ```
+
+3. cilium-gateway 对 grpc-web 协议直接过滤成 grpc，目前无法关闭，在memos服务使用时调用出错
+
+暂时使用nginx ingress作为入口
