@@ -1,37 +1,56 @@
 # volsync
 
-依赖 snapshot-controller; 先安装
+依赖 snapshot-controller; 先安装；（创建`longhorn-snapclass`的卷快照类）
 依赖 longhorn（服务数据存储）; 先安装
 
 ## 旧数据迁移
 
-就是说我们要从docker服务的数据迁移到我们集群中，要用到这个工具cli
-
-[cli 文档](https://volsync.readthedocs.io/en/stable/usage/cli/index.html)
-[Migrating data into Kubernetes](https://volsync.readthedocs.io/en/stable/usage/cli/migration.html)
+[文档](https://volsync.readthedocs.io)
 
 ```shell
-# mac无法安装，使用go安装
-brew install krew
-kubectl krew install volsync
-
-#
-go install github.com/backube/volsync/kubectl-volsync@main
-kubectl-volsync -h
-
-```
-### 复制数据
-首先要定义pvc，要持久化的数据应该要有定义相应的pvc，例如【uptime-kuma】，将应用名和pvc命名一致，在集群中应该先创建了
-
-创建一个关联关系
-
-```shell
-kubectl-volsync migration create --pvcname staging/uptime-kuma -r uptime-kuma
-kubectl-volsync migration rsync -r uptime-kuma --source /tmp/uptime-kuma-data/
-
+source ~/.restic.env
+export RESTIC_REPOSITORY=s3:minio.ooooo.space/k8s-restic/repos/[APP_NAME]
+cd /data/docker/[APP_NAME]
+restic backup .
 ```
 
-### 查看数据
+## 添加新应用
+
+在component引入volsync component,并补全postBuild所需变量
+
+ks.yaml
+```yaml
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app memos
+  namespace: &namespace staging
+spec:
+  components:
+    - ../../../components/volsync
+  postBuild:
+    substitute:
+      APP: *app
+      VOLSYNC_CAPACITY: 2Gi
+      # 如果values的配置用户和组不是1000,需要修改对应的用户
+      # VOLSYNC_PUID: 1000
+      # VOLSYNC_PGID: 1000
+```
+
+```yaml
+spec:
+  values:
+    persistence:
+      data:
+        existingClaim: memos
+        globalMounts:
+          # 对应你的app挂载的路径，如果没有默认挂载在[当前项的名字]即`/data`
+          - path: /var/opt/memos
+            readOnly: false
+```
+
+
+## 查看数据
 
 ```yaml
  ---
@@ -52,7 +71,7 @@ kubectl-volsync migration rsync -r uptime-kuma --source /tmp/uptime-kuma-data/
    volumes:
      - name: data
        persistentVolumeClaim:
-         claimName: uptime-kuma
+         claimName: [APP_NAME]
 ```
 
 ```shell
