@@ -1,6 +1,7 @@
 mirrors:
   docker.io:
     endpoint:
+      - "https://docker.mirror.ooooo.space"
       - "https://dhp.ooooo.space"
       - "https://docker.m.daocloud.io"
       - "https://hub.mirrorify.net"
