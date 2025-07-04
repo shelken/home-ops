@@ -30,10 +30,11 @@ gatewayAPI:
   enabled: true
   enableAlpn: true # grpc support https://github.com/bittrance/cilium/blob/d6f7acf1116e74ce493c87a8f5df96efac63df7b/Documentation/network/servicemesh/gateway-api/grpc.rst
   # xffNumTrustedHops: 1 # X-Forwarded-For 头
-ingressController:
-  enabled: true
-  default: true
-  loadbalancerMode: shared
+
+# ingressController:
+#   enabled: true
+#   default: true
+#   loadbalancerMode: shared
 
 hubble:
   enabled: true

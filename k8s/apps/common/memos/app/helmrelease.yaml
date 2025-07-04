@@ -86,9 +86,9 @@ spec:
       #           port: *port
     ingress:
       main:
-        className: nginx-internal
+        className: nginx-external
         hosts:
-          - host: memos-2.ooooo.space
+          - host: memos.ooooo.space
             paths:
               - path: /
                 service:

@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app nginx-internal
+  name: &app nginx-external
 spec:
   interval: 1h
   chart:
@@ -24,21 +24,21 @@ spec:
   values:
     fullnameOverride: *app
     controller:
-      replicaCount: 1
+      replicaCount: 2
       service:
         annotations:
-          external-dns.alpha.kubernetes.io/hostname: &hostname homelab-nginx-internal.ooooo.space
-          lbipam.cilium.io/ips: 192.168.6.43
+          external-dns.alpha.kubernetes.io/hostname: &hostname homelab-nginx-external.ooooo.space
+          lbipam.cilium.io/ips: 192.168.6.44
       ingressClassResource:
-        name: nginx-internal
+        name: nginx-external
         default: false
-        controllerValue: k8s.io/nginx-internal
+        controllerValue: k8s.io/nginx-external
       admissionWebhooks:
         objectSelector:
           matchExpressions:
             - key: ingress-class
               operator: In
-              values: ["nginx-internal"]
+              values: ["nginx-external"]
       config:
         allow-snippet-annotations: true
         annotations-risk-level: Critical

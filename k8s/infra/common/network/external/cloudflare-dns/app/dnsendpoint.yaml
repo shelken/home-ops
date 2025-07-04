@@ -9,6 +9,9 @@ spec:
     - dnsName: "homelab-external.ooooo.space"
       recordType: CNAME
       targets: ["tvbox.ooooo.space"]
+    - dnsName: "homelab-nginx-external.ooooo.space"
+      recordType: CNAME
+      targets: ["tvbox.ooooo.space"]
     # - dnsName: "homelab-internal.ooooo.space"
     #   recordType: A
     #   targets: ["192.168.6.46"]

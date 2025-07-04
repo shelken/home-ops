@@ -80,6 +80,8 @@ spec:
           initialDelaySeconds: 10
           timeoutSeconds: 5
         readinessProbe: *probes
+    extraArgs:
+      - --ignore-ingress-tls-spec
     # ref: https://github.com/kubernetes-sigs/external-dns/blob/master/docs/flags.md
     policy: upsert-only
     registry: noop
