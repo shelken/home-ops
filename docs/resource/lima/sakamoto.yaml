@@ -13,6 +13,7 @@ cpus: 4
 memory: 8GiB
 disk: 30GiB
 
+# 映射到vm中的目录为`/mnt/lima-longhorn`
 additionalDisks:
   - "longhorn"
 
@@ -24,7 +25,7 @@ additionalDisks:
 
 # https://lima-vm.io/docs/config/network/vmnet/
 # arm架构使用vznat
-# 如果要获取路由器网络ip，使用bridged（需要安装vmnet_socket）
+# 如果要获取路由器网络ip，使用bridged（需要安装socket_vmnet）
 networks:
 - lima: bridged
   interface: lima1
