@@ -47,9 +47,15 @@ tasks:
           {
             namespace: .metadata.namespace,
             name: .metadata.name,
-            gateways: (.spec.parentRefs // []) | map(.name) | join(",")
-          } | "Gateways: \(.gateways)\t\(.namespace)/\(.name)\t"
+            gateways: (.spec.parentRefs // []) | map(.name) | join(","),
+            hosts: (.spec.hostnames // []) | join(","),
+            paths: (
+              [.spec.rules[]?.matches[]?.path.value // empty] | unique | join(",")
+            )
+          } |
+          "Gateways: \(.gateways)\t\(.namespace)/\(.name)\tHosts: \(.hosts)\tPaths: \(.paths)"
           '
+          kubectl get -A ingress
   deploy-azure-creds:
     desc: "部署 azure 的验证信息让 external-secrets 访问我们的 KeyVault"
     silent: false
@@ -73,3 +79,17 @@ tasks:
         kubectl rollout restart deployment  -n kube-system cilium-operator && \
         kubectl rollout restart daemonset -n kube-system cilium && \
         kubectl rollout restart daemonset -n kube-system cilium-envoy
+
+  relpath:
+    desc: Calculate relative path from one file to another
+    summary: ...
+    dir: "{{ .ROOT_DIR }}"
+    cmd: echo $(realpath --relative-to=$(dirname "{{ .start }}") "{{ .end }}")
+    requires:
+      vars: ["start"]
+    vars:
+      # start:
+      end: '{{ .end | default "./k8s/components/common" }}'
+    preconditions:
+      - { msg: "Start file not found", sh: "test -f {{ .start }}" }
+      - { msg: "End file not found", sh: "test -d {{ .end }}" }
