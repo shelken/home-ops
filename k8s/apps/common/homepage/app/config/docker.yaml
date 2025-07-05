@@ -2,8 +2,10 @@
 # For configuration options and examples, please see:
 # https://gethomepage.dev/en/configs/docker/
 
-# box-docker:
-#   socket: /var/run/docker.sock
+box-docker:
+  # socket: /var/run/docker.sock
+  host: 192.168.6.141
+  port: 2575
 
 # TODO: VPN-net
 # vps-161-docker:
