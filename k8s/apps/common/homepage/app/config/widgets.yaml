@@ -1,0 +1,25 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/en/configs/widgets
+- logo:
+    icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/avatar/mio-1.webp
+- resources:
+    cpu: true
+    memory: true
+    disk: /
+
+- search:
+    provider: google
+    target: _blank
+
+- datetime:
+    locale: zh
+    text_size: xl
+    format:
+      timeStyle: short
+      dateStyle: short
+
+
+# - greeting:
+#     text_size: xl
+#     text: Greeting Text
