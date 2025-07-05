@@ -39,16 +39,18 @@ spec:
                   fieldRef:
                     fieldPath: spec.nodeName
               SYSTEM_UPGRADE_JOB_BACKOFF_LIMIT: "99"
-              # SYSTEM_UPGRADE_JOB_PRIVILEGED: false
-            # securityContext:
-            #   allowPrivilegeEscalation: false
-            #   readOnlyRootFilesystem: true
-            #   capabilities: { drop: ["ALL"] }
+              SYSTEM_UPGRADE_JOB_PRIVILEGED: false
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
     defaultPodOptions:
       securityContext:
-        runAsNonRoot: false
-        # runAsUser: 1000
-        # runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
     rbac:
       bindings:
         system-upgrade-controller:
