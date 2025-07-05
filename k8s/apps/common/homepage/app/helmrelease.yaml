@@ -100,5 +100,5 @@ spec:
             app:
               - path: /app/config/logs
                 subPath: logs
-    # serviceAccount:
-    #   create: true
+    serviceAccount:
+      homepage: {}
