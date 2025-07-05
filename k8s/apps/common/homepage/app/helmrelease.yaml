@@ -68,7 +68,7 @@ spec:
             namespace: kube-system
             sectionName: https
         annotations: 
-          - gethomepage.dev/enabled: "true"
+          gethomepage.dev/enabled: "true"
         
     persistence:
       config:
