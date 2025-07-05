@@ -20,7 +20,6 @@ spec:
   values:
     controllers:
       system-upgrade-controller:
-        strategy: RollingUpdate
         replicas: 2
         containers:
           app:
