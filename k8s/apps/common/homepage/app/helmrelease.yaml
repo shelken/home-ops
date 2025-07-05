@@ -85,5 +85,12 @@ spec:
             path: /app/config/settings.yaml
           - subPath: widgets.yaml
             path: /app/config/widgets.yaml
+      tmpfs:
+        type: emptyDir
+        advancedMounts:
+          homepage:
+            app:
+              - path: /app/config/logs
+                subPath: logs
     # serviceAccount:
     #   create: true
