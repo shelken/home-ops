@@ -9,6 +9,10 @@ configMapGenerator:
     files:
       - settings.yaml=./config/settings.yaml
       - services.yaml=./config/services.yaml
+      - bookmarks.yaml=./config/bookmarks.yaml
+      - widgets.yaml=./config/widgets.yaml
+      - kubernetes.yaml=./config/kubernetes.yaml
+      - docker.yaml=./config/docker.yaml
 
 configurations:
   - kustomizeconfig.yaml

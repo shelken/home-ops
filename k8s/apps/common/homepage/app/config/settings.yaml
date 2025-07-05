@@ -11,9 +11,9 @@ providers:
   openweathermap: openweathermapapikey
   weatherapi: weatherapiapikey
 quicklaunch:
-    searchDescriptions: true
-    hideInternetSearch: false
-    hideVisitURL: false
+  searchDescriptions: true
+  hideInternetSearch: false
+  hideVisitURL: false
 statusStyle: "dot"
 maxGroupColumns: 7
 useEqualHeights: true

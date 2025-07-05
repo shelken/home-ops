@@ -9,8 +9,6 @@ spec:
     secretRef:
       name: sops-age
   interval: 10m0s
-  dependsOn:
-    - name: infra
   sourceRef:
     kind: GitRepository
     name: flux-system
