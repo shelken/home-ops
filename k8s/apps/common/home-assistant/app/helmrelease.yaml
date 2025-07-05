@@ -52,6 +52,17 @@ spec:
         ports:
           http:
             port: 8123
+      out:
+        type: LoadBalancer
+        annotations:
+          lbipam.cilium.io/ips: "192.168.6.51"
+        ports:
+          mdns:
+            port: 5353
+            protocol: UDP
+          homekit:
+            port: 21064
+            protocol: TCP
     route:
       app:
         hostnames: 
@@ -61,10 +72,10 @@ spec:
           - name: internal
             namespace: kube-system
             sectionName: https
-        # rules:
-        #   - backendRefs:
-        #       - identifier: app
-        #         port: http
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: http
     persistence:
       config:
         existingClaim: home-assistant
