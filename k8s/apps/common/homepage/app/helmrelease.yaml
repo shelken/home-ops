@@ -41,7 +41,7 @@ spec:
               capabilities: { drop: ["ALL"] }
             envFrom:
               - secretRef:
-                name: *secret
+                  name: *secret
             env:
               LOG_LEVEL: debug
               HOMEPAGE_ALLOWED_HOSTS: "{{ .Release.Name }}.ooooo.space"
