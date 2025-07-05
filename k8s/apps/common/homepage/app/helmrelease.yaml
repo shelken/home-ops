@@ -32,13 +32,24 @@ spec:
             resources:
               requests:
                 cpu: 25m
-                memory: 50Mi
+                memory: 200Mi
+              limits:
+                memory: 400Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
             env:
               LOG_LEVEL: debug
               HOMEPAGE_ALLOWED_HOSTS: "{{ .Release.Name }}.ooooo.space"
             # envFrom:
             #   - secretRef:
             #       name: homepage-secret
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
     service:
       app:
         controller: homepage
