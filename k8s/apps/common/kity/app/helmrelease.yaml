@@ -23,7 +23,6 @@ spec:
         pod:
           annotations:
             secret.reloader.stakater.com/reload: &secret kity-secret
-        strategy: RollingUpdate
         containers:
           app:
             image:
