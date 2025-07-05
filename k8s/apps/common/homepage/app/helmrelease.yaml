@@ -67,10 +67,9 @@ spec:
           - name: internal
             namespace: kube-system
             sectionName: https
-        rules:
-          - backendRefs:
-              - identifier: app
-                port: 3000
+        annotations: 
+          - gethomepage.dev/enabled: "true"
+        
     persistence:
       config:
         enabled: true
