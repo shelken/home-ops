@@ -48,15 +48,17 @@ spec:
         fsGroup: 1000
         fsGroupChangePolicy: OnRootMismatch
     service:
+      # app:
+      #   ports:
+      #     http:
+      #       port: 8123
       app:
-        ports:
-          http:
-            port: 8123
-      out:
         type: LoadBalancer
         annotations:
           lbipam.cilium.io/ips: "192.168.6.51"
         ports:
+          http:
+            port: 8123
           mdns:
             port: 5353
             protocol: UDP
