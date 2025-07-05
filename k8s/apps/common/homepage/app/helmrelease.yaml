@@ -88,6 +88,10 @@ spec:
             path: /app/config/settings.yaml
           - subPath: widgets.yaml
             path: /app/config/widgets.yaml
+          - subPath: custom.js
+            path: /app/config/custom.js
+          - subPath: custom.css
+            path: /app/config/custom.css
       tmpfs:
         type: emptyDir
         advancedMounts:
