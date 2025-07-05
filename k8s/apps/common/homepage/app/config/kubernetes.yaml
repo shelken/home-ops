@@ -1,2 +1,5 @@
 ---
 # sample kubernetes config
+mode: default
+ingress: true
+gateway: true
