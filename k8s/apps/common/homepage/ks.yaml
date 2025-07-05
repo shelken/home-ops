@@ -6,10 +6,6 @@ metadata:
   name: &app homepage
   namespace: &namespace default
 spec:
-  postBuild:
-    substituteFrom:
-      - kind: Secret
-        name: homepage-secret
   targetNamespace: *namespace
   commonMetadata:
     labels:
