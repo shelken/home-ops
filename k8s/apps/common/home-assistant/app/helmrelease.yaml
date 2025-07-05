@@ -25,7 +25,7 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/home-assistant/home-assistant
+              repository: ghcr.io/home-operations/home-assistant
               tag: 2025.6
             env:
               TZ: Asia/Shanghai
@@ -55,8 +55,8 @@ spec:
     route:
       app:
         hostnames: 
-          - "{{ .Release.Name }}.devbu.io"
-          - hass.devbu.io
+          - "{{ .Release.Name }}.ooooo.space"
+          - hass.ooooo.space
         parentRefs:
           - name: internal
             namespace: kube-system
@@ -68,3 +68,20 @@ spec:
     persistence:
       config:
         existingClaim: home-assistant
+        globalMounts:
+          - path: /config
+      config-cache:
+        existingClaim: home-assistant-cache
+        globalMounts:
+          - path: /config/.venv
+      tmpfs:
+        type: emptyDir
+        advancedMounts:
+          home-assistant:
+            app:
+              - path: /config/logs
+                subPath: logs
+              # - path: /config/tts
+              #   subPath: tts
+              - path: /tmp
+                subPath: tmp
