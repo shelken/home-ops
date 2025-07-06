@@ -15,15 +15,18 @@
         owner: root
         group: root
         mode: '0755'
+
     - name: 复制本地文件到远程并强制覆盖
       ansible.builtin.copy:
-        src: "{{ playbook_dir }}/resource/registries.yaml"
-        dest: /etc/rancher/k3s/registries.yaml
+        src: "{{ playbook_dir }}/resource/{{ item }}"
+        dest: /etc/rancher/k3s/{{ item }}
         owner: root
         group: root
         mode: "0600"
         force: true
-      when: k3s_dir.stat.exists
+      loop:
+        # - config.yaml
+        - registries.yaml
     - name: 检查 k3s 服务是否存在
       ansible.builtin.systemd:
         name: "{{ 'k3s' if k3s_control_node == 'true' else 'k3s-agent' }}"

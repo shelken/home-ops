@@ -1,8 +1,15 @@
 # 这里定义需要安装的 collections
+collections:
+  - name: ansible.posix
+    version: 1.5.4
+  - name: ansible.utils
+    version: 4.0.0
+  - name: community.general
+    version: 8.5.0
 
 # 这里定义需要安装的 roles
-# roles:
-#   # PyratLabs 的 k3s role，提供更多高级特性
-#   - src: xanmanning.k3s
-#     name: xanmanning.k3s
-#     version: "v3.4.4"  # 指定具体版本
+roles:
+  # PyratLabs 的 k3s role，提供更多高级特性
+  - src: xanmanning.k3s
+    name: xanmanning.k3s
+    version: "v3.4.4"  # 指定具体版本

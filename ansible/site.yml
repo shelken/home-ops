@@ -3,6 +3,9 @@
   hosts: all
   become: true
   tasks:
+    - name: 设置主机名为 "{{ inventory_hostname }}"
+      ansible.builtin.hostname:
+        name: "{{ inventory_hostname }}"
     # - name: 更新系统包
     #   apt:
     #     update_cache: yes
@@ -15,7 +18,7 @@
     #     state: present
 
     - name: 设置时区
-      timezone:
+      community.general.timezone:
         name: "{{ system_timezone }}"
 
     # - name: 配置 sysctl 参数
@@ -27,7 +30,7 @@
     #   with_dict: "{{ sysctl_config }}"
 
 # - name: 配置控制平面节点
-#   hosts: control_plane
+#   hosts: controllers
 #   become: true
 #   tasks:
 #     - name: 设置主机名
