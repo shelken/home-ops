@@ -6,20 +6,11 @@
     - name: 设置主机名为 "{{ inventory_hostname }}"
       ansible.builtin.hostname:
         name: "{{ inventory_hostname }}"
-    # - name: 更新系统包
-    #   apt:
-    #     update_cache: yes
-    #     upgrade: yes
-    #   when: ansible_os_family == "Debian"
-
-    # - name: 安装必要的系统包
-    #   package:
-    #     name: "{{ system_packages }}"
-    #     state: present
-
     - name: 设置时区
       community.general.timezone:
         name: "{{ system_timezone }}"
+    - import_tasks: playbooks/tasks/qemu-guest-agent.yaml
+      when: "'sakamoto' not in inventory_hostname"
 
     # - name: 配置 sysctl 参数
     #   sysctl:
