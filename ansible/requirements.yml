@@ -5,7 +5,7 @@ collections:
   - name: ansible.utils
     version: 4.0.0
   - name: community.general
-    version: 8.5.0
+    version: 8.6.11
 
 # 这里定义需要安装的 roles
 roles:
