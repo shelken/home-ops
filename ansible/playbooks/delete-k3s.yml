@@ -1,13 +1,31 @@
 ---
-- hosts: all
+- name: Uninstall k3s
+  hosts: all
+  become: true
   tasks:
-    - name: "Run k3s-agent-uninstall.sh"
+    # - name: "Run k3s-agent-uninstall.sh"
+    #   become: true
+    #   command:
+    #     cmd: k3s-agent-uninstall.sh
+    #     removes: /usr/local/bin/k3s-agent-uninstall.sh
+    # - name: "Run k3s-uninstall.sh"
+    #   become: true
+    #   command:
+    #     cmd: k3s-uninstall.sh
+    #     removes: /usr/local/bin/k3s-uninstall.sh
+    - name: "Check if cilium_host interface exists"
+      ansible.builtin.command: ip link show cilium_host
+      register: cilium_host_interface
+      ignore_errors: true
+
+    - name: "IP link remove"
       become: true
-      command:
-        cmd: k3s-agent-uninstall.sh
-        removes: /usr/local/bin/k3s-agent-uninstall.sh
-    - name: "Run k3s-uninstall.sh"
-      become: true
-      command:
-        cmd: k3s-uninstall.sh
-        removes: /usr/local/bin/k3s-uninstall.sh
+      ansible.builtin.command: ip link delete cilium_host
+      when: cilium_host_interface.rc == 0
+      failed_when: false
+    - name: Uninstall
+      ansible.builtin.include_role:
+        name: xanmanning.k3s
+        public: true
+      vars:
+        k3s_state: uninstalled
