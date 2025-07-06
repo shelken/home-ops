@@ -80,6 +80,7 @@ bpf:
 autoDirectNodeRoutes: true
 routingMode: native
 ipv4NativeRoutingCIDR: "10.42.0.0/16"
+ipv6NativeRoutingCIDR: "fd42:dead::/48"
 devices: lima1 eth+
 
 loadBalancer:
