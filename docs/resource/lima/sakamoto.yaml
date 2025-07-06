@@ -9,9 +9,9 @@ env:
 #     mountPoint: "/mnt/data"
 #     writable: true
 
-cpus: 4
-memory: 8GiB
-disk: 30GiB
+cpus: 8
+memory: 12GiB
+disk: 40GiB
 
 # 映射到vm中的目录为`/mnt/lima-longhorn`
 additionalDisks:
@@ -28,7 +28,7 @@ additionalDisks:
 # 如果要获取路由器网络ip，使用bridged（需要安装socket_vmnet）
 networks:
 - lima: bridged
-  interface: lima1
+  interface: eth1
   macAddress: "52:55:55:37:34:56"
 # - lima: shared
 #   interface: lima2
