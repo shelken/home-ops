@@ -2,7 +2,7 @@
 # ref：https://github.com/cilium/cilium/blob/v1.17.5/install/kubernetes/cilium/values.yaml
 # gateway-api: https://docs.cilium.io/en/stable/network/servicemesh/gateway-api/gateway-api
 ipv6:
-  enabled: true
+  enabled: false
 
 ipam:
   mode: kubernetes
@@ -80,7 +80,6 @@ bpf:
 autoDirectNodeRoutes: true
 routingMode: native
 ipv4NativeRoutingCIDR: "10.42.0.0/16"
-ipv6NativeRoutingCIDR: "fd42:dead::/48"
 devices: lima1 eth+
 
 loadBalancer:
