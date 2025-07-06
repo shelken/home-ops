@@ -16,6 +16,8 @@ spec:
   infrastructure:
     annotations:
       external-dns.alpha.kubernetes.io/hostname: *hostname
+      tailscale.com/expose: "true"
+      tailscale.com/hostname: "cilium-gateway-external" # 没有的话默认：<service-name>-<namespace>
   listeners:
     - name: http
       protocol: HTTP
