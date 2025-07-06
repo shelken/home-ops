@@ -17,46 +17,31 @@ tasks:
   init: 
     desc: "集群中初始化内容（部署密钥/获取一些crd资源）"
     cmds:
+      # - cmd: |
+      #     echo "安装 cilium"
+      #     helm upgrade cilium cilium/cilium \
+      #     --version 1.17.5 \
+      #     --namespace kube-system \
+      #     -f k8s/infra/common/kube-system/cilium/app/values.yaml --install
       - task: deploy-secret
       - task: add-gateway-crd
       - task: add-external-dns-crd
       - cmd: |
           echo "手动运行下面命令获取azure的外部secret"
-          echo "task deploy-azure-creds ClientID={} ClientSecret={}"
+          echo " ClientID={} ClientSecret={} task deploy-azure-creds"
   
   bootstrap:
     desc: "k3s 部署"
     cmds:
       - cmd: |
+          echo "修改时区等系统设置调整"
           ansible-playbook {{.ROOT_DIR}}/ansible/site.yml
       - cmd: |
+          echo "配置 k3s(containerd) 镜像mirror源 等"
           ansible-playbook {{.ROOT_DIR}}/ansible/playbooks/send-files.yml
       - cmd: |
           echo "部署k3s server"
-          k3sup install --user shelken --ip 192.168.6.80 \
-          --k3s-extra-args "--disable traefik --disable servicelb --flannel-backend=none --disable-network-policy --disable-kube-proxy --embedded-registry --disable local-storage" \
-          --k3s-version v1.33.1+k3s1 \
-          --ssh-key ~/.ssh/id_ed25519
-      - cmd: |
-          echo "部署k3s worker"
-          ips=("192.168.6.110" "192.168.6.111" "192.168.6.114")
-
-          join() {
-            k3sup join \
-            --user shelken \
-            --ip $1 \
-            --server-ip 192.168.0.80 \
-            --server-user shelken \
-            --k3s-version v1.33.1+k3s1 \
-            --ssh-key ~/.ssh/id_ed25519 &
-          }
-          # 遍历数组并异步执行命令
-          for ip in "${ips[@]}"; do
-            join $ip
-          done
-
-          wait
-          echo "done"
+          ansible-playbook {{.ROOT_DIR}}/ansible/playbooks/install-k3s.yaml
 
   deploy-secret:
     desc: "部署sops加密的Secret让flux kustomization能够解密"
