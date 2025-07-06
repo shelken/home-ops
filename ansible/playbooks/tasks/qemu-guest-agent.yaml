@@ -1,0 +1,16 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install qemu-guest-agent
+  apt:
+    name: qemu-guest-agent
+    state: present
+
+- name: Ensure qemu-guest-agent is started and enabled
+  service:
+    name: qemu-guest-agent
+    state: started
+    enabled: yes
