@@ -12,11 +12,6 @@ spec:
   dependsOn:
     - name: cilium-gateway
       namespace: kube-system
-  healthChecks:
-    - apiVersion: helm.toolkit.fluxcd.io/v2
-      kind: HelmRelease
-      name: *app
-      namespace: *namespace
   interval: 1h
   path: ./k8s/infra/staging/network/egress/rule
   prune: true
