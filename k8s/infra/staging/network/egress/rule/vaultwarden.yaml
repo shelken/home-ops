@@ -5,6 +5,7 @@ metadata:
   name: vaultwarden
   namespace: staging
 spec:
+  hostnames: ["vw.ooooo.space"]
   parentRefs:
     - name: external
       namespace: kube-system
