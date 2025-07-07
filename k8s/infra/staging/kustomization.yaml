@@ -9,3 +9,4 @@ resources:
   - ../common/longhorn-system
   - ../common/openebs-system
   - ../common/volsync-system
+  - ./network
