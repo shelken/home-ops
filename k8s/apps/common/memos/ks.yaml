@@ -20,7 +20,7 @@ spec:
       APP: *app
       VOLSYNC_CAPACITY: 2Gi
   interval: 1h
-  path: ./k8s/apps/common/memos
+  path: ./k8s/apps/common/memos/app
   prune: true
   retryInterval: 2m
   sourceRef:
