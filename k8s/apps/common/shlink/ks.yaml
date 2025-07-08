@@ -9,6 +9,12 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  components:
+    - ../../../../components/gatus/external
+  postBuild:
+    substitute:
+      APP: *app
+      GATUS_SUBDOMAIN: s
   dependsOn:
     - name: cloudnative-pg-cluster
       namespace: database
@@ -24,9 +30,6 @@ spec:
   interval: 1h
   retryInterval: 2m
   timeout: 5m
-  postBuild:
-    substitute:
-      APP: *app
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -38,6 +41,12 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  components:
+    - ../../../../components/gatus/guarded
+  postBuild:
+    substitute:
+      APP: *app
+      GATUS_SUBDOMAIN: s-web
   dependsOn:
     - name: shlink
   path: ./k8s/apps/common/shlink/web
