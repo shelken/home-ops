@@ -20,7 +20,7 @@ spec:
       APP: *app
       VOLSYNC_CAPACITY: 2Gi
   interval: 1h
-  path: ./k8s/apps/common/home-assistant
+  path: ./k8s/apps/common/home-assistant/app
   prune: true
   retryInterval: 2m
   sourceRef:

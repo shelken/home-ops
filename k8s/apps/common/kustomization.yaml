@@ -7,4 +7,5 @@ resources:
   - kity/ks.yaml
   - homepage/ks.yaml
   - echo/ks.yaml
+  - shlink/ks.yaml
   # - home-assistant/ks.yaml
