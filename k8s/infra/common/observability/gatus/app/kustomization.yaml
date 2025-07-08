@@ -10,6 +10,7 @@ configMapGenerator:
   - name: gatus-configmap
     files:
       - config.yaml=./resources/config.yaml
+      - outside.yaml=./resources/outside.yaml
 generatorOptions:
   disableNameSuffixHash: true
   annotations:
