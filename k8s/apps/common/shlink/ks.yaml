@@ -40,7 +40,6 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: shlink
-      namespace: *namespace
   path: ./k8s/apps/common/shlink/web
   prune: true
   sourceRef:
