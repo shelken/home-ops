@@ -26,16 +26,13 @@ tasks:
       - cmd: |
           echo "部署k3s agent"
           ansible-playbook {{.ROOT_DIR}}/ansible/playbooks/install-k3s.yaml
-      - cmd: |
-          echo "安装 cilium"
-          helm upgrade cilium cilium/cilium \
-          --version 1.17.5 \
-          --namespace kube-system \
-          -f k8s/infra/common/kube-system/cilium/app/values.yaml --install
           
   init: 
     desc: "集群中初始化内容（部署密钥/获取一些crd资源）"
     cmds:
+      - cmd: |
+          helmfile --file bootstrap/helmfile.yaml sync --hide-notes
+          # helmfile apply -f bootstrap/helmfile.yaml
       - task: deploy-secret
       - task: add-gateway-crd
       - task: add-external-dns-crd
@@ -126,8 +123,14 @@ tasks:
     # vars:
     #   name: {{ .name }}
     cmd: |
-      if [ -n "{{ .name }}" ]; then
-        az keyvault secret show --vault-name shelken-vault --name "{{ .name }}" --query value -otsv
+      if [ -n "{{ .key }}" ]; then
+        az keyvault secret show --vault-name shelken-vault --name "{{ .key }}" --query value -otsv
         exit 0
       fi
       az keyvault secret list --vault-name shelken-vault --query "[].name"
+
+  set-azsecret:
+    requires:
+      vars: ["key"]
+    cmd: |
+      az keyvault secret set --vault-name shelken-vault --name {{ .key }} --value @/tmp/secret.json

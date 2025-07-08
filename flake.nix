@@ -14,7 +14,7 @@
       pkgs = import nixpkgs {inherit system;};
     in {
       devShells.default = pkgs.mkShell {
-        name = "base template";
+        name = "home-ops";
 
         packages = with pkgs; [
           # fluxcd
@@ -33,7 +33,7 @@
           sops
           go-task
 
-          # helmfile
+          helmfile
           # talosctl
         ];
 
@@ -43,6 +43,7 @@
           export KUBECONFIG=`pwd`/kubeconfig
           export ANSIBLE_CONFIG=`pwd`/ansible/ansible.cfg
           export SOPS_AGE_KEY_FILE=~/.config/sops/age/home-ops.txt
+
           echo "环境初始化成功"
         '';
 

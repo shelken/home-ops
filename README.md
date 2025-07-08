@@ -5,14 +5,19 @@ homelab
 
 ## 设备网络
 
-> lb ip range: 192.168.6.40 ~ 192.168.6.49
+> lb ip range: 192.168.6.40 ~ 192.168.6.59
 
-| 服务             | ip           |
-| ---------------- | ------------ |
-| k8s-gateway      | 192.168.6.41 |
-| external gateway | 192.168.6.45 |
-| internal gateway | 192.168.6.46 |
-| cilium ingress   | 192.168.6.40 |
+| 服务                    | ip               | 描述           | domain      |
+| ----------------------- | ---------------- | -------------- | ----------- |
+| k8s-gateway             | 192.168.6.41     | 开放给外部 dns |             |
+| nginx external ingress  | 192.168.6.44     |                |             |
+| cilium external gateway | 192.168.6.45     |                |             |
+| nginx internal ingress  | ~~192.168.6.43~~ | 暂时关闭 无用  |             |
+| cilium internal gateway | 192.168.6.46     |                |             |
+| cilium internal gateway | 192.168.6.46     |                |             |
+| postgres17              | 192.168.6.52     | 开放postgres   | postgres17. |
+| longhorn                |                  | longhorn ui    | longhorn.   |
+| cilium ingress          | ~~192.168.6.40~~ | 已经关闭       |             |
 
 ## 核心组件
 
@@ -54,3 +59,11 @@ kubectl -n longhorn-system patch -p '{"value": "true"}' --type=merge lhs deletin
 4. 每次重建集群之后，cilium总是不给gateway ip
 
 `task restart-cilium` 重启后正常了
+
+5. lima 无法挂载磁盘
+   
+```json
+{"level":"fatal","msg":"failed to run attach disk \"longhorn\", in use by instance \"sakamoto-k8s\"","time":"2025-07-08T14:24:21+08:00"}
+```
+
+`limactl disk unlock longhorn` 
