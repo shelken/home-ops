@@ -42,5 +42,5 @@ spec:
   timeout: 5m
   wait: true
   dependsOn:
-    - name: azure-store
+    - name: external-secrets
       namespace: external-secrets
