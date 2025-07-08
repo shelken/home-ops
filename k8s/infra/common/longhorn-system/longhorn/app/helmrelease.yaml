@@ -31,7 +31,7 @@ spec:
       defaultClassReplicaCount: &replicaCount 3 # 副本数量
       # defaultDataLocality: best-effort # 副本倾向放在pod所在位置
     defaultSettings:
-      # defaultDataLocality: best-effort
+      defaultDataLocality: best-effort
       defaultDataPath: /mnt/lima-longhorn # 默认是 /var/lib/longhorn
       defaultReplicaCount: *replicaCount
       storageMinimalAvailablePercentage: 5 # 默认 25

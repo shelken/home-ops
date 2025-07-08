@@ -2,7 +2,7 @@
 k3s_control_node: true
 k3s_server:
   cluster-cidr: "10.42.0.0/16"
-  disable: ["flannel", "local-storage", "servicelb", "traefik"] # "metrics-server"
+  disable: ["flannel", "local-storage", "servicelb", "traefik", "coredns"] # "metrics-server"
   disable-cloud-controller: true
   disable-kube-proxy: true
   disable-network-policy: true
