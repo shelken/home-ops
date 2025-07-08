@@ -10,3 +10,6 @@ endpoints:
       network: ${GATUS_CLIENT_NETWORK:=ip6} # ip4 or ip or ip6
     conditions:
       - "[STATUS] == ${GATUS_STATUS:=200}"
+    alerts: 
+      - type: slack
+        send-on-resolved: true
