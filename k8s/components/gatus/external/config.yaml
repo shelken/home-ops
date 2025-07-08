@@ -4,8 +4,6 @@ endpoints:
     group: external
     url: "https://${GATUS_SUBDOMAIN:=${APP}}.ooooo.space${GATUS_PATH:=/}"
     interval: 3m
-    ui:
-      logo: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/${GATUS_LOGO:=${APP}}.webp
     client:
       dns-resolver: tcp://223.5.5.5:53 # 目前仅支持tcp/udp；防止内部udp hijack，用tcp
       timeout: ${GATUS_CLIENT_TIMEOUT:=5s} # default 10
