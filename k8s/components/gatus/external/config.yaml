@@ -13,3 +13,4 @@ endpoints:
     alerts: 
       - type: slack
         send-on-resolved: true
+        failure-threshold: 1 #default 3
