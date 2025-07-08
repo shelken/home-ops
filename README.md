@@ -50,3 +50,7 @@ kubectl -n longhorn-system patch -p '{"value": "true"}' --type=merge lhs deletin
 3. cilium-gateway 对 grpc-web 协议直接过滤成 grpc，目前无法关闭，在memos服务使用时调用出错
 
 暂时使用nginx ingress作为入口
+
+4. 每次重建集群之后，cilium总是不给gateway ip
+
+`task restart-cilium` 重启后正常了
