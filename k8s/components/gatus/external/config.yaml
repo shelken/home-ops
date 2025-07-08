@@ -4,6 +4,6 @@ endpoints:
     url: "https://${GATUS_SUBDOMAIN:=${APP}}.ooooo.space${GATUS_PATH:=/}"
     interval: 1m
     client:
-      dns-resolver: tls://223.5.5.5:853
+      dns-resolver: tcp://223.5.5.5:53 # 目前仅支持tcp/udp；防止内部udp hijack，用tcp
     conditions:
       - "[STATUS] == ${GATUS_STATUS:=200}"
