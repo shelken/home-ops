@@ -16,7 +16,7 @@ connectivity:
     interval: 1m
 alerting:
   slack:
-    webhook-url: ${webhook_url}
+    webhook-url: ${WEBHOOK_URL}
 # endpoints:
   # - name: flux-webhook
   #   group: external
