@@ -15,6 +15,7 @@ spec:
     substitute:
       APP: *app
       GATUS_SUBDOMAIN: s
+      GATUS_PATH: /rest/health
   dependsOn:
     - name: cloudnative-pg-cluster
       namespace: database
