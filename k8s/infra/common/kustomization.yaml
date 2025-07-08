@@ -10,3 +10,4 @@ resources:
   - openebs-system
   - volsync-system
   - database
+  - observability

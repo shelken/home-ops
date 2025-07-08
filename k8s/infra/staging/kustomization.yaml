@@ -9,4 +9,5 @@ resources:
   - ../common/openebs-system
   - ../common/volsync-system
   - ../common/database
+  - ../common/observability
   - ./network

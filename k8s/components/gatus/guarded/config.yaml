@@ -1,0 +1,13 @@
+endpoints:
+  - name: "${APP}"
+    group: guarded
+    url: 223.5.5.5
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    dns:
+      query-name: "${GATUS_SUBDOMAIN:=${APP}}.ooooo.space"
+      query-type: A
+    conditions:
+      - "len([BODY]) == 0"
