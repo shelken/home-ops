@@ -4,6 +4,7 @@ endpoints:
     url: 134.195.211.46:5054 # 这里仅支持ip；需要换成ip
     interval: 1m
     ui:
+      logo: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/${GATUS_LOGO:=${APP}}.webp
       hide-hostname: true
       hide-url: true
     dns:

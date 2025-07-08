@@ -3,6 +3,8 @@ endpoints:
   - name: seafile
     group: external
     url: https://seafile.ooooo.space
+    ui:
+      logo: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/seafile.webp
     interval: 3m
     client:
       dns-resolver: tcp://223.5.5.5:53
