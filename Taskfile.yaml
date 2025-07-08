@@ -13,22 +13,6 @@ includes:
 
 tasks:
   default: task --list
-
-  init: 
-    desc: "集群中初始化内容（部署密钥/获取一些crd资源）"
-    cmds:
-      # - cmd: |
-      #     echo "安装 cilium"
-      #     helm upgrade cilium cilium/cilium \
-      #     --version 1.17.5 \
-      #     --namespace kube-system \
-      #     -f k8s/infra/common/kube-system/cilium/app/values.yaml --install
-      - task: deploy-secret
-      - task: add-gateway-crd
-      - task: add-external-dns-crd
-      - cmd: |
-          echo "手动运行下面命令获取azure的外部secret"
-          echo " ClientID={} ClientSecret={} task deploy-azure-creds"
   
   bootstrap:
     desc: "k3s 部署"
@@ -40,8 +24,24 @@ tasks:
           echo "配置 k3s(containerd) 镜像mirror源 等"
           ansible-playbook {{.ROOT_DIR}}/ansible/playbooks/send-files.yml
       - cmd: |
-          echo "部署k3s server"
+          echo "部署k3s agent"
           ansible-playbook {{.ROOT_DIR}}/ansible/playbooks/install-k3s.yaml
+      - cmd: |
+          echo "安装 cilium"
+          helm upgrade cilium cilium/cilium \
+          --version 1.17.5 \
+          --namespace kube-system \
+          -f k8s/infra/common/kube-system/cilium/app/values.yaml --install
+          
+  init: 
+    desc: "集群中初始化内容（部署密钥/获取一些crd资源）"
+    cmds:
+      - task: deploy-secret
+      - task: add-gateway-crd
+      - task: add-external-dns-crd
+      - cmd: |
+          echo "手动运行下面命令获取azure的外部secret"
+          echo " ClientID={} ClientSecret={} task deploy-azure-creds"
 
   deploy-secret:
     desc: "部署sops加密的Secret让flux kustomization能够解密"
