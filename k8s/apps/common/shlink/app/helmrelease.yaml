@@ -39,8 +39,8 @@ spec:
               SHELL_VERBOSITY: 3
               TASK_WORKER_NUM: 4
               WEB_WORKER_NUM: 1
-              SKIP_INITIAL_GEOLITE_DOWNLOAD: "false"
-              DISABLE_IP_TRACKING: "false"
+              SKIP_INITIAL_GEOLITE_DOWNLOAD: "true"
+              DISABLE_IP_TRACKING: "true" # 取消下载geoip数据
             envFrom: *envFrom
             probes:
               liveness: &probes
