@@ -36,7 +36,7 @@ spec:
               DISABLE_TRACKING_FROM: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
               IS_HTTPS_ENABLED: "true"
               PORT: &port 80
-              #SHELL_VERBOSITY: 3
+              SHELL_VERBOSITY: 3
               TASK_WORKER_NUM: 4
               WEB_WORKER_NUM: 1
               SKIP_INITIAL_GEOLITE_DOWNLOAD: "true"
