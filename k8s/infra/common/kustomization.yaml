@@ -9,3 +9,4 @@ resources:
   - longhorn-system
   - openebs-system
   - volsync-system
+  - database
