@@ -27,14 +27,21 @@
       loop:
         # - config.yaml
         - registries.yaml
-    - name: 检查 k3s 服务是否存在
-      ansible.builtin.systemd:
-        name: "{{ 'k3s' if k3s_control_node == 'true' else 'k3s-agent' }}"
-      register: k3s_service_check
-      failed_when: false
-      changed_when: false
+    # - name: 检查 k3s 服务是否存在
+    #   ansible.builtin.systemd:
+    #     name: "{{ 'k3s' if k3s_control_node == 'true' else 'k3s-agent' }}"
+    #   register: k3s_service_check
+    #   failed_when: false
+    #   changed_when: false
+    #   loop: 
+    #     - "k3s"
+    #     - "k3s-agent"
     - name: 重启k3s
       ansible.builtin.service:
-        name: "{{ 'k3s' if k3s_control_node == 'true' else 'k3s-agent' }}"
+        name: "{{ item }}"
         state: restarted
-      when: k3s_service_check.status.LoadState != "not-found"
+      loop: 
+        - "k3s"
+        - "k3s-agent"
+      failed_when: false
+      ignore_errors: true
