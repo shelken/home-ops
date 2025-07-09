@@ -2,7 +2,7 @@
 endpoints:
   - name: seafile
     group: external
-    url: https://seafile.ooooo.space/api2/ping
+    url: https://seafile.ooooo.space/api2/ping/
     interval: 3m
     client:
       dns-resolver: tcp://223.5.5.5:53
