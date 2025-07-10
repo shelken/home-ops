@@ -27,6 +27,9 @@ prometheus:
     enabled: true
     trustCRDsExist: true
 
+dashboards:
+      enabled: true
+
 envoy:
   rollOutPods: true
   prometheus:
@@ -39,6 +42,8 @@ operator:
   prometheus:
     enabled: true
     serviceMonitor:
+      enabled: true
+  dashboards:
       enabled: true
 
 gatewayAPI:
@@ -64,8 +69,8 @@ hubble:
       - http
     serviceMonitor:
       enabled: true
-    # dashboards:
-    #   enabled: true
+    dashboards:
+      enabled: true
   relay:
     enabled: true
     rollOutPods: true
