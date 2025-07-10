@@ -2,9 +2,6 @@
 image:
   repository: ghcr.io/external-secrets/external-secrets
 installCRDs: true
-serviceMonitor:
-  enabled: true
-  interval: 1m
 certController:
   image:
     repository: ghcr.io/external-secrets/external-secrets
@@ -17,5 +14,8 @@ webhook:
   serviceMonitor:
     enabled: true
     interval: 1m
-# grafanaDashboard:
-#   enabled: true
+serviceMonitor:
+  enabled: true
+  interval: 1m
+grafanaDashboard:
+  enabled: true
