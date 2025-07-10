@@ -48,8 +48,8 @@ spec:
             key: ALERTMANAGER_HEARTBEAT_URL
             name: &secret alertmanager-secret
     - name: alert
-      webhookConfigs:
-        - urlSecret:
+      slackConfigs:
+        - apiURL:
             key: ALERTMANAGER_ALERT_URL
             name: *secret
 
