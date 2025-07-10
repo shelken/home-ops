@@ -45,14 +45,14 @@ spec:
     - name: heartbeat
       webhookConfigs:
         - urlSecret:
-            key: &secret alertmanager-secret
-            name: ALERTMANAGER_HEARTBEAT_URL
+            key: ALERTMANAGER_HEARTBEAT_URL
+            name: &secret alertmanager-secret
     - name: wechat|alert
       wechatConfigs:
         - sendResolved: true
           apiSecret:
-            key: *secret
-            name: ALERTMANAGER_WECHAT_ALERT_API_SECRET
+            key: ALERTMANAGER_WECHAT_ALERT_API_SECRET 
+            name: *secret
           corpID: wwdf05cb4ee7d49870
           agentID: "1000003"
           toUser: "@all"
