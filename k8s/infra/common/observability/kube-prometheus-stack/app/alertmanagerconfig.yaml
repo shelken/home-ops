@@ -9,7 +9,7 @@ spec:
     groupBy: ["alertname", "job"]
     groupInterval: 10m
     groupWait: 1m
-    receiver: wechat|alert
+    receiver: alert
     repeatInterval: 12h
     routes:
       - receiver: "null"
@@ -25,7 +25,7 @@ spec:
           - name: alertname
             value: Watchdog
             matchType: =
-      - receiver: wechat|alert
+      - receiver: alert
         matchers:
           - name: severity
             value: critical
@@ -47,16 +47,10 @@ spec:
         - urlSecret:
             key: ALERTMANAGER_HEARTBEAT_URL
             name: &secret alertmanager-secret
-    - name: wechat|alert
-      wechatConfigs:
-        - sendResolved: true
-          apiSecret:
-            key: ALERTMANAGER_WECHAT_ALERT_API_SECRET 
+    - name: alert
+      webhookConfigs:
+        - urlSecret:
+            key: ALERTMANAGER_ALERT_URL
             name: *secret
-          corpID: wwdf05cb4ee7d49870
-          agentID: "1000003"
-          toUser: "@all"
-          # toParty: ""
-          # toTag: ""
 
 
