@@ -40,7 +40,7 @@ spec:
           repository: docker.io/renanqts/external-dns-openwrt-webhook
           tag: v0.1.0
         env:
-          - name: Port 
+          - name: ROUTER_PORT 
             value: "8080"
           - name: SHUTDOWN_TIMEOUT_SECONDS
             value: "5"
@@ -50,7 +50,7 @@ spec:
             value: "false"
           - name: LOG_ENCODING
             value: json
-          - name: ROUTER_HEALTHCHECK_INTERVAL
+          - name: ROUTER_HEALTHCHECK_PATH
             value: /ping
           - name: ROUTER_HEALTHCHECK_PORT
             value: "8080"
