@@ -43,15 +43,16 @@ spec:
   receivers:
     - name: "null"
     - name: heartbeat
-      webhookConfigs:
-        - urlSecret:
+      slackConfigs:
+        - sendResolved: true
+          apiURL:
             key: ALERTMANAGER_HEARTBEAT_URL
             name: &secret alertmanager-secret
     - name: alert
       slackConfigs:
-        - apiURL:
+        - sendResolved: true
+          apiURL:
             key: ALERTMANAGER_ALERT_URL
             name: *secret
-          sendResolved: true
 
 
