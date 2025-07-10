@@ -48,6 +48,9 @@ spec:
           apiURL:
             key: ALERTMANAGER_HEARTBEAT_URL
             name: &secret alertmanager-secret
+      webhookConfigs:
+        - sendResolved: true
+          url: http://localhost:8081/push
     - name: &name alert
       slackConfigs:
         - sendResolved: true

@@ -60,6 +60,15 @@ spec:
               resources:
                 requests:
                   storage: 1Gi
+        extraInitContainers: 
+          - name: alertmanager-uptime-kuma-push
+            image: ghcr.io/natrontech/alertmanager-uptime-kuma-push:v1.0.2
+            ports:
+            - containerPort: 8081
+              name: kuma-push
+            envFrom:
+            - secretRef:
+                name: alertmanager-uptime-kuma-push-secret
     kubeEtcd:
       service:
         selector:
