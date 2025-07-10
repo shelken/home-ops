@@ -48,11 +48,12 @@ spec:
           apiURL:
             key: ALERTMANAGER_HEARTBEAT_URL
             name: &secret alertmanager-secret
-    - name: alert
+    - name: &name alert
       slackConfigs:
         - sendResolved: true
           apiURL:
             key: ALERTMANAGER_ALERT_URL
             name: *secret
+          username: *name
 
 
