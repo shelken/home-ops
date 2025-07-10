@@ -64,6 +64,10 @@ spec:
         ports:
           http:
             port: *port
+    serviceMonitor:
+      app:
+        endpoints:
+          - port: http
     route:
       app:
         hostnames: ["{{ .Release.Name }}.ooooo.space"]

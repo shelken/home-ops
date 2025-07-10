@@ -22,8 +22,8 @@ spec:
       cpu: 500m
     limits:
       memory: 4Gi
-  # monitoring:
-  #   enablePodMonitor: true
+  monitoring:
+    enablePodMonitor: true
   backup:
     retentionPolicy: 30d
     barmanObjectStore:

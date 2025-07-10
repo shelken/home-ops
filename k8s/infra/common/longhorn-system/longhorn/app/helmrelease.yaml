@@ -38,6 +38,6 @@ spec:
       storageReservedPercentageForDefaultDisk: 10 # longhorn用90%
     longhornUI:
       replicas: 1
-    # metrics:
-    #   serviceMonitor:
-    #     enabled: true
+    metrics:
+      serviceMonitor:
+        enabled: true

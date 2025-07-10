@@ -34,8 +34,8 @@ spec:
     # ref: https://artifacthub.io/packages/helm/backube-helm-charts/volsync?modal=values
     manageCRDs: true
     replicaCount: 1
-    # metrics:
-    #   disableAuth: true
+    metrics:
+      disableAuth: true
     # nodeSelector:
     #   kubernetes.io/arch: amd64
     # affinity:

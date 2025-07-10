@@ -65,12 +65,12 @@ spec:
         proxy-buffer-size: 16k
         ssl-protocols: TLSv1.3 TLSv1.2
         use-forwarded-headers: "true"
-      # metrics:
-      #   enabled: true
-      #   serviceMonitor:
-      #     enabled: true
-      #     namespaceSelector:
-      #       any: true
+      metrics:
+        enabled: true
+        serviceMonitor:
+          enabled: true
+          namespaceSelector:
+            any: true
       extraArgs:
         default-ssl-certificate: kube-system/ooooo-space-tls
         publish-status-address: *hostname
