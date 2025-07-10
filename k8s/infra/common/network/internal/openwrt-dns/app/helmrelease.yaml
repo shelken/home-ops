@@ -40,6 +40,8 @@ spec:
           repository: docker.io/renanqts/external-dns-openwrt-webhook
           tag: v0.1.0
         env:
+          - name: Port 
+            value: "8080"
           - name: SHUTDOWN_TIMEOUT_SECONDS
             value: "5"
           - name: LOG_LEVEL
