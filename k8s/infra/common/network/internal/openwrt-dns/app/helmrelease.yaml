@@ -83,8 +83,7 @@ spec:
           timeoutSeconds: 5
         readinessProbe: *probes
         # 目前webhook没有实现健康检测port的修改；external-dns的sevicemonitor强制8888为服务端口，8080为metrics端口
-        serviceMonitor:
-          enabled: false
+        serviceMonitor: null
     extraArgs:
       - --ignore-ingress-tls-spec
     # ref: https://github.com/kubernetes-sigs/external-dns/blob/master/docs/flags.md
