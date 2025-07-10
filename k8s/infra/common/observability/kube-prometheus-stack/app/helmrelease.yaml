@@ -30,6 +30,7 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
+  # ref: https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml
   values:
     crds:
       enabled: true
@@ -64,6 +65,13 @@ spec:
         selector:
           component: apiserver
           provider: kubernetes
+    kubeControllerManager:
+      enabled: true
+      endpoints: &endpoints
+        - 192.168.6.80
+    kubeScheduler: 
+      enabled: true
+      endpoints: *endpoints
     kubeProxy:
       enabled: false
     prometheus:
