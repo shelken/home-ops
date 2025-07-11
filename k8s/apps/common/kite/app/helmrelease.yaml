@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app kity
+  name: &app kite
 spec:
   interval: 1h
   chartRef:
@@ -19,10 +19,10 @@ spec:
       retries: 3
   values:
     controllers:
-      kity:
+      kite:
         pod:
           annotations:
-            secret.reloader.stakater.com/reload: &secret kity-secret
+            secret.reloader.stakater.com/reload: &secret kite-secret
         containers:
           app:
             image:
@@ -64,10 +64,10 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
     serviceAccount:
-      kity: {}
+      kite: {}
     rbac:
       bindings:
-        kity:
+        kite:
           enabled: true
           type: ClusterRoleBinding
           roleRef:
@@ -87,7 +87,3 @@ spec:
           - name: internal
             namespace: kube-system
             sectionName: https
-        rules:
-          - backendRefs:
-              - identifier: app
-                port: *port
