@@ -21,24 +21,12 @@ disableCollapse: false
 fullWidth: true
 
 layout: 
-  控制:
-    状态汇总:
-      header: false
-    智能家居:
-      header: false
-    监控:
-      header: false
-    容器管理:
-      header: false
   设备:
     icon: mdi-desktop-classic
-  媒体管理:
-
+  观测:
   媒体:
-
+  常用:
+  存储:
   文章:
   网络:
-  misc:
-    未分类:
-    密码管理:
-    容器更新:
+  MISC:

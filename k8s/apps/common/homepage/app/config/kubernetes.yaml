@@ -1,5 +1,5 @@
 ---
 # sample kubernetes config
-mode: default
+mode: cluster
 ingress: true
 gateway: true
