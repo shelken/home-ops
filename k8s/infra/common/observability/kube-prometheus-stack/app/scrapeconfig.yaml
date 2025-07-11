@@ -13,3 +13,29 @@ spec:
     - action: replace
       targetLabel: job
       replacement: *name
+
+---
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: &name caddy-tvbox
+spec:
+  staticConfigs:
+    - targets:
+        - tvbox.lan:2019
+      labels: 
+        job: *name
+  metricsPath: /metrics
+
+# ---
+# apiVersion: monitoring.coreos.com/v1alpha1
+# kind: ScrapeConfig
+# metadata:
+#   name: &name caddy-vps
+# spec:
+#   staticConfigs:
+#     - targets:
+#         - tvbox.lan:2019
+#       labels: 
+#         job: *name
+#   metricsPath: /metrics
