@@ -11,14 +11,13 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../../components/gatus/external
-    - ../../../../components/volsync
-  dependsOn:
-    - name: longhorn
-      namespace: longhorn-system
+    # - ../../../../components/volsync
+  # dependsOn:
+  #   - name: longhorn
+  #     namespace: longhorn-system
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 2Gi
       GATUS_PATH: /healthz
   interval: 1h
   path: ./k8s/apps/common/memos/app

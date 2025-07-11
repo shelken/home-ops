@@ -1,0 +1,5 @@
+LOAD DATABASE
+	FROM sqlite:///tmp/memos_prod.db
+	INTO postgresql://memos:password@postgres17.ooooo.space:5432/memos?sslmode=disable
+	WITH data only, disable triggers, preserve index names
+set work_mem to '16MB', maintenance_work_mem to '512 MB';
