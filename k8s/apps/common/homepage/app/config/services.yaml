@@ -90,13 +90,13 @@
 
 - 网络:
     - Headscale Manage:
-        icon: tailscale.png
-        href: https://headscale.ooooo.space/admin
+        icon: tailscale-light.png
+        href: https://headscale.ooooo.space/admin/
         description:
 
 - MISC:
     - VaultWarden:
-        icon: vaultwarden.png
+        icon: vaultwarden-light.png
         href: https://vw.ooooo.space
         description:
     - Shlink Manage:
