@@ -12,6 +12,7 @@
 
 <div align="center">
 
+[![K3S](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fk3s_version&logo=k3s&labelColor=363a4f&style=for-the-badge&label=K3S&color=91D7E3)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
 [![Age-Days](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fcluster_age_days&logo=upptime&labelColor=363a4f&style=for-the-badge&label=Age)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
 [![Uptime-Days](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fcluster_uptime_days&logo=upptime&labelColor=363a4f&style=for-the-badge&label=Uptime)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
 [![Node-Count](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fcluster_node_count&logo=kubernetes&labelColor=363a4f&style=for-the-badge&label=Nodes)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
