@@ -1,6 +1,6 @@
 # kube-prometheus-stack
 
-## NAS Deployments
+## Other Device Deployments
 
 ### node-exporter
 
@@ -15,7 +15,7 @@ services:
       - '--web.listen-address=0.0.0.0:9100'
       - >-
         --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
-    image: quay.io/prometheus/node-exporter:v1.9.0
+    image: quay.io/prometheus/node-exporter:v1.9.1
     network_mode: host
     ports:
       - '9100:9100'
@@ -24,19 +24,4 @@ services:
       - /:/host/root:ro
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
-```
-
-### smartctl-exporter
-
-```yaml
-services:
-  smartctl-exporter:
-    command:
-      - '--smartctl.device-exclude=nvme0'
-    image: quay.io/prometheuscommunity/smartctl-exporter:v0.13.0
-    ports:
-      - '9633:9633'
-    privileged: True
-    restart: always
-    user: root
 ```
