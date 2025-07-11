@@ -37,7 +37,7 @@ spec:
                 memory: 400Mi
             # securityContext:
             #   allowPrivilegeEscalation: false
-            #   readOnlyRootFilesystem: false
+            #   readOnlyRootFilesystem: true
             #   capabilities: { drop: ["ALL"] }
             envFrom:
               - secretRef:
@@ -45,8 +45,8 @@ spec:
             env:
               LOG_LEVEL: debug
               HOMEPAGE_ALLOWED_HOSTS: "{{ .Release.Name }}.ooooo.space,hp.ooooo.space"
-              PUID: &uid 1000
-              PGID: *uid
+              # PUID: &uid 1000
+              # PGID: *uid
             # envFrom:
             #   - secretRef:
             #       name: homepage-secret
