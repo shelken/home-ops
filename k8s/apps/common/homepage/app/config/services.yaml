@@ -2,104 +2,104 @@
 # https://gethomepage.dev/configs/services
 - 设备:
     - PVE:
-      icon: proxmox.png
-      href: https://192.168.6.213:8006
-      description:
+        icon: proxmox.png
+        href: https://192.168.6.213:8006
+        description:
     - 我的路由:
-      icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/uPic/2024-01/RdRn6J.png
-      href: http://router-mine
-      description:
+        icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/uPic/2024-01/RdRn6J.png
+        href: http://router-mine
+        description:
     - 家路由:
-      icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/uPic/2024-01/AaQpSo.png
-      href: http://router-home
-      description:
+        icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/uPic/2024-01/AaQpSo.png
+        href: http://router-home
+        description:
     - F50:
-      icon: https://api.iconify.design/heroicons/wifi-solid.svg
-      href: http://router-f50/
-      description: 随身wifi
+        icon: https://api.iconify.design/heroicons/wifi-solid.svg
+        href: http://router-f50/
+        description: 随身wifi
 
 - 常用:
     - HomeAssistant:
-      icon: home-assistant-alt.png
-      href: https://hass.ooooo.space
-      description:
+        icon: home-assistant-alt.png
+        href: https://hass.ooooo.space
+        description:
 
 - 观测:
     - Grafana:
-      icon: grafana.png
-      href: https://grafana.ooooo.space
-      description: Dashboard
+        icon: grafana.png
+        href: https://grafana.ooooo.space
+        description: Dashboard
     - Gatus:
-      icon: gatus.png
-      href: https://status.ooooo.space
-      description:
-      widget:
-        type: gatus
-        url: http://gatus.observability.svc.cluster.local:80
+        icon: gatus.png
+        href: https://status.ooooo.space
+        description:
+        widget:
+          type: gatus
+          url: http://gatus.observability.svc.cluster.local:80
     - UptimeKuma:
-      icon: uptime-kuma.png
-      href: https://stats.ooooo.space
-      description:
-      widget: 
-        type: uptimekuma
-        url: http://stats.ooooo.space
-        slug: public
+        icon: uptime-kuma.png
+        href: https://stats.ooooo.space
+        description:
+        widget:
+          type: uptimekuma
+          url: http://stats.ooooo.space
+          slug: public
     - Kite:
-      icon: https://gcore.jsdelivr.net/gh/zxh326/kite/ui/src/assets/icon.svg
-      href: https://kite.ooooo.space
-      description:
+        icon: https://gcore.jsdelivr.net/gh/zxh326/kite/ui/src/assets/icon.svg
+        href: https://kite.ooooo.space
+        description:
     - Prometheus:
-      icon: prometheus.png
-      href: https://prometheus.ooooo.space
-      description:
-      widget:
-        type: prometheus
-        url: http://prometheus-operated.observability.svc.cluster.local:80
+        icon: prometheus.png
+        href: https://prometheus.ooooo.space
+        description:
+        widget:
+          type: prometheus
+          url: http://prometheus-operated.observability.svc.cluster.local:80
     - AlertManager:
-      icon: alertmanager.png
-      href: https://alertmanager.ooooo.space
-      description:
+        icon: alertmanager.png
+        href: https://alertmanager.ooooo.space
+        description:
 
 - 存储:
     - Seafile:
-      icon: seafile.png
-      href: https://seafile.ooooo.space
-      description: 文件同步
+        icon: seafile.png
+        href: https://seafile.ooooo.space
+        description: 文件同步
     - Minio:
-      icon: minio-light.png
-      href: https://minio-ui.ooooo.space
-      description:
+        icon: minio-light.png
+        href: https://minio-ui.ooooo.space
+        description:
     - Longhorn:
-      icon: longhorn.png
-      href: https://longhorn.ooooo.space
-      description:
+        icon: longhorn.png
+        href: https://longhorn.ooooo.space
+        description:
 
 - 文章:
     - 博客:
-      icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/avatar/mio-1.webp
-      href: https://blog.ooooo.space
-      description: 博客
+        icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/avatar/mio-1.webp
+        href: https://blog.ooooo.space
+        description: 博客
     - Xlog:
-      icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/avatar/mio-2.jpg
-      href: https://xlog.ooooo.space
-      description:
+        icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/avatar/mio-2.jpg
+        href: https://xlog.ooooo.space
+        description:
     - Memos:
-      icon: memos.png
-      href: https://memos.ooooo.space
-      description:
+        icon: memos.png
+        href: https://memos.ooooo.space
+        description:
 
 - 网络:
     - Headscale Manage:
-      icon: tailscale.png
-      href: https://headscale.ooooo.space/admin
-      description:
+        icon: tailscale.png
+        href: https://headscale.ooooo.space/admin
+        description:
 
 - MISC:
     - VaultWarden:
-      icon: vaultwarden.png
-      href: https://vw.ooooo.space
-      description:
+        icon: vaultwarden.png
+        href: https://vw.ooooo.space
+        description:
     - Shlink Manage:
-      icon: shlink.png
-      href: https://s-web.ooooo.space
-      description:
+        icon: shlink.png
+        href: https://s-web.ooooo.space
+        description:
