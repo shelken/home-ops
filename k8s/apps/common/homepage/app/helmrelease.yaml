@@ -45,15 +45,17 @@ spec:
             env:
               LOG_LEVEL: debug
               HOMEPAGE_ALLOWED_HOSTS: "{{ .Release.Name }}.ooooo.space,hp.ooooo.space"
+              PUID: &uid 1000
+              PGID: *uid
             # envFrom:
             #   - secretRef:
             #       name: homepage-secret
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
+        runAsUser: *uid
+        runAsGroup: *uid
+        fsGroup: *uid
     service:
       app:
         controller: homepage
