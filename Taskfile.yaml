@@ -36,6 +36,7 @@ tasks:
       - task: deploy-secret
       - task: add-gateway-crd
       - task: add-external-dns-crd
+      - task: add-prometheus-crd
       - cmd: |
           echo "手动运行下面命令获取azure的外部secret"
           echo " ClientID={} ClientSecret={} task deploy-azure-creds"
@@ -58,6 +59,12 @@ tasks:
     cmd: |
       # renovate: datasource=github-releases depName=kubernetes-sigs/external-dns
       kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/external-dns/refs/tags/v0.18.0/config/crd/standard/dnsendpoints.externaldns.k8s.io.yaml --server-side
+
+  add-prometheus-crd:
+    desc: "添加prometheus的CRD"
+    cmd: |
+      # renovate: datasource=github-releases depName=prometheus-operator/prometheus-operator
+      kubectl apply -f https://github.com/prometheus-operator/prometheus-operator/releases/download/v0.83.0/stripped-down-crds.yaml --server-side
 
   show-route:
     desc: "显示gateway和对应的服务"
@@ -134,3 +141,12 @@ tasks:
       vars: ["key"]
     cmd: |
       az keyvault secret set --vault-name shelken-vault --name {{ .key }} --value @/tmp/secret.json
+
+  kube-run:
+    requires:
+      vars: ["pod", "image", "node"]
+    cmd: |
+      kubectl run {{.pod}} \
+      --image={{.image}} \
+      --overrides='{ "spec": { "nodeName": "{{.node}}" } }' \
+      --command -- /bin/sh -c "sleep infinity"
