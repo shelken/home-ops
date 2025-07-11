@@ -50,12 +50,12 @@ spec:
             # envFrom:
             #   - secretRef:
             #       name: homepage-secret
-    defaultPodOptions:
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: *uid
-        runAsGroup: *uid
-        fsGroup: *uid
+    # defaultPodOptions:
+    #   securityContext:
+    #     runAsNonRoot: true
+    #     runAsUser: *uid
+    #     runAsGroup: *uid
+    #     fsGroup: *uid
     service:
       app:
         controller: homepage
