@@ -4,3 +4,4 @@ resources:
 - helmrelease.yaml
 - repository.yaml
 - httproute.yaml
+- prometheusrule.yaml
