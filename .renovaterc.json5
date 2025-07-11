@@ -20,9 +20,9 @@
   "helm-values": {
     managerFilePatterns: ["/(^|/)k8s/.+\\.ya?ml(?:\\.j2)?$/"],
   },
-  // helmfile: {
-  //   managerFilePatterns: ["/(^|/)helmfile\\.ya?ml(?:\\.j2)?$/"],
-  // },
+  helmfile: {
+    managerFilePatterns: ["/(^|/)bootstrap\\.ya?ml(?:\\.j2)?$/"],
+  },
   kubernetes: {
     managerFilePatterns: ["/(^|/)k8s/.+\\.ya?ml(?:\\.j2)?$/"],
   },
@@ -30,6 +30,10 @@
     managerFilePatterns: ["/^kustomization\\.ya?ml(?:\\.j2)?$/"],
   },
   packageRules: [
+    {
+      matchPackageNames: ["/fluxcd/"],
+      enabled: false
+    },
     {
       description: "Cert-Manager Group",
       groupName: "Cert-Manager",
