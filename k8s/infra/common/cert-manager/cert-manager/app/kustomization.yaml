@@ -3,6 +3,7 @@ kind: Kustomization
 resources: 
   - repository.yaml
   - release.yaml
+  - prometheusrule.yaml
 configMapGenerator:
   - name: cert-manager-helm-values
     files:
