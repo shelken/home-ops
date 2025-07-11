@@ -35,10 +35,10 @@ spec:
                 memory: 200Mi
               limits:
                 memory: 400Mi
-            # securityContext:
-            #   allowPrivilegeEscalation: false
-            #   readOnlyRootFilesystem: true
-            #   capabilities: { drop: ["ALL"] }
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
             envFrom:
               - secretRef:
                   name: *secret
@@ -87,7 +87,6 @@ spec:
             path: /app/config/services.yaml
           - subPath: settings.yaml
             path: /app/config/settings.yaml
-            readOnly: false
           - subPath: widgets.yaml
             path: /app/config/widgets.yaml
           - subPath: custom.js

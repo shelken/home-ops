@@ -1,68 +1,105 @@
 ---
-# For configuration options and examples, please see:
-# https://gethomepage.dev/en/configs/services
+# https://gethomepage.dev/configs/services
+- 设备:
+    - PVE:
+      icon: proxmox.png
+      href: https://192.168.6.213:8006
+      description:
+    - 我的路由:
+      icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/uPic/2024-01/RdRn6J.png
+      href: http://router-mine
+      description:
+    - 家路由:
+      icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/uPic/2024-01/AaQpSo.png
+      href: http://router-home
+      description:
+    - F50:
+      icon: https://api.iconify.design/heroicons/wifi-solid.svg
+      href: http://router-f50/
+      description: 随身wifi
 
-# - 状态汇总:
-# - 测试:
-#     - 测试:
-#         widget: 
-#             type: iframe
-#             name: myIframe
-#             src: http://192.168.6.141:5230/m/159/embed
+- 常用:
+    - HomeAssistant:
+      icon: home-assistant-alt.png
+      href: https://hass.ooooo.space
+      description:
 
-- 媒体:
-    - Emby:
-        icon: emby.png
-        href: http://192.168.0.80:8096
-        description: 影音库
-        # widget:
-        #     type: emby
-        #     url: http://192.168.0.80:8096
-        #     key: 848f15c00fb542c8975ac89213217527
-        #     enableBlocks: true # optional, defaults to false
-        #     enableNowPlaying: false # optional, defaults to true
+- 观测:
+    - Grafana:
+      icon: grafana.png
+      href: https://grafana.ooooo.space
+      description: Dashboard
+    - Gatus:
+      icon: gatus.png
+      href: https://status.ooooo.space
+      description:
+      widget:
+        type: gatus
+        url: http://gatus.observability.svc.cluster.local:80
+    - UptimeKuma:
+      icon: uptime-kuma.png
+      href: https://stats.ooooo.space
+      description:
+      widget: 
+        type: uptimekuma
+        url: http://stats.ooooo.space
+        slug: public
+    - Kite:
+      icon: https://gcore.jsdelivr.net/gh/zxh326/kite/ui/src/assets/icon.svg
+      href: https://kite.ooooo.space
+      description:
+    - Prometheus:
+      icon: prometheus.png
+      href: https://prometheus.ooooo.space
+      description:
+      widget:
+        type: prometheus
+        url: http://prometheus-operated.observability.svc.cluster.local:80
+    - AlertManager:
+      icon: alertmanager.png
+      href: https://alertmanager.ooooo.space
+      description:
 
-
-- 媒体管理:
-    - 群晖文件:
-        icon: synology-file-station.png
-        href: http://192.168.0.80:5000/file
-        description: 文件
+- 存储:
+    - Seafile:
+      icon: seafile.png
+      href: https://seafile.ooooo.space
+      description: 文件同步
+    - Minio:
+      icon: minio-light.png
+      href: https://minio-ui.ooooo.space
+      description:
+    - Longhorn:
+      icon: longhorn.png
+      href: https://longhorn.ooooo.space
+      description:
 
 - 文章:
     - 博客:
-        icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/avatar/mio-1.webp
-        href: https://blog.ooooo.space
-        description: 博客
+      icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/avatar/mio-1.webp
+      href: https://blog.ooooo.space
+      description: 博客
     - Xlog:
-        icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/avatar/mio-1.webp
-        href: https://xlog.ooooo.space
-        description: Xlog
-- 设备:
-    - PVE:
-        icon: proxmox.png
-        href: https://192.168.6.213:8006
-        description: 
-    - 群晖:
-        icon: synology-dsm.png
-        href: http://192.168.0.80:5000
-        description: 
-    - 我的路由:
-        icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/uPic/2024-01/RdRn6J.png
-        href: http://192.168.6.1
-        description: 
-    - 家路由:
-        icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/uPic/2024-01/AaQpSo.png
-        href: http://192.168.0.1
-        description: 
-    - F50:
-        icon: https://api.iconify.design/heroicons/wifi-solid.svg
-        href: http://192.168.10.1
-        description: 随身wifi
+      icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/avatar/mio-2.jpg
+      href: https://xlog.ooooo.space
+      description:
+    - Memos:
+      icon: memos.png
+      href: https://memos.ooooo.space
+      description:
+
 - 网络:
-    - 我的路由器代理:
-        icon: clash.png
-        href: http://192.168.6.1:9090/ui/yacd/#/proxies
-        description: 我的路由器代理
-        # server: nas-docker
-        # container: clash1
+    - Headscale Manage:
+      icon: tailscale.png
+      href: https://headscale.ooooo.space/admin
+      description:
+
+- MISC:
+    - VaultWarden:
+      icon: vaultwarden.png
+      href: https://vw.ooooo.space
+      description:
+    - Shlink Manage:
+      icon: shlink.png
+      href: https://s-web.ooooo.space
+      description:
