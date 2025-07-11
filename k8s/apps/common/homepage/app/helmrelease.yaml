@@ -89,6 +89,7 @@ spec:
             path: /app/config/services.yaml
           - subPath: settings.yaml
             path: /app/config/settings.yaml
+            readOnly: false
           - subPath: widgets.yaml
             path: /app/config/widgets.yaml
           - subPath: custom.js
