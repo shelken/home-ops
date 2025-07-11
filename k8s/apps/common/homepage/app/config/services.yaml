@@ -42,7 +42,7 @@
         description:
         widget:
           type: uptimekuma
-          url: http://stats.ooooo.space
+          url: http://192.168.6.141:6300
           slug: public
     - Kite:
         icon: https://gcore.jsdelivr.net/gh/zxh326/kite/ui/src/assets/icon.svg
@@ -54,7 +54,7 @@
         description:
         widget:
           type: prometheus
-          url: http://prometheus-operated.observability.svc.cluster.local:80
+          url: http://kube-prometheus-stack-prometheus.observability.svc.cluster.local:80
     - AlertManager:
         icon: alertmanager.png
         href: https://alertmanager.ooooo.space
