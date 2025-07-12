@@ -6,7 +6,7 @@ endpoints:
     interval: 3m
     client:
       dns-resolver: tcp://223.5.5.5:53
-      network: ip
+      network: ip4
       timeout: 5s
     conditions:
       - "[STATUS] == 200"
