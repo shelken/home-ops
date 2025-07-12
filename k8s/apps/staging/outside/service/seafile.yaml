@@ -7,7 +7,7 @@ metadata:
 spec:
   hostnames: ["seafile.ooooo.space"]
   parentRefs:
-    - name: internal
+    - name: external
       namespace: kube-system
       sectionName: https
   rules:
@@ -19,7 +19,6 @@ spec:
         - name: seafile
           port: 4444
           
-
 ---
 apiVersion: v1
 kind: Service
