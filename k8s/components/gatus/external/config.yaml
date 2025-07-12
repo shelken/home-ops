@@ -7,7 +7,7 @@ endpoints:
     client:
       dns-resolver: tcp://223.5.5.5:53 # 目前仅支持tcp/udp；防止内部udp hijack，用tcp
       timeout: ${GATUS_CLIENT_TIMEOUT:=10s} # default 10
-      network: ${GATUS_CLIENT_NETWORK:=ip} # ip4 or ip or ip6; default is ip; 集群没有ipv6栈能力，因此也无法使用ip6
+      network: ${GATUS_CLIENT_NETWORK:=ip4} # ip4 or ip or ip6; default is ip; 集群没有ipv6栈能力，因此也无法使用ip6
     conditions:
       - "[STATUS] == ${GATUS_STATUS:=200}"
     alerts: 
