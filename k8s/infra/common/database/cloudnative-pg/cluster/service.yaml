@@ -17,3 +17,23 @@ spec:
   selector:
     cnpg.io/cluster: postgres17
     cnpg.io/instanceRole: primary
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres17-temp
+  annotations:
+    # external-dns.alpha.kubernetes.io/hostname: postgres17.ooooo.space
+    io.cilium/lb-ipam-ips: 192.168.6.53
+spec:
+  type: LoadBalancer
+  # externalTrafficPolicy: Cluster
+  ports:
+    - name: postgres
+      port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    cnpg.io/cluster: postgres17-temp
+    cnpg.io/instanceRole: primary
