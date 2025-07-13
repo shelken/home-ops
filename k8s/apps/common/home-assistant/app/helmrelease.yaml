@@ -99,7 +99,7 @@ spec:
             port: 5353
             protocol: UDP
           homekit:
-            port: 21064
+            port: 21065
             protocol: TCP
           code-server: 
             port: 8080
