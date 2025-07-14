@@ -3,4 +3,4 @@ kind: Kustomization
 resources: 
   - clusterissuer.yaml
   - clusterissuer-staging.yaml
-  - secret.sops.yaml
+  - externalsecret.yaml
