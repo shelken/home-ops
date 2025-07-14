@@ -43,11 +43,11 @@ spec:
   receivers:
     - name: "null"
     - name: heartbeat
-      slackConfigs:
-        - sendResolved: true
-          apiURL:
-            key: ALERTMANAGER_HEARTBEAT_URL
-            name: &secret alertmanager-secret
+      # slackConfigs:
+      #   - sendResolved: true
+      #     apiURL:
+      #       key: ALERTMANAGER_HEARTBEAT_URL
+      #       name: &secret alertmanager-secret
       webhookConfigs:
         - sendResolved: true
           url: http://localhost:8081/push
