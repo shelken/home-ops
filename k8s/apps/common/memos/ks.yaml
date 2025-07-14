@@ -12,9 +12,9 @@ spec:
   components:
     - ../../../../components/gatus/external
     # - ../../../../components/volsync
-  # dependsOn:
-  #   - name: longhorn
-  #     namespace: longhorn-system
+  dependsOn:
+    - name: cloudnative-pg-cluster
+      namespace: database
   postBuild:
     substitute:
       APP: *app

@@ -11,6 +11,11 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../../../components/gatus/guarded
+  dependsOn:
+    - name: longhorn
+      namespace: longhorn-system
+    - name: external-secrets
+      namespace: external-secrets
   interval: 1h
   path: ./k8s/infra/common/observability/grafana/app
   postBuild:

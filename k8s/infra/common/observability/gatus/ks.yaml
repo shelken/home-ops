@@ -12,6 +12,8 @@ spec:
   dependsOn:
     - name: longhorn
       namespace: longhorn-system
+    - name: external-secrets
+      namespace: external-secrets
   interval: 1h
   path: ./k8s/infra/common/observability/gatus/app
   postBuild:
