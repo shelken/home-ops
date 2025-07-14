@@ -44,11 +44,14 @@ az ad sp create --id $appid
 az ad sp create-for-rbac -n [your-app-name]
 az ad app list --query '[].{name: displayName, appid: appId}'
 
-# 给sp分配「Key Vault Secrets User」的角色
+# 仅读取： 给sp分配「Key Vault Secrets User」的角色
 az role assignment create \
         --role "Key Vault Secrets User" \
         --assignee "$appid" \
         --scope "/subscriptions/$subscriptionId/resourceGroups/$resourceGroupName/providers/Microsoft.KeyVault/vaults/$keyVaultName"
+
+# 读写： 给sp分配「Key Vault Secrets Officer」的角色
+
 
 # 查询sp被分配角色
 # az role assignment list --assignee [id-or-appid] --all --output table
