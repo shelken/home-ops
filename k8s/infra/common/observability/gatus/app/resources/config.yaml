@@ -20,7 +20,7 @@ alerting:
 # endpoints:
   # - name: flux-webhook
   #   group: external
-  #   url: https://flux-webhook.devbu.io
+  #   url: https://flux-webhook.ooooo.space
   #   interval: 1m
   #   client:
   #     dns-resolver: tcp://1.1.1.1:53
