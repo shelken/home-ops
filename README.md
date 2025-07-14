@@ -38,12 +38,11 @@ homelab
 | k8s-gateway             | 192.168.6.41     | 开放给外部 dns |             |
 | nginx external ingress  | 192.168.6.44     |                |             |
 | cilium external gateway | 192.168.6.45     |                |             |
-| nginx internal ingress  | ~~192.168.6.43~~ | 暂时关闭 无用  |             |
-| cilium internal gateway | 192.168.6.46     |                |             |
 | cilium internal gateway | 192.168.6.46     |                |             |
 | postgres17              | 192.168.6.52     | 开放postgres   | postgres17. |
 | longhorn                |                  | longhorn ui    | longhorn.   |
 | cilium ingress          | ~~192.168.6.40~~ | 已经关闭       |             |
+| nginx internal ingress  | ~~192.168.6.43~~ | 暂时关闭 无用  |             |
 
 ## 核心组件
 
@@ -59,6 +58,18 @@ homelab
 <!-- - [spegel](https://github.com/spegel-org/spegel): Stateless cluster local OCI registry mirror. -->
 <!-- - [volsync](https://github.com/backube/volsync): Backup and recovery of persistent volume claims. -->
 
+## 初始化所需Secret
+
+> 以下secret存储在 Azure KeyVault 或任何 external secret 提供商
+>
+> [resources](/bootstrap/resources.yaml)
+
+| secret key      | 用途                                                      | 备注 |
+| --------------- | --------------------------------------------------------- | ---- |
+| azure-creds     | external-secret 获取secret必须                            |      |
+| flux-instance   | flux-instance 拉取private repo必须                        |      |
+| sops            | 部分使用sops加密的配置                                    |      |
+| ooooo-space-tls | 域名证书（加快集群部署速,度避免cert-manager多次获取证书） |      |
 
 ## flux
 

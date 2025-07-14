@@ -1,5 +1,6 @@
 ## flux
 
+> NOTE: 目前项目不再使用CLI命令即`flux bootstrap`来初始化。而是使用`flux-instance`和`flux-operator`。
 > [教程 flux-git-ops](https://fschoenberger.dev/homelab/04-flux-git-ops/)
 
 ```shell
