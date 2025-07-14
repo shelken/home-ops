@@ -75,6 +75,22 @@ spec:
                 memory: 500Mi
 
     defaultPodOptions:
+      annotations:
+        k8s.v1.cni.cncf.io/networks: |
+          [{
+            "name": "multus-main",
+            "namespace": "network",
+            "ips": ["192.168.6.61/24"]
+          }]
+      affinity: 
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In 
+                    values:
+                      - homelab-1
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -87,9 +103,9 @@ spec:
       #     http:
       #       port: 8123
       app:
-        type: LoadBalancer
-        annotations:
-          lbipam.cilium.io/ips: "192.168.6.51"
+        # type: LoadBalancer
+        # annotations:
+        #   lbipam.cilium.io/ips: "192.168.6.51"
         ports:
           http:
             port: &port 8123
