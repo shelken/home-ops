@@ -56,7 +56,7 @@ spec:
         - sendResolved: true
           apiURL:
             key: ALERTMANAGER_ALERT_URL
-            name: *secret
+            name: alertmanager-secret
           username: *name
 
 
