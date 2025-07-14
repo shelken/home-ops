@@ -17,6 +17,7 @@ instance:
     ref: refs/heads/main
     path: k8s/clusters/staging
     interval: 1h
+    pullSecret: "git-token-auth"
   commonMetadata:
     labels:
       app.kubernetes.io/name: flux
