@@ -75,22 +75,22 @@ spec:
                 memory: 500Mi
 
     defaultPodOptions:
-      annotations:
-        k8s.v1.cni.cncf.io/networks: |
-          [{
-            "name": "multus-main",
-            "namespace": "network",
-            "ips": ["192.168.6.61/24"]
-          }]
-      affinity: 
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: kubernetes.io/hostname
-                    operator: In
-                    values:
-                      - homelab-1
+      # annotations:
+      #   k8s.v1.cni.cncf.io/networks: |
+      #     [{
+      #       "name": "multus-main",
+      #       "namespace": "network",
+      #       "ips": ["192.168.6.61/24"]
+      #     }]
+      # affinity: 
+      #   nodeAffinity:
+      #     requiredDuringSchedulingIgnoredDuringExecution:
+      #       nodeSelectorTerms:
+      #         - matchExpressions:
+      #             - key: kubernetes.io/hostname
+      #               operator: In
+      #               values:
+      #                 - homelab-1
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
