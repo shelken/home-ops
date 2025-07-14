@@ -38,6 +38,8 @@ spec:
   dependsOn:
     - name: cert-manager
       namespace: cert-manager
+    - name: external-secrets
+      namespace: external-secrets
   healthChecks:
     - kind: ClusterIssuer
       apiVersion: cert-manager.io/v1
