@@ -1,0 +1,132 @@
+---
+# ref: https://artifacthub.io/packages/helm/flux-instance/flux-instance?modal=values
+instance:
+  distribution:
+    # renovate: datasource=github-releases depName=controlplaneio-fluxcd/distribution
+    version: 2.6.4
+  cluster:
+    networkPolicy: false  # 限制其他命名空间对flux-system的访问 默认true
+  components:
+    - source-controller
+    - kustomize-controller
+    - helm-controller
+    - notification-controller
+  sync:
+    kind: GitRepository
+    url: https://github.com/shelken/home-ops
+    ref: refs/heads/main
+    path: k8s/clusters/staging
+    interval: 1h
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: flux
+  kustomize:
+    patches:
+      # ref: https://fluxcd.io/flux/installation/configuration/vertical-scaling
+      # 参数：https://fluxcd.io/flux/components/helm/options/
+      - # Increase the number of workers
+        # concurrent default: source:2 helm:4 kustomize:4
+        patch: |
+          - op: add
+            path: /spec/template/spec/containers/0/args/-
+            value: --concurrent=10
+          - op: add
+            path: /spec/template/spec/containers/0/args/-
+            value: --requeue-dependency=5s
+        target:
+          kind: Deployment
+          name: (kustomize-controller|helm-controller|source-controller)
+      - # Increase the memory limits.(default: 1Gi)
+        patch: |
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: all
+          spec:
+            template:
+              spec:
+                containers:
+                  - name: manager
+                    resources:
+                      limits:
+                        memory: 2Gi
+        target:
+          kind: Deployment
+          name: (kustomize-controller|helm-controller|source-controller)
+      - # Enable in-memory kustomize builds
+        patch: |
+          - op: add
+            path: /spec/template/spec/containers/0/args/-
+            value: --concurrent=20
+          - op: replace
+            path: /spec/template/spec/volumes/0
+            value:
+              name: temp
+              emptyDir:
+                medium: Memory
+        target:
+          kind: Deployment
+          name: kustomize-controller
+      - # Enable Helm repositories caching
+        patch: |
+          - op: add
+            path: /spec/template/spec/containers/0/args/-
+            value: --helm-cache-max-size=10
+          - op: add
+            path: /spec/template/spec/containers/0/args/-
+            value: --helm-cache-ttl=60m
+          - op: add
+            path: /spec/template/spec/containers/0/args/-
+            value: --helm-cache-purge-interval=5m
+        target:
+          kind: Deployment
+          name: source-controller
+      - # Flux near OOM detection for Helm
+        patch: |
+          - op: add
+            path: /spec/template/spec/containers/0/args/-
+            value: --feature-gates=OOMWatch=true
+          - op: add
+            path: /spec/template/spec/containers/0/args/-
+            value: --oom-watch-memory-threshold=95
+          - op: add
+            path: /spec/template/spec/containers/0/args/-
+            value: --oom-watch-interval=500ms
+        target:
+          kind: Deployment
+          name: helm-controller
+      - # Disable chart digest tracking
+        patch: |
+          - op: add
+            path: /spec/template/spec/containers/0/args/-
+            value: --feature-gates=DisableChartDigestTracking=true
+        target:
+          kind: Deployment
+          name: helm-controller
+      # - # 必须三个变量一起设置，官方文档只写了两个变量会有问题，不能缺少http_proxy
+      #   patch: |
+      #     apiVersion: apps/v1
+      #     kind: Deployment
+      #     metadata:
+      #       name: all
+      #     spec:
+      #       template:
+      #         spec:
+      #           containers:
+      #             - name: manager
+      #               env:
+      #                 - name: "HTTPS_PROXY"
+      #                   value: "http://192.168.6.248:7890"
+      #                 - name: "NO_PROXY"
+      #                   value: "localhost,::1,127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.cluster.local.,.cluster.local,.svc"
+      #                 - name: "HTTP_PROXY"
+      #                   value: "http://192.168.6.248:7890"
+      #                 - name: "https_proxy"
+      #                   value: "http://192.168.6.248:7890"
+      #                 - name: "no_proxy"
+      #                   value: "localhost,::1,127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.cluster.local.,.cluster.local,.svc"
+      #                 - name: "http_proxy"
+      #                   value: "http://192.168.6.248:7890"    
+      #   target:
+      #     kind: Deployment
+      #     labelSelector: app.kubernetes.io/part-of=flux
