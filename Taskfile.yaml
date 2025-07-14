@@ -10,6 +10,7 @@ vars:
 
 includes:
   sops: .taskfile/sops.yaml
+  secret: .taskfile/secret.yaml
 
 tasks:
   default: task --list
@@ -33,19 +34,10 @@ tasks:
       - cmd: |
           helmfile --file bootstrap/helmfile.yaml sync --hide-notes
           # helmfile apply -f bootstrap/helmfile.yaml
-      - task: deploy-secret
+      - task: secret:bootstrap
       - task: add-gateway-crd
       - task: add-external-dns-crd
       - task: add-prometheus-crd
-      - cmd: |
-          echo "手动运行下面命令获取azure的外部secret"
-          echo " ClientID={} ClientSecret={} task deploy-azure-creds"
-
-  deploy-secret:
-    desc: "部署sops加密的Secret让flux kustomization能够解密"
-    cmd: |
-      kubectl get namespace flux-system >/dev/null 2>&1 || kubectl create namespace flux-system
-      sops exec-file "{{.ROOT_DIR}}/k8s/components/common/sops/secret.sops.yaml" "kubectl --namespace flux-system apply --server-side --filename {}"
 
   add-gateway-crd:
     desc: "添加gateway的CRD"
@@ -84,19 +76,6 @@ tasks:
       "Gateways: \(.gateways)\t\(.namespace)/\(.name)\tHosts: \(.hosts)\tPaths: \(.paths)"
       '
       kubectl get -A ingress
-  
-  deploy-azure-creds:
-    desc: "部署 azure 的验证信息让 external-secrets 访问我们的 KeyVault"
-    silent: false
-    preconditions:
-      - '[ -n "$ClientID" ]'
-      - '[ -n "$ClientSecret" ]'
-    cmd: |
-      kubectl get namespace external-secrets >/dev/null 2>&1 || kubectl create namespace external-secrets
-      kubectl create secret -n external-secrets generic azure-creds \
-      --from-literal=ClientID={{ .ClientID }} \
-      --from-literal=ClientSecret={{ .ClientSecret }} --dry-run=client -o yaml \
-      | kubectl apply -f -
 
   restart-cilium:
     desc: "restart-cilium"
@@ -121,26 +100,6 @@ tasks:
     preconditions:
       - { msg: "Start file not found", sh: "test -f {{ .start }}" }
       - { msg: "End file not found", sh: "test -d {{ .end }}" }
-
-  azsecret: 
-    desc: 显示azure key vault的secret的value
-    silent: true
-    # requires:
-    #   vars: ["name"]
-    # vars:
-    #   name: {{ .name }}
-    cmd: |
-      if [ -n "{{ .key }}" ]; then
-        az keyvault secret show --vault-name shelken-vault --name "{{ .key }}" --query value -otsv
-        exit 0
-      fi
-      az keyvault secret list --vault-name shelken-vault --query "[].name"
-
-  set-azsecret:
-    requires:
-      vars: ["key"]
-    cmd: |
-      az keyvault secret set --vault-name shelken-vault --name {{ .key }} --value @/tmp/secret.json
 
   kube-run:
     requires:

@@ -2,7 +2,7 @@
 <h3 align="center">
   <img src="https://images.weserv.nl?url=https://avatars.githubusercontent.com/u/33972006?v=4&fit=cover&mask=circle&maxage=7d" width="100" alt="Logo"/><br/>
   <img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/misc/transparent.png" height="30" width="0px"/>
-  <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/kubernetes-dashboard.svg" height="15" /> Homelab for <a href="https://github.com/shelken">Shelken</a>
+  <img src="https://gcore.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/kubernetes-dashboard.svg" height="15" /> Homelab for <a href="https://github.com/shelken">Shelken</a>
   <img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/misc/transparent.png" height="30" width="0px"/>
 </h3>
 
