@@ -7,15 +7,15 @@
         description:
     - 我的路由:
         icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/uPic/2024-01/RdRn6J.png
-        href: http://router-mine/cgi-bin/luci/
+        href: http://router-mine.lan/cgi-bin/luci/
         description:
     - 家路由:
         icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/uPic/2024-01/AaQpSo.png
-        href: http://router-home/cgi-bin/luci/
+        href: http://router-home.lan/cgi-bin/luci/
         description:
     - F50:
         icon: https://api.iconify.design/heroicons/wifi-solid.svg
-        href: http://router-f50/
+        href: http://router-f50.lan/
         description: 随身wifi
 
 - 常用:
