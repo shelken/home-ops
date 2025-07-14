@@ -17,8 +17,8 @@ disk: 40GiB
 additionalDisks:
   - "longhorn"
 
-# ssh:
-#   loadDotSSHPubKeys: true
+ssh:
+  localPort: 60122
 
 # user:
 #   name: &username shelken
@@ -33,6 +33,17 @@ networks:
 # - lima: shared
 #   interface: lima2
 # - vzNAT: true
+
+portForwards:
+  - ignore: true
+    proto: any
+    guestPort: 443
+    guestIP: 0.0.0.0
+  - ignore: true
+    proto: any
+    guestPort: 80
+    guestIP: 0.0.0.0
+
 
 images:
 # Try to use release-yyyyMMdd image if available. Note that release-yyyyMMdd will be removed after several months.
