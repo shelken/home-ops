@@ -24,6 +24,16 @@ stringData:
 apiVersion: v1
 kind: Secret
 metadata:
+  name: git-token-auth
+  namespace: flux-system
+stringData:
+  username: azure://shelken-vault/flux-instance/username
+  password: azure://shelken-vault/flux-instance/password
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
   name: sops-age
   namespace: flux-system
 stringData:
