@@ -44,11 +44,11 @@ spec:
           key: aws-secret-access-key
 
   ##NOTE: 需要恢复时取消注释，并修改backup
-  bootstrap:
-    recovery:
-      source: &previous-cluster postgres17-v1
-  externalClusters:
-    - name: *previous-cluster
-      barmanObjectStore:
-        <<: *barmanObjectStore
-        serverName: *previous-cluster
+  # bootstrap:
+  #   recovery:
+  #     source: &previous-cluster postgres17-v2
+  # externalClusters:
+  #   - name: *previous-cluster
+  #     barmanObjectStore:
+  #       <<: *barmanObjectStore
+  #       serverName: *previous-cluster
