@@ -128,3 +128,7 @@ socketLB:
   hostNamespaceOnly: true # for tailscale ref: https://tailscale.com/kb/1236/kubernetes-operator#cilium-in-kube-proxy-replacement-mode
 
 # enableIPv4BIGTCP: true # Linux 5.19+
+
+# for multus
+cni:
+  exclusive: false
