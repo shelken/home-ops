@@ -9,4 +9,4 @@ resources:
   - echo/ks.yaml
   - shlink/ks.yaml
   - kromgo/ks.yaml
-  - home-assistant/ks.yaml
+  # - home-assistant/ks.yaml
