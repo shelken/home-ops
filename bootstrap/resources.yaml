@@ -17,8 +17,8 @@ metadata:
   name: azure-creds
   namespace: external-secrets
 stringData:
-  ClientID: azure://shelken-vault/azure-creds/ClientID
-  ClientSecret: azure://shelken-vault/azure-creds/ClientSecret
+  ClientID: azure://shelken-homelab/azure-creds/ClientID
+  ClientSecret: azure://shelken-homelab/azure-creds/ClientSecret
 
 ---
 apiVersion: v1
@@ -27,8 +27,8 @@ metadata:
   name: git-token-auth
   namespace: flux-system
 stringData:
-  username: azure://shelken-vault/flux-instance/username
-  password: azure://shelken-vault/flux-instance/password
+  username: azure://shelken-homelab/flux-instance/username
+  password: azure://shelken-homelab/flux-instance/password
 
 ---
 apiVersion: v1
@@ -37,7 +37,7 @@ metadata:
   name: sops-age
   namespace: flux-system
 stringData:
-  age.agekey: azure://shelken-vault/sops/SOPS_PRIVATE_KEY
+  age.agekey: azure://shelken-homelab/sops/SOPS_PRIVATE_KEY
 
 ---
 apiVersion: v1
@@ -58,5 +58,5 @@ metadata:
     controller.cert-manager.io/fao: "true"
 type: kubernetes.io/tls
 data:
-  tls.crt: azure://shelken-vault/ooooo-space-tls/tls.crt
-  tls.key: azure://shelken-vault/ooooo-space-tls/tls.key
+  tls.crt: azure://shelken-homelab/ooooo-space-tls/tls.crt
+  tls.key: azure://shelken-homelab/ooooo-space-tls/tls.key

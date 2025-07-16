@@ -32,32 +32,44 @@ az group list --query "[].name" # resourceGroupName
 az group list # subscriptionId
 az keyvault list --query "[].name" # keyVaultName
 az keyvault list --query "[].id" # role assignment scope
+az keyvault show --name shelken-homelab --query location # key vault location
+az ad app list --display-name [your-app-name] --query "[].appId" # 查询相关app的appid
+az ad app list --query '[].{name: displayName, appid: appId}' # app 列表
+az ad signed-in-user show # 查看当前自己的id信息，方便分配角色
+
+# 创建新的 key vault
+az keyvault create --name $newVaultName --resource-group $resourceGroup --location $location
 
 # 创建一个app
 az ad app create --display-name [your-app-name] --query appId -o tsv
-# az ad app list --display-name [your-app-name] --query "[].appId"
 
 # 根据app创建一个ServicePrincipal
 az ad sp create --id $appid
 
 # 上面两步可以简化成；create-for-rbac 会直接把client secret也一并生成。
 az ad sp create-for-rbac -n [your-app-name]
-az ad app list --query '[].{name: displayName, appid: appId}'
+
 
 # 仅读取： 给sp分配「Key Vault Secrets User」的角色
 az role assignment create \
         --role "Key Vault Secrets User" \
-        --assignee "$appid" \
-        --scope "/subscriptions/$subscriptionId/resourceGroups/$resourceGroupName/providers/Microsoft.KeyVault/vaults/$keyVaultName"
+        --assignee $appid \
+        --scope $vaultScope
 
 # 读写： 给sp分配「Key Vault Secrets Officer」的角色
+az role assignment create \
+        --role "Key Vault Secrets Officer" \
+        --assignee $appid \
+        --scope $vaultScope
 
+# 分配自己，object-id
+az role assignment create --role "Key Vault Secrets Officer" --assignee-object-id $myObjectId --scope $scope
 
 # 查询sp被分配角色
-# az role assignment list --assignee [id-or-appid] --all --output table
+# az role assignment list --assignee $appid --all --output table
 
 # 查询sp的clientid（即appid）
-# az ad sp show --id [id-or-appid] --query appId -o tsv
+# az ad sp show --id $appid --query appId -o tsv
 
 # 生成一个client secret 
 # NOTE: 如果使用create-for-rbac，那不需要重新生成。
@@ -79,7 +91,7 @@ az ad sp credential reset \
   -o tsv
 
 # 查询当前app生成的所有clientsecret
-az ad app credential list --id [id-or-appid]
+az ad app credential list --id $appid
 
 # 删除不用的app
 az ad app delete --id [appid]
