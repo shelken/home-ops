@@ -21,6 +21,7 @@ metadata:
 
     nginx.ingress.kubernetes.io/server-snippet: |
       location @ustc {
+        set $upstream_source "mirrors.ustc.edu.cn";
         proxy_pass https://mirrors.ustc.edu.cn/nix-channels/store;
         proxy_set_header Host "mirrors.ustc.edu.cn";
         proxy_ssl_verify on;
@@ -30,7 +31,7 @@ metadata:
       }
 
       location @cachix {
-        # 这是链条的末端，不再有 error_page
+        set $upstream_source "nix-community.cachix.org";
         proxy_pass https://nix-community.cachix.org;
         proxy_set_header Host "nix-community.cachix.org";
         proxy_ssl_verify on;
@@ -40,7 +41,7 @@ metadata:
       }
 
       location @nixos {
-        # 注意：这里需要完整地设置代理参数
+        set $upstream_source "cache.nixos.org";
         proxy_pass https://cache.nixos.org;
         proxy_set_header Host "cache.nixos.org";
         proxy_ssl_verify on;
@@ -58,6 +59,9 @@ metadata:
       # 将自定义的缓存头加上
       add_header Cache-Control $cache_header always;
       add_header X-Proxy-Cache $upstream_cache_status; # 添加一个头来调试缓存是否命中 (HIT, MISS, EXPIRED)
+      if ($upstream_cache_status = "MISS") {
+        add_header X-Proxy-From $upstream_source always;
+      }
 
 spec:
   ingressClassName: nginx-internal
