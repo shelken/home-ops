@@ -21,49 +21,47 @@ metadata:
 
     nginx.ingress.kubernetes.io/server-snippet: |
       resolver 223.5.5.5 223.6.6.6 valid=300s ipv6=off;
+      resolver_timeout 5s;
+
+      # 主要location匹配
+      location / {
+        try_files "" @ustc;
+      }
+
+      location @proxy_handler {
+        proxy_cache nix_cache_zone;
+        proxy_cache_valid 200 302 60m;
+        proxy_cache_use_stale error timeout;
+        proxy_cache_lock on;
+
+        proxy_pass $upstream_target;
+        proxy_set_header Host $upstream_source;
+        proxy_ssl_server_name on;
+        # proxy_ssl_verify on;
+
+        add_header Cache-Control $cache_header always;
+        add_header X-Proxy-Cache $upstream_cache_status always;
+        if ($upstream_cache_status = "MISS") {
+          add_header X-Proxy-From $upstream_source always;
+        }
+      }
+
       location @ustc {
         set $upstream_source "mirrors.ustc.edu.cn";
-
-        rewrite ^/(.*)$ /nix-channels/store/$1 break;
-        proxy_pass https://mirrors.ustc.edu.cn;
-        proxy_set_header Host "mirrors.ustc.edu.cn";
-        # proxy_ssl_verify on;
-        proxy_ssl_server_name on;
-        
+        set $upstream_target "https://mirrors.ustc.edu.cn/nix-channels/store$request_uri";
         error_page 404 = @cachix;
+        try_files "" @proxy_handler;
       }
-
       location @cachix {
         set $upstream_source "nix-community.cachix.org";
-        proxy_pass https://nix-community.cachix.org;
-        proxy_set_header Host "nix-community.cachix.org";
-        # proxy_ssl_verify on;
-        proxy_ssl_server_name on;
-
+        set $upstream_target "https://nix-community.cachix.org$request_uri";
         error_page 404 = @nixos;
+        try_files "" @proxy_handler;
       }
-
       location @nixos {
         set $upstream_source "cache.nixos.org";
-        proxy_pass https://cache.nixos.org;
-        proxy_set_header Host "cache.nixos.org";
-        # proxy_ssl_verify on;
-        proxy_ssl_server_name on;
-      }
-
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      try_files "" @ustc;
-
-      proxy_cache nix_cache_zone;
-      proxy_cache_valid 200 302 60m;
-      proxy_cache_use_stale error timeout;
-      proxy_cache_lock on;
-
-      # 将自定义的缓存头加上
-      add_header Cache-Control $cache_header always;
-      add_header X-Proxy-Cache $upstream_cache_status; # 添加一个头来调试缓存是否命中 (HIT, MISS, EXPIRED)
-      if ($upstream_cache_status = "MISS") {
-        add_header X-Proxy-From $upstream_source always;
+        set $upstream_target "https://cache.nixos.org$request_uri";
+        try_files "" @proxy_handler;
       }
 
 spec:
