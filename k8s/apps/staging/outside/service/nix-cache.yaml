@@ -22,7 +22,9 @@ metadata:
     nginx.ingress.kubernetes.io/server-snippet: |
       location @ustc {
         set $upstream_source "mirrors.ustc.edu.cn";
-        proxy_pass https://mirrors.ustc.edu.cn/nix-channels/store;
+
+        rewrite ^/(.*)$ /nix-channels/store/$1 break;
+        proxy_pass https://mirrors.ustc.edu.cn;
         proxy_set_header Host "mirrors.ustc.edu.cn";
         proxy_ssl_verify on;
         proxy_ssl_server_name on;
