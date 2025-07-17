@@ -19,14 +19,11 @@ metadata:
 
     nginx.ingress.kubernetes.io/proxy-buffering: on
 
-    nginx.ingress.kubernetes.io/server-snippet: |
+    nginx.ingress.kubernetes.io/configuration-snippet: |
       resolver 223.5.5.5 223.6.6.6 valid=300s ipv6=off;
       resolver_timeout 5s;
 
-      # 主要location匹配
-      location / {
-        try_files "" @ustc;
-      }
+      try_files "" @ustc;
 
       location @proxy_handler {
         proxy_cache nix_cache_zone;
