@@ -20,8 +20,8 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-buffering: on
 
     nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header Host "cache.nixos.org";
       proxy_cache nix_cache_zone;
-
       proxy_cache_valid 200 302 60m;
 
       # 将自定义的缓存头加上
