@@ -68,6 +68,16 @@ spec:
         proxy-busy-buffers-size: "16k"
         ssl-protocols: TLSv1.3 TLSv1.2
         use-forwarded-headers: "true"
+        http-snippet: |
+          # 定义代理缓存路径和参数
+          proxy_cache_path /var/cache/nginx/nix-cache levels=1:2 keys_zone=nix_cache_zone:100m max_size=10g inactive=30d use_temp_path=off;
+
+          # 使用 map 动态设置缓存头，避免缓存错误
+          map $status $cache_header {
+            200     "public";
+            302     "public";
+            default "no-cache";
+          }
       metrics:
         enabled: true
         serviceMonitor:
@@ -85,5 +95,12 @@ spec:
           cpu: 100m
         limits:
           memory: 500Mi
+      extraVolumes:
+        - name: nginx-internal-cache
+          persistentVolumeClaim:
+            claimName: nginx-internal-cache
+      extraVolumeMounts:
+        - name: nginx-internal-cache
+          mountPath: /var/cache/nginx
     defaultBackend:
       enabled: false

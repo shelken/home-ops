@@ -12,6 +12,8 @@ spec:
   dependsOn:
     - name: cilium-gateway
       namespace: kube-system
+    - name: nginx-internal
+      namespace: network
   interval: 1h
   path: ./k8s/apps/staging/outside/service
   prune: true
