@@ -34,11 +34,16 @@ metadata:
         proxy_ssl_server_name on;
         # proxy_ssl_verify on;
 
+        # 在这里设置一个变量来存储来源信息
+        set $proxy_from '';
+        if ($upstream_cache_status = "MISS") {
+          set $proxy_from $upstream_source;
+        }
+
+        # 添加所有的响应头
         add_header Cache-Control $cache_header always;
         add_header X-Proxy-Cache $upstream_cache_status always;
-        if ($upstream_cache_status = "MISS") {
-          add_header X-Proxy-From $upstream_source always;
-        }
+        add_header X-Proxy-From $proxy_from always;
       }
 
       location @ustc {
