@@ -19,11 +19,9 @@ metadata:
 
     nginx.ingress.kubernetes.io/proxy-buffering: on
 
-    nginx.ingress.kubernetes.io/configuration-snippet: |
+    nginx.ingress.kubernetes.io/server-snippet: |
       resolver 223.5.5.5 223.6.6.6 valid=300s ipv6=off;
       resolver_timeout 5s;
-
-      try_files "" @ustc;
 
       location @proxy_handler {
         proxy_cache nix_cache_zone;
@@ -60,6 +58,9 @@ metadata:
         set $upstream_target "https://cache.nixos.org$request_uri";
         try_files "" @proxy_handler;
       }
+
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      try_files "" @ustc;
 
 spec:
   ingressClassName: nginx-internal
