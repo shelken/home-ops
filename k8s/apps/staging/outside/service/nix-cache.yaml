@@ -18,13 +18,42 @@ metadata:
     # kubernetes.io/ingress.class: nginx-internal
 
     nginx.ingress.kubernetes.io/proxy-buffering: on
-    nginx.ingress.kubernetes.io/backend-protocol: HTTPS
-    nginx.ingress.kubernetes.io/proxy-ssl-verify: on
+
+    nginx.ingress.kubernetes.io/server-snippet: |
+      location @ustc {
+        proxy_pass https://mirrors.ustc.edu.cn/nix-channels/store;
+        proxy_set_header Host "mirrors.ustc.edu.cn";
+        proxy_ssl_verify on;
+        proxy_ssl_server_name on;
+        
+        error_page 404 = @cachix;
+      }
+
+      location @cachix {
+        # 这是链条的末端，不再有 error_page
+        proxy_pass https://nix-community.cachix.org;
+        proxy_set_header Host "nix-community.cachix.org";
+        proxy_ssl_verify on;
+        proxy_ssl_server_name on;
+
+        error_page 404 = @nixos;
+      }
+
+      location @nixos {
+        # 注意：这里需要完整地设置代理参数
+        proxy_pass https://cache.nixos.org;
+        proxy_set_header Host "cache.nixos.org";
+        proxy_ssl_verify on;
+        proxy_ssl_server_name on;
+      }
 
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      proxy_set_header Host "cache.nixos.org";
+      try_files "" @ustc;
+
       proxy_cache nix_cache_zone;
       proxy_cache_valid 200 302 60m;
+      proxy_cache_use_stale error timeout;
+      proxy_cache_lock on;
 
       # 将自定义的缓存头加上
       add_header Cache-Control $cache_header always;
