@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
 - seafile.yaml
 - vaultwarden.yaml
+- nix-cache.yaml

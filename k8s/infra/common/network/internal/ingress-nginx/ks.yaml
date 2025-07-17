@@ -20,4 +20,6 @@ spec:
   dependsOn:
     - name: cert-manager-tls
       namespace: cert-manager
+    - name: longhorn
+      namespace: longhorn-system
   wait: false
