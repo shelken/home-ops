@@ -20,6 +20,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-buffering: on
 
     nginx.ingress.kubernetes.io/server-snippet: |
+      resolver 223.5.5.5 223.6.6.6 valid=300s ipv6=off;
       location @ustc {
         set $upstream_source "mirrors.ustc.edu.cn";
 
