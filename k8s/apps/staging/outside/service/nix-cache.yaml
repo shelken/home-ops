@@ -14,12 +14,18 @@ metadata:
   name: nix-cache
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-    # nginx.ingress.kubernetes.io/proxy-buffering: "on"
+    nginx.ingress.kubernetes.io/proxy-buffering: "on"
+
+    nginx.ingress.kubernetes.io/server-snippet: |
+      resolver 223.5.5.5 223.6.6.6 valid=300s ipv6=off;
+      resolver_timeout 5s;
 
     nginx.ingress.kubernetes.io/configuration-snippet: |
       proxy_set_header Host "cache.nixos.org";
       proxy_cache nix_cache_zone;
       proxy_cache_valid 200 302 60m;
+      proxy_cache_use_stale error timeout;
+      proxy_cache_lock on;
 
       add_header Cache-Control $cache_header always;
       add_header X-Cache-Status $upstream_cache_status always;
