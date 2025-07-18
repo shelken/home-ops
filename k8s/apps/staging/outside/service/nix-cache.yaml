@@ -22,6 +22,7 @@ metadata:
       resolver_timeout 5s;
 
     nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header Host "mirrors.ustc.edu.cn";
       proxy_cache nix_cache_zone;
       proxy_cache_valid 200 302 60m;
       proxy_cache_use_stale error timeout;
