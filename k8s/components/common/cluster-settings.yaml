@@ -1,0 +1,6 @@
+configmapapiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-settings
+data:
+  TIMEZONE: "Asia/Shanghai"
