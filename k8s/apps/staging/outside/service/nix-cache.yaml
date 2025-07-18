@@ -5,7 +5,7 @@ metadata:
   name: upstream-nix-cache
 spec:
   type: ExternalName
-  externalName: cache.nixos.org
+  externalName: mirrors.ustc.edu.cn
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -13,6 +13,7 @@ kind: Ingress
 metadata:
   name: nix-cache
   annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /nix-channels/store$request_uri
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     nginx.ingress.kubernetes.io/proxy-buffering: "on"
 
@@ -21,7 +22,7 @@ metadata:
       resolver_timeout 5s;
 
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      proxy_set_header Host "cache.nixos.org";
+      proxy_set_header Host "mirrors.ustc.edu.cn";
       proxy_cache nix_cache_zone;
       proxy_cache_valid 200 302 60m;
       proxy_cache_use_stale error timeout;
