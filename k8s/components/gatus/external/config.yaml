@@ -2,7 +2,7 @@
 endpoints:
   - name: "${APP}"
     group: external
-    url: "https://${GATUS_SUBDOMAIN:=${APP}}.ooooo.space${GATUS_PATH:=/}"
+    url: "https://${GATUS_SUBDOMAIN:=${APP}}.${MAIN_DOMAIN}${GATUS_PATH:=/}"
     interval: 3m
     client:
       dns-resolver: tcp://223.5.5.5:53 # 目前仅支持tcp/udp；防止内部udp hijack，用tcp
