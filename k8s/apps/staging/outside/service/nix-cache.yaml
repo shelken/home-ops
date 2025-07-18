@@ -25,71 +25,68 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      proxy_set_header Accept-Encoding "";
       add_header X-Cache-Status $upstream_cache_status;
       add_header Cache-Control $cache_header;
       resolver 223.5.5.5 ipv4=off;
 
     nginx.ingress.kubernetes.io/server-snippet: |
-      location / {
-        proxy_cache nix_cache_zone;
-        proxy_cache_use_stale error timeout http_500 http_502 http_503 http_504;
-        proxy_cache_revalidate on;
-        proxy_cache_min_uses 1;
-        proxy_cache_lock on;
+      proxy_cache nix_cache_zone;
+      proxy_cache_use_stale error timeout http_500 http_502 http_503 http_504;
+      proxy_cache_revalidate on;
+      proxy_cache_min_uses 1;
+      proxy_cache_lock on;
 
-        set $nix_upstream "";
+      set $nix_upstream "";
 
-        access_by_lua_block {
-          -- 定义上游服务器列表
-          local upstreams = {
-            "https://cache.nixos.org",
-            "https://mirrors.ustc.edu.cn/nix-channels/store",
-            "https://nix-community.cachix.org"
-          }
-          
-          -- 设置初始上游为第一个服务器
-          ngx.var.nix_upstream = upstreams[1]
-          
-          local function try_upstream(uri, upstream)
-            local http = require "resty.http"
-            local httpc = http.new()
-            local res, err = httpc:request_uri(upstream .. uri, {
-              method = "HEAD",
-              headers = {
-                ["Host"] = upstream:match("https?://([^/]+)")
-              }
-            })
-            
-            if res and res.status == 200 then
-              return upstream
-            end
-            return nil
-          end
-          
-          -- 尝试所有上游直到找到一个可用的
-          for _, upstream in ipairs(upstreams) do
-            local found = try_upstream(ngx.var.uri, upstream)
-            if found then
-              ngx.var.nix_upstream = found
-              break
-            end
-          end
+      access_by_lua_block {
+        -- 定义上游服务器列表
+        local upstreams = {
+          "https://cache.nixos.org",
+          "https://mirrors.ustc.edu.cn/nix-channels/store",
+          "https://nix-community.cachix.org"
         }
         
-        proxy_pass $nix_upstream;
+        -- 设置初始上游为第一个服务器
+        ngx.var.nix_upstream = upstreams[1]
+        
+        local function try_upstream(uri, upstream)
+          local http = require "resty.http"
+          local httpc = http.new()
+          local res, err = httpc:request_uri(upstream .. uri, {
+            method = "HEAD",
+            headers = {
+              ["Host"] = upstream:match("https?://([^/]+)")
+            }
+          })
+          
+          if res and res.status == 200 then
+            return upstream
+          end
+          return nil
+        end
+        
+        -- 尝试所有上游直到找到一个可用的
+        for _, upstream in ipairs(upstreams) do
+          local found = try_upstream(ngx.var.uri, upstream)
+          if found then
+            ngx.var.nix_upstream = found
+            break
+          end
+        end
       }
+
+      proxy_pass $nix_upstream;
 
 spec:
   ingressClassName: nginx-internal
   rules:
-  - host: "nix-cache.ooooo.space"
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: upstream-nix-cache
-            port:
-              number: 443
+    - host: "nix-cache.ooooo.space"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: upstream-nix-cache
+                port:
+                  number: 443
