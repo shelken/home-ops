@@ -5,77 +5,30 @@ metadata:
   name: upstream-nix-cache
 spec:
   type: ExternalName
-  # 将这个 service 的 DNS 名称指向真正的上游
   externalName: cache.nixos.org
 
 ---
-# yaml-language-server: $schema=https://kubernetesjsonschema.dev/master-standalone/ingress.json
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: nix-cache
   annotations:
-    # kubernetes.io/ingress.class: nginx-internal
-
+    # 开启代理缓冲
     nginx.ingress.kubernetes.io/proxy-buffering: "on"
+    # 定义缓存区域（名称需与 NGINX Controller 配置中的 proxy_cache_path 匹配）
     nginx.ingress.kubernetes.io/proxy-cache: "nix_cache_zone"
-    nginx.ingress.kubernetes.io/proxy-cache-valid: "200 302 60m"
+    # 缓存的有效时间
+    nginx.ingress.kubernetes.io/proxy-cache-valid: "200 302 12h"
+    # 允许使用过期的缓存（在无法连接上游时）
     nginx.ingress.kubernetes.io/proxy-cache-use-stale: "error timeout http_500 http_502 http_503 http_504"
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+    # 代理请求的超时时间（连接，发送，读取）
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    # 添加自定义的响应头，显示缓存状态
     nginx.ingress.kubernetes.io/configuration-snippet: |
       add_header X-Cache-Status $upstream_cache_status;
-      add_header Cache-Control $cache_header;
-      resolver 223.5.5.5 ipv4=off;
-
-    nginx.ingress.kubernetes.io/server-snippet: |
-      proxy_cache nix_cache_zone;
-      proxy_cache_use_stale error timeout http_500 http_502 http_503 http_504;
-      proxy_cache_revalidate on;
-      proxy_cache_min_uses 1;
-      proxy_cache_lock on;
-
-      set $nix_upstream "";
-
-      access_by_lua_block {
-        -- 定义上游服务器列表
-        local upstreams = {
-          "https://cache.nixos.org",
-          "https://mirrors.ustc.edu.cn/nix-channels/store",
-          "https://nix-community.cachix.org"
-        }
-        
-        -- 设置初始上游为第一个服务器
-        ngx.var.nix_upstream = upstreams[1]
-        
-        local function try_upstream(uri, upstream)
-          local http = require "resty.http"
-          local httpc = http.new()
-          local res, err = httpc:request_uri(upstream .. uri, {
-            method = "HEAD",
-            headers = {
-              ["Host"] = upstream:match("https?://([^/]+)")
-            }
-          })
-          
-          if res and res.status == 200 then
-            return upstream
-          end
-          return nil
-        end
-        
-        -- 尝试所有上游直到找到一个可用的
-        for _, upstream in ipairs(upstreams) do
-          local found = try_upstream(ngx.var.uri, upstream)
-          if found then
-            ngx.var.nix_upstream = found
-            break
-          end
-        end
-      }
-
-      proxy_pass $nix_upstream;
+      resolver 223.5.5.5 223.6.6.6 valid=300s ipv6=off;
 
 spec:
   ingressClassName: nginx-internal
@@ -89,4 +42,4 @@ spec:
               service:
                 name: upstream-nix-cache
                 port:
-                  number: 443
+                  number: 443 # cache.nixos.org 是 HTTPS
