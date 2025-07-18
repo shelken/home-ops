@@ -124,8 +124,8 @@ spec:
     route:
       app:
         hostnames:
-          - "{{ .Release.Name }}.ooooo.space"
-          - hass.ooooo.space
+          - "{{ .Release.Name }}.${MAIN_DOMAIN}"
+          - hass.${MAIN_DOMAIN}
         parentRefs:
           - name: internal
             namespace: kube-system
@@ -135,7 +135,7 @@ spec:
               - identifier: app
                 port: *port
       code-server:
-        hostnames: ["hass-code.ooooo.space"]
+        hostnames: ["hass-code.${MAIN_DOMAIN}"]
         parentRefs:
           - name: internal
             namespace: kube-system
