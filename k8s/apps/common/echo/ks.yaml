@@ -15,6 +15,9 @@ spec:
   postBuild:
     substitute:
       APP: *app
+    substituteFrom:
+      - kind: Secret
+        name: cluster-secrets
   interval: 1h
   path: ./k8s/apps/common/echo/app
   prune: true
