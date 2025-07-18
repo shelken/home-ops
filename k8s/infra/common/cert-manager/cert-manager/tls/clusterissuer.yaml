@@ -16,4 +16,4 @@ spec:
               name: cert-manager-secret
               key: API_TOKEN
         selector:
-          dnsZones: ["ooooo.space"]
+          dnsZones: ["${MAIN_DOMAIN}"]

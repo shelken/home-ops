@@ -33,7 +33,7 @@ spec:
         compression: bzip2
         maxParallel: 8
       destinationPath: s3://cloudnative-pg/
-      endpointURL: https://minio.ooooo.space
+      endpointURL: https://minio.${MAIN_DOMAIN}
       serverName: postgres17-v3
       s3Credentials:
         accessKeyId:

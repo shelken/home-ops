@@ -5,7 +5,7 @@ kind: HTTPRoute
 metadata:
   name: github-webhook
 spec:
-  hostnames: ["flux-webhook.ooooo.space"]
+  hostnames: ["flux-webhook.${MAIN_DOMAIN}"]
   parentRefs:
     - name: external
       namespace: kube-system

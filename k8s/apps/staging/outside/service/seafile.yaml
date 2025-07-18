@@ -5,7 +5,7 @@ kind: HTTPRoute
 metadata:
   name: seafile
 spec:
-  hostnames: ["seafile.ooooo.space"]
+  hostnames: ["seafile.${MAIN_DOMAIN}"]
   parentRefs:
     - name: external
       namespace: kube-system

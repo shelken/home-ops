@@ -90,7 +90,7 @@ spec:
       #       protocol: HTTPS
     # route:
     #   app:
-    #     hostnames: ["{{ .Release.Name }}-2.ooooo.space"]
+    #     hostnames: ["{{ .Release.Name }}-2.${MAIN_DOMAIN}"]
     #     parentRefs:
     #       - name: internal
     #         namespace: kube-system
@@ -101,7 +101,7 @@ spec:
     #             port: *port
       # grpc:
       #   kind: GRPCRoute
-      #   hostnames: ["{{ .Release.Name }}-2.ooooo.space"]
+      #   hostnames: ["{{ .Release.Name }}-2.${MAIN_DOMAIN}"]
       #   parentRefs:
       #     - name: internal
       #       namespace: kube-system
@@ -114,7 +114,7 @@ spec:
       main:
         className: nginx-external
         hosts:
-          - host: memos.ooooo.space
+          - host: memos.${MAIN_DOMAIN}
             paths:
               - path: /
                 service:

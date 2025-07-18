@@ -6,12 +6,12 @@ metadata:
   name: cloudflare-external-endpoints
 spec:
   endpoints:
-    - dnsName: "homelab-external.ooooo.space"
+    - dnsName: "homelab-external.${MAIN_DOMAIN}"
       recordType: CNAME
-      targets: ["homelab-dynamic.ooooo.space"]
-    - dnsName: "homelab-nginx-external.ooooo.space"
+      targets: ["homelab-dynamic.${MAIN_DOMAIN}"]
+    - dnsName: "homelab-nginx-external.${MAIN_DOMAIN}"
       recordType: CNAME
-      targets: ["homelab-dynamic.ooooo.space"]
-    # - dnsName: "homelab-internal.ooooo.space"
+      targets: ["homelab-dynamic.${MAIN_DOMAIN}"]
+    # - dnsName: "homelab-internal.${MAIN_DOMAIN}"
     #   recordType: A
     #   targets: ["192.168.6.46"]
