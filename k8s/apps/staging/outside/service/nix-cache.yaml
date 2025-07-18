@@ -30,33 +30,41 @@ metadata:
         proxy_cache_lock on;
 
         proxy_intercept_errors on;
+        # 关键配置：非200状态时尝试下一个上游
+        proxy_next_upstream error timeout http_404 http_403 http_500 http_502 http_503 http_504;
+        # proxy_next_upstream_tries 0;
+        proxy_next_upstream_timeout 3s;
 
         proxy_pass $upstream_target;
         proxy_set_header Host $upstream_source;
         proxy_ssl_server_name on;
-        # proxy_ssl_verify on;
 
-        # 添加所有的响应头
         add_header Cache-Control $cache_header always;
         add_header X-Proxy-Cache $upstream_cache_status always;
         add_header X-Proxy-From $upstream_source always;
       }
 
+      # USTC镜像源
       location @ustc {
         set $upstream_source "mirrors.ustc.edu.cn";
         set $upstream_target "https://mirrors.ustc.edu.cn/nix-channels/store$request_uri";
-        error_page 404 = @cachix;
+        set $next_upstream "@cachix";
         try_files "" @proxy_handler;
       }
+
+      # Cachix源
       location @cachix {
         set $upstream_source "nix-community.cachix.org";
         set $upstream_target "https://nix-community.cachix.org$request_uri";
-        error_page 404 = @nixos;
+        set $next_upstream "@nixos";
         try_files "" @proxy_handler;
       }
+
+      # Nixos官方源
       location @nixos {
         set $upstream_source "cache.nixos.org";
         set $upstream_target "https://cache.nixos.org$request_uri";
+        set $next_upstream "";
         try_files "" @proxy_handler;
       }
 
