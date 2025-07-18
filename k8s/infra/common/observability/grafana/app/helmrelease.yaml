@@ -43,6 +43,8 @@ spec:
       # GF_SECURITY_ANGULAR_SUPPORT_ENABLED: true
       GF_SERVER_ROOT_URL: https://grafana.${MAIN_DOMAIN}
     grafana.ini:
+      date_formats:
+        default_timezone: ${TIMEZONE}
       analytics:
         check_for_updates: false
         check_for_plugin_updates: false
