@@ -21,7 +21,7 @@ spec:
               repository: ghcr.io/shlinkio/shlink-web-client
               tag: 4.4.1@sha256:966152472dfc6e0f3cbc23cc9d2fc5072e1a6518c3b322b80c06fa7434d067a7
             env:
-              TZ: Asia/Shanghai
+              TZ: ${TIMEZONE}
               SHLINK_SERVER_URL: https://s.${MAIN_DOMAIN} # 该地址在web段直接发出
             envFrom:
               - secretRef:
