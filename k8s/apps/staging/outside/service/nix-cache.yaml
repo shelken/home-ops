@@ -17,67 +17,68 @@ metadata:
   annotations:
     # kubernetes.io/ingress.class: nginx-internal
 
-    nginx.ingress.kubernetes.io/proxy-buffering: on
+    nginx.ingress.kubernetes.io/proxy-buffering: "on"
+    nginx.ingress.kubernetes.io/proxy-cache: "nix_cache_zone"
+    nginx.ingress.kubernetes.io/proxy-cache-valid: "200 302 60m"
+    nginx.ingress.kubernetes.io/proxy-cache-use-stale: "error timeout http_500 http_502 http_503 http_504"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header Accept-Encoding "";
+      add_header X-Cache-Status $upstream_cache_status;
+      add_header Cache-Control $cache_header;
+      resolver 223.5.5.5 ipv4=true;
 
     nginx.ingress.kubernetes.io/server-snippet: |
-      resolver 223.5.5.5 223.6.6.6 valid=300s ipv6=off;
-      resolver_timeout 5s;
-
-      # 定义共同的缓存和响应头处理
-      location @handle_response {
+      location / {
         proxy_cache nix_cache_zone;
-        proxy_cache_valid 200 302 60m;
-        proxy_cache_use_stale error timeout;
+        proxy_cache_use_stale error timeout http_500 http_502 http_503 http_504;
+        proxy_cache_revalidate on;
+        proxy_cache_min_uses 1;
         proxy_cache_lock on;
 
-        add_header Cache-Control $cache_header always;
-        add_header X-Proxy-Cache $upstream_cache_status always;
-        add_header X-Proxy-From $upstream_source always;
+        set $nix_upstream "";
+
+        access_by_lua_block {
+          -- 定义上游服务器列表
+          local upstreams = {
+            "https://cache.nixos.org",
+            "https://mirrors.ustc.edu.cn/nix-channels/store",
+            "https://nix-community.cachix.org"
+          }
+          
+          -- 设置初始上游为第一个服务器
+          ngx.var.nix_upstream = upstreams[1]
+          
+          local function try_upstream(uri, upstream)
+            local http = require "resty.http"
+            local httpc = http.new()
+            local res, err = httpc:request_uri(upstream .. uri, {
+              method = "HEAD",
+              headers = {
+                ["Host"] = upstream:match("https?://([^/]+)")
+              }
+            })
+            
+            if res and res.status == 200 then
+              return upstream
+            end
+            return nil
+          end
+          
+          -- 尝试所有上游直到找到一个可用的
+          for _, upstream in ipairs(upstreams) do
+            local found = try_upstream(ngx.var.uri, upstream)
+            if found then
+              ngx.var.nix_upstream = found
+              break
+            end
+          end
+        }
+        
+        proxy_pass $nix_upstream;
       }
-
-      # USTC镜像源作为主要源
-      location @ustc {
-        internal;
-        set $upstream_source "mirrors.ustc.edu.cn";
-        proxy_pass https://mirrors.ustc.edu.cn/nix-channels/store$request_uri;
-        proxy_set_header Host $upstream_source;
-        proxy_ssl_server_name on;
-
-        # 镜像请求到Cachix
-        mirror @cachix;
-        mirror_request_body off;
-
-        include @handle_response;
-      }
-
-      # Cachix源
-      location @cachix {
-        internal;
-        set $upstream_source "nix-community.cachix.org";
-        proxy_pass https://nix-community.cachix.org$request_uri;
-        proxy_set_header Host $upstream_source;
-        proxy_ssl_server_name on;
-
-        # 镜像请求到Nixos官方源
-        mirror @nixos;
-        mirror_request_body off;
-
-        include @handle_response;
-      }
-
-      # Nixos官方源
-      location @nixos {
-        internal;
-        set $upstream_source "cache.nixos.org";
-        proxy_pass https://cache.nixos.org$request_uri;
-        proxy_set_header Host $upstream_source;
-        proxy_ssl_server_name on;
-
-        include @handle_response;
-      }
-
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      try_files "" @ustc;
 
 spec:
   ingressClassName: nginx-internal
