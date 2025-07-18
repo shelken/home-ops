@@ -32,8 +32,8 @@ metadata:
         proxy_intercept_errors on;
         # 关键配置：非200状态时尝试下一个上游
         proxy_next_upstream error timeout http_404 http_403 http_500 http_502 http_503 http_504;
-        # proxy_next_upstream_tries 0;
-        proxy_next_upstream_timeout 3s;
+        proxy_next_upstream_tries 1;
+        proxy_next_upstream_timeout 10s;
 
         proxy_pass $upstream_target;
         proxy_set_header Host $upstream_source;
