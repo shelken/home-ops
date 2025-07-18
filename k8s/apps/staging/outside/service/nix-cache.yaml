@@ -28,7 +28,7 @@ metadata:
       proxy_set_header Accept-Encoding "";
       add_header X-Cache-Status $upstream_cache_status;
       add_header Cache-Control $cache_header;
-      resolver 223.5.5.5 ipv4=true;
+      resolver 223.5.5.5 ipv4=off;
 
     nginx.ingress.kubernetes.io/server-snippet: |
       location / {
