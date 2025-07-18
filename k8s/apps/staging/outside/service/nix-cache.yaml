@@ -29,6 +29,8 @@ metadata:
         proxy_cache_use_stale error timeout;
         proxy_cache_lock on;
 
+        proxy_intercept_errors on;
+
         proxy_pass $upstream_target;
         proxy_set_header Host $upstream_source;
         proxy_ssl_server_name on;
