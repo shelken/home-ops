@@ -32,3 +32,24 @@ spec:
       target:
         group: kustomize.toolkit.fluxcd.io
         kind: Kustomization
+    - patch: |-
+        apiVersion: kustomize.toolkit.fluxcd.io/v1
+        kind: Kustomization
+        metadata:
+          name: not-important
+        spec:
+          postBuild:
+            substituteFrom: []
+      target:
+        group: kustomize.toolkit.fluxcd.io
+        kind: Kustomization
+
+    - patch: |
+        - op: add
+          path: /spec/postBuild/substituteFrom/- 
+          value:
+            kind: Secret
+            name: cluster-secrets
+      target:
+        group: kustomize.toolkit.fluxcd.io
+        kind: Kustomization
