@@ -50,6 +50,7 @@ spec:
               GATUS_CONFIG_PATH: /config
               GATUS_DELAY_START_SECONDS: 5
               WEB_PORT: &port 80
+              MAIN_DOMAIN: ${MAIN_DOMAIN}
             envFrom:
               - secretRef:
                   name: gatus-secret
