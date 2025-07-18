@@ -9,5 +9,5 @@ spec:
     name: letsencrypt-production
     # name: letsencrypt-staging
     kind: ClusterIssuer
-  commonName: ooooo.space
-  dnsNames: ["ooooo.space", "*.ooooo.space"]
+  commonName: ${MAIN_DOMAIN}
+  dnsNames: ["${MAIN_DOMAIN}", "*.${MAIN_DOMAIN}"]

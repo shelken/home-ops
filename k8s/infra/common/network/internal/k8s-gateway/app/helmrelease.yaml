@@ -33,7 +33,7 @@ spec:
   values:
     # ref：https://github.com/k8s-gateway/k8s_gateway/blob/master/charts/k8s-gateway/values.yaml
     fullnameOverride: k8s-gateway
-    domain: "ooooo.space"
+    domain: "${MAIN_DOMAIN}"
     ttl: 1
     fallthrough:
       enabled: true

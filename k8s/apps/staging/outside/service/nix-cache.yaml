@@ -37,7 +37,7 @@ metadata:
 spec:
   ingressClassName: nginx-internal
   rules:
-    - host: "nix-cache.ooooo.space"
+    - host: "nix-cache.${MAIN_DOMAIN}"
       http:
         paths:
           - path: /

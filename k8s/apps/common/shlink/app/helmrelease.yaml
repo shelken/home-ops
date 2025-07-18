@@ -33,7 +33,7 @@ spec:
             env:
               TZ: Asia/Shanghai
               DB_DRIVER: postgres
-              DEFAULT_DOMAIN: &host s.ooooo.space
+              DEFAULT_DOMAIN: &host s.${MAIN_DOMAIN}
               DISABLE_TRACKING_FROM: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
               IS_HTTPS_ENABLED: "true"
               PORT: &port 80
@@ -81,7 +81,7 @@ spec:
     route:
       app:
         hostnames: 
-          - "s.ooooo.space"
+          - "s.${MAIN_DOMAIN}"
         parentRefs:
           - name: external
             namespace: kube-system

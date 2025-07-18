@@ -4,7 +4,7 @@ kind: Gateway
 metadata:
   name: internal
   annotations:
-    external-dns.alpha.kubernetes.io/target: &hostname homelab-internal.ooooo.space
+    external-dns.alpha.kubernetes.io/target: &hostname homelab-internal.${MAIN_DOMAIN}
 spec:
   gatewayClassName: cilium
   addresses:
@@ -21,14 +21,14 @@ spec:
     - name: http
       protocol: HTTP
       port: 80
-      hostname: "*.ooooo.space"
+      hostname: "*.${MAIN_DOMAIN}"
       allowedRoutes:
         namespaces:
           from: Same
     - name: https
       protocol: HTTPS
       port: 443
-      hostname: "*.ooooo.space"
+      hostname: "*.${MAIN_DOMAIN}"
       allowedRoutes:
         namespaces:
           from: All

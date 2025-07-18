@@ -94,8 +94,8 @@ spec:
     route:
       app:
         hostnames:
-          - "{{ .Release.Name }}.ooooo.space"
-          - status.ooooo.space
+          - "{{ .Release.Name }}.${MAIN_DOMAIN}"
+          - status.${MAIN_DOMAIN}
         parentRefs:
           - name: external
             namespace: kube-system
