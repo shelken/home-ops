@@ -29,7 +29,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     # 添加自定义的响应头，显示缓存状态
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      add_header X-Cache-Status $upstream_cache_status;
+      add_header X-Cache-Status $upstream_cache_status always;
       resolver 223.5.5.5 223.6.6.6 valid=300s ipv6=off;
 
 spec:
