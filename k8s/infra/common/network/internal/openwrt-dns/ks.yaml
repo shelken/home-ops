@@ -5,6 +5,8 @@ kind: Kustomization
 metadata:
   name: &app openwrt-dns
   namespace: &namespace network
+  labels:
+    substitution.flux/disabled: "true"
 spec:
   commonMetadata:
     labels:
