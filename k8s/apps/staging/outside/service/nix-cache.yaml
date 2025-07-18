@@ -13,6 +13,8 @@ kind: Ingress
 metadata:
   name: nix-cache
   annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/upstream-vhost: "cache.nixos.org"
     # 开启代理缓冲
     nginx.ingress.kubernetes.io/proxy-buffering: "on"
     # 定义缓存区域（名称需与 NGINX Controller 配置中的 proxy_cache_path 匹配）
