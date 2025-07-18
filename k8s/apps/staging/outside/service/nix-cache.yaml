@@ -5,7 +5,7 @@ metadata:
   name: upstream-nix-cache
 spec:
   type: ExternalName
-  externalName: mirrors.ustc.edu.cn
+  externalName: nix-community.cachix.org
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -13,8 +13,8 @@ kind: Ingress
 metadata:
   name: nix-cache
   annotations:
-    nginx.ingress.kubernetes.io/upstream-vhost: mirrors.ustc.edu.cn
-    nginx.ingress.kubernetes.io/rewrite-target: /nix-channels/store$request_uri
+    nginx.ingress.kubernetes.io/upstream-vhost: nix-community.cachix.org
+    # nginx.ingress.kubernetes.io/rewrite-target: /nix-channels/store$request_uri
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     nginx.ingress.kubernetes.io/proxy-buffering: "on"
 
@@ -23,13 +23,13 @@ metadata:
       resolver_timeout 5s;
 
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      # proxy_set_header Host mirrors.ustc.edu.cn;
+      # proxy_set_header Host nix-community.cachix.org;
       proxy_cache nix_cache_zone;
       proxy_cache_valid 200 302 60m;
       proxy_cache_use_stale error timeout;
       proxy_cache_lock on;
       proxy_ssl_server_name on;
-      proxy_ssl_name "mirrors.ustc.edu.cn";
+      proxy_ssl_name "nix-community.cachix.org";
 
       add_header Cache-Control $cache_header always;
       add_header X-Cache-Status $upstream_cache_status always;
