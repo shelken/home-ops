@@ -31,8 +31,8 @@ kind: Kustomization
 metadata:
   name: &app system-upgrade-controller-plans
   namespace: &namespace system-upgrade
-  labels: 
-    substitution.flux/disabled: "true"
+  # labels: 
+  #   substitution.flux/disabled: "true"
 spec:
   commonMetadata:
     labels:
@@ -42,10 +42,10 @@ spec:
       namespace: system-upgrade
   interval: 1h
   path: ./k8s/infra/common/system-upgrade/system-upgrade-controller/plans
-  postBuild:
-    substituteFrom:
-      - kind: ConfigMap
-        name: versions
+  # postBuild:
+  #   substituteFrom:
+  #     - kind: ConfigMap
+  #       name: versions
   prune: true
   retryInterval: 2m
   sourceRef:
