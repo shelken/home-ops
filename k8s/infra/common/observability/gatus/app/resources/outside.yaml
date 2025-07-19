@@ -1,12 +1,36 @@
 ---
 endpoints:
+  - name: flux-webhook
+    group: external
+    url: https://flux-webhook.${MAIN_DOMAIN}
+    interval: 3m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    client:
+      dns-resolver: tcp://223.5.5.5:53
+      network: ip4
+      timeout: 5s
+    conditions:
+      - "[STATUS] == 404"
+    alerts: 
+      - type: slack
+        send-on-resolved: true
+        failure-threshold: 3
   - name: seafile
     group: external
     url: https://seafile.${MAIN_DOMAIN}/api2/ping/
     interval: 3m
+    ui:
+      hide-hostname: true
+      hide-url: true
     client:
       dns-resolver: tcp://223.5.5.5:53
       network: ip4
       timeout: 5s
     conditions:
       - "[STATUS] == 200"
+    alerts: 
+      - type: slack
+        send-on-resolved: true
+        failure-threshold: 3
