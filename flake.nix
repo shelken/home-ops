@@ -17,15 +17,16 @@
         name = "home-ops";
 
         packages = with pkgs; [
-          # fluxcd
-          k9s
+          azure-cli
 
+          k9s
           kustomize
 
           ansible
-          k3sup
+          fluxcd
+          # k3sup
 
-          opentofu
+          # opentofu
 
           kubernetes-helm
           cilium-cli
@@ -39,10 +40,9 @@
 
         shellHook = ''
           unset GITHUB_TOKEN
-          alias flux=/opt/brew/bin/flux
           export KUBECONFIG=`pwd`/kubeconfig
           export ANSIBLE_CONFIG=`pwd`/ansible/ansible.cfg
-          export SOPS_AGE_KEY_FILE=~/.config/sops/age/home-ops.txt
+          export SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt
 
           echo "环境初始化成功"
         '';
