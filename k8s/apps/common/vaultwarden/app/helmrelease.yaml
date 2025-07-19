@@ -40,7 +40,7 @@ spec:
               capabilities: { drop: ["ALL"] }
             env:
               TZ: ${TIMEZONE}
-              DOMAIN: vw.${MAIN_DOMAIN}
+              DOMAIN: https://vw.${MAIN_DOMAIN}
               SIGNUPS_ALLOWED: "false"
               PUSH_ENABLED: "true"
               DATA_FOLDER: "config"
