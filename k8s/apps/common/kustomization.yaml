@@ -9,4 +9,5 @@ resources:
   - echo/ks.yaml
   - shlink/ks.yaml
   - kromgo/ks.yaml
+  - vaultwarden/ks.yaml
   # - home-assistant/ks.yaml
