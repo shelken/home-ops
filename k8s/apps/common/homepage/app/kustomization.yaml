@@ -15,6 +15,7 @@ configMapGenerator:
       - widgets.yaml=./config/widgets.yaml
       - kubernetes.yaml=./config/kubernetes.yaml
       - docker.yaml=./config/docker.yaml
+      - proxmox.yaml=./config/proxmox.yaml
     literals:
       - custom.js=
       - custom.css=
