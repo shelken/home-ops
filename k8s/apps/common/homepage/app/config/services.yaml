@@ -54,7 +54,7 @@
         description:
         widget:
           type: prometheus
-          url: http://kube-prometheus-stack-prometheus.observability.svc.cluster.local:9090
+          url: http://prometheus-operated.observability.svc.cluster.local:9090
     - AlertManager:
         icon: alertmanager.png
         href: https://alertmanager.${MAIN_DOMAIN}
