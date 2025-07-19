@@ -17,14 +17,4 @@ connectivity:
 alerting:
   slack:
     webhook-url: ${WEBHOOK_URL}
-endpoints:
-  - name: flux-webhook
-    group: external
-    url: https://flux-webhook.${MAIN_DOMAIN}
-    interval: 1m
-    client:
-      dns-resolver: tcp://223.5.5.5:53
-      network: ip4
-      timeout: 5s
-    conditions:
-      - "[STATUS] == 404"
+# endpoints:
