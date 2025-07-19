@@ -19,7 +19,7 @@
 [![Pod-Count](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fcluster_pod_count&logo=kubernetes&labelColor=363a4f&style=for-the-badge&label=Pods)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
 [![CPU-Usage](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fcluster_cpu_usage&labelColor=363a4f&style=for-the-badge&label=CPU)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
 [![Memory-Usage](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fcluster_memory_usage&labelColor=363a4f&style=for-the-badge&label=Memory)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
-[![Alerts](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fcluster_alert_count&logo=prometheus&labelColor=363a4f&style=for-the-badge&label=Alerts)](https://github.com/kashalls/kromgo)
+[![Alerts](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fcluster_alert_count&logo=prometheus&labelColor=363a4f&style=for-the-badge&label=Alerts)](https://prometheus.ooooo.space/alerts)
 
 </div>
 
@@ -43,6 +43,12 @@ homelab
 | longhorn                |                  | longhorn ui    | longhorn.   |
 | cilium ingress          | ~~192.168.6.40~~ | 已经关闭       |             |
 | nginx internal ingress  | ~~192.168.6.43~~ | 暂时关闭 无用  |             |
+
+## 服务网络
+
+| 服务 | 状态                                                                            |
+| ---- | ------------------------------------------------------------------------------- |
+| echo | ![](https://status.ooooo.space/api/v1/endpoints/external_echo/health/badge.svg) |
 
 ## 核心组件
 
@@ -105,3 +111,8 @@ kubectl -n longhorn-system patch -p '{"value": "true"}' --type=merge lhs deletin
 
 `limactl disk unlock longhorn` 
 
+6. 迁移secret后， external-secrets 无法push
+   
+因为external-secret azure会自动给pushsecret打上tag，表示由external-secret管理，迁移时没有加上这个tag
+
+导致出现问题, 删掉secret让external-secret重新同步。
