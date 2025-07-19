@@ -21,6 +21,8 @@ spec:
   dependsOn:
     - name: azure-store
       namespace: external-secrets
+    - name: volsync
+      namespace: volsync-system
   interval: 1h
   path: ./k8s/apps/common/vaultwarden/app
   prune: true

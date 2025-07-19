@@ -38,7 +38,7 @@ spec:
   dependsOn:
     - name: cert-manager
       namespace: cert-manager
-    - name: external-secrets
+    - name: azure-store
       namespace: external-secrets
   healthChecks:
     - kind: ClusterIssuer

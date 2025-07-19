@@ -14,10 +14,10 @@ spec:
     - ../../../../components/volsync
     - ../../../../components/gatus/guarded
   dependsOn:
-    - name: longhorn
-      namespace: longhorn-system
-    - name: external-secrets
+    - name: azure-store
       namespace: external-secrets
+    - name: volsync
+      namespace: volsync-system
   postBuild:
     substitute:
       APP: *app
