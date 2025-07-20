@@ -169,7 +169,7 @@ spec:
             - { name: DS_PROMETHEUS, value: Prometheus }
         openwrt: 
           # renovate: depName="OpenWrt"
-          gnetId: 22030
+          gnetId: 21766
           revision: 1
           datasource:
             - { name: DS_PROMETHEUS, value: Prometheus }
