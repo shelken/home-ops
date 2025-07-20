@@ -154,10 +154,23 @@ spec:
           gnetId: 16888
           revision: 9
           datasource: Prometheus
+        mosdns: 
+          # renovate: depName="MOSDNS"
+          gnetId: 21521
+          revision: 2
+          datasource:
+            - { name: DS_PROMETHEUS, value: Prometheus }
+            - { name: DS_LOKI, value: Loki }
         node-exporter-full:
           # renovate: depName="Node Exporter Full"
           gnetId: 1860
           revision: 41
+          datasource:
+            - { name: DS_PROMETHEUS, value: Prometheus }
+        openwrt: 
+          # renovate: depName="OpenWrt"
+          gnetId: 22030
+          revision: 1
           datasource:
             - { name: DS_PROMETHEUS, value: Prometheus }
         prometheus:
