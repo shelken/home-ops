@@ -159,8 +159,8 @@ spec:
           gnetId: 19305
           revision: 2
           datasource:
-            - { name: DS_PROMETHEUS, value: Prometheus }
-            - { name: DS_LOKI, value: Loki }
+            - { name: DS_PROMETHEUS-1, value: Prometheus }
+            - { name: DS_LOKI-1, value: Loki }
         node-exporter-full:
           # renovate: depName="Node Exporter Full"
           gnetId: 1860
