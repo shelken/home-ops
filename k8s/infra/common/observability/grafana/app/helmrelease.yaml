@@ -156,7 +156,7 @@ spec:
           datasource: Prometheus
         mosdns: 
           # renovate: depName="MOSDNS"
-          gnetId: 21521
+          gnetId: 19305
           revision: 2
           datasource:
             - { name: DS_PROMETHEUS, value: Prometheus }
