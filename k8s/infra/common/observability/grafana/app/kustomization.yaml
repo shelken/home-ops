@@ -5,3 +5,14 @@ kind: Kustomization
 resources:
   - ./externalsecret.yaml
   - ./helmrelease.yaml
+# configMapGenerator:
+#   - name: mosdns-dashboard
+#     files:
+#       - mosdns.json=./resources/dashboard/mosdns.json
+#     options:
+#       annotations:
+#         grafana_folder: Custom
+#       labels:
+#         grafana_dashboard: "true"
+# generatorOptions:
+#   disableNameSuffixHash: true

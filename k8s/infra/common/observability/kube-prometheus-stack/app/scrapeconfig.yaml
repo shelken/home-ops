@@ -27,15 +27,41 @@ spec:
         job: *name
   metricsPath: /metrics
 
-# ---
-# apiVersion: monitoring.coreos.com/v1alpha1
-# kind: ScrapeConfig
-# metadata:
-#   name: &name caddy-vps
-# spec:
-#   staticConfigs:
-#     - targets:
-#         - tvbox.lan:2019
-#       labels: 
-#         job: *name
-#   metricsPath: /metrics
+---
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: &name oepnwrt-mine
+spec:
+  staticConfigs:
+    - targets:
+        - router-mine.lan:9100
+      labels: 
+        job: *name
+  metricsPath: /metrics
+
+---
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: &name oepnwrt-home
+spec:
+  staticConfigs:
+    - targets:
+        - 192.168.0.1:9100
+      labels: 
+        job: *name
+  metricsPath: /metrics
+
+---
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: &name mosdns
+spec:
+  staticConfigs:
+    - targets:
+        - tvbox.lan:8338
+      labels: 
+        job: *name
+  metricsPath: /metrics
