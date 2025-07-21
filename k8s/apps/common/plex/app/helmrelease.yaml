@@ -25,7 +25,7 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/home-operations/plex
+              repository: ghcr.io/shelken/plex
               tag: 1.41.8.9834
             env:
               TZ: ${TIMEZONE}
