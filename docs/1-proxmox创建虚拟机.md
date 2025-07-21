@@ -39,6 +39,12 @@ qm set 1100 --scsihw virtio-scsi-pci --scsi0 local-lvm:vm-1100-disk-0
 # note: pve不指定cpu时使用kvm64
 qm set 1100 --args="-cpu kvm64,+cx16,+lahf_lm,+popcnt,+sse3,+ssse3,+sse4.1,+sse4.2"
 
+# q35,新操作系统使用
+qm set 1100 --machine q35
+# efi 启动
+qm set 1100 --bios ovmf
+qm set 1100 --efidisk0 local-lvm,efitype=4m,pre-enrolled-keys=1,size=4M
+
 qm template 1100
 ```
 
@@ -65,3 +71,15 @@ qm set 112 --ipconfig0 ip=192.168.6.114/24,gw=192.168.6.1
 
 ```
 
+## 添加gpu到vm
+
+在完成pve直通intel gpu的一些操作之后，给vm添加pci
+
+```shell
+# 然后确保存在 renderD128
+ls -la /dev/dri
+
+# ubuntu cloudimage缺少相关i915的加载 需要安装
+sudo apt install linux-modules-extra-$(uname -r)
+sudo apt install linux-firmware
+```
