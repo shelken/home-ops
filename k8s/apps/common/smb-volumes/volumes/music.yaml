@@ -17,7 +17,7 @@ spec:
     driver: smb.csi.k8s.io
     volumeHandle: smb-sakamoto-music
     volumeAttributes:
-      source: "sakamoto.lan/sakamoto-data/Music/Main Library"
+      source: "sakamoto.lan/sakamoto-data/Music/Main\ Library"
     nodeStageSecretRef:
       name: smb-secret
       namespace: storage
