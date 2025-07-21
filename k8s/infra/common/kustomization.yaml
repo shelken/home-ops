@@ -12,3 +12,4 @@ resources:
   - volsync-system
   - database
   - observability
+  - storage
