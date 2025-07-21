@@ -3,6 +3,7 @@ kind: Kustomization
 components:
   - ../../components/common
 resources: 
+  - smb-volumes/ks.yaml
   - memos/ks.yaml
   - kite/ks.yaml
   - homepage/ks.yaml
