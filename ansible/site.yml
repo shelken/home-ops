@@ -9,9 +9,14 @@
     - name: 设置时区
       community.general.timezone:
         name: "{{ system_timezone }}"
+    - name: install pkgs
+      ansible.builtin.apt:
+        name: "{{ system_packages }}"
+        state: present      
+        # update_cache: yes
+  
     - import_tasks: playbooks/tasks/qemu-guest-agent.yaml
       when: "'sakamoto' not in inventory_hostname"
-
     # - name: 配置 sysctl 参数
     #   sysctl:
     #     name: "{{ item.key }}"

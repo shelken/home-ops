@@ -10,6 +10,8 @@ system_packages:
   - wget
   - vim
   - htop
+  - cifs-utils # 解决smb中文挂载乱码问题
+  - "linux-modules-extra-{{ ansible_kernel }}" # 解决smb中文挂载乱码问题
 
 k3s_become: true
 k3s_etcd_datastore: true
