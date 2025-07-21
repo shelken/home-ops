@@ -12,3 +12,4 @@ resources:
   - ../common/database
   - ../common/network
   - ../common/observability
+  - ../common/storage
