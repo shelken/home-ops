@@ -9,6 +9,9 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  dependsOn:
+    - name: azure-store
+      namespace: external-secrets
   interval: 1h
   path: ./k8s/infra/common/storage/csi-driver-smb/app
   prune: true
