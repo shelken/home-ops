@@ -10,7 +10,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   components:
-    # - ../../../../components/gatus/external
+    - ../../../../components/gatus/external
     - ../../../../components/volsync
   dependsOn:
     - name: smb-volumes
@@ -21,7 +21,7 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      # GATUS_PATH: /web/index.html
+      GATUS_PATH: /identity
       VOLSYNC_CACHE_CAPACITY: 10Gi
       VOLSYNC_CAPACITY: 10Gi
   prune: true
