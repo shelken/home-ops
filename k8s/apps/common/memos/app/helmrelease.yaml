@@ -125,4 +125,4 @@ spec:
         existingClaim: smb-music
         globalMounts:
           - path: /music
-            readOnly: true
+            readOnly: false
