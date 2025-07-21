@@ -10,4 +10,5 @@ resources:
   - shlink/ks.yaml
   - kromgo/ks.yaml
   - vaultwarden/ks.yaml
+  - plex/ks.yaml
   # - home-assistant/ks.yaml
