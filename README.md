@@ -116,3 +116,17 @@ kubectl -n longhorn-system patch -p '{"value": "true"}' --type=merge lhs deletin
 因为external-secret azure会自动给pushsecret打上tag，表示由external-secret管理，迁移时没有加上这个tag
 
 导致出现问题, 删掉secret让external-secret重新同步。
+
+6. longhorn 的daemonset在重启k3s或者机器时存在Misscheduled的情况
+
+删掉对应 pod 解决
+
+非常奇怪。。。。。。   
+
+7. smb 中文乱码问题
+
+宿主机缺失相关动态库
+
+```shell
+sudo apt-get install -y cifs-utils linux-modules-extra-$(uname -r)
+```
