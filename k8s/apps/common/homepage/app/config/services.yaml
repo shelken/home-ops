@@ -24,6 +24,12 @@
         href: https://hass.${MAIN_DOMAIN}
         description:
 
+- 影音:
+    - Plex:
+        icon: plex.png
+        href: https://plex.${MAIN_DOMAIN}
+        description:
+
 - 观测:
     - Grafana:
         icon: grafana.png
