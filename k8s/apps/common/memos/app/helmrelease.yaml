@@ -120,9 +120,9 @@ spec:
                 service:
                   identifier: app
                   port: http
-    # persistence:
-    #   data:
-    #     existingClaim: memos
-    #     globalMounts:
-    #       - path: /var/opt/memos
-    #         readOnly: false
+    persistence:
+      data:
+        existingClaim: smb-music
+        globalMounts:
+          - path: /music
+            readOnly: true
