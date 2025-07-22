@@ -69,16 +69,6 @@ authentication_backend:
     disable: true
   ## refresh_interval: 1m
 
-## identity_providers:
-##   oidc:
-##     jwks:
-##       - key: |
-##           {{ secret "/config/secret/OIDC_JWKS_KEY" | mindent 10 "|" | msquote }}
-##     cors:
-##       endpoints:
-##         ["authorization", "token", "revocation", "introspection", "userinfo"]
-##       allowed_origins_from_client_redirect_uris: true
-
 notifier:
   disable_startup_check: true
   smtp:
@@ -93,9 +83,3 @@ totp:
   issuer: Authelia
   algorithm: "SHA1"
   digits: 6
-## webauthn:
-##   disable: false
-##   display_name: Authelia
-##   attestation_conveyance_preference: indirect
-##   user_verification: discouraged
-##   timeout: 60s
