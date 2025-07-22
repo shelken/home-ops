@@ -72,9 +72,9 @@ authentication_backend:
 notifier:
   disable_startup_check: true
   smtp:
-    address: "{{ .SMTP_ADDRESS }}"
-    username: "{{ .SMTP_USERNAME }}"
-    password: "{{ .SMTP_PASSWORD }}"
+    address: "{{ .AUTHELIA_SMTP_ADDRESS }}"
+    username: "{{ .AUTHELIA_SMTP_USERNAME }}"
+    password: "{{ .AUTHELIA_SMTP_PASSWORD }}"
     sender: Authelia <authelia@${MAIN_DOMAIN}>
     disable_require_tls: false
 
