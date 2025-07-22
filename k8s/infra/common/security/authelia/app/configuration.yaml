@@ -77,7 +77,6 @@ duo_api:
 ##     jwks:
 ##       - key: |
 ##           {{ secret "/config/secret/OIDC_JWKS_KEY" | mindent 10 "|" | msquote }}
-##         algorithm: ES256
 ##     cors:
 ##       endpoints:
 ##         ["authorization", "token", "revocation", "introspection", "userinfo"]
