@@ -74,6 +74,7 @@ notifier:
   smtp:
     sender: Authelia <authelia@${MAIN_DOMAIN}>
     disable_require_tls: false
+    disable_starttls: true
 
 totp:
   disable: false
