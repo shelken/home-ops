@@ -13,3 +13,4 @@ resources:
   - ../common/network
   - ../common/observability
   - ../common/storage
+  - ../common/security
