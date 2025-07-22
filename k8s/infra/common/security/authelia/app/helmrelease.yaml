@@ -101,10 +101,14 @@ spec:
               - type: RequestHeaderModifier
                 requestHeaderModifier:
                   add:
-                    Cache-Control: "no-store"
-                    Pragma: "no-cache"
-                    X-Frame-Options: "SAMEORIGIN"
-                    X-XSS-Protection: "1; mode=block"
+                    - name: Cache-Control
+                      value: no-store
+                    - name: Pragma
+                      value: no-cache
+                    - name: X-Frame-Options
+                      value: SAMEORIGIN
+                    - name: X-XSS-Protection
+                      value: "1; mode=block"
             backendRefs:
               - identifier: app
                 port: *port
