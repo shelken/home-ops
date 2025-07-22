@@ -64,6 +64,7 @@ identity_providers:
         grant_types: ["authorization_code"]
         redirect_uris:
           - "https://memos.${MAIN_DOMAIN}/auth/callback"
+        token_endpoint_auth_method: "client_secret_post"
 
 storage:
   encryption_key: "{{ .AUTHELIA_STORAGE_ENCRYPTION_KEY }}"
