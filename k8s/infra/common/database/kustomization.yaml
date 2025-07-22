@@ -7,3 +7,4 @@ components:
   - ../../../components/common
 resources:
   - ./cloudnative-pg/ks.yaml # https://github.com/drag0n141/home-ops.git
+  - ./dragonfly/ks.yaml # https://github.com/spiceratops/k8s-gitops
