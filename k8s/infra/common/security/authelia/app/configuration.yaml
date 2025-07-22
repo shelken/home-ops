@@ -30,6 +30,9 @@ access_control:
       policy: "bypass"
       methods:
         - "OPTIONS"
+    - domain: "*.${MAIN_DOMAIN}"
+      resources: ["^/healthz.*$", "^/ping.*$"]
+      policy: "bypass"
     ## - domain: ["navidrome.${MAIN_DOMAIN}"]
     ##   resources: ["^/ping.*$", "^/rest.*$"]
     ##   policy: bypass
