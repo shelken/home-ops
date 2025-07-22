@@ -75,7 +75,6 @@ authentication_backend:
 notifier:
   disable_startup_check: true
   smtp:
-    sender: Authelia <authelia@${MAIN_DOMAIN}>
     disable_require_tls: false
     disable_starttls: true
 
