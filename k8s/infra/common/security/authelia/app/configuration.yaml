@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://www.authelia.com/schemas/latest/json-schema/configuration.json
+# yaml-language-server: $schema=https://www.authelia.com/schemas/v4.39/json-schema/configuration.json
 # ref: https://github.com/authelia/authelia/blob/v4.39.5/config.template.yml
 ---
 session:
@@ -26,10 +26,10 @@ access_control:
     - domain:
         - auth.${MAIN_DOMAIN}
       policy: bypass
-    - domain: '*.${MAIN_DOMAIN}'
-      policy: 'bypass'
+    - domain: "*.${MAIN_DOMAIN}"
+      policy: "bypass"
       methods:
-        - 'OPTIONS'
+        - "OPTIONS"
     ## - domain: ["navidrome.${MAIN_DOMAIN}"]
     ##   resources: ["^/ping.*$", "^/rest.*$"]
     ##   policy: bypass
@@ -47,7 +47,7 @@ storage:
 
 authentication_backend:
   file:
-    path: '/config/secret/users.yaml'
+    path: "/config/secret/users.yaml"
     watch: false
     search:
       email: false
@@ -55,11 +55,11 @@ authentication_backend:
     extra_attributes:
       extra_example:
         multi_valued: false
-        value_type: 'string'
+        value_type: "string"
     password:
-      algorithm: 'argon2'
+      algorithm: "argon2"
       argon2:
-        variant: 'argon2id'
+        variant: "argon2id"
         iterations: 3
         memory: 65536
         parallelism: 4
@@ -82,7 +82,6 @@ duo_api:
 ##         ["authorization", "token", "revocation", "introspection", "userinfo"]
 ##       allowed_origins_from_client_redirect_uris: true
 
-
 notifier:
   disable_startup_check: true
   smtp:
@@ -95,9 +94,8 @@ notifier:
 totp:
   disable: false
   issuer: Authelia
-  algorithm: 'SHA1'
+  algorithm: "SHA1"
   digits: 6
-
 ## webauthn:
 ##   disable: false
 ##   display_name: Authelia
