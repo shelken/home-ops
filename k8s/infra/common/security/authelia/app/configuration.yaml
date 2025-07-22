@@ -69,9 +69,6 @@ authentication_backend:
     disable: true
   ## refresh_interval: 1m
 
-duo_api:
-  disable: true
-
 ## identity_providers:
 ##   oidc:
 ##     jwks:
