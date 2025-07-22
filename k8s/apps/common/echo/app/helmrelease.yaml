@@ -68,27 +68,20 @@ spec:
       app:
         endpoints:
           - port: http
-    route:
-      app:
-        hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
-        parentRefs:
-          - name: external
-            namespace: kube-system
-            sectionName: https
-    # ingress:
+    # route:
     #   app:
-    #     className: cilium
-    #     annotations:
-    #       # external-dns.alpha.kubernetes.io/target: "homelab-external.${MAIN_DOMAIN}"
-    #       cert-manager.io/cluster-issuer: letsencrypt-production
-    #     hosts:
-    #       - host: "{{ .Release.Name }}.${MAIN_DOMAIN}"
-    #         paths:
-    #           - path: /
-    #             service:
-    #               identifier: app
-    #               port: http
-    #     tls:
-    #       - hosts:
-    #           - "{{ .Release.Name }}.${MAIN_DOMAIN}"
-    #         secretName: ooooo-space-tls
+    #     hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
+    #     parentRefs:
+    #       - name: external
+    #         namespace: kube-system
+    #         sectionName: https
+    ingress:
+      app:
+        className: nginx-external
+        hosts:
+          - host: "{{ .Release.Name }}.${MAIN_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
