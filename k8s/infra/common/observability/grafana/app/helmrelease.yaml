@@ -227,6 +227,8 @@ spec:
             namespace: kube-system
             sectionName: https
     persistence:
-      enabled: false
+      enabled: true
+      storageClassName: longhorn
+      size: 1Gi
     testFramework:
       enabled: false
