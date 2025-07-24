@@ -37,6 +37,17 @@ endpoints:
       - "[CONNECTED] == true"
     alerts: 
       - type: slack
+  - name: mosdns
+    group: outside
+    url: "udp://tvbox.lan:53"
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[CONNECTED] == true"
+    alerts: 
+      - type: slack
   - name: mirror-quay
     group: outside
     url: "tcp://sakamoto.lan:5002"
