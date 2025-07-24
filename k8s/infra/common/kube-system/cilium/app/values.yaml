@@ -2,14 +2,16 @@
 # ref：https://github.com/cilium/cilium/blob/v1.17.5/install/kubernetes/cilium/values.yaml
 # gateway-api: https://docs.cilium.io/en/stable/network/servicemesh/gateway-api/gateway-api
 ipv6:
-  enabled: true
-enableIPv6Masquerade: true
+  enabled: false
+# enableIPv6Masquerade: true
 # ipv6NativeRoutingCIDR: "fd80:dead:42::/56"
 
+# ref: https://docs.cilium.io/en/stable/network/concepts/ipam/
 ipam:
   mode: kubernetes
   operator:
     clusterPoolIPv4PodCIDRList: ["10.42.0.0/16"]
+    clusterPoolIPv6PodCIDRList: ["fd80:dead:42::/56"]
 
 k8sServiceHost: 127.0.0.1
 k8sServicePort: 6444        # k3s
@@ -89,14 +91,14 @@ bpf:
 
 # 在所有节点都在同一个l2网段时可以启用
 # https://docs.cilium.io/en/stable/network/concepts/routing/
-# autoDirectNodeRoutes: true
-# routingMode: native
-# ipv4NativeRoutingCIDR: "10.42.0.0/16"
+autoDirectNodeRoutes: true
+routingMode: native
+ipv4NativeRoutingCIDR: "10.42.0.0/16"
 devices: lima1 eth+
 
 loadBalancer:
   algorithm: maglev
-  # mode: dsr
+  mode: dsr
 
 endpointRoutes:
   enabled: true
