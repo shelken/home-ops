@@ -96,7 +96,7 @@ devices: lima1 eth+
 
 loadBalancer:
   algorithm: maglev
-  mode: dsr
+  # mode: dsr
 
 endpointRoutes:
   enabled: true
