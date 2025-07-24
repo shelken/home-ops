@@ -1,7 +1,7 @@
 ---
 endpoints:
   - name: seafile
-    group: external
+    group: outside
     url: https://seafile.${MAIN_DOMAIN}/api2/ping/
     interval: 3m
     ui:
@@ -15,4 +15,80 @@ endpoints:
       - "[STATUS] == 200"
     alerts: 
       - type: slack
-        send-on-resolved: true
+  - name: sakamoto-caddy
+    group: outside
+    url: "tcp://sakamoto.lan:443"
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[CONNECTED] == true"
+    alerts: 
+      - type: slack
+  - name: tvbox-caddy
+    group: outside
+    url: "tcp://tvbox.lan:443"
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[CONNECTED] == true"
+    alerts: 
+      - type: slack
+  - name: mirror-quay
+    group: outside
+    url: "tcp://sakamoto.lan:5002"
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[CONNECTED] == true"
+    alerts: 
+      - type: slack
+  - name: mirror-docker
+    group: outside
+    url: "tcp://sakamoto.lan:5006"
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[CONNECTED] == true"
+    alerts: 
+      - type: slack
+  - name: mirror-k8s
+    group: outside
+    url: "tcp://sakamoto.lan:5005"
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[CONNECTED] == true"
+    alerts: 
+      - type: slack
+  - name: mirror-ghcr
+    group: outside
+    url: "tcp://sakamoto.lan:5001"
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[CONNECTED] == true"
+    alerts: 
+      - type: slack
+  - name: minio
+    group: outside
+    url: "tcp://sakamoto.lan:9000"
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[CONNECTED] == true"
+    alerts: 
+      - type: slack
