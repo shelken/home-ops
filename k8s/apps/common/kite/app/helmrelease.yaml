@@ -32,6 +32,7 @@ spec:
               PORT: &port 80
               ENABLE_ANALYTICS: false
               OAUTH_ENABLED: true
+              OAUTH_ALLOW_USERS: "*"
             envFrom:
               - secretRef:
                   name: *secret
