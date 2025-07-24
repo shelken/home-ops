@@ -20,13 +20,21 @@ useEqualHeights: true
 disableCollapse: false
 fullWidth: true
 
+# icon from: https://pictogrammers.com/library/mdi/
 layout: 
   设备:
     icon: mdi-desktop-classic
   观测:
+    icon: mdi-monitor-eye
   影音:
+    icon: mdi-folder-multiple-image
   常用:
+    icon: mdi-star-box
   存储:
+    icon: mdi-database
   文章:
+    icon: mdi-note-text-outline
   网络:
+    icon: mdi-wan
   MISC:
+    icon: mdi-cube-outline
