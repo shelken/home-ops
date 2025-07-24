@@ -2,7 +2,9 @@
 # ref：https://github.com/cilium/cilium/blob/v1.17.5/install/kubernetes/cilium/values.yaml
 # gateway-api: https://docs.cilium.io/en/stable/network/servicemesh/gateway-api/gateway-api
 ipv6:
-  enabled: false
+  enabled: true
+enableIPv6Masquerade: true
+# ipv6NativeRoutingCIDR: "fd80:dead:42::/56"
 
 ipam:
   mode: kubernetes
@@ -37,7 +39,7 @@ envoy:
       enabled: true
 
 operator:
-  # replicas: 2
+  replicas: 1
   rollOutPods: true
   prometheus:
     enabled: true
@@ -55,31 +57,6 @@ gatewayAPI:
 #   enabled: true
 #   default: true
 #   loadbalancerMode: shared
-
-hubble:
-  enabled: true
-  metrics:
-    enabled:
-      - dns:query
-      - drop
-      - tcp
-      - flow
-      - port-distribution
-      - icmp
-      - http
-    serviceMonitor:
-      enabled: true
-    dashboards:
-      enabled: true
-  relay:
-    enabled: true
-    rollOutPods: true
-    prometheus:
-      serviceMonitor:
-        enabled: true
-  ui:
-    enabled: true
-    rollOutPods: true
 
 # !!!不要随便加下面，问题多
 # securityContext:
