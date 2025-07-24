@@ -33,6 +33,9 @@ access_control:
     - domain: "*.${MAIN_DOMAIN}"
       resources: ["^/healthz.*$", "^/ping.*$"]
       policy: "bypass"
+    - domain: "homepage.${MAIN_DOMAIN}"
+      resources: ["^/api/healthcheck$"]
+      policy: "bypass"
     ## - domain: ["navidrome.${MAIN_DOMAIN}"]
     ##   resources: ["^/ping.*$", "^/rest.*$"]
     ##   policy: bypass
