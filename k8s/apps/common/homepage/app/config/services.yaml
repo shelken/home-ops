@@ -48,7 +48,7 @@
         description:
         widget:
           type: uptimekuma
-          url: http://192.168.6.141:6300
+          url: http://tvbox.lan:6300
           slug: public
     - Kite:
         icon: https://gcore.jsdelivr.net/gh/zxh326/kite/ui/src/assets/icon.svg

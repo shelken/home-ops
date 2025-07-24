@@ -13,4 +13,3 @@ endpoints:
       - "len([BODY]) == 0"
     alerts: 
       - type: slack
-        send-on-resolved: true

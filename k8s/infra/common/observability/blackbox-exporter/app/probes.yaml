@@ -12,7 +12,7 @@ spec:
     staticConfig:
       static:
         - sakamoto.lan
-        - mio.lan
+        # - mio.lan
         - tvbox.lan
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/probe_v1.json
