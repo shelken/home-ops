@@ -8,6 +8,7 @@ resources:
   - external-secrets
   - system-upgrade
   - longhorn-system
+  - rook-ceph
   - openebs-system
   - volsync-system
   - database
