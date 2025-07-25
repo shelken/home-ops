@@ -8,6 +8,8 @@ parameters:
   numberOfReplicas: "1"
   replicaAutoBalance: best-effort
   staleReplicaTimeout: "30"
+  fsType: ext4
+  dataEngine: v1
 allowVolumeExpansion: true
 volumeBindingMode: WaitForFirstConsumer
 metadata:
