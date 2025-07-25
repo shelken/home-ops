@@ -63,9 +63,9 @@ spec:
               capabilities: { drop: ["ALL"] }
             resources:
               requests:
-                cpu: 10m
+                memory: 50Mi
               limits:
-                memory: 100M
+                memory: 150Mi
         # serviceAccount:
         #   identifier: *app
     defaultPodOptions:
