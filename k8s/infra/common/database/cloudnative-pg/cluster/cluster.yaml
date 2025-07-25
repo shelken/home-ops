@@ -16,10 +16,10 @@ spec:
   postgresql:
     parameters:
       max_connections: "400"
-      shared_buffers: 512MB
+      shared_buffers: 256MB
   resources:
     requests:
-      memory: 200Mi
+      memory: 256Mi
     limits:
       memory: 1Gi
   monitoring:
