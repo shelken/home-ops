@@ -1,0 +1,21 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/helmfile
+
+helmDefaults:
+  cleanupOnFail: true
+  wait: true
+  waitForJobs: true
+
+releases:
+  - name: cilium
+    namespace: kube-system
+    chart: oci://ghcr.io/home-operations/charts-mirror/cilium
+    version: 1.17.6
+    values: ['../k8s/infra/common/kube-system/cilium/app/values.yaml']
+
+  - name: coredns
+    namespace: kube-system
+    chart: oci://ghcr.io/coredns/charts/coredns
+    version: 1.43.0
+    values: ['../k8s/infra/common/kube-system/coredns/app/values.yaml']
+    needs: ['kube-system/cilium']
