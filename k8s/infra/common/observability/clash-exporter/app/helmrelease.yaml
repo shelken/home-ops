@@ -25,8 +25,8 @@ spec:
         containers:
           mio: &common
             image:
-              repository: ghcr.io/zxh326/clash-exporter
-              tag: latest@sha256:4f5ecd26bc2e693967f607ef9dbb726f2df5b55212f197dc5855022f47160fe6
+              repository: ghcr.io/shelken/clash-exporter
+              tag: 0.0.5
             command: 
               - "/app/clash-exporter"
               - "-collectTracing=false"
@@ -65,8 +65,8 @@ spec:
                     name: *secret
                     key: SAKAMOTO_CLASH_TOKEN
     defaultPodOptions:
-      nodeSelector:
-        kubernetes.io/arch: amd64
+      # nodeSelector:
+      #   kubernetes.io/arch: amd64
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
