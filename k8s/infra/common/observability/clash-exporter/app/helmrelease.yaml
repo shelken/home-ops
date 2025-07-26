@@ -65,6 +65,8 @@ spec:
                     name: *secret
                     key: SAKAMOTO_CLASH_TOKEN
     defaultPodOptions:
+      nodeSelector:
+        kubernetes.io/arch: amd64
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
