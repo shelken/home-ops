@@ -53,7 +53,7 @@ spec:
           url: http://localhost:8081/push
     - name: &name alert
       slackConfigs:
-        - sendResolved: true
+        - sendResolved: false
           apiURL:
             key: ALERTMANAGER_ALERT_URL
             name: alertmanager-secret
