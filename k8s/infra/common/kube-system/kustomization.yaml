@@ -9,3 +9,4 @@ resources:
   - snapshot-controller/ks.yaml
   - coredns/ks.yaml
   - metrics-server/ks.yaml
+  - descheduler/ks.yaml
