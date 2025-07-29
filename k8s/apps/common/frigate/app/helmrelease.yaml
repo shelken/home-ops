@@ -100,4 +100,4 @@ spec:
         medium: Memory
         sizeLimit: *memory
         globalMounts:
-          - path: /dev/shm/logs
+          - path: /dev/shm
