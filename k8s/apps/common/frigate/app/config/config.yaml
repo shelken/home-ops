@@ -1,0 +1,113 @@
+auth:
+  enabled: false
+
+# mqtt:
+#   host: emqx-listeners.default.svc
+#   topic_prefix: frigate
+#   user: mqtt
+#   password: '{FRIGATE_MQTT_PASSWORD}'
+
+database:
+  path: /config/frigate.db
+
+# detectors:
+#   coral:
+#     type: edgetpu
+#     device: usb
+
+birdseye:
+  enabled: true
+  # restream: true
+  mode: continuous
+
+# ffmpeg:
+#   hwaccel_args: preset-intel-qsv-h264
+#   output_args:
+#     record: preset-record-generic-audio-aac
+
+objects:
+  track:
+    - person
+    # - dog
+    # - cat
+  filters:
+    person:
+      min_area: 3000
+      max_area: 100000
+      threshold: 0.75
+    # dog:
+    #   min_area: 1000
+    #   max_area: 10000
+    #   threshold: 0.75
+    # cat:
+    #   min_area: 1000
+    #   max_area: 10000
+    #   threshold: 0.75
+
+record:
+  enabled: true
+  retain:
+    days: 3
+    mode: all
+  alerts:
+    retain:
+      days: 3
+      mode: active_objects
+  detections:
+    retain:
+      days: 7
+      mode: active_objects
+
+review:
+  alerts:
+    labels:
+      - person
+      # - dog
+      # - car
+  detections:
+    labels:
+      - person
+      # - dog
+      # - cat
+
+snapshots:
+  enabled: true
+  timestamp: false
+  bounding_box: true
+  crop: false
+  retain:
+    default: 7
+
+go2rtc:
+  streams:
+    mercury1_detect:
+      - rtsp://admin:{FRIGATE_RTSP_PASSWORD}@mercury-1:554/stream2
+    mercury1_record:
+      - rtsp://admin:{FRIGATE_RTSP_PASSWORD}@mercury-1:554/stream1
+      - "ffmpeg:mercury1_record#audio=aac"
+
+cameras:
+  mercury1:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/mercury1_detect
+          input_args: preset-rtsp-restream
+          roles:
+            - detect
+        - path: rtsp://127.0.0.1:8554/mercury1_record
+          input_args: preset-rtsp-restream
+          roles:
+            - record
+    detect:
+      height: 480
+      width: 640
+      fps: 5
+    objects:
+      filters:
+        person:
+          min_area: 1500
+          max_area: 100000
+          threshold: 0.75
+          min_score: 0.60
+    live:
+      stream_name: mercury1_record
