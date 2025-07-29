@@ -84,7 +84,7 @@ spec:
         type: configMap
         name: frigate-config
         globalMounts:
-          - path: /config/config.yml
+          - path: /config/config.yaml
             subPath: config.yaml
             readOnly: true
       cache:
