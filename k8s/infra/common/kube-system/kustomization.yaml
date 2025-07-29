@@ -10,3 +10,4 @@ resources:
   - coredns/ks.yaml
   - metrics-server/ks.yaml
   - descheduler/ks.yaml
+  - intel-device-plugin-operator/ks.yaml
