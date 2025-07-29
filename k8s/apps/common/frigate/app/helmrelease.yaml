@@ -51,6 +51,7 @@ spec:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
               capabilities: { drop: ["ALL"] }
+              privileged: true
             resources:
               requests:
                 memory: 500Mi
