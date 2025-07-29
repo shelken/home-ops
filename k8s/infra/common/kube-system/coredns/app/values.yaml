@@ -46,9 +46,11 @@ affinity:
   nodeAffinity:
     preferredDuringSchedulingIgnoredDuringExecution:
       nodeSelectorTerms:
-        - matchExpressions:
-            - key: node-role.kubernetes.io/control-plane
-              operator: Exists
+        - weight: 1
+          preference:
+            matchExpressions:
+              - key: node-role.kubernetes.io/control-plane
+                operator: Exists
 tolerations:
   - key: CriticalAddonsOnly
     operator: Exists
