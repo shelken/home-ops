@@ -1,6 +1,9 @@
 auth:
   enabled: false
 
+detect:
+  enabled: false
+
 mqtt:
   host: ""
   port: 1883
@@ -16,7 +19,7 @@ database:
 #     device: usb
 
 birdseye:
-  enabled: true
+  enabled: false
   # restream: true
   mode: continuous
 
