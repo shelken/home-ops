@@ -7,7 +7,7 @@ metadata:
 spec:
   staticConfigs:
     - targets:
-        - tvbox.lan:9100
+        - tvbox:9100
   metricsPath: /metrics
   relabelings:
     - action: replace
@@ -23,7 +23,7 @@ metadata:
 spec:
   staticConfigs:
     - targets:
-        - tvbox.lan:2019
+        - tvbox:2019
       labels: 
         job: *name
   metricsPath: /metrics
@@ -38,7 +38,7 @@ metadata:
 spec:
   staticConfigs:
     - targets:
-        - sakamoto.lan:2019
+        - sakamoto:2019
       labels: 
         job: *name
   metricsPath: /metrics
@@ -53,7 +53,7 @@ metadata:
 spec:
   staticConfigs:
     - targets:
-        - router-mine.lan:9100
+        - router-mine:9100
       labels: 
         job: *name
   metricsPath: /metrics
@@ -81,7 +81,7 @@ metadata:
 spec:
   staticConfigs:
     - targets:
-        - tvbox.lan:8338
+        - tvbox:8338
       labels: 
         job: *name
   metricsPath: /metrics
