@@ -44,9 +44,8 @@ servers:
           class error
 affinity:
   nodeAffinity:
-    preferredDuringSchedulingIgnoredDuringExecution:
-      - weight: 1
-        preference:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
           matchExpressions:
             - key: node-role.kubernetes.io/control-plane
               operator: Exists
