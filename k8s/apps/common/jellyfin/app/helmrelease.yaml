@@ -91,6 +91,11 @@ spec:
         globalMounts:
           - path: /music
             readOnly: true
+      backup-media:
+        existingClaim: smb-backup-media
+        globalMounts:
+          - path: /backup-media
+            readOnly: true
       tmpfs:
         type: emptyDir
         advancedMounts:
