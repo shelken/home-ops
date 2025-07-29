@@ -28,7 +28,7 @@ spec:
     #   resizerReplicaCount: 1
     #   snapshotterReplicaCount: 1
     persistence:
-      defaultClassReplicaCount: &replicaCount 3 # 副本数量
+      defaultClassReplicaCount: &replicaCount 1 # 副本数量
       defaultDataLocality: best-effort # 副本倾向放在pod所在位置
     defaultSettings:
       defaultDataLocality: best-effort
