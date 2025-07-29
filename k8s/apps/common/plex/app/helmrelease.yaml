@@ -57,6 +57,7 @@ spec:
               requests:
                 memory: 100Mi
               limits:
+                gpu.intel.com/i915: 1
                 memory: 500Mi
     defaultPodOptions:
       securityContext:
