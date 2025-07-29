@@ -1,11 +1,11 @@
 auth:
   enabled: false
 
-# mqtt:
-#   host: emqx-listeners.default.svc
-#   topic_prefix: frigate
-#   user: mqtt
-#   password: '{FRIGATE_MQTT_PASSWORD}'
+mqtt:
+  host: ""
+  port: 1883
+  user: ""
+  password: ""
 
 database:
   path: /config/frigate.db
