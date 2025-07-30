@@ -96,13 +96,13 @@ spec:
         globalMounts:
           - path: /backup-media
             readOnly: true
-      # font:
-      #   type: hostPath
-      #   hostPath: /usr/share/fonts
-      #   hostPathType: Directory
-      #   globalMounts:
-      #     - path: /usr/share/fonts
-      #       readOnly: true
+      font:
+        type: hostPath
+        hostPath: /usr/share/fonts
+        hostPathType: Directory
+        globalMounts:
+          - path: /usr/share/fonts
+            readOnly: true
       tmpfs:
         type: emptyDir
         advancedMounts:
