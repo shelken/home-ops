@@ -34,8 +34,6 @@ spec:
       retries: 3
   values:
     runtimeClassName: nvidia
-    nodeSelector:
-      nvidia.feature.node.kubernetes.io/gpu: "true"
     config:
       map:
         default: |-
