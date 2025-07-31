@@ -1,0 +1,48 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/source.toolkit.fluxcd.io/ocirepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: nvidia-device-plugin
+spec:
+  interval: 1h
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 0.17.3
+  url: oci://ghcr.io/home-operations/charts-mirror/nvidia-device-plugin
+  # verify:
+  #   provider: cosign
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: nvidia-device-plugin
+spec:
+  interval: 15m
+  chartRef:
+    kind: OCIRepository
+    name: nvidia-device-plugin
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    runtimeClassName: nvidia
+    nodeSelector:
+      nvidia.feature.node.kubernetes.io/gpu: "true"
+    config:
+      map:
+        default: |-
+          version: v1
+          sharing:
+            timeSlicing:
+              renameByDefault: false
+              resources:
+                - name: nvidia.com/gpu
+                  replicas: 6
