@@ -1,0 +1,19 @@
+---
+- name: 复制本地文件到远程并强制覆盖
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/resource/{{ item }}"
+    dest: /etc/{{ item }}
+    owner: root
+    group: root
+    mode: "0644"
+    force: true
+  loop:
+    - multipath.conf
+- name: 重启 multipathd
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: restarted
+  loop: 
+    - "multipathd"
+  failed_when: false
+  ignore_errors: true
