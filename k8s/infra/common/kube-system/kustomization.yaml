@@ -11,4 +11,4 @@ resources:
   - metrics-server/ks.yaml
   - descheduler/ks.yaml
   - intel-device-plugin-operator/ks.yaml
-  - nvidia-device-plugin/ks.yaml
+  # - nvidia-device-plugin/ks.yaml
