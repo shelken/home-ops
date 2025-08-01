@@ -30,3 +30,7 @@ flux resume hr cilium -n kube-system
 #   remediation:
 #     retries: -1
 ```
+
+### ipam
+
+ipam.mode 无法随意切换变更，如果要变更最好是建立新的集群
