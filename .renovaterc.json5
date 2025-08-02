@@ -31,10 +31,6 @@
   },
   packageRules: [
     {
-      matchPackageNames: ["/fluxcd/"],
-      enabled: false
-    },
-    {
       description: "Cert-Manager Group",
       groupName: "Cert-Manager",
       matchDatasources: ["docker"],
