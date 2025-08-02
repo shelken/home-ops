@@ -11,7 +11,7 @@ spec:
         kind: HelmRepository
         name: longhorn
       version: 1.9.1
-  interval: 15m0s
+  interval: 5m
   install:
     remediation:
       retries: -1
