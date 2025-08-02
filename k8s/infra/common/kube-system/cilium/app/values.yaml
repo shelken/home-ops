@@ -6,6 +6,10 @@ ipv6:
 # enableIPv6Masquerade: true
 # ipv6NativeRoutingCIDR: "fd80:dead:42::/56"
 
+bandwidthManager:
+  enabled: true
+  bbr: true
+
 # ref: https://docs.cilium.io/en/stable/network/concepts/ipam/
 ipam:
   mode: kubernetes
@@ -86,8 +90,10 @@ rollOutCiliumPods: true
 # localRedirectPolicy: true
 bpf:
   masquerade: true
+  datapathMode: netkit
   # hostLegacyRouting: true
   # tproxy: true
+bpfClockProbe: true
 
 # 在所有节点都在同一个l2网段时可以启用
 # https://docs.cilium.io/en/stable/network/concepts/routing/
