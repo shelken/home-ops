@@ -26,6 +26,11 @@ access_control:
     - domain:
         - auth.${MAIN_DOMAIN}
       policy: bypass
+    - domain:
+        - "*.${MAIN_DOMAIN}"
+      networks:
+        - internal
+      policy: bypass
     - domain: "*.${MAIN_DOMAIN}"
       policy: "bypass"
       methods:
