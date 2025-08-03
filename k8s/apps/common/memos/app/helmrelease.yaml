@@ -34,7 +34,7 @@ spec:
           app:
             image:
               repository: docker.io/neosmemo/memos
-              tag: 0.24.4
+              tag: 0.25.0
             env:
               TZ: ${TIMEZONE}
               MEMOS_PORT: &port 5230 # https://github.com/usememos/memos/issues/1782
