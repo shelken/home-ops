@@ -5,7 +5,7 @@
     "docker:enableMajor",
     "helpers:pinGitHubActionDigests",
     "github>shelken/home-ops//.renovate/grafanaDashboards.json5",
-    // ":automergeBranch",
+    ":automergeBranch",
     ":dependencyDashboard",
     ":disableRateLimiting",
     ":semanticCommits",
