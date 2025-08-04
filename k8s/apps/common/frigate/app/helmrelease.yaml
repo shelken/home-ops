@@ -19,7 +19,9 @@ spec:
       retries: 3
   values:
     controllers:
-      jellyfin:
+      frigate:
+        pod:
+          runtimeClassName: nvidia
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
