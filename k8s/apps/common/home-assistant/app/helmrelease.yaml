@@ -82,7 +82,7 @@ spec:
             "name": "multus-main",
             "namespace": "network",
             "interface": "eth1",
-            "ips": ["192.168.6.61/24"],
+            "ips": ["192.168.6.51/24"],
             "mac": "02:7f:5c:50:6c:fe"
           }]
       affinity: 
@@ -135,7 +135,7 @@ spec:
       expose:
         type: LoadBalancer
         annotations:
-          io.cilium/lb-ipam-ips: 192.168.6.61
+          io.cilium/lb-ipam-ips: 192.168.6.51
         ports:
           homekit:
             portRange:
