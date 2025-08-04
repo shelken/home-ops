@@ -4,6 +4,7 @@ kind: NetworkAttachmentDefinition
 metadata:
   name: multus-main
 spec:
+  # 该配置仅在sakamoto-k8s上使用，如果需要pve vm上，新建配置，将master改成eth0
   config: |-
     {
       "cniVersion": "0.3.1",
@@ -11,13 +12,13 @@ spec:
       "plugins": [
         {
           "type": "macvlan",
-          "master": "eth0",
+          "master": "eth1",
           "mode": "bridge",
+          "capabilities": { "ips": true, "mac": true },
           "ipam": {
             "type": "static",
-            "routes": [
-              {"dst": "0.0.0.0/0", "gw": "192.168.6.1"}
-            ]
+            "subnet": "192.168.6.0/24",
+            "gateway": "192.168.6.1"
           }
         },
         {

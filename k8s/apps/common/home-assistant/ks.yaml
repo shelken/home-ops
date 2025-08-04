@@ -18,6 +18,8 @@ spec:
       namespace: external-secrets
     - name: volsync
       namespace: volsync-system
+    - name: multus-networks
+      namespace: network
   postBuild:
     substitute:
       APP: *app
