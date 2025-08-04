@@ -121,6 +121,13 @@ spec:
               resources:
                 requests:
                   storage: 50Gi
+        affinity: 
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: node-role.kubernetes.io/control-plane
+                        operator: Exists
     prometheus-node-exporter:
       fullnameOverride: node-exporter
       prometheus:
