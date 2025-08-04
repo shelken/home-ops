@@ -29,7 +29,7 @@ birdseye:
 
 ffmpeg:
   # hwaccel_args: preset-intel-qsv-h264
-  hwaccel_args: preset-nvidia
+  hwaccel_args: preset-nvidia-h264
   output_args:
     record: preset-record-generic-audio-aac
 
