@@ -18,6 +18,7 @@ spec:
     remediation:
       retries: 3
   values:
+    # ref: https://github.com/perryhuynh/homelab/blob/main/kubernetes/apps/home/home-assistant/app/helmrelease.yaml
     controllers:
       home-assistant:
         annotations:
