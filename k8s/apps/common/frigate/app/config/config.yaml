@@ -1,6 +1,10 @@
 auth:
   enabled: false
 
+logger:
+  # Optional: default log level (default: shown below)
+  default: debug
+
 detect:
   enabled: true
 
