@@ -4,7 +4,7 @@ auth:
 
 logger:
   # Optional: default log level (default: shown below)
-  default: debug
+  default: info
 
 detect:
   enabled: true
