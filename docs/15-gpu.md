@@ -8,6 +8,8 @@
 
 > 
 > https://gitlab.com/polloloco/vgpu-proxmox
+>
+> https://git.collinwebdesigns.de/oscar.krause/fastapi-dls
 > 
 
 根据教程，宿主机安装patch之后的driver、 解锁消费级显卡、 覆盖配置要使用的profile
@@ -25,6 +27,19 @@ ansible-playbook ansible/playbooks/install-nvidia.yaml
 
 ```shell
 sudo ./NVIDIA-Linux-x86_64-535.216.01-grid.run
+```
+
+处理licence
+
+部署一个 [fastapi-dls](https://github.com/shelken/homelab-compose/blob/main/apps/nvidia-dls/docker-compose.yaml) 
+
+```shell
+curl -X GET https://nvidia-dls.$MAIN_DOMAIN/-/client-token -o /etc/nvidia/ClientConfigToken/client_configuration_token.tok
+sudo cp /etc/nvidia/gridd.conf.template /etc/nvidia/gridd.conf
+# 看情况修改
+service nvidia-gridd restart
+# 检查
+nvidia-smi -q | grep -n3i "License Status"
 ```
 
 ### VM 显卡直通
