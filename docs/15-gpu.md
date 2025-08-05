@@ -6,7 +6,26 @@
 
 ### vGPU
 
-> TODO
+> 
+> https://gitlab.com/polloloco/vgpu-proxmox
+> 
+
+根据教程，宿主机安装patch之后的driver、 解锁消费级显卡、 覆盖配置要使用的profile
+
+```shell
+./NVIDIA-Linux-x86_64-535.216.01-vgpu-kvm.run --apply-patch ~/vgpu-proxmox/535.216.01.patch
+./NVIDIA-Linux-x86_64-535.216.01-vgpu-kvm-custom.run --dkms -m=kernel
+```
+
+然后虚拟机vm安装相关包和驱动
+
+```shell
+ansible-playbook ansible/playbooks/install-nvidia.yaml
+```
+
+```shell
+sudo ./NVIDIA-Linux-x86_64-535.216.01-grid.run
+```
 
 ### VM 显卡直通
 
