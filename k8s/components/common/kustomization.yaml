@@ -6,3 +6,4 @@ resources:
   - namespace.yaml
   - cluster-settings.yaml
   - ./sops
+  - ./alerts
