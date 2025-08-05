@@ -23,6 +23,13 @@ detectors:
     type: tensorrt
     device: 0
 
+model:
+  path: /config/model_cache/tensorrt/yolov7-320.trt  #预训练的模型文件
+  input_tensor: nchw
+  input_pixel_format: rgb
+  width: 320 #与上面文件尺寸对应
+  height: 320
+
 birdseye:
   enabled: false
   # restream: true

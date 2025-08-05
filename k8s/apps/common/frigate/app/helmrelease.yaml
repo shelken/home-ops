@@ -31,6 +31,7 @@ spec:
               tag: 0.15.2-tensorrt
             env:
               TZ: ${TIMEZONE}
+              YOLO_MODELS: yolov7-320
               USE_FP16: "false"
             envFrom:
               - secretRef:
