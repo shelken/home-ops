@@ -51,4 +51,17 @@
       when: 
         - (nvidia_gpu | default(false)) | bool
 
-      # 安装与宿主机版本一致的grid driver
+    - name: Disable nouveau driver
+      become: true
+      ansible.builtin.copy:
+        dest: /etc/modprobe.d/blacklist-nouveau.conf
+        content: |
+          blacklist nouveau
+          options nouveau modeset=0
+        owner: root
+        group: root
+        mode: '0644'
+      when: 
+        - (nvidia_gpu | default(false)) | bool
+
+    # 安装与宿主机版本一致的grid driver
