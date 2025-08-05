@@ -21,6 +21,21 @@
 ./NVIDIA-Linux-x86_64-535.216.01-vgpu-kvm-custom.run --dkms -m=kernel
 ```
 
+宿主机覆盖的配置示例
+
+```toml
+[profile.nvidia-49]
+num_displays = 1          # Max number of virtual displays. Usually 1 if you want a simple remote gaming VM
+display_width = 1920      # Maximum display width in the VM
+display_height = 1080     # Maximum display height in the VM
+max_pixels = 2073600      # This is the product of display_width and display_height so 1920 * 1080 = 2073600
+cuda_enabled = 1          # Enables CUDA support. Either 1 or 0 for enabled/disabled
+frl_enabled = 1           # This controls the frame rate limiter, if you enable it your fps in the VM get locked to 60fps. Either 1 or 0 for enabled/disabled
+framebuffer = 0xEC000000
+framebuffer_reservation = 0x14000000
+```
+
+
 然后虚拟机vm安装相关包和驱动
 
 ```shell
