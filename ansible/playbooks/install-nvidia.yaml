@@ -45,9 +45,9 @@
       loop: 
         # - nvidia-headless-535-server
         # - nvidia-utils-535-server
-        - nvidia-container-runtime
-        - pkg-config
-        - libglvnd-dev
+        - nvidia-container-runtime  # 容器运行时
+        - pkg-config                # nvidia-driver 依赖
+        - libglvnd-dev              # nvidia-driver 依赖
       when: 
         - (nvidia_gpu | default(false)) | bool
 
@@ -70,3 +70,4 @@
         - (nvidia_gpu | default(false)) | bool
 
     # 安装与宿主机版本一致的grid driver
+    # 然后配置 licence/nvidia-gridd
