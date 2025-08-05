@@ -63,5 +63,10 @@
         mode: '0644'
       when: 
         - (nvidia_gpu | default(false)) | bool
+    - name: Update initramfs to apply nouveau blacklist (Ubuntu/Debian)
+      become: true
+      command: update-initramfs -u
+      when: 
+        - (nvidia_gpu | default(false)) | bool
 
     # 安装与宿主机版本一致的grid driver
