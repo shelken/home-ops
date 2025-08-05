@@ -7,10 +7,12 @@
 ### vGPU
 
 > 
-> https://gitlab.com/polloloco/vgpu-proxmox
+> [vgpu 开启教程（驱动安装）](https://gitlab.com/polloloco/vgpu-proxmox)
 >
-> https://git.collinwebdesigns.de/oscar.krause/fastapi-dls
-> 
+> [自建vgpu认证服务教程](https://git.collinwebdesigns.de/oscar.krause/fastapi-dls)
+>
+>[fastapi-dls docker hub image](https://hub.docker.com/r/collinwebdesigns/fastapi-dls)
+>
 
 根据教程，宿主机安装patch之后的driver、 解锁消费级显卡、 覆盖配置要使用的profile
 
@@ -40,6 +42,8 @@ sudo cp /etc/nvidia/gridd.conf.template /etc/nvidia/gridd.conf
 service nvidia-gridd restart
 # 检查
 nvidia-smi -q | grep -n3i "License Status"
+# 使用ffmpeg测试
+ffmpeg -hwaccel cuda -i ~/EP05_01m.mp4 -f null -
 ```
 
 ### VM 显卡直通
