@@ -11,7 +11,9 @@
 >
 > [自建vgpu认证服务教程](https://git.collinwebdesigns.de/oscar.krause/fastapi-dls)
 >
->[fastapi-dls docker hub image](https://hub.docker.com/r/collinwebdesigns/fastapi-dls)
+> [fastapi-dls docker hub image](https://hub.docker.com/r/collinwebdesigns/fastapi-dls)
+>
+> [佛西网盘资源（vgpu相关驱动）](https://alist.homelabproject.cc/foxipan/vGPU/16.8)
 >
 
 根据教程，宿主机安装patch之后的driver、 解锁消费级显卡、 覆盖配置要使用的profile
