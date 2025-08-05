@@ -1,3 +1,4 @@
+# ref: https://docs.frigate.video/configuration/reference/
 auth:
   enabled: false
 
@@ -17,10 +18,10 @@ mqtt:
 database:
   path: /config/frigate.db
 
-# detectors:
-#   coral:
-#     type: edgetpu
-#     device: usb
+detectors:
+  tensorrt:
+    type: tensorrt
+    device: 0
 
 birdseye:
   enabled: false
@@ -71,7 +72,7 @@ review:
     labels:
       - person
       # - dog
-      # - car
+      # - car.
   detections:
     labels:
       - person
