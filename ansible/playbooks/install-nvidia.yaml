@@ -1,0 +1,54 @@
+---
+- name: Install Nvidia Driver And Container Runtime
+  hosts: all
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Add NVIDIA Container Toolkit GPG key
+      ansible.builtin.apt_key:
+        url: https://nvidia.github.io/libnvidia-container/gpgkey
+        keyring: /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+        state: present
+      when: 
+        - (nvidia_gpu | default(false)) | bool
+
+    - name: Download and configure NVIDIA container toolkit APT source list
+      ansible.builtin.get_url:
+        url: https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list
+        dest: /etc/apt/sources.list.d/nvidia-container-toolkit.list
+        mode: '0644'
+      when: 
+        - (nvidia_gpu | default(false)) | bool
+
+    - name: Update APT source list to use signed-by option
+      ansible.builtin.replace:
+        path: /etc/apt/sources.list.d/nvidia-container-toolkit.list
+        regexp: '^deb https://'
+        replace: 'deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://'
+      when: 
+        - (nvidia_gpu | default(false)) | bool
+    
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      when: 
+        - (nvidia_gpu | default(false)) | bool
+
+    - name: 安装 Nvidia 所需包
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+        install_recommends: no
+        force_apt_get: yes
+        allow_unauthenticated: no
+      loop: 
+        # - nvidia-headless-535-server
+        # - nvidia-utils-535-server
+        - nvidia-container-runtime
+        - pkg-config
+        - libglvnd-dev
+      when: 
+        - (nvidia_gpu | default(false)) | bool
+
+      # 安装与宿主机版本一致的grid driver
