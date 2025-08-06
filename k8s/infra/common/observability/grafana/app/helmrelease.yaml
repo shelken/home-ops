@@ -226,6 +226,7 @@ spec:
           gethomepage.dev/name: Grafana
           gethomepage.dev/icon: grafana.svg
           gethomepage.dev/description: Dashboard
+          gethomepage.dev/app: grafana
         enabled: true
         hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
         parentRefs:

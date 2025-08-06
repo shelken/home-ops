@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: home-assistant
+  name: &app home-assistant
 spec:
   interval: 1h
   chartRef:
@@ -109,6 +109,7 @@ spec:
           gethomepage.dev/name: HomeAssistant
           gethomepage.dev/icon: home-assistant-alt.svg
           gethomepage.dev/description: ""
+          gethomepage.dev/app: *app
         hostnames:
           - hass.${MAIN_DOMAIN}
           - "{{ .Release.Name }}.${MAIN_DOMAIN}"
@@ -127,6 +128,7 @@ spec:
           gethomepage.dev/name: Hass Code Server
           gethomepage.dev/icon: code-server.png
           gethomepage.dev/description: ""
+          gethomepage.dev/app: *app
         hostnames: ["hass-code.${MAIN_DOMAIN}"]
         parentRefs:
           - name: internal

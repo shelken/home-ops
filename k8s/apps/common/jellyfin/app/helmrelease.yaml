@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: jellyfin
+  name: &app jellyfin
 spec:
   interval: 1h
   chartRef:
@@ -77,7 +77,8 @@ spec:
           gethomepage.dev/group: 影音
           gethomepage.dev/name: Jellyfin
           gethomepage.dev/icon: jellyfin.svg
-          gethomepage.dev/description: 
+          gethomepage.dev/description: ""
+          gethomepage.dev/app: *app
         hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
         parentRefs:
           - name: internal

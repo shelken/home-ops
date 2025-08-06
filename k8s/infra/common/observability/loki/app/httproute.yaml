@@ -9,7 +9,8 @@ metadata:
     gethomepage.dev/group: &network internal
     gethomepage.dev/name: Loki
     gethomepage.dev/icon: loki.svg
-    gethomepage.dev/description: 
+    gethomepage.dev/description: ""
+    gethomepage.dev/app: "loki"
 spec:
   parentRefs:
     - name: *network

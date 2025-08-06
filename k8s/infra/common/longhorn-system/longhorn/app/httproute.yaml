@@ -9,7 +9,8 @@ metadata:
     gethomepage.dev/group: 存储
     gethomepage.dev/name: Longhorn
     gethomepage.dev/icon: longhorn.svg
-    gethomepage.dev/description: 
+    gethomepage.dev/description: ""
+    gethomepage.dev/pod-selector: ""
 spec:
   parentRefs:
     - name: internal
