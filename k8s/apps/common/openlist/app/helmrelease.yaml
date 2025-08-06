@@ -110,7 +110,7 @@ spec:
 
             # Start OpenList server
             echo "Starting OpenList server..."
-            exec ./openlist server --no-prefix --debug
+            exec ./openlist server --no-prefix
     persistence:
       scripts:
         type: configMap
