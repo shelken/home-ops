@@ -10,6 +10,7 @@ metadata:
     gethomepage.dev/name: Seafile
     gethomepage.dev/icon: seafile.svg
     gethomepage.dev/description: 文件同步
+    # gethomepage.dev/app: *app
 spec:
   hostnames: ["seafile.${MAIN_DOMAIN}"]
   parentRefs:

@@ -9,7 +9,7 @@ metadata:
     gethomepage.dev/group: &network external
     gethomepage.dev/name: flux-webhook
     gethomepage.dev/icon: webhook.svg
-    gethomepage.dev/description: 
+    gethomepage.dev/description: ""
     # gethomepage.dev/app: notification-controller
     gethomepage.dev/pod-selector: >-
       app in (

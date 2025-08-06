@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: plex
+  name: &app plex
 spec:
   interval: 1h
   chartRef:
@@ -82,7 +82,8 @@ spec:
           gethomepage.dev/group: 影音
           gethomepage.dev/name: Plex
           gethomepage.dev/icon: plex.svg
-          gethomepage.dev/description: 
+          gethomepage.dev/description: ""
+          gethomepage.dev/app: *app
         hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
         parentRefs:
           - name: external

@@ -46,7 +46,8 @@ spec:
             gethomepage.dev/group: 观测
             gethomepage.dev/name: AlertManager
             gethomepage.dev/icon: alertmanager.svg
-            gethomepage.dev/description: 
+            gethomepage.dev/description: ""
+            gethomepage.dev/app: "alertmanager"
           enabled: true
           hostnames: ["alertmanager.${MAIN_DOMAIN}"]
           parentRefs:
