@@ -58,6 +58,9 @@ identity_providers:
       endpoints:
         ["authorization", "token", "revocation", "introspection", "userinfo"]
       allowed_origins_from_client_redirect_uris: true
+    claims_policies:
+      id_token:
+        id_token: ['preferred_username']
     clients:
       # ref: https://www.authelia.com/integration/openid-connect/memos/
       - client_id: memos
@@ -93,8 +96,9 @@ identity_providers:
           - "https://drive.${MAIN_DOMAIN}/api/auth/sso_callback?method=get_sso_id"
           - "https://drive.${MAIN_DOMAIN}/api/auth/get_sso_id"
           - "https://drive.${MAIN_DOMAIN}/api/auth/sso_get_token"
-        id_token_encrypted_response_alg: none
-        # userinfo_signed_response_alg: none
+        # id_token_encrypted_response_alg: none
+        userinfo_signed_response_alg: "none"
+        claims_policy: id_token
         # token_endpoint_auth_method: "client_secret_post"
 
 storage:
