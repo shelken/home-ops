@@ -35,6 +35,7 @@ spec:
               PGID: "1000"
               UMASK: "022"
               RUN_ARIA2: "false"
+              SITE_URL: "https://drive.${MAIN_DOMAIN}"
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false
@@ -109,7 +110,7 @@ spec:
 
             # Start OpenList server
             echo "Starting OpenList server..."
-            exec ./openlist server --no-prefix
+            exec ./openlist server --no-prefix --debug
     persistence:
       scripts:
         type: configMap
