@@ -59,6 +59,7 @@ identity_providers:
         ["authorization", "token", "revocation", "introspection", "userinfo"]
       allowed_origins_from_client_redirect_uris: true
     claims_policies:
+      # 给那些使用id-token提取用户名信息的服务。让authelia在idtoken中额外添加信息
       id_token:
         id_token: ['preferred_username']
     clients:
