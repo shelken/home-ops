@@ -10,7 +10,7 @@ metadata:
     gethomepage.dev/name: flux-webhook
     gethomepage.dev/icon: webhook.svg
     gethomepage.dev/description: 
-    podSelector: >-
+    gethomepage.dev/podSelector: >-
       app in (
          notification-controller
       )
@@ -22,7 +22,7 @@ spec:
       sectionName: https
   rules:
     - backendRefs:
-        - name: *pod
+        - name: webhook-receiver
           namespace: flux-system
           port: 80
       matches:
