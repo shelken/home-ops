@@ -18,9 +18,9 @@
         href: http://router-f50.lan/
         description: 随身wifi
 
-- 常用:
+# - 常用:
 
-- 影音:
+# - 影音:
 
 - 观测:
     - Gatus:
@@ -68,4 +68,4 @@
         href: https://headscale.${MAIN_DOMAIN}/admin/
         description:
 
-- MISC:
+# - MISC:
