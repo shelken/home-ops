@@ -10,6 +10,7 @@ metadata:
     gethomepage.dev/name: flux-webhook
     gethomepage.dev/icon: webhook.svg
     gethomepage.dev/description: 
+    gethomepage.dev/app: webhook-receiver
     gethomepage.dev/podSelector: >-
       app in (
          notification-controller
