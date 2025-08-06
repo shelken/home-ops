@@ -3,15 +3,16 @@ kind: Kustomization
 components:
   - ../../components/common
 resources: 
-  - smb-volumes/ks.yaml
-  - memos/ks.yaml
-  - kite/ks.yaml
-  - homepage/ks.yaml
   - echo/ks.yaml
-  - shlink/ks.yaml
-  - kromgo/ks.yaml
-  - vaultwarden/ks.yaml
-  - plex/ks.yaml
-  - jellyfin/ks.yaml
   - frigate/ks.yaml
   - home-assistant/ks.yaml
+  - homepage/ks.yaml
+  - jellyfin/ks.yaml
+  - kite/ks.yaml
+  - kromgo/ks.yaml
+  - memos/ks.yaml
+  - openlist/ks.yaml
+  - plex/ks.yaml
+  - shlink/ks.yaml
+  - smb-volumes/ks.yaml
+  - vaultwarden/ks.yaml
