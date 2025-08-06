@@ -59,7 +59,7 @@ spec:
           gethomepage.dev/app: *app
           gethomepage.dev/pod-selector: >-
             app.kubernetes.io/instance in (
-              shlink
+              shlink,
               shlink-web
             )
         hostnames: 
