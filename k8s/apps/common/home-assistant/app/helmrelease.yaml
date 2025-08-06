@@ -108,7 +108,7 @@ spec:
           gethomepage.dev/group: 常用
           gethomepage.dev/name: HomeAssistant
           gethomepage.dev/icon: home-assistant-alt.svg
-          gethomepage.dev/description: 
+          gethomepage.dev/description: ""
         hostnames:
           - hass.${MAIN_DOMAIN}
           - "{{ .Release.Name }}.${MAIN_DOMAIN}"
@@ -126,7 +126,7 @@ spec:
           gethomepage.dev/group: internal
           gethomepage.dev/name: Hass Code Server
           gethomepage.dev/icon: code-server.png
-          gethomepage.dev/description: 
+          gethomepage.dev/description: ""
         hostnames: ["hass-code.${MAIN_DOMAIN}"]
         parentRefs:
           - name: internal
