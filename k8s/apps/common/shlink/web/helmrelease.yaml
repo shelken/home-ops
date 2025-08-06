@@ -57,6 +57,11 @@ spec:
           gethomepage.dev/icon: shlink.svg
           gethomepage.dev/description: ""
           gethomepage.dev/app: *app
+          gethomepage.dev/pod-selector: >-
+            app.kubernetes.io/instance in (
+              shlink
+              shlink-web
+            )
         hostnames: 
           - "s-web.${MAIN_DOMAIN}"
         parentRefs:

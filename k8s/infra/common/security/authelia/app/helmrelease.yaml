@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: authelia
+  name: &app authelia
 spec:
   interval: 1h
   chartRef:
@@ -90,6 +90,13 @@ spec:
             port: 8080
     route:
       app:
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: external
+          gethomepage.dev/name: Authelia
+          gethomepage.dev/icon: authelia.svg
+          gethomepage.dev/description: ""
+          gethomepage.dev/app: *app
         hostnames:
           - auth.${MAIN_DOMAIN}
         parentRefs:
