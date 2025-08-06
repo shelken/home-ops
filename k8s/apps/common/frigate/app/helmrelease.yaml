@@ -81,6 +81,12 @@ spec:
             port: &apiPort 1984
     route:
       app:
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: 常用
+          gethomepage.dev/name: Frigate
+          gethomepage.dev/icon: frigate.svg
+          gethomepage.dev/description: 
         hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
         parentRefs:
           - name: internal

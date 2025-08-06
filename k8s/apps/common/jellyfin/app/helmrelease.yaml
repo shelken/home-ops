@@ -72,6 +72,12 @@ spec:
             port: 8096
     route:
       app:
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: 影音
+          gethomepage.dev/name: Jellyfin
+          gethomepage.dev/icon: jellyfin.svg
+          gethomepage.dev/description: 
         hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
         parentRefs:
           - name: internal

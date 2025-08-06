@@ -50,6 +50,12 @@ spec:
             port: &port 8080  
     route:
       app:
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: MISC
+          gethomepage.dev/name: Shlink Manage
+          gethomepage.dev/icon: shlink.svg
+          gethomepage.dev/description: 
         hostnames: 
           - "s-web.${MAIN_DOMAIN}"
         parentRefs:

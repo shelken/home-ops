@@ -44,7 +44,7 @@ spec:
                   httpGet:
                     path: /healthz
                     port: *port
-                  initialDelaySeconds: 30
+                  initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1
                   failureThreshold: 3
@@ -85,6 +85,12 @@ spec:
             port: *port
     route:
       app:
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: 观测
+          gethomepage.dev/name: Kite
+          gethomepage.dev/icon: https://gcore.jsdelivr.net/gh/zxh326/kite/ui/src/assets/icon.svg
+          gethomepage.dev/description: 
         hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
         parentRefs:
           - name: internal

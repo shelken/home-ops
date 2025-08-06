@@ -68,8 +68,8 @@ spec:
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: 存储
           gethomepage.dev/name: OpenList
-          gethomepage.dev/icon: https://raw.githubusercontent.com/OpenListTeam/Logo/main/logo.svg
-          gethomepage.dev/description: File list program that supports multiple storage
+          gethomepage.dev/icon: openlist.svg
+          gethomepage.dev/description: 
         hostnames: ["drive.${MAIN_DOMAIN}"]
         parentRefs:
           - name: external

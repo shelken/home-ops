@@ -77,6 +77,12 @@ spec:
             port: *port
     route:
       app:
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: 影音
+          gethomepage.dev/name: Plex
+          gethomepage.dev/icon: plex.svg
+          gethomepage.dev/description: 
         hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
         parentRefs:
           - name: external

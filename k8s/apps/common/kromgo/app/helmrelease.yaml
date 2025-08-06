@@ -68,6 +68,12 @@ spec:
             port: *healthPort
     route:
       app:
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: external
+          gethomepage.dev/name: Kromgo
+          gethomepage.dev/icon: kubernetes-dashboard.svg
+          gethomepage.dev/description: 
         hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
         parentRefs:
           - name: external

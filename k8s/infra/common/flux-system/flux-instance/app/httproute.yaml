@@ -1,8 +1,15 @@
 ---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/gateway.networking.k8s.io/httproute_v1.json
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: github-webhook
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/group: external
+    gethomepage.dev/name: flux-webhook
+    gethomepage.dev/icon: webhook.svg
+    gethomepage.dev/description: 
 spec:
   hostnames: ["flux-webhook.${MAIN_DOMAIN}"]
   parentRefs:
