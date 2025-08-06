@@ -19,22 +19,10 @@
         description: 随身wifi
 
 - 常用:
-    - HomeAssistant:
-        icon: home-assistant-alt.png
-        href: https://hass.${MAIN_DOMAIN}
-        description:
 
 - 影音:
-    - Plex:
-        icon: plex.png
-        href: https://plex.${MAIN_DOMAIN}
-        description:
 
 - 观测:
-    - Grafana:
-        icon: grafana.png
-        href: https://grafana.${MAIN_DOMAIN}
-        description: Dashboard
     - Gatus:
         icon: gatus.png
         href: https://status.${MAIN_DOMAIN}
@@ -50,10 +38,6 @@
           type: uptimekuma
           url: http://tvbox.lan:6300
           slug: public
-    - Kite:
-        icon: https://gcore.jsdelivr.net/gh/zxh326/kite/ui/src/assets/icon.svg
-        href: https://kite.${MAIN_DOMAIN}
-        description:
     - Prometheus:
         icon: prometheus.png
         href: https://prometheus.${MAIN_DOMAIN}
@@ -61,23 +45,11 @@
         widget:
           type: prometheus
           url: http://prometheus-operated.observability.svc.cluster.local:9090
-    - AlertManager:
-        icon: alertmanager.png
-        href: https://alertmanager.${MAIN_DOMAIN}
-        description:
 
 - 存储:
-    - Seafile:
-        icon: seafile.png
-        href: https://seafile.${MAIN_DOMAIN}
-        description: 文件同步
     - Minio:
         icon: minio-light.png
         href: https://minio-ui.${MAIN_DOMAIN}
-        description:
-    - Longhorn:
-        icon: longhorn.png
-        href: https://longhorn.${MAIN_DOMAIN}
         description:
 
 - 文章:
@@ -89,10 +61,6 @@
         icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/avatar/mio-2.jpg
         href: https://xlog.${MAIN_DOMAIN}
         description:
-    - Memos:
-        icon: memos.png
-        href: https://memos.${MAIN_DOMAIN}
-        description:
 
 - 网络:
     - Headscale Manage:
@@ -101,11 +69,3 @@
         description:
 
 - MISC:
-    - VaultWarden:
-        icon: vaultwarden-light.png
-        href: https://vw.${MAIN_DOMAIN}
-        description:
-    - Shlink Manage:
-        icon: shlink.png
-        href: https://s-web.${MAIN_DOMAIN}
-        description:

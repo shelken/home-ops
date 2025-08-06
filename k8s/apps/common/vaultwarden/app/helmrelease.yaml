@@ -78,6 +78,12 @@ spec:
             port: *port
     route:
       app:
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: MISC
+          gethomepage.dev/name: VaultWarden
+          gethomepage.dev/icon: vaultwarden-light.svg
+          gethomepage.dev/description: 
         hostnames: 
           - "vw.${MAIN_DOMAIN}"
         parentRefs:

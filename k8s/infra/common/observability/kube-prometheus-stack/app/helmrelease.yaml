@@ -41,6 +41,12 @@ spec:
     alertmanager:
       route:
         main:
+          annotations:
+            gethomepage.dev/enabled: "true"
+            gethomepage.dev/group: 观测
+            gethomepage.dev/name: AlertManager
+            gethomepage.dev/icon: alertmanager.svg
+            gethomepage.dev/description: 
           enabled: true
           hostnames: ["alertmanager.${MAIN_DOMAIN}"]
           parentRefs:

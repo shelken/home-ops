@@ -220,6 +220,12 @@ spec:
       enabled: true
     route:
       main:
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: 观测
+          gethomepage.dev/name: Grafana
+          gethomepage.dev/icon: grafana.svg
+          gethomepage.dev/description: Dashboard
         enabled: true
         hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
         parentRefs:
