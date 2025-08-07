@@ -21,6 +21,7 @@ spec:
   values:
     controllers:
       ollama:
+        type: statefulset
         # labels:
         #   postgres: "true"
         annotations:
