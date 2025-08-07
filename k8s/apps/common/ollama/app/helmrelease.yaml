@@ -21,6 +21,8 @@ spec:
   values:
     controllers:
       ollama:
+        pod:
+          runtimeClassName: nvidia
         type: statefulset
         # labels:
         #   postgres: "true"
