@@ -36,7 +36,9 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false
-              capabilities: { drop: ["ALL"] }
+              capabilities: 
+                drop: ["ALL"]
+                add: ["CHOWN"]
             envFrom:
               - secretRef:
                   name: homarr-secret
