@@ -15,6 +15,7 @@ spec:
   dependsOn:
     - name: longhorn
       namespace: longhorn-system
+    - name: smb-volumes
   interval: 1h
   path: ./k8s/apps/common/frigate/app
   postBuild:

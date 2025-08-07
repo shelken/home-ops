@@ -99,7 +99,7 @@ spec:
                 port: *port
     persistence:
       config:
-        existingClaim: frigate
+        existingClaim: *app
         globalMounts:
           - path: /config
       config-file:
@@ -109,6 +109,10 @@ spec:
           - path: /config/config.yml
             subPath: config.yaml
             readOnly: true
+      backup-media:
+        existingClaim: smb-backup-media
+        globalMounts:
+          - path: /media
       cache:
         type: emptyDir
         medium: Memory
