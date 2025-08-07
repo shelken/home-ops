@@ -46,12 +46,12 @@ spec:
               LOG_LEVEL: info
               PUID: "1000"
               PGID: "1000"
-    defaultPodOptions:
-      securityContext:
+    # defaultPodOptions:
+      # securityContext:
         # runAsNonRoot: true
         # runAsUser: 1000
         # runAsGroup: 1000
-        fsGroup: 1000
+        # fsGroup: 1000
     service:
       app:
         controller: *app
