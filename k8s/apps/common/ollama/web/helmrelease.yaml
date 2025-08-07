@@ -40,6 +40,8 @@ spec:
             env:
               TZ: ${TIMEZONE}
               OLLAMA_BASE_URL: http://ollama.default.svc.cluster.local:11434
+              UID: 1000
+              GID: 1000
             envFrom: *envFrom
             securityContext:
               allowPrivilegeEscalation: false
