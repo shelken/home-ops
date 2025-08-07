@@ -12,6 +12,7 @@ resources:
   - kite/ks.yaml
   - kromgo/ks.yaml
   - memos/ks.yaml
+  - ollama/ks.yaml
   - openlist/ks.yaml
   - plex/ks.yaml
   - shlink/ks.yaml
