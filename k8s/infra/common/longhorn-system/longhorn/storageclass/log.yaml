@@ -4,7 +4,7 @@ kind: StorageClass
 reclaimPolicy: Delete
 provisioner: driver.longhorn.io
 parameters:
-  dataLocality: disabled
+  dataLocality: best-effort
   numberOfReplicas: "1"
   replicaAutoBalance: best-effort
   staleReplicaTimeout: "30"
