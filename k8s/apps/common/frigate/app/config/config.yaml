@@ -63,15 +63,15 @@ objects:
 record:
   enabled: true
   retain:
-    days: 0
+    days: 1
     mode: all
   alerts:
     retain:
-      days: 0
+      days: 7
       mode: active_objects
   detections:
     retain:
-      days: 0
+      days: 7
       mode: active_objects
 
 review:
