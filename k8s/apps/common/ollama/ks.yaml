@@ -1,0 +1,66 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app ollama
+  namespace: &namespace default
+spec:
+  targetNamespace: *namespace
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  components:
+    - ../../../../components/gatus/guarded
+    - ../../../../components/volsync
+  postBuild:
+    substitute: 
+      APP: *app
+      # GATUS_SUBDOMAIN: ollama
+      # GATUS_PATH: /rest/health
+  dependsOn:
+    - name: longhorn
+      namespace: longhorn-system
+  path: ./k8s/apps/common/ollama/app
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  wait: false
+  interval: 1h
+  retryInterval: 2m
+  timeout: 5m
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app ollama-web
+  namespace: &namespace default
+spec:
+  targetNamespace: *namespace
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  components:
+    - ../../../../components/gatus/guarded
+    - ../../../../components/volsync
+  postBuild:
+    substitute:
+      APP: *app
+      GATUS_SUBDOMAIN: chat
+  dependsOn:
+    - name: ollama
+    - name: cloudnative-pg-cluster
+      namespace: database
+    - name: dragonfly-cluster
+      namespace: database
+  path: ./k8s/apps/common/ollama/web
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  wait: false
+  interval: 1h
+  retryInterval: 2m
+  timeout: 5m
