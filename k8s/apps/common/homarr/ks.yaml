@@ -1,0 +1,32 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app homarr
+  namespace: &namespace default
+spec:
+  targetNamespace: *namespace
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  components:
+    - ../../../../components/gatus/guarded
+  postBuild:
+    substitute:
+      APP: *app
+      # GATUS_PATH: /api/healthcheck
+      # GATUS_SUBDOMAIN: 
+  # dependsOn:
+  #   - name: azure-store
+  #     namespace: external-secrets
+  interval: 1h
+  path: ./k8s/apps/common/homarr/app
+  prune: true
+  retryInterval: 2m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  timeout: 5m
+  wait: false
