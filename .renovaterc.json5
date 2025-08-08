@@ -85,6 +85,15 @@
       matchPackageNames: ["/kube-prometheus-stack/", "/grafana/"],
       ignoreTests: false,
     },
+    {
+      description: "Auto-merge Ansible relate",
+      matchDatasources: ["galaxy-collection"],
+      automerge: true,
+      automergeType: "pr",
+      matchUpdateTypes: ["minor", "patch"],
+      // matchPackageNames: ["/external-dns/", "/gateway-api/", "/prometheus-operator/"],
+      ignoreTests: true,
+    },
     // {
     //   description: "Auto-merge Mise Tools",
     //   matchManagers: ["mise"],
