@@ -7,7 +7,7 @@ logger:
   default: info
 
 detect:
-  enabled: true
+  enabled: false
 
 mqtt:
   host: ""
@@ -63,7 +63,7 @@ objects:
 record:
   enabled: true
   retain:
-    days: 1
+    days: 3
     mode: all
   alerts:
     retain:
