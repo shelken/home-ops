@@ -84,6 +84,7 @@
       matchUpdateTypes: ["minor", "patch"],
       matchPackageNames: ["/kube-prometheus-stack/", "/grafana/"],
       ignoreTests: false,
+      rebaseWhen: "behind-base-branch",
     },
     {
       description: "Auto-merge Ansible relate",
@@ -93,6 +94,7 @@
       matchUpdateTypes: ["minor", "patch"],
       // matchPackageNames: ["/external-dns/", "/gateway-api/", "/prometheus-operator/"],
       ignoreTests: true,
+      rebaseWhen: "behind-base-branch",
     },
     {
       description: "Auto-merge GitHub Releases",
