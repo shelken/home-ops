@@ -76,6 +76,15 @@
       minimumReleaseAge: "3 days",
       ignoreTests: true,
     },
+    {
+      description: "Auto-merge OCI Charts",
+      matchDatasources: ["docker"],
+      automerge: true,
+      automergeType: "pr",
+      matchUpdateTypes: ["minor", "patch"],
+      matchPackageNames: ["/kube-prometheus-stack/", "/grafana/"],
+      ignoreTests: false,
+    },
     // {
     //   description: "Auto-merge Mise Tools",
     //   matchManagers: ["mise"],
