@@ -40,13 +40,9 @@ spec:
       replicaAutoBalance: true
       storageMinimalAvailablePercentage: 5 # 默认 25
       storageReservedPercentageForDefaultDisk: 10 # longhorn用90%
+      taintToleration: "key=value:NoSchedule"
     longhornUI:
       replicas: 1
-    longhornManager:
-      tolerations:
-        - key: "node-role.kubernetes.io/control-plane"
-          operator: "Exists"
-          effect: "NoSchedule"
     metrics:
       serviceMonitor:
         enabled: true
