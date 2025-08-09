@@ -62,7 +62,7 @@ spec:
                 memory: 500Mi
               limits:
                 memory: &memory 2048Mi
-                # gpu.intel.com/i915: 1
+                gpu.intel.com/i915: 1
                 nvidia.com/gpu: 1
     # defaultPodOptions:
     #   securityContext:
