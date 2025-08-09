@@ -1,10 +1,11 @@
 ---
 # yaml-language-server: $schema=https://homelab-schemas-epg.pages.dev/postgresql.cnpg.io/cluster_v1.json
 # ref: https://github.com/cloudnative-pg/charts/blob/main/charts/cluster/values.yaml
+# ref: https://github.com/szinn/k8s-homelab/blob/main/kubernetes/main/apps/media/immich/db/cluster.yaml
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: postgres17
+  name: immich
 spec:
   affinity:
     nodeAffinity:
@@ -14,18 +15,20 @@ spec:
                 - key: node-role.kubernetes.io/control-plane
                   operator: Exists
   instances: 1
-  imageName: ghcr.io/cloudnative-pg/postgresql:17.5@sha256:6d41466de5d43a80544cc5768038b2de964ae5b1d725683c03c5d9f81fdc2e43
+  imageName: ghcr.io/tensorchord/cloudnative-vectorchord:17.5-0.3.0
   primaryUpdateStrategy: unsupervised
   storage:
-    size: 10Gi
+    size: 5Gi
     storageClass: longhorn
   superuserSecret:
     name: cloudnative-pg-secret
   enableSuperuserAccess: true
   postgresql:
     parameters:
-      max_connections: "400"
+      max_connections: "300"
       shared_buffers: 256MB
+    shared_preload_libraries:
+      - "vchord.so"
   resources:
     requests:
       memory: 256Mi
@@ -34,7 +37,7 @@ spec:
   monitoring:
     enablePodMonitor: true
   backup:
-    retentionPolicy: 30d
+    retentionPolicy: 14d
     barmanObjectStore: &barmanObjectStore
       data:
         compression: bzip2
@@ -43,7 +46,7 @@ spec:
         maxParallel: 8
       destinationPath: s3://cloudnative-pg/
       endpointURL: https://minio.${MAIN_DOMAIN}
-      serverName: postgres17-v3
+      serverName: immich-v1
       s3Credentials:
         accessKeyId:
           name: cloudnative-pg-secret
@@ -52,10 +55,13 @@ spec:
           name: cloudnative-pg-secret
           key: aws-secret-access-key
 
+  bootstrap:
+    initdb:
+      postInitSQL:
+        - CREATE EXTENSION IF NOT EXISTS vchord CASCADE;
   ##NOTE: 需要恢复时取消注释，并修改backup
-  # bootstrap:
   #   recovery:
-  #     source: &previous-cluster postgres17-v2
+  #     source: &previous-cluster immich-v1
   # externalClusters:
   #   - name: *previous-cluster
   #     barmanObjectStore:
