@@ -16,6 +16,7 @@ resources:
   - ollama/ks.yaml
   - openlist/ks.yaml
   - plex/ks.yaml
+  - scrypted/ks.yaml
   - shlink/ks.yaml
   - smb-volumes/ks.yaml
   - vaultwarden/ks.yaml
