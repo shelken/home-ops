@@ -36,13 +36,17 @@ homelab
 | 服务                    | ip               | 描述           | domain      |
 | ----------------------- | ---------------- | -------------- | ----------- |
 | k8s-gateway             | 192.168.6.41     | 开放给外部 dns |             |
+| nginx internal ingress  | 192.168.6.43     |                |             |
 | nginx external ingress  | 192.168.6.44     |                |             |
 | cilium external gateway | 192.168.6.45     |                |             |
 | cilium internal gateway | 192.168.6.46     |                |             |
+| home assistant          | 192.168.6.51     |                |             |
 | postgres17              | 192.168.6.52     | 开放postgres   | postgres17. |
+| go2rtc                  | 192.168.6.53     |                |             |
+| plex                    | 192.168.6.54     |                |             |
+| scrypted                | 192.168.6.55     |                |             |
 | longhorn                |                  | longhorn ui    | longhorn.   |
 | cilium ingress          | ~~192.168.6.40~~ | 已经关闭       |             |
-| nginx internal ingress  | ~~192.168.6.43~~ | 暂时关闭 无用  |             |
 
 ## 服务网络
 
