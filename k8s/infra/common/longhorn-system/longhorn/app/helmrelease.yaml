@@ -42,6 +42,11 @@ spec:
       storageReservedPercentageForDefaultDisk: 10 # longhorn用90%
     longhornUI:
       replicas: 1
+    longhornManager:
+      tolerations:
+        - key: "node-role.kubernetes.io/control-plane"
+          operator: "Exists"
+          effect: "NoSchedule"
     metrics:
       serviceMonitor:
         enabled: true
