@@ -1,0 +1,26 @@
+---
+log:
+  output: stdout
+  level: debug
+
+api:
+  listen: :1984
+
+rtsp:
+  listen: :554
+
+webrtc:
+  listen: :8555
+  candidates:
+    - 192.168.6.53:8555
+    - stun:8555
+  ice_servers:
+    - urls: 
+      - stun:stun.miwifi.com:3478   # 小米 STUN
+      - stun:stun1.l.google.com:19302 # Google STUN
+
+streams:
+  mercury_1:
+    - rtsp://admin:${RTSP_PASSWORD}@mercury-1:554/stream1
+    - ffmpeg:mercury_1#audio=opus
+    - ffmpeg:mercury_1#video=mjpeg

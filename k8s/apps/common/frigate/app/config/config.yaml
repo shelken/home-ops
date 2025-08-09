@@ -10,6 +10,7 @@ detect:
   enabled: false
 
 mqtt:
+  enabled: false
   host: ""
   port: 1883
   user: ""
