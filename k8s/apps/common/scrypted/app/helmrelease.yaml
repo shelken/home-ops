@@ -63,6 +63,10 @@ spec:
           http:
             port: &port 11080
             primary: true
+          rebroadcast:
+            portRange:
+              start: 44831
+              end: 44839
           
     route:
       app:
