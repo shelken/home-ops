@@ -132,9 +132,3 @@ spec:
                 service:
                   identifier: app
                   port: http
-    # persistence:
-    #   data:
-    #     existingClaim: smb-music
-    #     globalMounts:
-    #       - path: /music
-    #         readOnly: false
