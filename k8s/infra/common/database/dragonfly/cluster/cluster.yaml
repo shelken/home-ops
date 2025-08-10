@@ -1,11 +1,12 @@
 ---
+# yaml-language-server: $schema=https://homelab-schemas-epg.pages.dev/dragonflydb.io/dragonfly_v1alpha1.json
 apiVersion: dragonflydb.io/v1alpha1
 kind: Dragonfly
 metadata:
   name: dragonfly
 spec:
   image: ghcr.io/dragonflydb/dragonfly:v1.32.0
-  replicas: 1
+  replicas: 2
   env:
     - name: MAX_MEMORY
       valueFrom:
