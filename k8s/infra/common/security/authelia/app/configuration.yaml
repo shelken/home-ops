@@ -105,6 +105,7 @@ identity_providers:
         client_secret: "$argon2id$v=19$m=65536,t=3,p=4$KN61LEwGCYp2duzVSZY+wQ$B6YNgvAJy9oVNZmpmj1ej7Oooh1gO5RcDi5/b+CPZZs"
         public: false
         authorization_policy: "two_factor"
+        pre_configured_consent_duration: 1y
         require_pkce: false
         pkce_challenge_method: ""
         redirect_uris:
