@@ -15,6 +15,10 @@ spec:
     - file_mode=0777
     # - vers=3.0
     - iocharset=utf8
+    - mfsymlinks
+    - cache=strict
+    - noperm
+    - serverino
   csi:
     driver: smb.csi.k8s.io
     volumeHandle: smb-sakamoto-backup-media
