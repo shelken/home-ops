@@ -12,9 +12,12 @@ spec:
   components:
     - ../../../../components/gatus/guarded
     - ../../../../components/volsync
+    - ../../../../components/keda/smb-scaler
   dependsOn:
     - name: longhorn
       namespace: longhorn-system
+    - name: keda
+      namespace: observability
     - name: smb-volumes
   interval: 1h
   path: ./k8s/apps/common/frigate/app
