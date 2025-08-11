@@ -12,6 +12,7 @@ spec:
   components:
     - ../../../../components/gatus/guarded
     - ../../../../components/volsync
+    - ../../../../components/keda/smb-scaler
   interval: 1h
   path: ./k8s/apps/common/scrypted/app
   dependsOn:
@@ -22,6 +23,8 @@ spec:
     - name: smb-volumes
     - name: longhorn
       namespace: longhorn-system
+    - name: keda
+      namespace: observability
   postBuild:
     substitute:
       APP: *app

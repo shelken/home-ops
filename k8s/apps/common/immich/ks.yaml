@@ -13,6 +13,7 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../../components/gatus/guarded
+    - ../../../../components/keda/smb-scaler
   postBuild:
     substitute:
       APP: *app
@@ -26,6 +27,8 @@ spec:
     - name: dragonfly-cluster
       namespace: database
     - name: smb-volumes
+    - name: keda
+      namespace: observability
   interval: 1h
   path: ./k8s/apps/common/immich/app
   prune: true
@@ -49,6 +52,8 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  components:
+    - ../../../../components/keda/smb-scaler
   postBuild:
     substitute:
       APP: *app

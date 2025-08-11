@@ -12,10 +12,13 @@ spec:
   components:
     - ../../../../components/gatus/external
     - ../../../../components/volsync
+    - ../../../../components/keda/smb-scaler
   dependsOn:
     - name: smb-volumes
     - name: longhorn
       namespace: longhorn-system
+    - name: keda
+      namespace: observability
   interval: 1h
   path: ./k8s/apps/common/plex/app
   postBuild:
