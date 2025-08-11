@@ -12,7 +12,7 @@ spec:
   components:
     - ../../../../components/gatus/guarded
     - ../../../../components/volsync
-    - ../../../../components/keda/smb-scaler
+    # - ../../../../components/keda/smb-scaler
   interval: 1h
   path: ./k8s/apps/common/scrypted/app
   dependsOn:
