@@ -96,9 +96,10 @@ spec:
         globalMounts:
           - path: /config/metadata
       music:
-        existingClaim: smb-music
+        existingClaim: smb-sakamoto-media
         globalMounts:
           - path: /music
+            subPath: Music/Main Library
             readOnly: true
       backup-media:
         existingClaim: smb-backup-media

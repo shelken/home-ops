@@ -112,9 +112,10 @@ spec:
         globalMounts:
           - path: /config/Library/Application Support/Plex Media Server/Cache
       music:
-        existingClaim: smb-music
+        existingClaim: smb-sakamoto-media
         globalMounts:
           - path: /music
+            subPath: Music/Main Library
             readOnly: true
       tmpfs:
         type: emptyDir
