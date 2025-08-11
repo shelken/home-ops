@@ -61,7 +61,7 @@ identity_providers:
     claims_policies:
       # 给那些使用id-token提取用户名信息的服务。让authelia在idtoken中额外添加信息
       id_token:
-        id_token: ['preferred_username']
+        id_token: ["preferred_username"]
     clients:
       # ref: https://www.authelia.com/integration/openid-connect/memos/
       - client_id: memos
@@ -100,7 +100,28 @@ identity_providers:
         # id_token_encrypted_response_alg: none
         userinfo_signed_response_alg: "none"
         claims_policy: id_token
-        # token_endpoint_auth_method: "client_secret_post"
+      - client_id: immich
+        client_name: Immich
+        client_secret: "$argon2id$v=19$m=65536,t=3,p=4$KN61LEwGCYp2duzVSZY+wQ$B6YNgvAJy9oVNZmpmj1ej7Oooh1gO5RcDi5/b+CPZZs"
+        public: false
+        authorization_policy: "two_factor"
+        require_pkce: false
+        pkce_challenge_method: ""
+        redirect_uris:
+          - "https://photo.${MAIN_DOMAIN}/auth/login"
+          - "https://photo.${MAIN_DOMAIN}/user-settings"
+          - "app.immich:///oauth-callback"
+        scopes:
+          - "openid"
+          - "profile"
+          - "email"
+        response_types:
+          - "code"
+        grant_types:
+          - "authorization_code"
+        access_token_signed_response_alg: "none"
+        userinfo_signed_response_alg: "none"
+        token_endpoint_auth_method: "client_secret_post"
 
 storage:
   encryption_key: "{{ .AUTHELIA_STORAGE_ENCRYPTION_KEY }}"
