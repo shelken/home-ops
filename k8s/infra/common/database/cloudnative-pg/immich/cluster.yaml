@@ -55,10 +55,7 @@ spec:
           name: cloudnative-pg-secret
           key: aws-secret-access-key
 
-  bootstrap:
-    initdb:
-      postInitSQL:
-        - CREATE EXTENSION IF NOT EXISTS vchord CASCADE;
+  # bootstrap:
   ##NOTE: 需要恢复时取消注释，并修改backup
   #   recovery:
   #     source: &previous-cluster immich-v1
