@@ -36,6 +36,19 @@ spec:
               UMASK: "022"
               RUN_ARIA2: "false"
               SITE_URL: "https://drive.${MAIN_DOMAIN}"
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/public/settings
+                    port: &port 5244
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 10
+              readiness: *probes
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false
@@ -61,7 +74,7 @@ spec:
         controller: *app
         ports:
           http:
-            port: &port 5244
+            port: *port
     route:
       app:
         annotations:
