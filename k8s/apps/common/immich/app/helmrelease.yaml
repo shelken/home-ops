@@ -124,3 +124,9 @@ spec:
         globalMounts:
           - path: /usr/src/app/upload
             subPath: Photo/immich
+      photo:
+        existingClaim: smb-sakamoto-media
+        globalMounts:
+          - path: /photos
+            subPath: Photo
+            readOnly: true
