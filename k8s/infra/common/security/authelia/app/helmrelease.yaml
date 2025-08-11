@@ -47,6 +47,19 @@ spec:
               X_AUTHELIA_CONFIG: /config/configuration.yaml
               X_AUTHELIA_CONFIG_FILTERS: template
             envFrom: *envFrom
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/health
+                    port: &port 80
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 30
+              readiness: *probes
             resources:
               requests:
                 cpu: 10m
@@ -82,7 +95,7 @@ spec:
       app:
         ports:
           http:
-            port: &port 80
+            port: *port
           metrics:
             port: 8080
     route:
