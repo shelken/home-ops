@@ -18,6 +18,7 @@ spec:
       APP: *app
       VOLSYNC_CAPACITY: 2Gi
       GATUS_SUBDOMAIN: vw
+      GATUS_PATH: /api/alive
   dependsOn:
     - name: azure-store
       namespace: external-secrets
