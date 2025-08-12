@@ -50,6 +50,7 @@ spec:
               SENDS_FOLDER: "config/sends"
               ROCKET_PORT: &port 8080
               IP_HEADER: X-Forwarded-For
+              EXPERIMENTAL_CLIENT_FEATURE_FLAGS: ssh-key-vault-item,ssh-agent
             envFrom:
               - secretRef:
                   name: vaultwarden-secret
