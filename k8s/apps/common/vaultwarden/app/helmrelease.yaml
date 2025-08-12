@@ -39,6 +39,7 @@ spec:
               readOnlyRootFilesystem: true
               capabilities: { drop: ["ALL"] }
             env:
+              # ref: https://github.com/dani-garcia/vaultwarden/blob/main/.env.template
               TZ: ${TIMEZONE}
               DOMAIN: https://vw.${MAIN_DOMAIN}
               SIGNUPS_ALLOWED: "false"
@@ -48,6 +49,7 @@ spec:
               ATTACHMENTS_FOLDER: "config/attachments"
               SENDS_FOLDER: "config/sends"
               ROCKET_PORT: &port 8080
+              IP_HEADER: X-Forwarded-For
             envFrom:
               - secretRef:
                   name: vaultwarden-secret
