@@ -64,10 +64,10 @@ spec:
                   httpGet:
                     path: /
                     port: *port
-                  initialDelaySeconds: 30
+                  initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1
-                  failureThreshold: 5
+                  failureThreshold: 30
               readiness: *probes
     defaultPodOptions:
       securityContext:
