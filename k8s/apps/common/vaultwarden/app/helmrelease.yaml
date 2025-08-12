@@ -44,6 +44,8 @@ spec:
               DOMAIN: https://vw.${MAIN_DOMAIN}
               SIGNUPS_ALLOWED: "false"
               PUSH_ENABLED: "true"
+              # web页面开关
+              WEB_VAULT_ENABLED: "false"
               DATA_FOLDER: "config"
               ICON_CACHE_FOLDER: "config/icon_cache"
               ATTACHMENTS_FOLDER: "config/attachments"
