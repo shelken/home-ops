@@ -13,7 +13,7 @@ spec:
             - matchExpressions:
                 - key: node-role.kubernetes.io/control-plane
                   operator: Exists
-  instances: 1
+  instances: 2
   imageName: ghcr.io/cloudnative-pg/postgresql:17.5@sha256:6d41466de5d43a80544cc5768038b2de964ae5b1d725683c03c5d9f81fdc2e43
   primaryUpdateStrategy: unsupervised
   storage:
