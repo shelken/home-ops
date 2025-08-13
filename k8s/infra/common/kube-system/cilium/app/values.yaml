@@ -91,7 +91,7 @@ rollOutCiliumPods: true
 bpf:
   masquerade: true
   # 6.8+
-  datapathMode: netkit
+  # datapathMode: netkit
   # hostLegacyRouting: true
   # tproxy: true
 bpfClockProbe: true
