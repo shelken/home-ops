@@ -90,6 +90,7 @@ rollOutCiliumPods: true
 # localRedirectPolicy: true
 bpf:
   masquerade: true
+  # 6.8+
   datapathMode: netkit
   # hostLegacyRouting: true
   # tproxy: true
