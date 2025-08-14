@@ -20,6 +20,7 @@ metadata:
   name: csi-driver-smb
 spec:
   interval: 1h
+  timeout: 15m
   chartRef:
     kind: OCIRepository
     name: csi-driver-smb

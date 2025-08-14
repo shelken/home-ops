@@ -20,6 +20,7 @@ metadata:
   name: k8s-gateway
 spec:
   interval: 1h
+  timeout: 15m
   chartRef:
     kind: OCIRepository
     name: k8s-gateway
