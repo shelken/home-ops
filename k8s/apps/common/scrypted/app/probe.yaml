@@ -11,7 +11,7 @@ spec:
   targets:
     staticConfig:
       static:
-        - mercury-1
+        - mercury-1.lan
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/keda.sh/scaledobject_v1alpha1.json
 apiVersion: keda.sh/v1alpha1
