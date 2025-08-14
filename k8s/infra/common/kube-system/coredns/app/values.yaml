@@ -29,6 +29,10 @@ servers:
       - name: autopath
         parameters: "@kubernetes"
       - name: forward
+        parameters: ooooo.space 192.168.6.141 192.168.6.1
+      - name: forward
+        parameters: lan 192.168.6.141 192.168.6.1
+      - name: forward
         parameters: . /etc/resolv.conf
       - name: cache
         configBlock: |-
