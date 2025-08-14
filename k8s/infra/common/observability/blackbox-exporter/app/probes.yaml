@@ -11,9 +11,9 @@ spec:
   targets:
     staticConfig:
       static:
-        - sakamoto
+        - sakamoto.lan
         # - mio
-        - tvbox
+        - tvbox.lan
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/probe_v1.json
 apiVersion: monitoring.coreos.com/v1
@@ -27,4 +27,4 @@ spec:
   targets:
     staticConfig:
       static:
-        - sakamoto:445
+        - sakamoto.lan:445
