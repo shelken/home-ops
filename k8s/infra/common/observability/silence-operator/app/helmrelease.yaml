@@ -20,6 +20,7 @@ metadata:
   name: silence-operator
 spec:
   interval: 1h
+  timeout: 15m
   chartRef:
     kind: OCIRepository
     name: silence-operator
