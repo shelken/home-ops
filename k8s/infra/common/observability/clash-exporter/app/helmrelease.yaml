@@ -23,34 +23,10 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
-          # mio-clash-exporter: &common
-          #   image:
-          #     repository: ghcr.io/shelken/clash-exporter
-          #     tag: 0.0.5
-          #   command: 
-          #     - "/app/clash-exporter"
-          #     - "-collectTracing=false"
-          #     - "-collectDest=true"
-          #     - "-port=2112"
-          #   env: 
-          #     - name: CLASH_HOST
-          #       value: "mio:9090"
-          #     - name: CLASH_TOKEN
-          #       valueFrom:
-          #         secretKeyRef:
-          #           name: &secret clash-exporter-secret 
-          #           key: MIO_CLASH_TOKEN
-          #   securityContext:
-          #     allowPrivilegeEscalation: false
-          #     readOnlyRootFilesystem: true
-          #     capabilities: { drop: ["ALL"] }
-          #   resources:
-          #     requests:
-          #       cpu: 25m
-          #     limits:
-          #       memory: 64Mi
-          sakamoto-clash-exporter:
-            <<: *common
+          sakamoto-clash-exporter: &common
+            image:
+              repository: ghcr.io/shelken/clash-exporter
+              tag: 0.0.5
             command: 
               - "/app/clash-exporter"
               - "-collectTracing=false"
@@ -62,8 +38,32 @@ spec:
               - name: CLASH_TOKEN
                 valueFrom:
                   secretKeyRef:
-                    name: *secret
+                    name: &secret clash-exporter-secret 
                     key: SAKAMOTO_CLASH_TOKEN
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 25m
+              limits:
+                memory: 64Mi
+          # mio-clash-exporter:
+          #   <<: *common
+          #   command: 
+          #     - "/app/clash-exporter"
+          #     - "-collectTracing=false"
+          #     - "-collectDest=true"
+          #     - "-port=2112"
+          #   env: 
+          #     - name: CLASH_HOST
+          #       value: "mio:9090"
+          #     - name: CLASH_TOKEN
+          #       valueFrom:
+          #         secretKeyRef:
+          #           name: *secret
+          #           key: MIO_CLASH_TOKEN
     defaultPodOptions:
       # nodeSelector:
       #   kubernetes.io/arch: amd64
