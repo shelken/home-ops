@@ -121,7 +121,7 @@ endpoints:
       - type: slack
   - name: minio-domain
     group: outside
-    url: "https://minio.${MAIN_DOMAIN}"
+    url: https://minio.${MAIN_DOMAIN}/minio/health/live
     interval: 1m
     ui:
       hide-hostname: true
@@ -129,6 +129,6 @@ endpoints:
     client:
       network: ip4
     conditions:
-      - "[STATUS] == 400"
+      - "[STATUS] == 200"
     alerts: 
       - type: slack
