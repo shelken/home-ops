@@ -26,4 +26,13 @@ spec:
     enableFileDeletion: true
     # issue: https://github.com/backube/volsync/issues/1504
     cleanupCachePVC: false
-    cleanupTempPVC: false 
+    cleanupTempPVC: false
+    moverAffinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: kubernetes.io/hostname
+                  operator: NotIn
+                  values:
+                    - tvbox
