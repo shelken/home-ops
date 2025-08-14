@@ -17,7 +17,7 @@ endpoints:
       - type: slack
   - name: sakamoto-caddy
     group: outside
-    url: "tcp://sakamoto:443"
+    url: "tcp://sakamoto.lan:443"
     interval: 1m
     ui:
       hide-hostname: true
@@ -30,7 +30,7 @@ endpoints:
       - type: slack
   - name: tvbox-caddy
     group: outside
-    url: "tcp://tvbox:443"
+    url: "tcp://tvbox.lan:443"
     interval: 1m
     ui:
       hide-hostname: true
@@ -43,7 +43,7 @@ endpoints:
       - type: slack
   - name: mosdns
     group: outside
-    url: "udp://tvbox:53"
+    url: "udp://tvbox.lan:53"
     interval: 1m
     client:
       network: ip4
@@ -56,7 +56,7 @@ endpoints:
       - type: slack
   - name: mirror-quay
     group: outside
-    url: "tcp://sakamoto:5002"
+    url: "tcp://sakamoto.lan:5002"
     interval: 1m
     ui:
       hide-hostname: true
@@ -69,7 +69,7 @@ endpoints:
       - type: slack
   - name: mirror-docker
     group: outside
-    url: "tcp://sakamoto:5006"
+    url: "tcp://sakamoto.lan:5006"
     interval: 1m
     ui:
       hide-hostname: true
@@ -82,7 +82,7 @@ endpoints:
       - type: slack
   - name: mirror-k8s
     group: outside
-    url: "tcp://sakamoto:5005"
+    url: "tcp://sakamoto.lan:5005"
     interval: 1m
     ui:
       hide-hostname: true
@@ -95,7 +95,7 @@ endpoints:
       - type: slack
   - name: mirror-ghcr
     group: outside
-    url: "tcp://sakamoto:5001"
+    url: "tcp://sakamoto.lan:5001"
     interval: 1m
     ui:
       hide-hostname: true
@@ -106,9 +106,9 @@ endpoints:
       - "[CONNECTED] == true"
     alerts: 
       - type: slack
-  - name: minio
+  - name: minio-local
     group: outside
-    url: "tcp://sakamoto:9000"
+    url: "tcp://sakamoto.lan:9000"
     interval: 1m
     ui:
       hide-hostname: true
@@ -117,5 +117,18 @@ endpoints:
       network: ip4
     conditions:
       - "[CONNECTED] == true"
+    alerts: 
+      - type: slack
+  - name: minio-domain
+    group: outside
+    url: "https://minio.${MAIN_DOMAIN}"
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    client:
+      network: ip4
+    conditions:
+      - "[STATUS] == 400"
     alerts: 
       - type: slack
