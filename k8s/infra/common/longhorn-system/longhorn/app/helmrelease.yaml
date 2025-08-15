@@ -35,12 +35,12 @@ spec:
       defaultDataLocality: best-effort
       defaultDataPath: /mnt/lima-longhorn # 默认是 /var/lib/longhorn
       defaultReplicaCount: *replicaCount
-      nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
+      # nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
       orphanAutoDeletion: true
       replicaAutoBalance: true
       storageMinimalAvailablePercentage: 5 # 默认 25
       storageReservedPercentageForDefaultDisk: 10 # longhorn用90%
-      taintToleration: "node-role.kubernetes.io/control-plane=Exists:NoSchedule"
+      taintToleration: "node-role.kubernetes.io/control-plane=Exists:NoSchedule" # 让longhorn-manager等daemonset能够正常调度到控制平面
     longhornUI:
       replicas: 1
     metrics:
