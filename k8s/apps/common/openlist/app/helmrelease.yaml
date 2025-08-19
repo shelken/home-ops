@@ -24,15 +24,13 @@ spec:
           app:
             image:
               repository: ghcr.io/openlistteam/openlist-git
-              tag: v4.1.0
+              tag: v4.1.1
             command:
               - /bin/sh
               - /scripts/overriden-entrypoint.sh
             workingDir: /opt/openlist
             env:
               TZ: ${TIMEZONE}
-              PUID: "1000"
-              PGID: "1000"
               UMASK: "022"
               RUN_ARIA2: "false"
               SITE_URL: "https://drive.${MAIN_DOMAIN}"
