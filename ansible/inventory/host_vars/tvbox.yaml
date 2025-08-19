@@ -1,0 +1,2 @@
+# issue: https://github.com/PyratLabs/ansible-role-k3s/issues/232
+k3s_skip_validation: true

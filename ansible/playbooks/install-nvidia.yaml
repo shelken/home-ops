@@ -65,7 +65,7 @@
         - (nvidia_gpu | default(false)) | bool
     - name: Update initramfs to apply nouveau blacklist (Ubuntu/Debian)
       become: true
-      command: update-initramfs -u
+      ansible.builtin.command: update-initramfs -u
       when: 
         - (nvidia_gpu | default(false)) | bool
 

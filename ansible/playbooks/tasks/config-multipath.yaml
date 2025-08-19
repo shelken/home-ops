@@ -1,4 +1,10 @@
 ---
+- name: 检查 multipathd 服务是否存在
+  ansible.builtin.command: systemctl status multipathd.service
+  register: check_multipathd
+  failed_when: false
+  changed_when: false
+
 - name: 复制本地文件到远程并强制覆盖
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/resource/{{ item }}"
@@ -9,6 +15,8 @@
     force: true
   loop:
     - multipath.conf
+  when: check_multipathd.rc == 0
+
 - name: 重启 multipathd
   ansible.builtin.service:
     name: "{{ item }}"
@@ -17,3 +25,4 @@
     - "multipathd"
   failed_when: false
   ignore_errors: true
+  when: check_multipathd.rc == 0
