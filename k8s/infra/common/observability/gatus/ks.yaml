@@ -10,8 +10,8 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: longhorn
-      namespace: longhorn-system
+    # - name: longhorn
+    #   namespace: longhorn-system
     - name: azure-store
       namespace: external-secrets
   interval: 1h
