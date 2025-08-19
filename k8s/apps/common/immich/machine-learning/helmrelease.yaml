@@ -33,6 +33,7 @@ spec:
             env:
               TZ: ${TIMEZONE}
               MPLCONFIGDIR: /cache/matplotlib
+              HTTPS_PROXY: http://sakamoto.lan:7890
             envFrom:
               - configMapRef:
                   name: immich-configmap
