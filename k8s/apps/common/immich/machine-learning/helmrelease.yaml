@@ -61,7 +61,7 @@ spec:
               limits:
                 # gpu.intel.com/i915: 1
                 nvidia.com/gpu: 1
-                memory: 4000Mi
+                memory: 6Gi
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
