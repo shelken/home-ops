@@ -5,7 +5,7 @@ metadata:
   name: &app immich-machine-learning
 spec:
   interval: 1h
-  timeout: 15m
+  timeout: 30m
   chartRef:
     kind: OCIRepository
     name: app-template
@@ -28,7 +28,7 @@ spec:
           app:
             image:
               repository: ghcr.io/immich-app/immich-machine-learning
-              tag: v1.138.1
+              tag: v1.138.1-cuda
             # ref：https://immich.app/docs/install/environment-variables/#machine-learning
             env:
               TZ: ${TIMEZONE}
