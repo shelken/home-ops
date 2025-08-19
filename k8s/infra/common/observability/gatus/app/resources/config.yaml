@@ -10,6 +10,13 @@ debug: false
 ui:
   title: 状态 | Gatus
   header: Status
+  logo: https://wsrv.nl?url=https://avatars.githubusercontent.com/u/33972006?fit=cover&mask=circle&maxage=7d
+  link: https://github.com/shelken
+  buttons:
+    - name: Github
+      link: https://github.com/shelken
+    - name: Homelab
+      link: https://github.com/shelken/home-ops
 connectivity:
   checker:
     target: 223.5.5.5:53
