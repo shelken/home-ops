@@ -1,3 +1,5 @@
+#ref: https://github.com/lima-vm/lima/blob/master/templates/default.yaml
+
 env:
   http_proxy: ""
   https_proxy: ""
@@ -19,6 +21,11 @@ additionalDisks:
 
 ssh:
   localPort: 60122
+
+dns:
+- 192.168.6.141
+- 192.168.6.1
+- 223.5.5.5
 
 # user:
 #   name: &username shelken
