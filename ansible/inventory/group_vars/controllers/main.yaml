@@ -1,5 +1,6 @@
 ---
 k3s_control_node: true
+# ref: https://docs.k3s.io/cli/server
 k3s_server:
   cluster-cidr: "10.42.0.0/16"
   disable: ["flannel", "local-storage", "servicelb", "traefik", "coredns", "metrics-server"]
@@ -7,6 +8,7 @@ k3s_server:
   disable-kube-proxy: true
   disable-network-policy: true
   docker: false
+  embedded-registry: true
   etcd-disable-snapshots: true
   etcd-expose-metrics: true
   flannel-backend: "none" # quote

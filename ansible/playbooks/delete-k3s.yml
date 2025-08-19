@@ -5,12 +5,12 @@
   tasks:
     # - name: "Run k3s-agent-uninstall.sh"
     #   become: true
-    #   command:
+    #   ansible.builtin.command:
     #     cmd: k3s-agent-uninstall.sh
     #     removes: /usr/local/bin/k3s-agent-uninstall.sh
     # - name: "Run k3s-uninstall.sh"
     #   become: true
-    #   command:
+    #   ansible.builtin.command:
     #     cmd: k3s-uninstall.sh
     #     removes: /usr/local/bin/k3s-uninstall.sh
     - name: "Check if cilium_host interface exists"

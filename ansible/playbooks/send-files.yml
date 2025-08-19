@@ -1,8 +1,8 @@
 ---
 - name: 传递资源
   hosts: all
-  become:
-    true
+  become: true
+  gather_facts: true
     # vars:
     #   k3s_proxy_ip: "192.168.6.248"
     #   k3s_proxy_port: "7890"
@@ -27,15 +27,15 @@
       loop:
         # - config.yaml
         - registries.yaml
-    - name: 重启k3s
-      ansible.builtin.service:
-        name: "{{ item }}"
-        state: restarted
-      loop: 
-        - "k3s"
-        - "k3s-agent"
-      failed_when: false
-      ignore_errors: true
+    # - name: 重启k3s
+    #   ansible.builtin.service:
+    #     name: "{{ item }}"
+    #     state: restarted
+    #   loop: 
+    #     - "k3s"
+    #     - "k3s-agent"
+    #   failed_when: false
+    #   ignore_errors: true
 
     - name: 处理 longhorn multipath 可能的问题
       ansible.builtin.include_tasks: tasks/config-multipath.yaml

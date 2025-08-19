@@ -1,0 +1,24 @@
+---
+- name: 安装并加入 worker
+  hosts: all
+  become: true
+  gather_facts: true
+  tasks:
+    # - slurp:
+    #     src: /var/lib/rancher/k3s/server/node-token
+    #   register: token
+    #   run_once: true
+    #   when: k3s_control_node | bool
+
+    # - set_fact:
+    #     k3s_token: "{{ token.content | b64decode | trim }}"
+    #   run_once: true
+
+    - name: 安装并加入 worker
+      include_role:
+        name: xanmanning.k3s
+      vars:
+        # k3s_control_node: false
+        # k3s_registration_address: "192.168.6.80"
+        k3s_control_token: ""
+      when: not k3s_control_node
