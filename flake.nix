@@ -2,6 +2,7 @@
   description = "Base development template";
 
   inputs = {
+    nixpkgs.url = "flake:nixpkgs";
     utils.url = "github:numtide/flake-utils";
   };
 
@@ -39,7 +40,6 @@
         ];
 
         shellHook = ''
-          unset GITHUB_TOKEN
           export KUBECONFIG=`pwd`/kubeconfig
           export ANSIBLE_CONFIG=`pwd`/ansible/ansible.cfg
           export SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt
