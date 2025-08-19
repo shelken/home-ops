@@ -106,7 +106,8 @@ spec:
           gethomepage.dev/pod-selector: >-
             app.kubernetes.io/instance in (
               immich-server,
-              immich-microservices
+              immich-microservices,
+              immich-machine-learning
             )
         hostnames:
           - photo.${MAIN_DOMAIN}

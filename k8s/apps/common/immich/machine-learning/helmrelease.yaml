@@ -1,0 +1,101 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app immich-machine-learning
+spec:
+  interval: 1h
+  timeout: 15m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      immich-machine-learning:
+        pod:
+          runtimeClassName: nvidia
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/immich-app/immich-machine-learning
+              tag: v1.138.1-cuda
+            # ref：https://immich.app/docs/install/environment-variables/#machine-learning
+            env:
+              TZ: ${TIMEZONE}
+              MPLCONFIGDIR: /cache/matplotlib
+            envFrom:
+              - configMapRef:
+                  name: immich-configmap
+              - secretRef:
+                  name: immich-secret
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /ping
+                    port: &port 3003
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 5
+              readiness: *probes
+              startup:
+                enabled: false
+            resources:
+              requests:
+                cpu: 10m
+                memory: 250Mi
+              limits:
+                # gpu.intel.com/i915: 1
+                nvidia.com/gpu: 1
+                memory: 4000Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        ports:
+          http:
+            port: *port
+    persistence:
+      library:
+        existingClaim: smb-sakamoto-media
+        globalMounts:
+          - path: /usr/src/app/upload
+            subPath: Photo/immich
+          - path: /photos
+            subPath: Photo
+            readOnly: true
+      cache:
+        existingClaim: immich-machine-learning-cache
+        globalMounts:
+          - path: /cache
+      tmpfs:
+        type: emptyDir
+        advancedMounts:
+          immich-machine-learning:
+            app:
+              - path: /.cache
+                subPath: dotCache
+              - path: /tmp
+                subPath: tmp
