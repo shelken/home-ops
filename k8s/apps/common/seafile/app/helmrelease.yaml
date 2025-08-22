@@ -117,7 +117,7 @@ spec:
       tmpfs:
         type: emptyDir
         advancedMounts:
-          seafile-db:
+          seafile:
             app:
               - path: /shared/logs
                 subPath: logs
