@@ -27,7 +27,7 @@ spec:
           init-db:
             image:
               repository: ghcr.io/linuxserver/mariadb
-              tag: 10.11.10
+              tag: 11.4.5
             command:
               - sh
               - -c
