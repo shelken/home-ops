@@ -23,6 +23,25 @@ spec:
       seafile:
         annotations:
           reloader.stakater.com/auto: "true"
+        initContainers:
+          init-db:
+            image:
+              repository: ghcr.io/linuxserver/mariadb
+              tag: 10.11.10
+            command:
+              - sh
+              - -c
+              - |
+                until mariadb -h"$INIT_DB_HOST" -uroot -p"$INIT_DB_ROOT_PASSWORD" -e "SELECT 1;" ; do
+                  echo "Waiting for MariaDB..."
+                  sleep 2
+                done
+                mariadb -h"$INIT_DB_HOST" -uroot -p"$INIT_DB_ROOT_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS '$INIT_DB_DB';"
+                mariadb -h"$INIT_DB_HOST" -uroot -p"$INIT_DB_ROOT_PASSWORD" -e "CREATE USER IF NOT EXISTS '$INIT_DB_USER'@'%' IDENTIFIED BY '$INIT_DB_PASSWORD';"
+                mariadb -h"$INIT_DB_HOST" -uroot -p"$INIT_DB_ROOT_PASSWORD" -e "GRANT ALL PRIVILEGES ON '$INIT_DB_DB'.* TO '$INIT_DB_USER'@'%'; FLUSH PRIVILEGES;"
+            envFrom:
+              - secretRef:
+                  name: seafile-secret
         containers:
           app:
             image:
