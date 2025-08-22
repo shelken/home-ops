@@ -85,7 +85,8 @@ tasks:
       - |
         kubectl rollout restart deployment  -n kube-system cilium-operator && \
         kubectl rollout restart daemonset -n kube-system cilium && \
-        kubectl rollout restart daemonset -n kube-system cilium-envoy
+        kubectl rollout restart daemonset -n kube-system cilium-envoy && \
+        kubectl rollout restart deployment -n kube-system coredns
 
   relpath:
     desc: Calculate relative path from one file to another
