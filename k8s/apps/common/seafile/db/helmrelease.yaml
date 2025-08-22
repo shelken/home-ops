@@ -60,6 +60,7 @@ spec:
     service:
       app:
         primary: true
+        nameOverride: *app
         ports:
           mariadb:
             primary: true
