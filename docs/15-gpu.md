@@ -15,12 +15,18 @@
 >
 > [佛西网盘资源（vgpu相关驱动）](https://alist.homelabproject.cc/foxipan/vGPU/16.8)
 >
+> [英伟达 driver 官方](https://www.nvidia.com/en-us/drivers/)
+>
 
 根据教程，宿主机安装patch之后的driver、 解锁消费级显卡、 覆盖配置要使用的profile
 
+17.0开始 Pascal系列的架构除了需要下面的patch，还需要将16.x的vgpuConfig.xml文件替换掉17.x的
+
+目前稳定使用17.6没有问题. 旧的16.8也测试正常
+
 ```shell
-./NVIDIA-Linux-x86_64-535.216.01-vgpu-kvm.run --apply-patch ~/vgpu-proxmox/535.216.01.patch
-./NVIDIA-Linux-x86_64-535.216.01-vgpu-kvm-custom.run --dkms -m=kernel
+./NVIDIA-Linux-x86_64-550.163.02-vgpu-kvm.run --apply-patch ~/vgpu-proxmox/550.163.02.patch
+./NVIDIA-Linux-x86_64-550.163.02-vgpu-kvm-custom.run --dkms -m=kernel
 ```
 
 宿主机覆盖的配置示例
@@ -45,7 +51,7 @@ ansible-playbook ansible/playbooks/install-nvidia.yaml
 ```
 
 ```shell
-sudo ./NVIDIA-Linux-x86_64-535.216.01-grid.run
+sudo ./NVIDIA-Linux-x86_64-550.163.02-grid.run
 ```
 
 处理licence
@@ -67,7 +73,7 @@ ffmpeg -hwaccel cuda -i ~/EP05_01m.mp4 -f null -
 
 > 笔记本架构的GPU直通还是有问题。一直 no device found. 即使驱动看起来都正常
 >
-> 在系统2410, 2404，。各种版本535 550 570 都试过，没用。跟romfile或者NVIDIA的限制可能有关
+> 在系统2410, 2404，。各种版本 535 550 570 都试过，没用。跟romfile或者NVIDIA的限制可能有关
 
 UEFI情况下，VM关闭「安全启动」
 
