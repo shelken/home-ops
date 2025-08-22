@@ -37,8 +37,8 @@ spec:
                   sleep 2
                 done
                 mariadb -h"$INIT_DB_HOST" -uroot -p"$INIT_DB_ROOT_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS \`$INIT_DB_DB\`;"
-                mariadb -h"$INIT_DB_HOST" -uroot -p"$INIT_DB_ROOT_PASSWORD" -e "CREATE USER IF NOT EXISTS $INIT_DB_USER@'%' IDENTIFIED BY '$INIT_DB_PASSWORD';"
-                mariadb -h"$INIT_DB_HOST" -uroot -p"$INIT_DB_ROOT_PASSWORD" -e "GRANT ALL PRIVILEGES ON \`$INIT_DB_DB\`.* TO $INIT_DB_USER@'%'; FLUSH PRIVILEGES;"
+                mariadb -h"$INIT_DB_HOST" -uroot -p"$INIT_DB_ROOT_PASSWORD" -e "CREATE USER IF NOT EXISTS '$INIT_DB_USER'@'%' IDENTIFIED BY '$INIT_DB_PASSWORD';"
+                mariadb -h"$INIT_DB_HOST" -uroot -p"$INIT_DB_ROOT_PASSWORD" -e "GRANT ALL PRIVILEGES ON \`$INIT_DB_DB\`.* TO '$INIT_DB_USER'@'%'; FLUSH PRIVILEGES;"
             envFrom:
               - secretRef:
                   name: seafile-secret
