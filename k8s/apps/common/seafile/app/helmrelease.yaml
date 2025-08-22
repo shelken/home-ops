@@ -127,6 +127,12 @@ spec:
             port: *port
     route:
       app:
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: 存储
+          gethomepage.dev/name: Seafile
+          gethomepage.dev/icon: seafile.svg
+          gethomepage.dev/description: 文件同步
         hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
         parentRefs:
           - name: external
