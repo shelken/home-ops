@@ -44,8 +44,19 @@ spec:
               DOMAIN: https://vw.${MAIN_DOMAIN}
               SIGNUPS_ALLOWED: "false"
               PUSH_ENABLED: "true"
+              
               # web页面开关
               WEB_VAULT_ENABLED: "false"
+              
+              # sso
+              SSO_ENABLED: "true"
+              SSO_ONLY: "false"
+              SSO_SIGNUPS_MATCH_EMAIL: "true"
+              SSO_ALLOW_UNKNOWN_EMAIL_VERIFICATION: "false"
+              SSO_AUTHORITY: "https://auth.${MAIN_DOMAIN}"
+              SSO_SCOPES: "email profile offline_access"
+              SSO_PKCE: "true"
+              
               DATA_FOLDER: "config"
               ICON_CACHE_FOLDER: "config/icon_cache"
               ATTACHMENTS_FOLDER: "config/attachments"
