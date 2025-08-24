@@ -46,7 +46,7 @@ spec:
               PUSH_ENABLED: "true"
               
               # web页面开关
-              WEB_VAULT_ENABLED: "false"
+              WEB_VAULT_ENABLED: "true"
               
               # sso
               SSO_ENABLED: "true"
