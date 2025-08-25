@@ -62,10 +62,10 @@
         href: https://xlog.${MAIN_DOMAIN}
         description:
 
-- 网络:
-    - Headscale Manage:
-        icon: tailscale-light.png
-        href: https://headscale.${MAIN_DOMAIN}/admin/
-        description:
+# - 网络:
+#     - Headscale Manage:
+#         icon: tailscale-light.png
+#         href: https://headscale.${MAIN_DOMAIN}/admin/
+#         description:
 
 # - MISC:
