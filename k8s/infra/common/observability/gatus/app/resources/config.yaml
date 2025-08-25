@@ -24,4 +24,10 @@ connectivity:
 alerting:
   slack:
     webhook-url: ${WEBHOOK_URL}
-# endpoints:
+security:
+  oidc:
+    issuer-url: "https://auth.${MAIN_DOMAIN}"
+    client-id: "gatus"
+    client-secret: ${GATUS_SSO_CLIENT_SECRET}
+    redirect-url: "https://status.${MAIN_DOMAIN}/authorization-code/callback"
+    scopes: ["openid", "profile", "email"]
