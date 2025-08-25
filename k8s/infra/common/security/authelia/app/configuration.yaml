@@ -228,6 +228,8 @@ identity_providers:
           - "authorization_code"
         access_token_signed_response_alg: "none"
         userinfo_signed_response_alg: "none"
+        id_token_signed_response_alg: "RS256"
+        token_endpoint_auth_method: "client_secret_post"
 
 storage:
   encryption_key: "{{ .AUTHELIA_STORAGE_ENCRYPTION_KEY }}"
