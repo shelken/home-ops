@@ -105,7 +105,7 @@ spec:
         existingClaim: smb-backup-media
         globalMounts:
           - path: /backup-media
-            readOnly: true
+            readOnly: false
       font:
         type: hostPath
         hostPath: /usr/share/fonts
