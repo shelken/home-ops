@@ -14,6 +14,7 @@ resources:
   - kite/ks.yaml
   - kromgo/ks.yaml
   - memos/ks.yaml
+  - metatube/ks.yaml
   - n8n/ks.yaml
   - ollama/ks.yaml
   - openlist/ks.yaml
