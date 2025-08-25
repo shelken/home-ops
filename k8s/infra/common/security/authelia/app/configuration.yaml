@@ -175,7 +175,7 @@ identity_providers:
         pkce_challenge_method: "S256"
         pre_configured_consent_duration: 1y
         redirect_uris:
-          - "https://jellyfin.${MAIN_DOMAIN}/sso/SAML/post/authelia"
+          - "https://jellyfin.${MAIN_DOMAIN}/sso/OID/redirect/authelia"
         scopes:
           - "openid"
           - "profile"
