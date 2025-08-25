@@ -28,7 +28,7 @@ spec:
               tag: 1.3.2
             env:
               PORT: &port 8080
-              # DSN: "library.db"
+              DSN: "library.db"
               DB_AUTO_MIGRATE: "true"
             # probes:
             #   liveness: &probes
@@ -45,7 +45,7 @@ spec:
             #   readiness: *probes
             securityContext:
               allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
+              readOnlyRootFilesystem: false
               capabilities: { drop: ["ALL"] }
             resources:
               requests:
