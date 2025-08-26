@@ -99,6 +99,7 @@ spec:
       entry:
         type: configMap
         name: icloudpd-configmap
+        defaultMode: 0750
         globalMounts:
           - path: /config/start.sh
             subPath: start.sh
