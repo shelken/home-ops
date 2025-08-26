@@ -30,7 +30,7 @@ spec:
               tag: 1.31.0
             env:
               TZ: ${TIMEZONE}
-            command: ["/config/start.sh"]
+            command: ["/bin/sh", "/config/start.sh"]
             probes:
               liveness: &probes
                 enabled: true
@@ -99,7 +99,7 @@ spec:
       entry:
         type: configMap
         name: icloudpd-configmap
-        defaultMode: 750
+        defaultMode: 0750
         globalMounts:
           - path: /config/start.sh
             subPath: start.sh
