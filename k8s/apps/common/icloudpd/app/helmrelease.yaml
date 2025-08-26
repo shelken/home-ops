@@ -118,3 +118,10 @@ spec:
         globalMounts:
           - path: /data
             subPath: Photo/icloudpd/shelken
+      tmpfs:
+        type: emptyDir
+        advancedMounts:
+          icloudpd:
+            app:
+              - path: /tmp
+                subPath: tmp
