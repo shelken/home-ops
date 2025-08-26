@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 APPLE_ID=$(cat /config/secret/APPLE_ID)
 
 # ref: https://icloud-photos-downloader.github.io/icloud_photos_downloader/reference.html
