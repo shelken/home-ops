@@ -30,7 +30,7 @@ spec:
               tag: 1.31.0
             env:
               TZ: ${TIMEZONE}
-            command: ["/bin/sh", "/config/start.sh"]
+            command: ["/config/start.sh"]
             probes:
               liveness: &probes
                 enabled: true
