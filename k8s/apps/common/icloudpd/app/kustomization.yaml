@@ -5,3 +5,11 @@ kind: Kustomization
 resources:
   - ./helmrelease.yaml
   - ./externalsecret.yaml
+configMapGenerator:
+  - name: icloudpd-configmap
+    files:
+      - start.sh=./start.sh
+generatorOptions:
+  disableNameSuffixHash: true
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled

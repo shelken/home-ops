@@ -30,29 +30,7 @@ spec:
               tag: 1.31.0
             env:
               TZ: ${TIMEZONE}
-            envFrom:
-              - secretRef:
-                  name: icloudpd-secret
-            # command: ["icloudpd"]
-            # ref: https://icloud-photos-downloader.github.io/icloud_photos_downloader/reference.html
-            # ref: https://github.com/icloud-photos-downloader/icloud_photos_downloader/blob/master/src/icloudpd/base.py
-            args:
-              - icloudpd
-              # "debug", "info", "error"
-              - --log-level=debug
-              - --directory=/data
-              - --cookie-directory=/config
-              - --username=$APPLE_ID
-              - --domain=cn
-              - --auto-delete
-              - --no-progress-bar
-              - --size=original
-              - --keep-unicode-in-filenames=true
-              - --folder-structure="{:%Y/%m/%d}"
-              # 21600=6h
-              - --watch-with-interval=21600
-              - --mfa-provider=webui
-              - --password-provider=webui
+            command: ["/config/start.sh"]
             probes:
               liveness: &probes
                 enabled: true
@@ -118,6 +96,19 @@ spec:
         globalMounts:
           - path: /data
             subPath: Photo/icloudpd/shelken
+      entry:
+        type: configMap
+        name: icloudpd-configmap
+        globalMounts:
+          - path: /config/start.sh
+            subPath: start.sh
+            readOnly: true
+      secret-files:
+        type: secret
+        name: icloudpd-secret
+        globalMounts:
+          - path: /config/secret
+            readOnly: true
       tmpfs:
         type: emptyDir
         advancedMounts:
