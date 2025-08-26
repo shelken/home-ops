@@ -21,12 +21,15 @@ spec:
   values:
     controllers:
       echo:
+        annotations:
+          reloader.stakater.com/auto: "true"
         containers:
           app:
             image:
               repository: ghcr.io/mendhak/http-https-echo
               tag: 37
             env:
+              TZ: ${TIMEZONE}
               HTTP_PORT: &port 80
               LOG_WITHOUT_NEWLINE: true
               LOG_IGNORE_PATH: /healthz
