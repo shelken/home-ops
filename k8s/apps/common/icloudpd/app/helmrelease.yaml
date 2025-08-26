@@ -102,7 +102,6 @@ spec:
         globalMounts:
           - path: /config/start.sh
             subPath: start.sh
-            readOnly: true
       secret-files:
         type: secret
         name: icloudpd-secret
