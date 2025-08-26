@@ -26,15 +26,18 @@ access_control:
     - domain:
         - auth.${MAIN_DOMAIN}
       policy: bypass
-    - domain:
-        - "*.${MAIN_DOMAIN}"
-      networks:
-        - internal
-      policy: bypass
+    ## 内网访问通行
+    # - domain:
+    #     - "*.${MAIN_DOMAIN}"
+    #   networks:
+    #     - internal
+    #   policy: bypass
+    ## OPTIONS 请求通行
     - domain: "*.${MAIN_DOMAIN}"
       policy: "bypass"
       methods:
         - "OPTIONS"
+    ## health 相关路径通行
     - domain: "*.${MAIN_DOMAIN}"
       resources: ["^/healthz.*$", "^/ping.*$"]
       policy: "bypass"
