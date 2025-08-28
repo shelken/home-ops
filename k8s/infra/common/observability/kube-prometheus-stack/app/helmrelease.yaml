@@ -128,7 +128,7 @@ spec:
               storageClassName: longhorn-log
               resources:
                 requests:
-                  storage: 50Gi
+                  storage: 70Gi
         affinity: 
           nodeAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
