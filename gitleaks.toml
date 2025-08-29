@@ -1,0 +1,23 @@
+title = "Custom gitleaks config"
+
+[extend]
+useDefault = true
+# disabledRules = [ "" ]
+
+[[allowlists]]
+  paths = [
+    '_out/',
+    'README.md',
+  ]
+
+# [[rules]]
+# id = "ipv4-start"
+# description = "IP address starting with 134."
+# regex = '''\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b'''
+# tags = ["ip"]
+
+# [[rules]]
+# id = "domain-ooooo-space"
+# description = "Domain ending with ooooo.space"
+# regex = '''\b[a-zA-Z0-9.-]+\.ooooo\.space\b'''
+# tags = ["domain"]
