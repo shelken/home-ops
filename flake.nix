@@ -18,7 +18,7 @@
         name = "home-ops";
 
         packages = with pkgs; [
-          azure-cli
+          # azure-cli
 
           k9s
           kustomize
@@ -37,6 +37,8 @@
 
           helmfile
           # talosctl
+
+          gitleaks
         ];
 
         shellHook = ''
