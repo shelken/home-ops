@@ -6,7 +6,7 @@ APPLE_ID=$(cat /config/secret/APPLE_ID)
 # ref: https://icloud-photos-downloader.github.io/icloud_photos_downloader/reference.html
 # ref: https://github.com/icloud-photos-downloader/icloud_photos_downloader/blob/master/src/icloudpd/base.py
 
-/app/icloudpd_ex icloudpd \
+/app/icloudpd \
   --log-level=debug \
   --directory=/data \
   --cookie-directory=/config \
