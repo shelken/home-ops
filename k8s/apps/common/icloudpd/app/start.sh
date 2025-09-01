@@ -15,7 +15,7 @@ APPLE_ID=$(cat /config/secret/APPLE_ID)
   --auto-delete \
   --no-progress-bar \
   --size=original \
-  --keep-unicode-in-filenames=true \
+  --keep-unicode-in-filenames \
   --folder-structure="{:%Y/%m/%d}" \
   --watch-with-interval=21600 \
   --mfa-provider=webui \
