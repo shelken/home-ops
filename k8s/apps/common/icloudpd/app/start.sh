@@ -6,15 +6,15 @@ APPLE_ID=$(cat /config/secret/APPLE_ID)
 
 /app/icloudpd \
   --log-level=debug \
-  --directory=/data \
-  --cookie-directory=/config \
-  --username="$APPLE_ID" \
-  --domain=cn \
-  --auto-delete \
   --no-progress-bar \
-  --size=original \
-  --keep-unicode-in-filenames \
-  --folder-structure="{:%Y/%m/%d}" \
   --watch-with-interval=21600 \
   --mfa-provider=webui \
-  --password-provider=webui
+  --password-provider=webui \
+  --domain=cn \
+  --username="$APPLE_ID" \
+  --directory=/data \
+  --cookie-directory=/config \
+  --auto-delete \
+  --size=original \
+  --keep-unicode-in-filenames \
+  --folder-structure="{:%Y/%m/%d}"
