@@ -16,5 +16,5 @@ APPLE_ID=$(cat /config/secret/APPLE_ID)
   --cookie-directory=/config \
   --auto-delete \
   --size=original \
-  --keep-unicode-in-filenames \
+  --keep-unicode-in-filenames=true \
   --folder-structure="{:%Y/%m/%d}"
