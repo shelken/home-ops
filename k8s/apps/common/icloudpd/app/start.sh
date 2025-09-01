@@ -1,8 +1,6 @@
 #!/bin/sh
 APPLE_ID=$(cat /config/secret/APPLE_ID)
 
-APPLE_ID=$(cat /config/secret/APPLE_ID)
-
 # ref: https://icloud-photos-downloader.github.io/icloud_photos_downloader/reference.html
 # ref: https://github.com/icloud-photos-downloader/icloud_photos_downloader/blob/master/src/icloudpd/base.py
 
