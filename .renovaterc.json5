@@ -32,6 +32,14 @@
   },
   packageRules: [
     {
+      "matchPackageNames": [
+        "linuxserver/mariadb", // seafile-db
+        "/rook/"
+        "/homarr-labs/"
+      ],
+      "enabled": false
+    },
+    {
       description: "Cert-Manager Group",
       groupName: "Cert-Manager",
       matchDatasources: ["docker"],
