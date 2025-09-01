@@ -35,7 +35,8 @@
       "matchPackageNames": [
         "linuxserver/mariadb", // seafile-db
         "/rook/",
-        "/homarr-labs/"
+        "/homarr-labs/",
+        "tailscale-operator"
       ],
       "enabled": false
     },
