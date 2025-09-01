@@ -34,7 +34,7 @@
     {
       "matchPackageNames": [
         "linuxserver/mariadb", // seafile-db
-        "/rook/"
+        "/rook/",
         "/homarr-labs/"
       ],
       "enabled": false
