@@ -50,7 +50,7 @@ tasks:
     desc: "添加external-dns的CRD"
     cmd: |
       # renovate: datasource=github-releases depName=kubernetes-sigs/external-dns
-      kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/external-dns/refs/tags/v0.18.0/config/crd/standard/dnsendpoints.externaldns.k8s.io.yaml --server-side
+      kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/external-dns/refs/tags/v0.19.0/config/crd/standard/dnsendpoints.externaldns.k8s.io.yaml --server-side
 
   add-prometheus-crd:
     desc: "添加prometheus的CRD"
