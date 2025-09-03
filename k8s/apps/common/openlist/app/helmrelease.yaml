@@ -29,11 +29,15 @@ spec:
               - /bin/sh
               - /scripts/overriden-entrypoint.sh
             workingDir: /opt/openlist
+            # ref: https://github.com/OpenListTeam/OpenList/blob/main/internal/conf/config.go
             env:
               TZ: ${TIMEZONE}
               UMASK: "022"
               RUN_ARIA2: "false"
               SITE_URL: "https://drive.${MAIN_DOMAIN}"
+              # ref: https://doc.oplist.org/guide/advanced/s3#S3
+              S3_ENABLE: "true"
+              S3_PORT: &s3-port 5246
             probes:
               liveness: &probes
                 enabled: true
@@ -73,6 +77,8 @@ spec:
         ports:
           http:
             port: *port
+          s3:
+            port: *s3-port
     route:
       app:
         annotations:
@@ -91,6 +97,16 @@ spec:
           - backendRefs:
               - name: *app
                 port: *port
+      s3:
+        hostnames: ["drive-s3.${MAIN_DOMAIN}"]
+        parentRefs:
+          - name: external
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: *app
+                port: *s3-port
     configMaps:
       scripts:
         data:
