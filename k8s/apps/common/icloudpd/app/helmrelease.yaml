@@ -27,7 +27,7 @@ spec:
           app:
             image:
               repository: docker.io/icloudpd/icloudpd
-              tag: 1.31.0
+              tag: 1.32.2
             env:
               TZ: ${TIMEZONE}
             command: ["/config/start.sh"]
