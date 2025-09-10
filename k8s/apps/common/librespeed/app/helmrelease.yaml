@@ -74,9 +74,9 @@ spec:
         name: librespeed-config
         advancedMounts:
           librespeed:
-            main:
+            app:
               - subPath: configs.toml
-                path: /etc/librespeed.toml
+                path: /usr/local/bin/configs.toml
     configMaps:
       config:
         enabled: true
