@@ -53,7 +53,7 @@ spec:
               capabilities: { drop: ["ALL"] }
             resources:
               requests:
-                memory: 50Mi
+                cpu: 10m
               limits:
                 memory: 100Mi
     defaultPodOptions:
@@ -85,6 +85,10 @@ spec:
     #       - name: external
     #         namespace: kube-system
     #         sectionName: https
+    #     rules:
+    #       - backendRefs:
+    #           - identifier: app
+    #             port: *port
     ingress:
       app:
         annotations:

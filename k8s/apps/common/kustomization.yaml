@@ -20,6 +20,7 @@ resources:
   - n8n/ks.yaml
   - ollama/ks.yaml
   - openlist/ks.yaml
+  - qbittorrent/ks.yaml
   - plex/ks.yaml
   - scrypted/ks.yaml
   - seafile/ks.yaml
