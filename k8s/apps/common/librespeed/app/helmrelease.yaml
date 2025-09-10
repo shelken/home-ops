@@ -1,0 +1,90 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app librespeed
+spec:
+  interval: 1h
+  timeout: 15m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      librespeed:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/librespeed/speedtest-rust
+              tag: v1.3.8@sha256:7463fc82eea72e98caf4e163764b16ba0db9c62eb617e31be9ed5f32c16a54d7
+            env:
+              TZ: ${TIMEZONE}
+            probes:
+              liveness: &probes
+                enabled: true
+              readiness: *probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                memory: 50Mi
+              limits:
+                memory: 100Mi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        ports:
+          http:
+            port: &port 8080
+    route:
+      app:
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: internal
+          gethomepage.dev/name: librespeed
+          gethomepage.dev/icon: librespeed.svg
+          gethomepage.dev/description: ""
+        hostnames: ["${GATUS_SUBDOMAIN:=${APP}}.${MAIN_DOMAIN}"]
+        parentRefs:
+          - name: internal
+            namespace: kube-system
+            sectionName: https
+    persistence:
+      config:
+        type: configMap
+        name: librespeed-config
+        advancedMounts:
+          librespeed:
+            main:
+              - subPath: configs.toml
+                path: /usr/local/bin/configs.toml
+    configMaps:
+      config:
+        enabled: true
+        data:
+          configs.toml: |-
+            bind_address="0.0.0.0"
+            listen_port=8080
+            worker_threads=1 # or auto
+            redact_ip_addresses=true
+            result_image_theme="dark"
+            database_type="none"
