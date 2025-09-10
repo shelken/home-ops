@@ -76,7 +76,7 @@ spec:
           librespeed:
             main:
               - subPath: configs.toml
-                path: /usr/local/bin/configs.toml
+                path: /etc/librespeed.toml
     configMaps:
       config:
         enabled: true
