@@ -45,6 +45,9 @@ homelab
 | go2rtc                  | 192.168.6.53     |                |             |
 | plex                    | 192.168.6.54     |                |             |
 | scrypted                | 192.168.6.55     |                |             |
+| immich-db               | 192.168.6.56     |                |             |
+| seafile-db              | 192.168.6.57     |                |             |
+| qbittorrent             | 192.168.6.58     |                |             |
 | longhorn                |                  | longhorn ui    | longhorn.   |
 | cilium ingress          | ~~192.168.6.40~~ | 已经关闭       |             |
 
