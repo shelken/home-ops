@@ -144,6 +144,11 @@ spec:
         globalMounts:
           - path: /shared
             subPath: seafile/data
+      data-test:
+        existingClaim: smb-test
+        globalMounts:
+          - path: /test
+            subPath: data
       tmpfs:
         type: emptyDir
         advancedMounts:
