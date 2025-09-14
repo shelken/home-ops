@@ -43,13 +43,9 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../../components/gatus/external
-    - ../../../../components/volsync
     - ../../../../components/keda/smb-scaler
   dependsOn:
     - name: seafile-db
-    - name: smb-volumes
-    - name: volsync
-      namespace: volsync-system
   postBuild:
     substitute:
       APP: *app
