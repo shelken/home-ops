@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: ghcr.io/blakeblackshear/frigate
-              tag: 0.16.0-tensorrt
+              tag: 0.16.1-tensorrt
             env:
               TZ: ${TIMEZONE}
               YOLO_MODELS: yolov7-320
