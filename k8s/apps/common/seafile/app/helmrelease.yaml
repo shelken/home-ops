@@ -140,14 +140,9 @@ spec:
             sectionName: https
     persistence:
       data:
-        existingClaim: smb-sakamoto-storage
+        existingClaim: seafile
         globalMounts:
           - path: /shared
-            subPath: seafile/data
-      data-test:
-        existingClaim: smb-test
-        globalMounts:
-          - path: /test
             subPath: data
       tmpfs:
         type: emptyDir
