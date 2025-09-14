@@ -5,4 +5,4 @@ kind: Kustomization
 resources:
   - backup-media.yaml
   - sakamoto-media.yaml
-  - sakamoto-storage.yaml
+  # - sakamoto-storage.yaml
