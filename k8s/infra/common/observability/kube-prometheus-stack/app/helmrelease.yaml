@@ -72,11 +72,11 @@ spec:
           - name: alertmanager-uptime-kuma-push
             image: ghcr.io/natrontech/alertmanager-uptime-kuma-push:v1.0.3
             ports:
-            - containerPort: 8081
-              name: kuma-push
+              - containerPort: 8081
+                name: kuma-push
             envFrom:
-            - secretRef:
-                name: alertmanager-uptime-kuma-push-secret
+              - secretRef:
+                  name: alertmanager-uptime-kuma-push-secret
     kubeEtcd:
       service:
         selector:
@@ -86,7 +86,7 @@ spec:
       enabled: true
       endpoints: &endpoints
         - 192.168.6.80
-    kubeScheduler: 
+    kubeScheduler:
       enabled: true
       endpoints: *endpoints
     kubeProxy:
@@ -129,13 +129,15 @@ spec:
               resources:
                 requests:
                   storage: 70Gi
-        affinity: 
+        affinity:
           nodeAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
               nodeSelectorTerms:
-                  - matchExpressions:
-                      - key: node-role.kubernetes.io/control-plane
-                        operator: Exists
+                - matchExpressions:
+                    - key: kubernetes.io/hostname
+                      operator: In
+                      values:
+                        - sakamoto-k8s
     prometheus-node-exporter:
       fullnameOverride: node-exporter
       prometheus:
