@@ -110,10 +110,10 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
               - matchExpressions:
-                  - key: kubernetes.io/arch
+                  - key: kubernetes.io/hostname
                     operator: In
                     values:
-                      - amd64
+                      - sakamoto-k8s
       securityContext:
         # runAsNonRoot: true
         # runAsUser: 1000

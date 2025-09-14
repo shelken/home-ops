@@ -37,17 +37,6 @@ spec:
     replicaCount: 1
     metrics:
       disableAuth: true
-    # nodeSelector:
-    #   kubernetes.io/arch: amd64
-    # affinity:
-    #   nodeAffinity:
-    #     requiredDuringSchedulingIgnoredDuringExecution:
-    #       nodeSelectorTerms:
-    #         - matchExpressions:
-    #             - key: kubernetes.io/arch
-    #               operator: In
-    #               values:
-    #                 - amd64
     podSecurityContext:
       runAsNonRoot: true
       runAsUser: 1000
