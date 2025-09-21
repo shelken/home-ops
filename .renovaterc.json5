@@ -31,6 +31,7 @@
     managerFilePatterns: ["/^kustomization\\.ya?ml(?:\\.j2)?$/"],
   },
   packageRules: [
+    //===========开启关闭================
     {
       "matchPackageNames": [
         "linuxserver/mariadb", // seafile-db
@@ -40,6 +41,15 @@
       ],
       "enabled": false
     },
+    //===============PR信息补充============
+    {
+      "description": "seafile changelog 补充"
+      "matchPackageNames": [
+        "/seafileltd/"
+      ],
+      "changelogUrl": "https://manual.seafile.com/{{{newMajor}}}.0/changelog/server-changelog/"
+    },
+    //==============分组==================
     {
       description: "Cert-Manager Group",
       groupName: "Cert-Manager",
@@ -85,6 +95,7 @@
         commitMessageTopic: "{{{groupName}}} group",
       },
     },
+    //==============自动合并====================
     {
       description: "Auto-merge GitHub Actions",
       matchManagers: ["github-actions"],
@@ -131,6 +142,7 @@
     //   matchUpdateTypes: ["minor", "patch"],
     //   ignoreTests: true,
     // },
+    //========================提交信息修改============================
     {
       matchUpdateTypes: ["major"],
       semanticCommitType: "feat",
@@ -178,6 +190,7 @@
     //   semanticCommitScope: "mise",
     //   commitMessageTopic: "tool {{depName}}",
     // },
+    //==================打标签=======================
     {
       matchUpdateTypes: ["major"],
       labels: ["type/major"],
