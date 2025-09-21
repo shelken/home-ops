@@ -33,21 +33,21 @@
   packageRules: [
     //===========开启关闭================
     {
-      "matchPackageNames": [
+      matchPackageNames: [
         "linuxserver/mariadb", // seafile-db
         "/rook/",
         "/homarr-labs/",
         "tailscale-operator"
       ],
-      "enabled": false
+      enabled: false
     },
     //===============PR信息补充============
     {
-      "description": "seafile changelog 补充"
-      "matchPackageNames": [
+      description: "seafile changelog 补充",
+      matchPackageNames: [
         "/seafileltd/"
       ],
-      "changelogUrl": "https://manual.seafile.com/{{{newMajor}}}.0/changelog/server-changelog/"
+      changelogUrl: "https://manual.seafile.com/{{{newMajor}}}.0/changelog/server-changelog/"
     },
     //==============分组==================
     {
