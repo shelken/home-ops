@@ -37,6 +37,7 @@ spec:
               PORT: &port 3000
               REDIS_CONN_STRING: redis://dragonfly.database.svc.cluster.local:6379
               # SQL_DSN: # 默认sqlite
+              GEMINI_VERSION: v1beta
             probes:
               liveness: &probes
                 enabled: true
