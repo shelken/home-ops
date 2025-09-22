@@ -10,13 +10,13 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   components:
-    - ../../../../components/gatus/guarded
+    - ../../../../components/gatus/external
     - ../../../../components/volsync
   postBuild:
     substitute: 
       APP: *app
-      # GATUS_SUBDOMAIN: ollama
-      # GATUS_PATH: /rest/health
+      GATUS_SUBDOMAIN: external
+      GATUS_PATH: /health
   dependsOn:
     - name: longhorn
       namespace: longhorn-system

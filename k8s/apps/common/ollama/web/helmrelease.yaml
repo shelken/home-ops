@@ -52,6 +52,19 @@ spec:
                 memory: 500Mi
               limits:
                 memory: 2Gi
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: &port 8080
+                  initialDelaySeconds: 30
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
     # defaultPodOptions:
     #   securityContext:
     #     runAsNonRoot: true
@@ -63,7 +76,7 @@ spec:
       app:
         ports:
           http:
-            port: &port 8080  
+            port: *port
     route:
       app:
         annotations:
@@ -81,7 +94,7 @@ spec:
         hostnames: 
           - "chat.${MAIN_DOMAIN}"
         parentRefs:
-          - name: internal
+          - name: external
             namespace: kube-system
             sectionName: https
     persistence:
