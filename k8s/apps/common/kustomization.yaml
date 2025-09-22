@@ -18,6 +18,7 @@ resources:
   - memos/ks.yaml
   - metatube/ks.yaml
   - n8n/ks.yaml
+  - new-api/ks.yaml
   - ollama/ks.yaml
   - openlist/ks.yaml
   - qbittorrent/ks.yaml
