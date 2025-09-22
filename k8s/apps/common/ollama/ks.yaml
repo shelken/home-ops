@@ -10,13 +10,11 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   components:
-    - ../../../../components/gatus/external
+    - ../../../../components/gatus/guarded
     - ../../../../components/volsync
   postBuild:
     substitute: 
       APP: *app
-      GATUS_SUBDOMAIN: external
-      GATUS_PATH: /health
   dependsOn:
     - name: longhorn
       namespace: longhorn-system
@@ -42,12 +40,13 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   components:
-    - ../../../../components/gatus/guarded
+    - ../../../../components/gatus/external
     - ../../../../components/volsync
   postBuild:
     substitute:
       APP: *app
       GATUS_SUBDOMAIN: chat
+      GATUS_PATH: /health
   dependsOn:
     - name: ollama
     - name: cloudnative-pg-cluster
