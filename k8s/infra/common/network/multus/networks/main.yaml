@@ -32,6 +32,7 @@ kind: NetworkAttachmentDefinition
 metadata:
   name: multus-second
 spec:
+  # 该配置不允许在 sakamoto-k8s 上使用
   config: |-
     {
       "cniVersion": "0.3.1",
