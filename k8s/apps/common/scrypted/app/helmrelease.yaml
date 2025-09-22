@@ -34,6 +34,15 @@ spec:
                 "ips": ["192.168.6.55/24"],
                 "mac": "02:D1:69:09:21:AF"
               }]
+          affinity: 
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: kubernetes.io/hostname
+                        operator: NotIn
+                        values:
+                          - sakamoto-k8s
           securityContext:
             runAsUser: 1000
             runAsGroup: 1000
