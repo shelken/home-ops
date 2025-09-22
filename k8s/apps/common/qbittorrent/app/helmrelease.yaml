@@ -110,6 +110,11 @@ spec:
           gethomepage.dev/name: qbittorrent
           gethomepage.dev/icon: qbittorrent.svg
           gethomepage.dev/description: ""
+          gethomepage.dev/widget.type: qbittorrent
+          gethomepage.dev/widget.url: https://{{ .Release.Name }}.${MAIN_DOMAIN}
+          gethomepage.dev/widget.enableLeechProgress: "true"
+          # gethomepage.dev/widget.username: "{{ `{{HOMEPAGE_VAR_QBITTORRENT_USERNAME}}` }}"
+          # gethomepage.dev/widget.password: "{{ `{{HOMEPAGE_VAR_QBITTORRENT_PASSWORD}}` }}"
         hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
         parentRefs:
           - name: internal
