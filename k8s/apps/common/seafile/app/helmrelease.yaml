@@ -50,7 +50,7 @@ spec:
           app:
             image:
               repository: docker.io/seafileltd/seafile-pro-mc
-              tag: 13.0.9
+              tag: 13.0.11
             #ref: https://github.com/haiwen/seafile-helm-chart/blob/main/values/13.0/pro.yaml
             env:
               TZ: ${TIMEZONE}
