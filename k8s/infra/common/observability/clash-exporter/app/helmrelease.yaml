@@ -35,7 +35,7 @@ spec:
               - "-port=2113"
             env: 
               - name: CLASH_HOST
-                value: "sakamoto:9090"
+                value: "sakamoto.lan:9090"
               - name: CLASH_TOKEN
                 valueFrom:
                   secretKeyRef:
