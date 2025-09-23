@@ -19,6 +19,7 @@ spec:
     - cache=strict
     - noperm
     - serverino
+    - echo_interval=30 # 机械硬盘盒可能有休眠操作，发送心跳保持连接
   csi:
     driver: smb.csi.k8s.io
     volumeHandle: smb-sakamoto-backup-media
