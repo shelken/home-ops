@@ -3,7 +3,7 @@ kind: Kustomization
 components:
   - ../../components/common
 resources: 
-  - echo/ks.yaml
+  # - echo/ks.yaml
   # - frigate/ks.yaml
   - go2rtc/ks.yaml
   - home-assistant/ks.yaml
@@ -12,12 +12,12 @@ resources:
   - icloudpd/ks.yaml
   - immich/ks.yaml
   - jellyfin/ks.yaml
-  - kite/ks.yaml
+  # - kite/ks.yaml
   - kromgo/ks.yaml
-  - librespeed/ks.yaml
-  - memos/ks.yaml
+  # - librespeed/ks.yaml
+  # - memos/ks.yaml
   - metatube/ks.yaml
-  - n8n/ks.yaml
+  # - n8n/ks.yaml
   - new-api/ks.yaml
   - ollama/ks.yaml
   - openlist/ks.yaml
