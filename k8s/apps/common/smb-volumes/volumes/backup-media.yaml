@@ -24,7 +24,7 @@ spec:
     driver: smb.csi.k8s.io
     volumeHandle: smb-sakamoto-backup-media
     volumeAttributes:
-      source: "//sakamoto/media"
+      source: "//sakamoto.lan/media"
     nodeStageSecretRef:
       name: smb-secret
       namespace: storage

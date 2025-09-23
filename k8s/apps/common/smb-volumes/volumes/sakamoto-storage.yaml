@@ -23,7 +23,7 @@ spec:
     driver: smb.csi.k8s.io
     volumeHandle: smb-sakamoto-sakamoto-storage
     volumeAttributes:
-      source: "//sakamoto/sakamoto-data/k8s/storage"
+      source: "//sakamoto.lan/sakamoto-data/k8s/storage"
     nodeStageSecretRef:
       name: smb-secret
       namespace: storage
