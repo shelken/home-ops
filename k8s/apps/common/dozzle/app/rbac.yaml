@@ -22,4 +22,4 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: dozzle
-    namespace: observability
+    namespace: default
