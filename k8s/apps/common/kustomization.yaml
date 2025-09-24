@@ -3,6 +3,7 @@ kind: Kustomization
 components:
   - ../../components/common
 resources: 
+  - dozzle/ks.yaml
   # - echo/ks.yaml
   # - frigate/ks.yaml
   - go2rtc/ks.yaml
