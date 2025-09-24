@@ -33,7 +33,8 @@ spec:
             env:
               TZ: ${TIMEZONE}
               DOZZLE_MODE: k8s
-              DOZZLE_REMOTE_AGENT: tvbox.lan:7007,sakamoto.lan:7007,vps-cc.lan:7007
+              # DOZZLE_REMOTE_AGENT: tvbox.lan:7007,sakamoto.lan:7007,vps-cc.lan:7007
+              DOZZLE_REMOTE_HOST: tvbox.lan:2575
             probes:
               liveness: &probes
                 enabled: true
