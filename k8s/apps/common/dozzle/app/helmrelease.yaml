@@ -44,7 +44,7 @@ spec:
                     command:
                       - /dozzle
                       - healthcheck
-                  initialDelaySeconds: 30
+                  initialDelaySeconds: 5
                   periodSeconds: 10
                   timeoutSeconds: 1
                   failureThreshold: 3
