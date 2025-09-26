@@ -70,16 +70,20 @@ spec:
         existingClaim: *app
         globalMounts:
           - path: /config
-    # route:
-    #   app:
-    #     annotations:
-    #       gethomepage.dev/enabled: "true"
-    #       gethomepage.dev/group: external
-    #       gethomepage.dev/name: metatube
-    #       gethomepage.dev/icon: kubernetes-dashboard.svg
-    #       gethomepage.dev/description: ""
-    #     hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
-    #     parentRefs:
-    #       - name: external
-    #         namespace: kube-system
-    #         sectionName: https
+    route:
+      app:
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: internal
+          gethomepage.dev/name: metatube
+          gethomepage.dev/icon: kubernetes-dashboard.svg
+          gethomepage.dev/description: ""
+        hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
+        parentRefs:
+          - name: internal
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
