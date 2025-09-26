@@ -30,7 +30,7 @@ spec:
               PORT: &port 8080
               DSN: "/config/library.db"
               DB_AUTO_MIGRATE: "true"
-              MT_MOVIE_PROVIDER_AVBASE__PRIORITY: 0
+              # MT_MOVIE_PROVIDER_AVBASE__PRIORITY: 0
             # probes:
             #   liveness: &probes
             #     enabled: true
