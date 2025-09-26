@@ -30,6 +30,7 @@ spec:
               PORT: &port 8080
               DSN: "/config/library.db"
               DB_AUTO_MIGRATE: "true"
+              # HTTP_PROXY: http://sakamoto.lan:7890
               # MT_MOVIE_PROVIDER_AVBASE__PRIORITY: 0
             # probes:
             #   liveness: &probes
