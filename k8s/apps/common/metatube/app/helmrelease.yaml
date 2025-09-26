@@ -28,7 +28,7 @@ spec:
               tag: 1.3.2
             env:
               PORT: &port 8080
-              DSN: "library.db"
+              DSN: "/config/library.db"
               DB_AUTO_MIGRATE: "true"
             # probes:
             #   liveness: &probes
@@ -64,6 +64,11 @@ spec:
         ports:
           http:
             port: *port
+    persistence:
+      config:
+        existingClaim: *app
+        globalMounts:
+          - path: /config
     # route:
     #   app:
     #     annotations:
