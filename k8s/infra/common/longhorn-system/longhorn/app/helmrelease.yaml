@@ -37,7 +37,7 @@ spec:
       defaultReplicaCount: *replicaCount
       # nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
       orphanAutoDeletion: true
-      replicaAutoBalance: true
+      # replicaAutoBalance: best-effort # 默认disabled
       storageMinimalAvailablePercentage: 5 # 默认 25
       storageReservedPercentageForDefaultDisk: 10 # longhorn用90%
       # taintToleration: "node-role.kubernetes.io/control-plane=Exists:NoSchedule" # 让longhorn-manager等daemonset能够正常调度到控制平面
