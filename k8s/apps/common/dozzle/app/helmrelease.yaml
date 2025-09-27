@@ -28,7 +28,7 @@ spec:
         containers:
           app:
             image:
-              repository: docker.io/amir20/dozzle
+              repository: ghcr.io/amir20/dozzle
               tag: v8.14.1@sha256:97131e414f57695249ce0af1b193927c93395e97b59ad0637df0606af59ceb63
             env:
               TZ: ${TIMEZONE}
