@@ -24,7 +24,7 @@ spec:
     operator:
       replicas: 2
     hubble:
-      enabled: true
+      enabled: false
       metrics:
         enabled:
           - dns:query
