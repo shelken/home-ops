@@ -29,12 +29,12 @@ spec:
       resizerReplicaCount: 1
       snapshotterReplicaCount: 1
     persistence:
-      defaultClassReplicaCount: &replicaCount 1 # 副本数量
+      defaultClassReplicaCount: 1 # 副本数量
       defaultDataLocality: best-effort # 副本倾向放在pod所在位置
     defaultSettings:
       defaultDataLocality: best-effort
       defaultDataPath: /mnt/lima-longhorn # 默认是 /var/lib/longhorn
-      defaultReplicaCount: *replicaCount
+      defaultReplicaCount: "1"
       # nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
       orphanAutoDeletion: true
       # replicaAutoBalance: best-effort # 默认disabled
