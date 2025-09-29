@@ -115,7 +115,7 @@ spec:
         ruleSelectorNilUsesHelmValues: false
         scrapeConfigSelectorNilUsesHelmValues: false
         serviceMonitorSelectorNilUsesHelmValues: false
-        retention: 14d
+        retention: 7d
         retentionSize: 50GB
         resources:
           requests:
