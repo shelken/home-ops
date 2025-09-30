@@ -112,7 +112,7 @@ spec:
         hostnames:
           - photo.${MAIN_DOMAIN}
         parentRefs:
-          - name: internal
+          - name: external
             namespace: kube-system
             sectionName: https
         rules:
