@@ -101,8 +101,8 @@ spec:
               - name: *app
                 port: *port
             filters:
-              - type: RequestHeaderModifier
-                requestHeaderModifier:
+              - type: ResponseHeaderModifier
+                responseHeaderModifier:
                   add: 
                     - name: "Access-Control-Allow-Origin"
                       value: "*"
