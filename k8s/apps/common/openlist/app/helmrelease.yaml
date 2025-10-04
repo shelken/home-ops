@@ -97,6 +97,25 @@ spec:
           - backendRefs:
               - name: *app
                 port: *port
+          - backendRefs:
+              - name: *app
+                port: *port
+            filters:
+              - type: RequestHeaderModifier
+                requestHeaderModifier:
+                  add: 
+                    - name: "Access-Control-Allow-Origin"
+                      value: "*"
+            matches:
+              - path:
+                  type: PathPrefix
+                  value: /d/picbed
+              - path:
+                  type: PathPrefix
+                  value: /p/picbed
+              # - path:
+              #     type: RegularExpression
+              #     value: ^/(p/d)/picbed
       s3:
         hostnames: ["drive-s3.${MAIN_DOMAIN}"]
         parentRefs:
