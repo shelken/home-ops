@@ -2,8 +2,10 @@
   description = "Base development template";
 
   inputs = {
-    nixpkgs.url = "flake:nixpkgs";
-    utils.url = "github:numtide/flake-utils";
+    nixpkgs.url = "github:NixOS/nixpkgs/25.05";
+    utils = {
+      url = "github:numtide/flake-utils";
+    };
   };
 
   outputs = {
@@ -20,7 +22,7 @@
         packages = with pkgs; [
           # azure-cli
 
-          k9s
+          # k9s
           kustomize
 
           ansible
