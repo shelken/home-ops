@@ -1,0 +1,12 @@
+---
+- name: 优化
+  hosts: all
+  become: true
+  gather_facts: true
+    # vars:
+    #   k3s_proxy_ip: "192.168.6.248"
+    #   k3s_proxy_port: "7890"
+    #   delete_proxy: false
+  tasks:
+    - name: sysctl 配置
+      ansible.builtin.include_tasks: tasks/sysctl.yaml
