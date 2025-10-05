@@ -59,12 +59,12 @@ sudo ./NVIDIA-Linux-x86_64-550.163.02-grid.run
 部署一个 [fastapi-dls](https://github.com/shelken/homelab-compose/blob/main/apps/nvidia-dls/docker-compose.yaml) 
 
 ```shell
-curl -X GET https://nvidia-dls.$MAIN_DOMAIN/-/client-token -o /etc/nvidia/ClientConfigToken/client_configuration_token.tok
-sudo cp /etc/nvidia/gridd.conf.template /etc/nvidia/gridd.conf
-# 看情况修改
-service nvidia-gridd restart
+sudo curl --insecure -L -X GET https://nvidia-dls.$MAIN_DOMAIN/-/client-token -o /etc/nvidia/ClientConfigToken/client_configuration_token_$(date '+%d-%m-%Y-%H-%M-%S').tok
+sudo service nvidia-gridd restart
+sudo service nvidia-gridd enable --now
+
 # 检查
-nvidia-smi -q | grep -n3i "License Status"
+sudo nvidia-smi -q | grep -i lic
 # 使用ffmpeg测试
 ffmpeg -hwaccel cuda -i ~/EP05_01m.mp4 -f null -
 ```
