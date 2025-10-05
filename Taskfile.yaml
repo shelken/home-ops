@@ -103,10 +103,41 @@ tasks:
       - { msg: "End file not found", sh: "test -d {{ .end }}" }
 
   kube-run:
-    requires:
-      vars: ["pod", "image", "node"]
-    cmd: |
-      kubectl run {{.pod}} \
-      --image={{.image}} \
-      --overrides='{ "spec": { "nodeName": "{{.node}}" } }' \
-      --command -- /bin/sh -c "sleep infinity"
+    vars:
+      image: '{{.image | default "busybox:latest"}}'
+      pod: '{{.pod | default "test"}}'
+      _node_default:
+        sh: kubectl get nodes -l node-role.kubernetes.io/control-plane -o jsonpath='{.items[0].metadata.name}'
+      node: '{{.node | default ._node_default}}'
+      pvc: '{{.pvc | default ""}}'
+      mount_path: '{{.mount_path | default "/data"}}'
+    cmds:
+      - |
+        cat <<EOF | kubectl apply -f -
+        apiVersion: v1
+        kind: Pod
+        metadata:
+          name: {{.pod}}
+        spec:
+          nodeName: {{.node}}
+          restartPolicy: Never
+          containers:
+          - name: {{.pod}}
+            image: {{.image}}
+            command: ["/bin/sh", "-c", "trap : TERM INT; sleep infinity & wait"]
+            {{- if .pvc }}
+            volumeMounts:
+            - name: pvc-storage
+              mountPath: "{{.mount_path}}"
+            {{- end }}
+          {{- if .pvc }}
+          volumes:
+          - name: pvc-storage
+            persistentVolumeClaim:
+              claimName: "{{.pvc}}"
+          {{- end }}
+        EOF
+      - echo "Waiting for pod to be ready..."
+      - kubectl wait --for=condition=Ready pod/{{.pod}} --timeout=60s
+      - kubectl exec -it {{.pod}} -- /bin/sh
+      - defer: kubectl delete pod {{.pod}} --ignore-not-found=true
