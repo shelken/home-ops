@@ -1,0 +1,23 @@
+---
+- name: 创建目录
+  ansible.builtin.file:
+    path: /etc/sysctl.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: 复制配置
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/resource/sysctl/{{ item }}"
+    dest: /etc/sysctl.d/{{ item }}
+    owner: root
+    group: root
+    mode: "0644"
+    force: true
+  loop:
+    - 99-custom.conf
+
+- name: reload
+  ansible.builtin.command: sysctl --system
+  become: true

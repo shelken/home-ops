@@ -1,0 +1,20 @@
+--- 
+- name: 创建 k3s 配置目录
+  ansible.builtin.file:
+    path: /etc/rancher/k3s
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: 复制本地文件到远程并强制覆盖
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/resource/{{ item }}"
+    dest: /etc/rancher/k3s/{{ item }}
+    owner: root
+    group: root
+    mode: "0600"
+    force: true
+  loop:
+    # - config.yaml
+    - registries.yaml
