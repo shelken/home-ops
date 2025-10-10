@@ -16,19 +16,10 @@ metadata:
     nginx.ingress.kubernetes.io/upstream-vhost: mirrors.ustc.edu.cn
     nginx.ingress.kubernetes.io/rewrite-target: /nix-channels/store$request_uri
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-    nginx.ingress.kubernetes.io/proxy-buffering: on
-
-    # nginx.ingress.kubernetes.io/proxy-ssl-server-name: on
-    # nginx.ingress.kubernetes.io/proxy-ssl-name: mirrors.ustc.edu.cn
 
     # nginx.ingress.kubernetes.io/server-snippet: |
     #   resolver 223.5.5.5 223.6.6.6 valid=300s ipv6=off;
     #   resolver_timeout 5s;
-
-    nginx.ingress.kubernetes.io/proxy-cache: nix_cache_zone
-    nginx.ingress.kubernetes.io/proxy-cache-valid: "200 302 60m"
-    nginx.ingress.kubernetes.io/proxy-cache-use-stale: "error timeout"
-    nginx.ingress.kubernetes.io/proxy-cache-lock: "true"
 
     nginx.ingress.kubernetes.io/add-header: |
       Cache-Control $cache_header always
