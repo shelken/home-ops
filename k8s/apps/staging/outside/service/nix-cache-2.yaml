@@ -18,8 +18,8 @@ metadata:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     nginx.ingress.kubernetes.io/proxy-buffering: on
 
-    nginx.ingress.kubernetes.io/proxy-ssl-server-name: on
-    nginx.ingress.kubernetes.io/proxy-ssl-name: mirrors.ustc.edu.cn
+    # nginx.ingress.kubernetes.io/proxy-ssl-server-name: on
+    # nginx.ingress.kubernetes.io/proxy-ssl-name: mirrors.ustc.edu.cn
 
     # nginx.ingress.kubernetes.io/server-snippet: |
     #   resolver 223.5.5.5 223.6.6.6 valid=300s ipv6=off;
@@ -34,6 +34,8 @@ metadata:
       Cache-Control $cache_header always
       X-Cache-Status $upstream_cache_status always
     nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_ssl_server_name on;
+      proxy_ssl_name        mirrors.ustc.edu.cn; 
       # 启用名为 nix_cache_zone 的缓存
       proxy_cache nix_cache_zone;
       # 对 200 和 302 响应缓存 60 分钟
