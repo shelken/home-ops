@@ -1,0 +1,61 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: upstream-nix-cache-2
+spec:
+  type: ExternalName
+  externalName: mirrors.ustc.edu.cn
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nix-cache-2
+  annotations:
+    nginx.ingress.kubernetes.io/upstream-vhost: mirrors.ustc.edu.cn
+    nginx.ingress.kubernetes.io/rewrite-target: /nix-channels/store$request_uri
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/proxy-buffering: "on"
+
+    nginx.ingress.kubernetes.io/proxy-ssl-server-name: "on"
+    nginx.ingress.kubernetes.io/proxy-ssl-name: "mirrors.ustc.edu.cn"
+
+    # nginx.ingress.kubernetes.io/server-snippet: |
+    #   resolver 223.5.5.5 223.6.6.6 valid=300s ipv6=off;
+    #   resolver_timeout 5s;
+
+    nginx.ingress.kubernetes.io/proxy-cache: nix_cache_zone
+    nginx.ingress.kubernetes.io/proxy-cache-valid: "200 302 60m"
+    nginx.ingress.kubernetes.io/proxy-cache-use-stale: "error timeout"
+    nginx.ingress.kubernetes.io/proxy-cache-lock: "true"
+
+    nginx.ingress.kubernetes.io/add-header: |
+      Cache-Control $cache_header always
+      X-Cache-Status $upstream_cache_status always
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      # 启用名为 nix_cache_zone 的缓存
+      proxy_cache nix_cache_zone;
+      # 对 200 和 302 响应缓存 60 分钟
+      proxy_cache_valid 200 302 60m;
+      # 当上游出错或超时时，使用过期的缓存
+      proxy_cache_use_stale error timeout;
+      # 防止重复请求穿透到上游
+      proxy_cache_lock on;
+      # 添加自定义响应头以查看缓存状态
+      add_header "Cache-Control" "$cache_header" always;
+      add_header "X-Cache-Status" "$upstream_cache_status" always;
+
+spec:
+  ingressClassName: nginx-internal
+  rules:
+    - host: "nix-cache-2.${MAIN_DOMAIN}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: upstream-nix-cache-2
+                port:
+                  number: 443 # cache.nixos.org 是 HTTPS
