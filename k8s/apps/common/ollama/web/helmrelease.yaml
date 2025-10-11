@@ -36,7 +36,7 @@ spec:
           app:
             image:
               repository: ghcr.io/open-webui/open-webui
-              tag: 0.6.28
+              tag: 0.6.33
             env:
               TZ: ${TIMEZONE}
               OLLAMA_BASE_URL: http://ollama.default.svc.cluster.local:11434
