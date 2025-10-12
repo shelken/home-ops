@@ -40,9 +40,9 @@ spec:
                     path: /healthz
                     port: &port 8081
                   initialDelaySeconds: 15
-                  periodSeconds: 20
+                  periodSeconds: 10
                   timeoutSeconds: 1
-                  failureThreshold: 3
+                  failureThreshold: 10
               readiness:
                 enabled: true
                 custom: true
@@ -53,7 +53,7 @@ spec:
                   initialDelaySeconds: 5
                   periodSeconds: 10
                   timeoutSeconds: 1
-                  failureThreshold: 3
+                  failureThreshold: 10
             resources:
               requests:
                 cpu: 10m
