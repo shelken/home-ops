@@ -36,7 +36,7 @@ spec:
       app.kubernetes.io/name: cilium
       app.kubernetes.io/component: gateway
   interval: 1h
-  timeout: 15m
+  timeout: 5m
   path: "./k8s/infra/common/kube-system/cilium/gateway"
   prune: true
   sourceRef:

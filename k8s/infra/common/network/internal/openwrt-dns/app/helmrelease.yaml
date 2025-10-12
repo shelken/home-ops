@@ -20,7 +20,7 @@ metadata:
   name: &app external-dns-openwrt
 spec:
   interval: 1h
-  timeout: 15m
+  timeout: 5m
   chartRef:
     kind: OCIRepository
     name: openwrt-dns
