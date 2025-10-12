@@ -55,8 +55,7 @@ spec:
             env:
               TZ: ${TIMEZONE}
               TIME_ZONE: ${TIMEZONE}
-              NON_ROOT: "false"
-              SEAFILE_LOG_TO_STDOUT: "true"
+              NON_ROOT: "true"
               SEAFILE_SERVER_HOSTNAME: "seafile.${MAIN_DOMAIN}"
               SEAFILE_SERVER_PROTOCOL: "https"
               SEAF_SERVER_STORAGE_TYPE: "disk"
@@ -81,6 +80,7 @@ spec:
               MD_FILE_COUNT_LIMIT: "100000"
               # debug
               SEAFILE_DOCKER_VERBOSE: "true"
+              SEAFILE_LOG_TO_STDOUT: "false"
             envFrom:
               - secretRef:
                   name: seafile-secret
@@ -97,10 +97,10 @@ spec:
                   timeoutSeconds: 1
                   failureThreshold: 30
               readiness: *probes
-            # securityContext:
-            #   allowPrivilegeEscalation: false
-            #   readOnlyRootFilesystem: false
-            #   capabilities: { drop: ["ALL"] }
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 memory: 256Mi
@@ -117,9 +117,9 @@ spec:
                     values:
                       - sakamoto-k8s
       securityContext:
-        # runAsNonRoot: true
-        # runAsUser: 1000
-        # runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
         fsGroup: 1000
         fsGroupChangePolicy: OnRootMismatch
     service:
