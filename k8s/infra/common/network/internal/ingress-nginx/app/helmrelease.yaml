@@ -95,8 +95,8 @@ spec:
           cpu: 100m
         limits:
           memory: 500Mi
-      # podSecurityContext:
-      #   fsGroup: 101
+      podSecurityContext:
+        fsGroup: 101
       extraVolumes:
         - name: nginx-internal-cache
           persistentVolumeClaim:
