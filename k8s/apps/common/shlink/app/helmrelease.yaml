@@ -52,10 +52,10 @@ spec:
                   httpGet:
                     path: /rest/health
                     port: *port
-                  initialDelaySeconds: 180
+                  initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1
-                  failureThreshold: 3
+                  failureThreshold: 30
               readiness: *probes
             securityContext:
               allowPrivilegeEscalation: false
