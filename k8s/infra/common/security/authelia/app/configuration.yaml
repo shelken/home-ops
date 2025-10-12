@@ -233,6 +233,30 @@ identity_providers:
         userinfo_signed_response_alg: "none"
         id_token_signed_response_alg: "RS256"
         token_endpoint_auth_method: "client_secret_post"
+      - client_id: "seafile"
+        client_name: "Seafile"
+        client_secret: "$argon2id$v=19$m=65536,t=3,p=4$uktcVYIyJFIiWnNcgEKwdg$2sfQpY0/dnc5joEnoqLxne15Gj492+B+YNKSRFSApuI"
+        public: false
+        # require_pkce: true
+        # pkce_challenge_method: "S256"
+        pre_configured_consent_duration: 1y
+        authorization_policy: "two_factor"
+        redirect_uris:
+          - "https://seafile.${MAIN_DOMAIN}/oauth/callback/"
+        scopes:
+          - "openid"
+          - "profile"
+          - "email"
+        response_types:
+          - "code"
+        grant_types:
+          - "authorization_code"
+        # access_token_signed_response_alg: "none"
+        userinfo_signed_response_alg: "none"
+        # id_token_signed_response_alg: "RS256"
+        token_endpoint_auth_method: "client_secret_basic"
+
+## docker run --rm authelia/authelia:latest authelia crypto hash generate argon2 --random --random.length 64 --random.charset alphanumeric
 
 storage:
   encryption_key: "{{ .AUTHELIA_STORAGE_ENCRYPTION_KEY }}"
