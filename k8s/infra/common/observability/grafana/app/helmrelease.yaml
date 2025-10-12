@@ -20,7 +20,7 @@ metadata:
   name: grafana
 spec:
   interval: 1h
-  timeout: 15m
+  timeout: 5m
   chartRef:
     kind: OCIRepository
     name: grafana

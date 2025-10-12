@@ -20,7 +20,7 @@ metadata:
   name: intel-device-plugin-operator
 spec:
   interval: 1h
-  timeout: 15m
+  timeout: 5m
   chartRef:
     kind: OCIRepository
     name: intel-device-plugins-operator

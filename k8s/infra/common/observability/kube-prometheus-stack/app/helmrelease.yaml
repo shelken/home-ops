@@ -20,7 +20,7 @@ metadata:
   name: kube-prometheus-stack
 spec:
   interval: 1h
-  timeout: 15m
+  timeout: 5m
   chartRef:
     kind: OCIRepository
     name: kube-prometheus-stack
