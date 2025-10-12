@@ -32,34 +32,34 @@ releases:
     chart: oci://quay.io/jetstack/charts/cert-manager
     version: v1.18.2
     values: ['../k8s/infra/common/cert-manager/cert-manager/app/values.yaml']
-    # needs: ['kube-system/spegel']
+    needs: ['kube-system/coredns']
 
-  # - name: external-secrets
-  #   namespace: external-secrets
-  #   chart: oci://ghcr.io/external-secrets/charts/external-secrets
-  #   version: 0.18.0
-  #   values: ['../kubernetes/apps/external-secrets/external-secrets/app/helm/values.yaml']
-  #   hooks:
-  #     - # Apply cluster secret store
-  #       events: ['postsync']
-  #       command: kubectl
-  #       args:
-  #         - apply
-  #         - --namespace=external-secrets
-  #         - --server-side
-  #         - --field-manager=kustomize-controller
-  #         - --filename
-  #         - ../kubernetes/apps/external-secrets/external-secrets/app/clustersecretstore.yaml
-  #         - --wait=true
-  #       showlogs: true
-  #   needs: ['cert-manager/cert-manager']
+  - name: external-secrets
+    namespace: external-secrets
+    chart: oci://ghcr.io/external-secrets/charts/external-secrets
+    version: 0.20.2
+    values: ['../k8s/infra/common/external-secrets/external-secrets/app/values.yaml']
+    hooks:
+      - # Apply cluster secret store
+        events: ['postsync']
+        command: kubectl
+        args:
+          - apply
+          - --namespace=external-secrets
+          - --server-side
+          - --field-manager=kustomize-controller
+          - --filename
+          - ../k8s/infra/common/external-secrets/external-secrets/azure/clustersecretstore.yaml
+          - --wait=true
+        showlogs: true
+    needs: ['cert-manager/cert-manager']
 
   - name: flux-operator
     namespace: flux-system
     chart: oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator
     version: 0.32.0
     values: ['../k8s/infra/common/flux-system/flux-operator/app/values.yaml']
-    # needs: ['external-secrets/external-secrets']
+    needs: ['external-secrets/external-secrets']
 
   - name: flux-instance
     namespace: flux-system
