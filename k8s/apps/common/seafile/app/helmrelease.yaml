@@ -79,6 +79,8 @@ spec:
               ENABLE_SEADOC: "false"
               ENABLE_SEAFILE_AI: "false"
               MD_FILE_COUNT_LIMIT: "100000"
+              # debug
+              SEAFILE_DOCKER_VERBOSE: "true"
             envFrom:
               - secretRef:
                   name: seafile-secret
