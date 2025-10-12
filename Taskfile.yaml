@@ -34,10 +34,10 @@ tasks:
       - task: add-gateway-crd
       - task: add-external-dns-crd
       - task: add-prometheus-crd
+      - task: secret:bootstrap
       - cmd: |
           helmfile --file bootstrap/helmfile.yaml sync --hide-notes
           # helmfile apply -f bootstrap/helmfile.yaml
-      - task: secret:bootstrap
 
   add-gateway-crd:
     desc: "添加gateway的CRD"
