@@ -92,3 +92,11 @@ spec:
                 name: proxy-raw-githubusercontent-com
                 port:
                   number: 443
+          - path: /(echo.ooooo.space)(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: echo
+                namespace: 
+                port:
+                  number: 80
