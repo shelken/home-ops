@@ -24,6 +24,18 @@ spec:
     protocol: TCP
 
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: exter-echo
+spec:
+  type: ExternalName
+  externalName: echo.ooooo.space
+  ports:
+  - port: 443
+    protocol: TCP
+
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -96,6 +108,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: echo
+                name: exter-echo
                 port:
-                  number: 80
+                  number: 443
