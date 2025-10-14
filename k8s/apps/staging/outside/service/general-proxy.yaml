@@ -38,7 +38,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
     
     nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/rewrite-target: /$3
     
     # 请求限制配置
     nginx.ingress.kubernetes.io/configuration-snippet: |
@@ -54,6 +54,16 @@ metadata:
       if ($uri ~* "^/($|index|home|main|default|web|www|portal)") {
           return 403 "Root and portal paths are not allowed";
       }
+            
+      # 设置代理头
+      proxy_set_header Host $1;
+      proxy_set_header Referrer https://$1;
+      proxy_set_header user-agent Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36;
+      # proxy_set_header X-Real-IP $remote_addr;
+      # proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      # proxy_set_header X-Forwarded-Proto $scheme;
+      # proxy_set_header X-Forwarded-Host $host;
+      
 
 spec:
   ingressClassName: nginx-internal
@@ -62,14 +72,14 @@ spec:
       http:
         paths:
           # GitHub 相关服务
-          - path: /github.com(/|$)(.*)
+          - path: /(github.com)(/|$)(.*)
             pathType: Prefix
             backend:
               service:
                 name: proxy-github-com
                 port:
                   number: 443
-          - path: /raw.githubusercontent.com(/|$)(.*)
+          - path: /(raw.githubusercontent.com)(/|$)(.*)
             pathType: Prefix
             backend:
               service:
