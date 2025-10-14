@@ -57,7 +57,7 @@ metadata:
             
       # 设置代理头
       proxy_set_header Host $1;
-      proxy_set_header Referrer "https://$1";
+      proxy_set_header Referer "https://$1";
       proxy_set_header User-Agent "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36";
       
       proxy_set_header X-Forwarded-For "";
