@@ -4,4 +4,4 @@ resources:
 # - seafile.yaml
 - nix-cache.yaml
 - nix-cache-2.yaml
-- general-proxy.yaml
+# - general-proxy.yaml
