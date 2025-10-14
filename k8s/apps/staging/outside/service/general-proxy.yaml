@@ -97,6 +97,5 @@ spec:
             backend:
               service:
                 name: echo
-                namespace: 
                 port:
                   number: 80
