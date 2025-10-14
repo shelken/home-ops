@@ -1,0 +1,85 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: proxy-placeholder
+spec:
+  type: ExternalName
+  externalName: localhost
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: universal-proxy
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/proxy-buffering: "on"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
+    nginx.ingress.kubernetes.io/proxy-buffers: "8 16k"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+
+    nginx.ingress.kubernetes.io/server-snippet: |
+      # 允许的域名列表（正则表达式格式）
+      map $target_domain $is_domain_allowed {
+          default 0;
+          ~^(github\.com|raw\.githubusercontent\.com|objects\.githubusercontent\.com|docker\.io|registry-1\.docker\.io|hub\.docker\.com|quay\.io|pkg-containers\.githubusercontent\.com)$ 1;
+      }
+      
+      # 阻止的请求类型
+      map $uri $is_request_blocked {
+          default 0;
+          ~*\.(html|htm|php|asp|aspx|jsp|jsf)$ 1;
+          ~*^/($|index|home|main|default|web|www|portal) 1;
+      }
+    
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      # 从路径中提取目标域名
+      set $target_domain "";
+      if ($uri ~* "^/([^/]+)(/.*)$") {
+          set $target_domain $1;
+      }
+      
+      # 检查域名是否允许（使用map变量）
+      if ($is_domain_allowed = 0) {
+          return 403 "Domain $target_domain not in allowlist.";
+      }
+      
+      # 检查请求是否被阻止
+      if ($is_request_blocked = 1) {
+          return 403 "HTML and webpage requests are not allowed.";
+      }
+      
+      # 检查内容类型
+      if ($http_accept ~* "text/html|application/xhtml\+xml|application/xml;q=0.9") {
+          return 403 "Webpage content types are not allowed.";
+      }
+      
+      # 设置代理头
+      proxy_set_header Host $target_domain;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_set_header X-Forwarded-Host $host;
+      
+      # 重写URL路径
+      rewrite ^/[^/]+(/.*)$ $1 break;
+      
+      # 动态代理
+      proxy_pass https://$target_domain;
+
+spec:
+  ingressClassName: nginx-internal
+  rules:
+    - host: "proxy.${MAIN_DOMAIN}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: proxy-placeholder
+                port:
+                  number: 443
