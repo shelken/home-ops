@@ -1,11 +1,27 @@
 ---
+# 为每个允许的域名创建 ExternalName Service
 apiVersion: v1
 kind: Service
 metadata:
-  name: proxy-placeholder
+  name: proxy-github-com
 spec:
   type: ExternalName
-  externalName: localhost
+  externalName: github.com
+  ports:
+  - port: 443
+    protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: proxy-raw-githubusercontent-com
+spec:
+  type: ExternalName
+  externalName: raw.githubusercontent.com
+  ports:
+  - port: 443
+    protocol: TCP
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -21,64 +37,23 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
     
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    
+    # 请求限制配置
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      # 从路径中提取目标域名
-      set $target_domain "";
-      set $allowed 0;
-      if ($uri ~* "^/([^/]+)(/.*)$") {
-          set $target_domain $1;
-      }
-
-      # 检查域名是否在白名单中（硬编码列表）
-      if ($target_domain = "github.com") { set $allowed 1; }
-      if ($target_domain = "raw.githubusercontent.com") { set $allowed 1; }
-      if ($target_domain = "objects.githubusercontent.com") { set $allowed 1; }
-      if ($target_domain = "docker.io") { set $allowed 1; }
-      if ($target_domain = "registry-1.docker.io") { set $allowed 1; }
-      if ($target_domain = "hub.docker.com") { set $allowed 1; }
-      if ($target_domain = "quay.io") { set $allowed 1; }
-      if ($target_domain = "pkg-containers.githubusercontent.com") { set $allowed 1; }
-      
       # 请求类型检查 - 只允许下载类请求
-      set $block_request 0;
-
-      # 拒绝常见的网页请求
       if ($uri ~* "\.(html|htm|php|asp|aspx|jsp|jsf)$") {
-          set $block_request 1;
+          return 403 "Webpage requests are not allowed";
       }
       
-      # 拒绝特定的内容类型
       if ($http_accept ~* "text/html|application/xhtml\+xml|application/xml;q=0.9") {
-          set $block_request 1;
+          return 403 "Webpage content types are not allowed";
       }
       
-      # 拒绝根路径和常见网页路径
       if ($uri ~* "^/($|index|home|main|default|web|www|portal)") {
-          set $block_request 1;
+          return 403 "Root and portal paths are not allowed";
       }
-
-      # 检查域名是否允许（使用map变量）
-      if ($allowed = 0) {
-          return 403 "Domain $target_domain not in allowlist.";
-      }
-      
-      # 检查请求是否被阻止
-      if ($block_request = 1) {
-          return 403 "HTML and webpage requests are not allowed.";
-      }
-      
-      # 设置代理头
-      proxy_set_header Host $target_domain;
-      proxy_set_header X-Real-IP $remote_addr;
-      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-      proxy_set_header X-Forwarded-Proto $scheme;
-      proxy_set_header X-Forwarded-Host $host;
-      
-      # 重写URL路径
-      rewrite ^/[^/]+(/.*)$ $1 break;
-      
-      # 动态代理
-      proxy_pass https://$target_domain;
 
 spec:
   ingressClassName: nginx-internal
@@ -86,10 +61,18 @@ spec:
     - host: "proxy.${MAIN_DOMAIN}"
       http:
         paths:
-          - path: /
+          # GitHub 相关服务
+          - path: /github.com(/|$)(.*)
             pathType: Prefix
             backend:
               service:
-                name: proxy-placeholder
+                name: proxy-github-com
+                port:
+                  number: 443
+          - path: /raw.githubusercontent.com(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: proxy-raw-githubusercontent-com
                 port:
                   number: 443
