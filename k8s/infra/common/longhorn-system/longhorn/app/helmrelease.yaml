@@ -36,7 +36,6 @@ spec:
       defaultDataPath: /mnt/lima-longhorn # 默认是 /var/lib/longhorn
       defaultReplicaCount: "1"
       # nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
-      orphanAutoDeletion: true
       # replicaAutoBalance: best-effort # 默认disabled
       storageMinimalAvailablePercentage: "5" # 默认 25
       storageReservedPercentageForDefaultDisk: "10" # longhorn用90%
