@@ -23,7 +23,7 @@
           # azure-cli
 
           # k9s
-          kustomize
+          # kustomize
 
           ansible
           fluxcd
@@ -40,7 +40,6 @@
           helmfile
           # talosctl
 
-          gitleaks
         ];
 
         shellHook = ''
