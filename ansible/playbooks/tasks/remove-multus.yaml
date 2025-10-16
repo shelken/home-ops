@@ -1,0 +1,14 @@
+---
+- name: Find multus cni configs
+  ansible.builtin.find:
+    paths: /etc/cni/net.d/
+    patterns: "*multus*"
+  register: multus_files
+  become: true
+
+- name: Remove multus cni configs
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  with_items: "{{ multus_files.files }}"
+  become: true
