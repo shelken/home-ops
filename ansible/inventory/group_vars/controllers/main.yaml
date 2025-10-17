@@ -3,7 +3,15 @@ k3s_control_node: true
 # ref: https://docs.k3s.io/cli/server
 k3s_server:
   cluster-cidr: "10.42.0.0/16"
-  disable: ["flannel", "local-storage", "servicelb", "traefik", "coredns", "metrics-server"]
+  disable:
+    [
+      "flannel",
+      "local-storage",
+      "servicelb",
+      "traefik",
+      "coredns",
+      "metrics-server",
+    ]
   disable-cloud-controller: true
   disable-kube-proxy: true
   disable-network-policy: true
@@ -12,11 +20,20 @@ k3s_server:
   etcd-disable-snapshots: true
   etcd-expose-metrics: true
   flannel-backend: "none" # quote
+  kube-apiserver-arg:
+    - "--feature-gates=MutatingAdmissionPolicy=true,ResourceHealthStatus=true"
+    - "--runtime-config=admissionregistration.k8s.io/v1beta1=true"
   kube-controller-manager-arg: ["bind-address=0.0.0.0"]
   kube-scheduler-arg: ["bind-address=0.0.0.0"]
   kubelet-arg: ["image-gc-low-threshold=50", "image-gc-high-threshold=55"] # 镜像回收
   node-ip: "{{ ansible_host }}"
   secrets-encryption: true
   service-cidr: "10.43.0.0/16"
-  tls-san: ["{{ k3s_registration_address }}", "k8s-vip.lan", "k8s-vip", "k8s-vip.ooooo.space"]
+  tls-san:
+    [
+      "{{ k3s_registration_address }}",
+      "k8s-vip.lan",
+      "k8s-vip",
+      "k8s-vip.ooooo.space",
+    ]
   write-kubeconfig-mode: "0644" # quote
