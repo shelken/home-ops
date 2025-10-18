@@ -27,7 +27,7 @@ spec:
           app:
             image:
               repository: docker.io/calciumion/new-api
-              tag: v0.9.9@sha256:dd4c88f01d83e8784ba29f62cbc4996f4b087ba2f5bed77bc76cdd967d06f233
+              tag: v0.9.10@sha256:ad5518bc1caa49f32cc32d81eb9c264957d4ba8c806b80b283a15714c2602bfd
             args: 
               - --log-dir
               - /app/logs
