@@ -8,12 +8,13 @@ metadata:
     io.cilium/lb-ipam-ips: 192.168.6.56
     gatus.home-operations.com/endpoint: |-
       group: database
-      interval: 1m
       ui:
         hide-url: true
         hide-hostname: true
       conditions:
         - "[CONNECTED] == true"
+      alerts:
+        - type: slack
 spec:
   type: LoadBalancer
   # externalTrafficPolicy: Cluster

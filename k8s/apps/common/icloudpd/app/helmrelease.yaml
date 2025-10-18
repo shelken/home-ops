@@ -85,6 +85,8 @@ spec:
             ui:
               hide-hostname: true
               hide-url: true
+            alerts:
+              - type: slack
         className: nginx-internal
         hosts:
           - host: "{{ .Release.Name }}.${MAIN_DOMAIN}"
