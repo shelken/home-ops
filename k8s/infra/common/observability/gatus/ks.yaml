@@ -16,10 +16,6 @@ spec:
       namespace: external-secrets
   interval: 1h
   path: ./k8s/infra/common/observability/gatus/app
-  postBuild:
-    substitute:
-      APP: *app
-      GATUS_SUBDOMAIN: status
   prune: true
   retryInterval: 2m
   sourceRef:

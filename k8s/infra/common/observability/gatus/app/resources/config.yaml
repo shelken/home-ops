@@ -24,6 +24,11 @@ connectivity:
 alerting:
   slack:
     webhook-url: ${WEBHOOK_URL}
+    default-alert:
+      description: "health check failed"
+      send-on-resolved: false
+      failure-threshold: 3
+      success-threshold: 2
 # security:
 #   oidc:
 #     issuer-url: "https://auth.${MAIN_DOMAIN}"

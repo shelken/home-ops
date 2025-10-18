@@ -12,7 +12,6 @@ spec:
   components:
     # - ../../../components/volsync/init
     - ../../../../components/volsync
-    - ../../../../components/gatus/guarded
   dependsOn:
     - name: azure-store
       namespace: external-secrets

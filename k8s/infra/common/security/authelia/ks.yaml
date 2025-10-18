@@ -10,12 +10,6 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  components:
-    - ../../../../../components/gatus/external
-  postBuild:
-    substitute:
-      APP: *app
-      GATUS_SUBDOMAIN: auth
   dependsOn:
     - name: dragonfly-cluster
       namespace: database

@@ -11,13 +11,10 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   components:
-    - ../../../../components/gatus/guarded
     - ../../../../components/volsync
   postBuild:
     substitute:
       APP: *app
-      # GATUS_PATH: /api/healthcheck
-      # GATUS_SUBDOMAIN: 
   # dependsOn:
   #   - name: azure-store
   #     namespace: external-secrets

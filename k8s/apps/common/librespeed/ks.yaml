@@ -10,12 +10,6 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  components:
-    - ../../../../components/gatus/guarded
-  postBuild:
-    substitute:
-      APP: *app
-      GATUS_SUBDOMAIN: speedtest
   interval: 1h
   path: ./k8s/apps/common/librespeed/app
   prune: true

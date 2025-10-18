@@ -80,7 +80,11 @@ spec:
             port: *port
     route:
       app:
-        hostnames: 
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            conditions:
+              - "[STATUS] == 404"
+        hostnames:
           - *host
         parentRefs:
           - name: external
