@@ -12,6 +12,6 @@ resources:
   - grafana/ks.yaml
   - loki/ks.yaml
   - promtail/ks.yaml
-  - clash-exporter/ks.yaml
+  # - clash-exporter/ks.yaml
   - blackbox-exporter/ks.yaml
   - silence-operator/ks.yaml
