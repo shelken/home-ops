@@ -103,7 +103,7 @@ spec:
             filters:
               - type: ResponseHeaderModifier
                 responseHeaderModifier:
-                  add: 
+                  add:
                     - name: "Access-Control-Allow-Origin"
                       value: "*"
             matches:
@@ -117,6 +117,10 @@ spec:
               #     type: RegularExpression
               #     value: ^/(p/d)/picbed
       s3:
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            conditions:
+              - "[STATUS] == 403"
         hostnames: ["drive-s3.${MAIN_DOMAIN}"]
         parentRefs:
           - name: external
