@@ -16,8 +16,6 @@ metadata:
         dns-resolver: tcp://223.5.5.5:53
         timeout: 5s
         network: ip4
-      alerts:
-        type: slack
 spec:
   gatewayClassName: cilium
   addresses:

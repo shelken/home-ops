@@ -12,8 +12,6 @@ metadata:
       ui:
         hide-hostname: true
         hide-url: true
-      alerts:
-        type: slack
 spec:
   gatewayClassName: cilium
   addresses:

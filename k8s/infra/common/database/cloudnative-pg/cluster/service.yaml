@@ -14,8 +14,6 @@ metadata:
         hide-hostname: true
       conditions:
         - "[CONNECTED] == true"
-      alerts:
-        - type: slack
 spec:
   type: LoadBalancer
   # externalTrafficPolicy: Cluster
