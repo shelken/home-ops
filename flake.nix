@@ -8,53 +8,58 @@
     };
   };
 
-  outputs = {
-    nixpkgs,
-    utils,
-    ...
-  }:
-    utils.lib.eachDefaultSystem (system: let
-      pkgs = import nixpkgs {inherit system;};
-    in {
-      devShells.default = pkgs.mkShell {
-        name = "home-ops";
+  outputs =
+    {
+      nixpkgs,
+      utils,
+      ...
+    }:
+    utils.lib.eachDefaultSystem (
+      system:
+      let
+        pkgs = import nixpkgs { inherit system; };
+      in
+      {
+        devShells.default = pkgs.mkShell {
+          name = "home-ops";
 
-        packages = with pkgs; [
-          # azure-cli
+          packages = with pkgs; [
+            # azure-cli
 
-          # k9s
-          # kustomize
+            # k9s
+            # kustomize
 
-          ansible
-          fluxcd
-          # k3sup
+            ansible
+            fluxcd
+            # k3sup
 
-          # opentofu
+            # opentofu
 
-          kubernetes-helm
-          cilium-cli
+            kubernetes-helm
+            cilium-cli
 
-          sops
-          go-task
+            sops
+            go-task
 
-          helmfile
-          # talosctl
+            helmfile
+            # talosctl
 
-        ];
+          ];
 
-        shellHook = ''
-          export KUBECONFIG=`pwd`/kubeconfig
-          export ANSIBLE_CONFIG=`pwd`/ansible/ansible.cfg
-          export SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt
+          shellHook = ''
+            export KUBECONFIG=`pwd`/kubeconfig
+            export ANSIBLE_CONFIG=`pwd`/ansible/ansible.cfg
+            export SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt
 
-          echo "环境初始化成功"
-        '';
+            echo "环境初始化成功"
+          '';
 
-        # Now we can execute any commands within the virtual environment.
-        # This is optional and can be left out to run pip manually.
-        postShellHook = ''
-          # allow pip to install wheels
-        '';
-      };
-    });
+          # Now we can execute any commands within the virtual environment.
+          # This is optional and can be left out to run pip manually.
+          postShellHook = ''
+            # allow pip to install wheels
+          '';
+        };
+      }
+    );
 }
