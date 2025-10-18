@@ -85,6 +85,9 @@ spec:
           gethomepage.dev/icon: plex.svg
           gethomepage.dev/description: ""
           gethomepage.dev/app: *app
+          gatus.home-operations.com/endpoint: |-
+            conditions:
+              - "[STATUS] == 401"
         hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
         parentRefs:
           - name: external
