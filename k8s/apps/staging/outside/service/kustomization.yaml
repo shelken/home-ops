@@ -1,7 +1,6 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-# - seafile.yaml
-- nix-cache.yaml
-- nix-cache-2.yaml
+  - nix-cache.yaml
+  - nix-cache-2.yaml
 # - general-proxy.yaml

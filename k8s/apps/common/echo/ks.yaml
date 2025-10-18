@@ -10,14 +10,9 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  components:
-    - ../../../../components/gatus/external
   dependsOn:
     - name: cilium
       namespace: kube-system
-  postBuild:
-    substitute:
-      APP: *app
   interval: 1h
   path: ./k8s/apps/common/echo/app
   prune: true

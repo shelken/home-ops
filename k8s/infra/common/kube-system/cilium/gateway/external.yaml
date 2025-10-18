@@ -6,6 +6,18 @@ metadata:
   annotations:
     # https://kubernetes-sigs.github.io/external-dns/v0.17.0/docs/sources/gateway/#targets
     external-dns.alpha.kubernetes.io/target: &hostname homelab-external.${MAIN_DOMAIN}
+    gatus.home-operations.com/endpoint: |-
+      group: external
+      interval: 3m
+      ui:
+        hide-hostname: true
+        hide-url: true
+      client:
+        dns-resolver: tcp://223.5.5.5:53
+        timeout: 5s
+        network: ip4
+      alerts:
+        type: slack
 spec:
   gatewayClassName: cilium
   addresses:

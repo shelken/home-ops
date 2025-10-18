@@ -76,6 +76,9 @@ spec:
           gethomepage.dev/icon: kubernetes-dashboard.svg
           gethomepage.dev/description: ""
           gethomepage.dev/app: *app
+          gatus.home-operations.com/endpoint: |-
+            conditions:
+              - "[STATUS] == 404"
         hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
         parentRefs:
           - name: external
