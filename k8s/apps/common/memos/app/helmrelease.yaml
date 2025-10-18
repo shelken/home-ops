@@ -88,7 +88,7 @@ spec:
         ports:
           http:
             port: &grpc-port 5231
-            targetPort: 5230
+            # targetPort: 5230
             appProtocol: kubernetes.io/h2c
             protocol: HTTPS
     route:
