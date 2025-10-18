@@ -83,6 +83,7 @@ spec:
         ports:
           http:
             port: *port
+            appProtocol: http
       grpc:
         ports:
           http:
@@ -105,17 +106,17 @@ spec:
             namespace: kube-system
             sectionName: https
         rules:
-          - backendRefs:
-              - identifier: app
-                port: *port
           - matches:
               - headers:
                   - name: Content-Type
                     type: Exact
-                    value: application/grpc-web+proto
+                    value: "application/grpc-web+proto"
             backendRefs:
               - identifier: grpc
                 port: *grpc-port
+          - backendRefs:
+              - identifier: app
+                port: *port
       # grpc:
       #   kind: GRPCRoute
       #   hostnames: ["{{ .Release.Name }}-2.${MAIN_DOMAIN}"]
