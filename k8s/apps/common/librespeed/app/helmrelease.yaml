@@ -63,7 +63,7 @@ spec:
           gethomepage.dev/name: librespeed
           gethomepage.dev/icon: librespeed.svg
           gethomepage.dev/description: ""
-        hostnames: ["${GATUS_SUBDOMAIN:=${APP}}.${MAIN_DOMAIN}"]
+        hostnames: ["speedtest.${MAIN_DOMAIN}"]
         parentRefs:
           - name: internal
             namespace: kube-system

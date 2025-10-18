@@ -72,24 +72,7 @@ spec:
       app:
         endpoints:
           - port: http
-    # route:
-    #   app:
-    #     annotations:
-    #       gethomepage.dev/enabled: "true"
-    #       gethomepage.dev/group: external
-    #       gethomepage.dev/name: echo
-    #       gethomepage.dev/icon: kubernetes-dashboard.svg
-    #       gethomepage.dev/description: ""
-    #     hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
-    #     parentRefs:
-    #       - name: external
-    #         namespace: kube-system
-    #         sectionName: https
-    #     rules:
-    #       - backendRefs:
-    #           - identifier: app
-    #             port: *port
-    ingress:
+    route:
       app:
         annotations:
           gethomepage.dev/enabled: "true"
@@ -97,11 +80,28 @@ spec:
           gethomepage.dev/name: echo
           gethomepage.dev/icon: kubernetes-dashboard.svg
           gethomepage.dev/description: ""
-        className: nginx-external
-        hosts:
-          - host: "{{ .Release.Name }}.${MAIN_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
+        hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
+        parentRefs:
+          - name: external
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
+    # ingress:
+    #   app:
+    #     annotations:
+    #       gethomepage.dev/enabled: "true"
+    #       gethomepage.dev/group: external
+    #       gethomepage.dev/name: echo
+    #       gethomepage.dev/icon: kubernetes-dashboard.svg
+    #       gethomepage.dev/description: ""
+    #     className: nginx-external
+    #     hosts:
+    #       - host: "{{ .Release.Name }}.${MAIN_DOMAIN}"
+    #         paths:
+    #           - path: /
+    #             service:
+    #               identifier: app
+    #               port: http

@@ -9,16 +9,9 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  components:
-    - ../../../../components/gatus/external
-    # - ../../../../components/volsync
   dependsOn:
     - name: cloudnative-pg-cluster
       namespace: database
-  postBuild:
-    substitute:
-      APP: *app
-      GATUS_PATH: /healthz
   interval: 1h
   path: ./k8s/apps/common/memos/app
   prune: true

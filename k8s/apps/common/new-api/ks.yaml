@@ -11,7 +11,6 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   components:
-    - ../../../../components/gatus/guarded
     - ../../../../components/volsync
   dependsOn:
     - name: volsync
@@ -21,8 +20,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_SUBDOMAIN: chat-api
-      GATUS_PATH: /api/status
   interval: 1h
   path: ./k8s/apps/common/new-api/app
   prune: true

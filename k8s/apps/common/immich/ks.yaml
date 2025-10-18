@@ -12,13 +12,10 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   components:
-    - ../../../../components/gatus/external
     - ../../../../components/keda/smb-scaler
   postBuild:
     substitute:
       APP: *app
-      GATUS_PATH: /server-info/ping
-      GATUS_SUBDOMAIN: photo
   dependsOn:
     - name: azure-store
       namespace: external-secrets
