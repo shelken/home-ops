@@ -9,8 +9,6 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  components:
-    - ../../../../../components/gatus/guarded
   dependsOn:
     - name: longhorn
       namespace: longhorn-system
@@ -18,9 +16,6 @@ spec:
       namespace: external-secrets
   interval: 1h
   path: ./k8s/infra/common/observability/grafana/app
-  postBuild:
-    substitute:
-      APP: *app
   prune: true
   retryInterval: 2m
   sourceRef:

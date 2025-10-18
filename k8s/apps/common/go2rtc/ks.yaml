@@ -9,15 +9,10 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  components:
-    - ../../../../components/gatus/guarded
   dependsOn:
     - name: scrypted
   interval: 1h
   path: ./k8s/apps/common/go2rtc/app
-  postBuild:
-    substitute:
-      APP: *app
   prune: true
   retryInterval: 2m
   sourceRef:

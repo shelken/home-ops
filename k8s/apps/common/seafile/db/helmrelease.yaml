@@ -58,7 +58,7 @@ spec:
               limits:
                 memory: 512Mi
     defaultPodOptions:
-      affinity: 
+      affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:

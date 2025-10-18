@@ -15,6 +15,9 @@ metadata:
       app in (
          notification-controller
       )
+    gatus.home-operations.com/endpoint: |-
+      conditions:
+        - "[STATUS] == 404"
 spec:
   hostnames: ["flux-webhook.${MAIN_DOMAIN}"]
   parentRefs:
