@@ -111,15 +111,15 @@ kubectl -n longhorn-system patch -p '{"value": "true"}' --type=merge lhs deletin
 `task restart-cilium` 重启后正常了
 
 5. lima 无法挂载磁盘
-   
+
 ```json
 {"level":"fatal","msg":"failed to run attach disk \"longhorn\", in use by instance \"sakamoto-k8s\"","time":"2025-07-08T14:24:21+08:00"}
 ```
 
-`limactl disk unlock longhorn` 
+`limactl disk unlock longhorn`
 
 6. 迁移secret后， external-secrets 无法push
-   
+
 因为external-secret azure会自动给pushsecret打上tag，表示由external-secret管理，迁移时没有加上这个tag
 
 导致出现问题, 删掉secret让external-secret重新同步。
@@ -128,7 +128,7 @@ kubectl -n longhorn-system patch -p '{"value": "true"}' --type=merge lhs deletin
 
 删掉对应 pod 解决
 
-非常奇怪。。。。。。   
+非常奇怪。。。。。。
 
 7. smb 中文乱码问题
 
