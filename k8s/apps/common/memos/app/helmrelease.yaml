@@ -90,8 +90,7 @@ spec:
             port: &grpc-port 5231
             targetPort: 5230
             appProtocol: kubernetes.io/h2c
-            # protocol: HTTPS
-    route: {}
+      # route:
       # app:
       #   annotations:
       #     gethomepage.dev/enabled: "true"
