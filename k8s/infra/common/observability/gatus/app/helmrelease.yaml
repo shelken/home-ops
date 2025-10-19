@@ -39,6 +39,7 @@ spec:
             resources:
               requests:
                 cpu: 10m
+                memory: 50Mi
               limits:
                 memory: 64Mi
         containers:
@@ -75,6 +76,7 @@ spec:
             resources:
               requests:
                 cpu: 10m
+                memory: 50Mi
               limits:
                 memory: 128Mi
           anubis:
@@ -96,6 +98,7 @@ spec:
                 memory: 256Mi
               requests:
                 cpu: 50m
+                memory: 16Mi
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
