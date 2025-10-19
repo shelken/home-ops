@@ -83,6 +83,7 @@ spec:
                     name: authelia-secret
                     key: ANUBIS_ED25519_PRIVATE_KEY_HEX
               TZ: "${TIMEZONE}"
+              COOKIE_DOMAIN: ${MAIN_DOMAIN}
               BIND: ":8923"
               METRICS_BIND: ":8924"
               DIFFICULTY: "3"
