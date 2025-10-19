@@ -162,7 +162,7 @@ spec:
               - headers:
                   - type: RegularExpression
                     name: X-Forwarded-For
-                    value: "^192\\.168\\."
+                    value: ^192\\.168\\.
             backendRefs:
               - identifier: app
                 port: *port
