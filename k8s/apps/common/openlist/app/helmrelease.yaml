@@ -161,20 +161,20 @@ spec:
           - backendRefs:
               - identifier: app
                 port: *anubisPort
-      s3:
-        annotations:
-          gatus.home-operations.com/endpoint: |-
-            conditions:
-              - "[STATUS] == 403"
-        hostnames: ["drive-s3.${MAIN_DOMAIN}"]
-        parentRefs:
-          - name: external
-            namespace: kube-system
-            sectionName: https
-        rules:
-          - backendRefs:
-              - name: *app
-                port: *s3-port
+      # s3:
+      #   annotations:
+      #     gatus.home-operations.com/endpoint: |-
+      #       conditions:
+      #         - "[STATUS] == 403"
+      #   hostnames: ["drive-s3.${MAIN_DOMAIN}"]
+      #   parentRefs:
+      #     - name: external
+      #       namespace: kube-system
+      #       sectionName: https
+      #   rules:
+      #     - backendRefs:
+      #         - name: *app
+      #           port: *s3-port
     configMaps:
       scripts:
         data:
