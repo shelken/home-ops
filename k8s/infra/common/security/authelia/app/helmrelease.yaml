@@ -89,6 +89,7 @@ spec:
               DIFFICULTY: "3"
               SERVE_ROBOTS_TXT: "true"
               TARGET: "http://localhost:80"
+              XFF_STRIP_PRIVATE: "false"
             resources:
               limits:
                 cpu: 500m
