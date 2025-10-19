@@ -113,6 +113,7 @@ spec:
       app:
         annotations:
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/href: "https://drive.${MAIN_DOMAIN}"
           gethomepage.dev/group: 常用
           gethomepage.dev/name: OpenList
           gethomepage.dev/icon: openlist.svg
