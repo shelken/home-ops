@@ -44,10 +44,10 @@ spec:
               DOMAIN: https://vw.${MAIN_DOMAIN}
               SIGNUPS_ALLOWED: "false"
               PUSH_ENABLED: "true"
-              
+
               # web页面开关
               WEB_VAULT_ENABLED: "true"
-              
+
               # sso
               SSO_ENABLED: "true"
               SSO_ONLY: "false"
@@ -56,12 +56,12 @@ spec:
               SSO_AUTHORITY: "https://auth.${MAIN_DOMAIN}"
               SSO_SCOPES: "email profile offline_access"
               SSO_PKCE: "true"
-              
+
               DATA_FOLDER: "config"
               ICON_CACHE_FOLDER: "config/icon_cache"
               ATTACHMENTS_FOLDER: "config/attachments"
               SENDS_FOLDER: "config/sends"
-              ROCKET_PORT: &port 8080
+              ROCKET_PORT: &port 80
               IP_HEADER: X-Forwarded-For
               EXPERIMENTAL_CLIENT_FEATURE_FLAGS: ssh-key-vault-item,ssh-agent,inline-menu-totp
             envFrom:
@@ -80,6 +80,32 @@ spec:
                   timeoutSeconds: 1
                   failureThreshold: 30
               readiness: *probes
+          anubis:
+            image:
+              repository: ghcr.io/techarohq/anubis
+              tag: v1.22.0
+            env:
+              # ref: https://anubis.techaro.lol/docs/admin/installation#environment-variables
+              ED25519_PRIVATE_KEY_HEX: "${ANUBIS_ED25519_PRIVATE_KEY_HEX}"
+              TZ: "${TIMEZONE}"
+              COOKIE_DOMAIN: ${MAIN_DOMAIN}
+              BIND: ":8923"
+              METRICS_BIND: ":8924"
+              DIFFICULTY: "4"
+              SERVE_ROBOTS_TXT: "true"
+              TARGET: "http://localhost:80"
+            resources:
+              limits:
+                memory: 256Mi
+              requests:
+                cpu: 50m
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+              runAsNonRoot: true
+              runAsUser: 1000
+              runAsGroup: 1000
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
@@ -92,6 +118,8 @@ spec:
         ports:
           http:
             port: *port
+          anubis:
+            port: &anubisPort 8923
     route:
       app:
         annotations:
@@ -101,13 +129,35 @@ spec:
           gethomepage.dev/icon: vaultwarden-light.svg
           gethomepage.dev/description: ""
           gethomepage.dev/app: *app
-        hostnames: 
+        hostnames:
           - "vw.${MAIN_DOMAIN}"
         parentRefs:
           - name: external
             namespace: kube-system
             sectionName: https
-        
+        rules:
+          - matches:
+              - headers:
+                  - type: Exact
+                    name: X-ENVOY-INTERNAL
+                    value: "true"
+            backendRefs: &originBackend
+              - identifier: app
+                port: *port
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /api
+              - path:
+                  type: PathPrefix
+                  value: /identity
+              - path:
+                  type: PathPrefix
+                  value: /icons
+            backendRefs: *originBackend
+          - backendRefs:
+              - identifier: app
+                port: *anubisPort
     persistence:
       config:
         existingClaim: vaultwarden
