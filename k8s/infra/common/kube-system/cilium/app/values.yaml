@@ -18,7 +18,7 @@ ipam:
     clusterPoolIPv6PodCIDRList: ["fd80:dead:42::/56"]
 
 k8sServiceHost: 127.0.0.1
-k8sServicePort: 6444        # k3s
+k8sServicePort: 6444 # k3s
 l2announcements:
   enabled: true
 
@@ -36,7 +36,7 @@ prometheus:
     trustCRDsExist: true
 
 dashboards:
-      enabled: true
+  enabled: true
 
 envoy:
   rollOutPods: true
@@ -52,12 +52,12 @@ operator:
     serviceMonitor:
       enabled: true
   dashboards:
-      enabled: true
+    enabled: true
 
 gatewayAPI:
   enabled: true
   enableAlpn: true # grpc support https://github.com/bittrance/cilium/blob/d6f7acf1116e74ce493c87a8f5df96efac63df7b/Documentation/network/servicemesh/gateway-api/grpc.rst
-  # xffNumTrustedHops: 1 # X-Forwarded-For 头
+  xffNumTrustedHops: 2 # X-Forwarded-For 头
 
 # ingressController:
 #   enabled: true
