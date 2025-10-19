@@ -77,26 +77,20 @@ spec:
               tag: v1.22.0
             env:
               # ref: https://anubis.techaro.lol/docs/admin/installation#environment-variables
-              ED25519_PRIVATE_KEY_HEX:
-                valueFrom:
-                  secretKeyRef:
-                    name: authelia-secret
-                    key: ANUBIS_ED25519_PRIVATE_KEY_HEX
+              ED25519_PRIVATE_KEY_HEX: "${ANUBIS_ED25519_PRIVATE_KEY_HEX}"
               TZ: "${TIMEZONE}"
               COOKIE_DOMAIN: ${MAIN_DOMAIN}
               BIND: ":8923"
               METRICS_BIND: ":8924"
-              DIFFICULTY: "3"
+              DIFFICULTY: "4"
               SERVE_ROBOTS_TXT: "true"
               TARGET: "http://localhost:80"
               # XFF_STRIP_PRIVATE: "false"
             resources:
               limits:
-                cpu: 500m
                 memory: 256Mi
               requests:
                 cpu: 50m
-                memory: 256Mi
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true

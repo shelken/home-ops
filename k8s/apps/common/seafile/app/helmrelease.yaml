@@ -59,7 +59,7 @@ spec:
               SEAFILE_SERVER_HOSTNAME: "seafile.${MAIN_DOMAIN}"
               SEAFILE_SERVER_PROTOCOL: "https"
               SEAF_SERVER_STORAGE_TYPE: "disk"
-              
+
               # db
               SEAFILE_MYSQL_DB_HOST: "seafile-db.default.svc.cluster.local"
               SEAFILE_MYSQL_DB_PORT: "3306"
@@ -98,16 +98,42 @@ spec:
                   failureThreshold: 30
               readiness: *probes
             # securityContext:
-              # allowPrivilegeEscalation: false
-              # readOnlyRootFilesystem: true
-              # capabilities: { drop: ["ALL"] }
+            # allowPrivilegeEscalation: false
+            # readOnlyRootFilesystem: true
+            # capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 memory: 256Mi
               limits:
                 memory: 4Gi
+          anubis:
+            image:
+              repository: ghcr.io/techarohq/anubis
+              tag: v1.22.0
+            env:
+              # ref: https://anubis.techaro.lol/docs/admin/installation#environment-variables
+              ED25519_PRIVATE_KEY_HEX: "${ANUBIS_ED25519_PRIVATE_KEY_HEX}"
+              TZ: "${TIMEZONE}"
+              COOKIE_DOMAIN: ${MAIN_DOMAIN}
+              BIND: ":8923"
+              METRICS_BIND: ":8924"
+              DIFFICULTY: "4"
+              SERVE_ROBOTS_TXT: "true"
+              TARGET: "http://localhost:80"
+            resources:
+              limits:
+                memory: 256Mi
+              requests:
+                cpu: 50m
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+              runAsNonRoot: true
+              runAsUser: 1000
+              runAsGroup: 1000
     defaultPodOptions:
-      affinity: 
+      affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
@@ -127,6 +153,8 @@ spec:
         ports:
           http:
             port: *port
+          anubis:
+            port: &anubisPort 8923
     route:
       app:
         annotations:
@@ -140,6 +168,23 @@ spec:
           - name: external
             namespace: kube-system
             sectionName: https
+        rules:
+          - matches:
+              - headers:
+                  - type: Exact
+                    name: X-ENVOY-INTERNAL
+                    value: "true"
+            backendRefs: &originBackend
+              - identifier: app
+                port: *port
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /api/
+            backendRefs: *originBackend
+          - backendRefs:
+              - identifier: app
+                port: *anubisPort
     persistence:
       data:
         existingClaim: seafile
