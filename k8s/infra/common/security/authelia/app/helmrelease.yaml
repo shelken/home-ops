@@ -71,6 +71,34 @@ spec:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
               capabilities: { drop: ["ALL"] }
+          anubis:
+            image:
+              repository: ghcr.io/techarohq/anubis
+              tag: v1.22.0
+            env:
+              # ref: https://anubis.techaro.lol/docs/admin/installation#environment-variables
+              ED25519_PRIVATE_KEY_HEX:
+                valueFrom:
+                  secretKeyRef:
+                    name: authelia-secret
+                    key: ANUBIS_ED25519_PRIVATE_KEY_HEX
+              TZ: "${TIMEZONE}"
+              BIND: ":8923"
+              METRICS_BIND: ":8924"
+              DIFFICULTY: "3"
+              SERVE_ROBOTS_TXT: "true"
+              TARGET: "http://localhost:80"
+            resources:
+              limits:
+                cpu: 500m
+                memory: 256Mi
+              requests:
+                cpu: 50m
+                memory: 256Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
         pod:
           enableServiceLinks: false
           securityContext:
@@ -99,6 +127,8 @@ spec:
             port: *port
           metrics:
             port: 8080
+          anubis:
+            port: &anubisPort 8923
     route:
       app:
         annotations:
@@ -129,7 +159,7 @@ spec:
                       value: 1; mode=block
             backendRefs:
               - identifier: app
-                port: *port
+                port: *anubisPort
     serviceMonitor:
       app:
         serviceName: authelia
