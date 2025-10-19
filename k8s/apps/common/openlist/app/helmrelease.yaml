@@ -37,6 +37,7 @@ spec:
               SITE_URL: "https://drive.${MAIN_DOMAIN}"
               # ref: https://doc.oplist.org/guide/advanced/s3#S3
               S3_ENABLE: "true"
+              HTTP_PORT: &port 80
               S3_PORT: &s3-port 5246
             probes:
               liveness: &probes
@@ -45,7 +46,7 @@ spec:
                 spec:
                   httpGet:
                     path: /api/public/settings
-                    port: &port 5244
+                    port: *port
                   initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1
@@ -63,6 +64,33 @@ spec:
                 memory: 128M
               limits:
                 memory: 512M
+          anubis:
+            image:
+              repository: ghcr.io/techarohq/anubis
+              tag: v1.22.0
+            env:
+              # ref: https://anubis.techaro.lol/docs/admin/installation#environment-variables
+              ED25519_PRIVATE_KEY_HEX: "${ANUBIS_ED25519_PRIVATE_KEY_HEX}"
+              TZ: "${TIMEZONE}"
+              COOKIE_DOMAIN: ${MAIN_DOMAIN}
+              BIND: ":8923"
+              METRICS_BIND: ":8924"
+              DIFFICULTY: "4"
+              SERVE_ROBOTS_TXT: "true"
+              TARGET: "http://localhost:80"
+            resources:
+              limits:
+                memory: 256Mi
+              requests:
+                cpu: 50m
+                memory: 32Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+              runAsNonRoot: true
+              runAsUser: 1000
+              runAsGroup: 1000
     defaultPodOptions:
       securityContext:
         runAsUser: 1000
@@ -79,6 +107,8 @@ spec:
             port: *port
           s3:
             port: *s3-port
+          anubis:
+            port: &anubisPort 8923
     route:
       app:
         annotations:
@@ -94,28 +124,39 @@ spec:
             namespace: kube-system
             sectionName: https
         rules:
-          - backendRefs:
-              - name: *app
-                port: *port
-          - backendRefs:
-              - name: *app
-                port: *port
-            filters:
-              - type: ResponseHeaderModifier
-                responseHeaderModifier:
-                  add:
-                    - name: "Access-Control-Allow-Origin"
-                      value: "*"
-            matches:
+          - matches:
+              # - path:
+              #     type: RegularExpression
+              #     value: ^/(p/d)/picbed
               - path:
                   type: PathPrefix
                   value: /d/picbed
               - path:
                   type: PathPrefix
                   value: /p/picbed
-              # - path:
-              #     type: RegularExpression
-              #     value: ^/(p/d)/picbed
+            filters:
+              - type: ResponseHeaderModifier
+                responseHeaderModifier:
+                  add:
+                    - name: "Access-Control-Allow-Origin"
+                      value: "*"
+            backendRefs: &originBackend
+              - identifier: app
+                port: *port
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /api
+            backendRefs: *originBackend
+          - matches:
+              - headers:
+                  - type: Exact
+                    name: X-ENVOY-INTERNAL
+                    value: "true"
+            backendRefs: *originBackend
+          - backendRefs:
+              - identifier: app
+                port: *anubisPort
       s3:
         annotations:
           gatus.home-operations.com/endpoint: |-
