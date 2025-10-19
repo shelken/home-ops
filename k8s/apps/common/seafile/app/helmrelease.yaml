@@ -186,6 +186,9 @@ spec:
                   value: /api2
               - path:
                   type: PathPrefix
+                  value: /seafhttp
+              - path:
+                  type: PathPrefix
                   value: /accounts/
             backendRefs: *originBackend
           - backendRefs:
