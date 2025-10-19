@@ -28,7 +28,7 @@ spec:
             image:
               repository: docker.io/calciumion/new-api
               tag: v0.9.10@sha256:ad5518bc1caa49f32cc32d81eb9c264957d4ba8c806b80b283a15714c2602bfd
-            args: 
+            args:
               - --log-dir
               - /app/logs
             # ref: https://docs.newapi.pro/installation/environment-variables
@@ -58,6 +58,7 @@ spec:
             resources:
               requests:
                 cpu: 10m
+                memory: 16Mi
               limits:
                 memory: 500Mi
     defaultPodOptions:

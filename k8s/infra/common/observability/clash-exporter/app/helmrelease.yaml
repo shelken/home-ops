@@ -28,18 +28,18 @@ spec:
             image:
               repository: ghcr.io/shelken/clash-exporter
               tag: 0.0.5
-            command: 
+            command:
               - "/app/clash-exporter"
               - "-collectTracing=false"
               - "-collectDest=true"
               - "-port=2113"
-            env: 
+            env:
               - name: CLASH_HOST
                 value: "sakamoto.lan:9090"
               - name: CLASH_TOKEN
                 valueFrom:
                   secretKeyRef:
-                    name: &secret clash-exporter-secret 
+                    name: &secret clash-exporter-secret
                     key: SAKAMOTO_CLASH_TOKEN
             securityContext:
               allowPrivilegeEscalation: false
@@ -48,16 +48,17 @@ spec:
             resources:
               requests:
                 cpu: 25m
+                memory: 16Mi
               limits:
                 memory: 64Mi
           # mio-clash-exporter:
           #   <<: *common
-          #   command: 
+          #   command:
           #     - "/app/clash-exporter"
           #     - "-collectTracing=false"
           #     - "-collectDest=true"
           #     - "-port=2112"
-          #   env: 
+          #   env:
           #     - name: CLASH_HOST
           #       value: "mio:9090"
           #     - name: CLASH_TOKEN
@@ -79,9 +80,9 @@ spec:
         ports:
           # mio:
           #   port: 2112
-          sakamoto: 
+          sakamoto:
             port: 2113
-      
+
     serviceMonitor:
       app:
         endpoints:
@@ -91,4 +92,3 @@ spec:
           - port: sakamoto
             interval: 10s
             scrapeTimeout: 2s
-      
