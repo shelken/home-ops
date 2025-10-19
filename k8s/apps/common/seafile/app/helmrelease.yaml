@@ -180,7 +180,7 @@ spec:
           - matches:
               - path:
                   type: PathPrefix
-                  value: /api/
+                  value: /api
               - path:
                   type: PathPrefix
                   value: /accounts/
