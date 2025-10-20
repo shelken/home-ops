@@ -40,7 +40,7 @@ spec:
             resources:
               requests:
                 cpu: 10m
-                memory: 100Mi
+                memory: 256Mi
               limits:
                 memory: 1Gi
           # code-server:
@@ -87,7 +87,7 @@ spec:
             "ips": ["192.168.6.51/24"],
             "mac": "02:7f:5c:50:6c:fe"
           }]
-      affinity: 
+      affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:

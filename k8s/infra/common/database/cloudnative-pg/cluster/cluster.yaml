@@ -36,7 +36,7 @@ spec:
       shared_buffers: 256MB
   resources:
     requests:
-      memory: 256Mi
+      memory: 400Mi
     limits:
       memory: 1Gi
   monitoring:
@@ -61,11 +61,11 @@ spec:
           key: aws-secret-access-key
 
   ##NOTE: 需要恢复时取消注释，并修改backup
-  bootstrap:
-    recovery:
-      source: &previous-cluster postgres17-v3
-  externalClusters:
-    - name: *previous-cluster
-      barmanObjectStore:
-        <<: *barmanObjectStore
-        serverName: *previous-cluster
+  # bootstrap:
+  #   recovery:
+  #     source: &previous-cluster postgres17-v3
+  # externalClusters:
+  #   - name: *previous-cluster
+  #     barmanObjectStore:
+  #       <<: *barmanObjectStore
+  #       serverName: *previous-cluster
