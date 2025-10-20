@@ -10,11 +10,11 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *appname
-  healthChecks:
-    - kind: HelmRelease
-      apiVersion: helm.toolkit.fluxcd.io/v2
-      name: *appname
-      namespace: *namespace
+  # healthChecks:
+  #   - kind: HelmRelease
+  #     apiVersion: helm.toolkit.fluxcd.io/v2
+  #     name: *appname
+  #     namespace: *namespace
   interval: 30m
   timeout: 5m
   path: "./k8s/infra/common/cert-manager/cert-manager/app"
