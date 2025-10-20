@@ -19,6 +19,7 @@ spec:
   timeout: 5m
   path: "./k8s/infra/common/cert-manager/cert-manager/app"
   prune: true
+  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
