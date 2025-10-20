@@ -39,6 +39,8 @@ alerting:
   custom:
     url: "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=${WECOM_BOT_TOKEN}"
     method: "POST"
+    headers:
+      Content-Type: application/json
     body: |
       {
         "msgtype": "text",
