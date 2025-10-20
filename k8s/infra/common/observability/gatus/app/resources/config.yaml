@@ -29,6 +29,9 @@ alerting:
       send-on-resolved: false
       failure-threshold: 3
       success-threshold: 2
+  telegram:
+    token: ${TELEGRAM_BOT_TOKEN}
+    id: ${TELEGRAM_USER_ID}
 # security:
 #   oidc:
 #     issuer-url: "https://auth.${MAIN_DOMAIN}"

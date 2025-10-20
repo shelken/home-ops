@@ -14,7 +14,7 @@ metadata:
       conditions:
         - "[CONNECTED] == true"
       alerts:
-        - type: slack
+        - type: telegram
 spec:
   type: LoadBalancer
   # externalTrafficPolicy: Cluster

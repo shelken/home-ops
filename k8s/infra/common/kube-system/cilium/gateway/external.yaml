@@ -17,7 +17,7 @@ metadata:
         timeout: 5s
         network: ip4
       alerts:
-        - type: slack
+        - type: telegram
 spec:
   gatewayClassName: cilium
   addresses:
