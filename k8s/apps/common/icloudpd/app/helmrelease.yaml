@@ -86,7 +86,6 @@ spec:
               hide-hostname: true
               hide-url: true
             alerts:
-              - type: telegram
               - type: custom
         className: nginx-internal
         hosts:

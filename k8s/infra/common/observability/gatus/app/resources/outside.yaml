@@ -12,7 +12,6 @@ endpoints:
     conditions:
       - "[CONNECTED] == true"
     alerts:
-      - type: telegram
       - type: custom
   - name: tvbox-caddy
     group: outside
@@ -26,7 +25,6 @@ endpoints:
     conditions:
       - "[CONNECTED] == true"
     alerts:
-      - type: telegram
       - type: custom
   - name: mosdns
     group: outside
@@ -40,7 +38,6 @@ endpoints:
     conditions:
       - "[CONNECTED] == true"
     alerts:
-      - type: telegram
       - type: custom
   - name: mirror-quay
     group: outside
@@ -54,7 +51,6 @@ endpoints:
     conditions:
       - "[CONNECTED] == true"
     alerts:
-      - type: telegram
       - type: custom
   - name: mirror-docker
     group: outside
@@ -68,7 +64,6 @@ endpoints:
     conditions:
       - "[CONNECTED] == true"
     alerts:
-      - type: telegram
       - type: custom
   - name: mirror-k8s
     group: outside
@@ -82,7 +77,6 @@ endpoints:
     conditions:
       - "[CONNECTED] == true"
     alerts:
-      - type: telegram
       - type: custom
   - name: mirror-ghcr
     group: outside
@@ -96,7 +90,6 @@ endpoints:
     conditions:
       - "[CONNECTED] == true"
     alerts:
-      - type: telegram
       - type: custom
   - name: minio-local
     group: outside
@@ -110,7 +103,6 @@ endpoints:
     conditions:
       - "[CONNECTED] == true"
     alerts:
-      - type: telegram
       - type: custom
   - name: minio-domain
     group: outside
@@ -124,5 +116,4 @@ endpoints:
     conditions:
       - "[STATUS] == 200"
     alerts:
-      - type: telegram
       - type: custom
