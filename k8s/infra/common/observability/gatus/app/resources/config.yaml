@@ -26,7 +26,7 @@ alerting:
     webhook-url: ${WEBHOOK_URL}
     default-alert:
       description: "health check failed"
-      send-on-resolved: false
+      send-on-resolved: true
       failure-threshold: 3
       success-threshold: 2
   telegram:
@@ -34,7 +34,7 @@ alerting:
     id: ${TELEGRAM_USER_ID}
     default-alert:
       send-on-resolved: true
-      failure-threshold: 1
+      failure-threshold: 3
   # WeCom 企业微信
   custom:
     url: "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=${WECOM_BOT_TOKEN}"
@@ -49,12 +49,12 @@ alerting:
       {
         "msgtype": "text",
         "text": {
-          "content": "Gatus 状态\n[ALERT_TRIGGERED_OR_RESOLVED]\n[ENDPOINT_GROUP] - [ENDPOINT_NAME] \n[RESULT_CONDITIONS]"
+          "content": "[ENDPOINT_GROUP] - [ENDPOINT_NAME]\n[ALERT_TRIGGERED_OR_RESOLVED]\n\n[RESULT_CONDITIONS]"
         }
       }
     default-alert:
       send-on-resolved: true
-      failure-threshold: 1
+      failure-threshold: 3
 # security:
 #   oidc:
 #     issuer-url: "https://auth.${MAIN_DOMAIN}"
