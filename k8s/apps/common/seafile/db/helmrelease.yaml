@@ -54,7 +54,7 @@ spec:
               readiness: *probe
             resources:
               requests:
-                memory: 64Mi
+                memory: 100Mi
               limits:
                 memory: 512Mi
     defaultPodOptions:
