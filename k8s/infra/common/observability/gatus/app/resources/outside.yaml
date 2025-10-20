@@ -13,6 +13,7 @@ endpoints:
       - "[CONNECTED] == true"
     alerts:
       - type: telegram
+      - type: custom
   - name: tvbox-caddy
     group: outside
     url: "tcp://tvbox.lan:443"
@@ -26,6 +27,7 @@ endpoints:
       - "[CONNECTED] == true"
     alerts:
       - type: telegram
+      - type: custom
   - name: mosdns
     group: outside
     url: "udp://tvbox.lan:53"
@@ -39,6 +41,7 @@ endpoints:
       - "[CONNECTED] == true"
     alerts:
       - type: telegram
+      - type: custom
   - name: mirror-quay
     group: outside
     url: "tcp://sakamoto.lan:5002"
@@ -52,6 +55,7 @@ endpoints:
       - "[CONNECTED] == true"
     alerts:
       - type: telegram
+      - type: custom
   - name: mirror-docker
     group: outside
     url: "tcp://sakamoto.lan:5006"
@@ -65,6 +69,7 @@ endpoints:
       - "[CONNECTED] == true"
     alerts:
       - type: telegram
+      - type: custom
   - name: mirror-k8s
     group: outside
     url: "tcp://sakamoto.lan:5005"
@@ -78,6 +83,7 @@ endpoints:
       - "[CONNECTED] == true"
     alerts:
       - type: telegram
+      - type: custom
   - name: mirror-ghcr
     group: outside
     url: "tcp://sakamoto.lan:5001"
@@ -91,6 +97,7 @@ endpoints:
       - "[CONNECTED] == true"
     alerts:
       - type: telegram
+      - type: custom
   - name: minio-local
     group: outside
     url: "tcp://sakamoto.lan:9000"
@@ -104,6 +111,7 @@ endpoints:
       - "[CONNECTED] == true"
     alerts:
       - type: telegram
+      - type: custom
   - name: minio-domain
     group: outside
     url: https://minio.${MAIN_DOMAIN}/minio/health/live
@@ -117,3 +125,4 @@ endpoints:
       - "[STATUS] == 200"
     alerts:
       - type: telegram
+      - type: custom
