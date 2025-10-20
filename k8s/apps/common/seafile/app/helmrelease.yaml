@@ -103,7 +103,7 @@ spec:
             # capabilities: { drop: ["ALL"] }
             resources:
               requests:
-                memory: 256Mi
+                memory: 700Mi
               limits:
                 memory: 4Gi
           anubis:

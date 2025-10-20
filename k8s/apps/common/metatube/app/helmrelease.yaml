@@ -51,7 +51,7 @@ spec:
               capabilities: { drop: ["ALL"] }
             resources:
               requests:
-                memory: 50Mi
+                memory: 64Mi
               limits:
                 memory: 512Mi
     defaultPodOptions:
