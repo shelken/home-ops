@@ -86,7 +86,7 @@ spec:
               hide-hostname: true
               hide-url: true
             alerts:
-              - type: slack
+              - type: telegram
         className: nginx-internal
         hosts:
           - host: "{{ .Release.Name }}.${MAIN_DOMAIN}"

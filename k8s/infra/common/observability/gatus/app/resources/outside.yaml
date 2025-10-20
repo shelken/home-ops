@@ -11,8 +11,8 @@ endpoints:
       network: ip4
     conditions:
       - "[CONNECTED] == true"
-    alerts: 
-      - type: slack
+    alerts:
+      - type: telegram
   - name: tvbox-caddy
     group: outside
     url: "tcp://tvbox.lan:443"
@@ -24,8 +24,8 @@ endpoints:
       network: ip4
     conditions:
       - "[CONNECTED] == true"
-    alerts: 
-      - type: slack
+    alerts:
+      - type: telegram
   - name: mosdns
     group: outside
     url: "udp://tvbox.lan:53"
@@ -37,8 +37,8 @@ endpoints:
       hide-url: true
     conditions:
       - "[CONNECTED] == true"
-    alerts: 
-      - type: slack
+    alerts:
+      - type: telegram
   - name: mirror-quay
     group: outside
     url: "tcp://sakamoto.lan:5002"
@@ -50,8 +50,8 @@ endpoints:
       network: ip4
     conditions:
       - "[CONNECTED] == true"
-    alerts: 
-      - type: slack
+    alerts:
+      - type: telegram
   - name: mirror-docker
     group: outside
     url: "tcp://sakamoto.lan:5006"
@@ -63,8 +63,8 @@ endpoints:
       network: ip4
     conditions:
       - "[CONNECTED] == true"
-    alerts: 
-      - type: slack
+    alerts:
+      - type: telegram
   - name: mirror-k8s
     group: outside
     url: "tcp://sakamoto.lan:5005"
@@ -76,8 +76,8 @@ endpoints:
       network: ip4
     conditions:
       - "[CONNECTED] == true"
-    alerts: 
-      - type: slack
+    alerts:
+      - type: telegram
   - name: mirror-ghcr
     group: outside
     url: "tcp://sakamoto.lan:5001"
@@ -89,8 +89,8 @@ endpoints:
       network: ip4
     conditions:
       - "[CONNECTED] == true"
-    alerts: 
-      - type: slack
+    alerts:
+      - type: telegram
   - name: minio-local
     group: outside
     url: "tcp://sakamoto.lan:9000"
@@ -102,8 +102,8 @@ endpoints:
       network: ip4
     conditions:
       - "[CONNECTED] == true"
-    alerts: 
-      - type: slack
+    alerts:
+      - type: telegram
   - name: minio-domain
     group: outside
     url: https://minio.${MAIN_DOMAIN}/minio/health/live
@@ -115,5 +115,5 @@ endpoints:
       network: ip4
     conditions:
       - "[STATUS] == 200"
-    alerts: 
-      - type: slack
+    alerts:
+      - type: telegram

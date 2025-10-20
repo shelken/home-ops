@@ -13,7 +13,7 @@ metadata:
         hide-hostname: true
         hide-url: true
       alerts:
-        - type: slack
+        - type: telegram
 spec:
   gatewayClassName: cilium
   addresses:
