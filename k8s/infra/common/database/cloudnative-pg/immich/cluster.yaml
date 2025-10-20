@@ -57,12 +57,12 @@ spec:
           name: cloudnative-pg-secret
           key: aws-secret-access-key
 
-  bootstrap:
-  #NOTE: 需要恢复时取消注释，并修改backup
-    recovery:
-      source: &previous-cluster immich-v1
-  externalClusters:
-    - name: *previous-cluster
-      barmanObjectStore:
-        <<: *barmanObjectStore
-        serverName: *previous-cluster
+  # bootstrap:
+  # #NOTE: 需要恢复时取消注释，并修改backup
+  #   recovery:
+  #     source: &previous-cluster immich-v1
+  # externalClusters:
+  #   - name: *previous-cluster
+  #     barmanObjectStore:
+  #       <<: *barmanObjectStore
+  #       serverName: *previous-cluster
