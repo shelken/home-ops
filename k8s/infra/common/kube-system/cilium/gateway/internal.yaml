@@ -13,7 +13,6 @@ metadata:
         hide-hostname: true
         hide-url: true
       alerts:
-        - type: telegram
         - type: custom
 spec:
   gatewayClassName: cilium

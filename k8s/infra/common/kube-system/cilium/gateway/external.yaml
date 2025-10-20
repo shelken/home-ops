@@ -17,7 +17,6 @@ metadata:
         timeout: 5s
         network: ip4
       alerts:
-        - type: telegram
         - type: custom
 spec:
   gatewayClassName: cilium
