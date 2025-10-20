@@ -18,6 +18,7 @@ metadata:
         network: ip4
       alerts:
         - type: telegram
+        - type: custom
 spec:
   gatewayClassName: cilium
   addresses:

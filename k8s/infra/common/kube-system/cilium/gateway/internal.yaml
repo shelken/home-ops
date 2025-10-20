@@ -14,6 +14,7 @@ metadata:
         hide-url: true
       alerts:
         - type: telegram
+        - type: custom
 spec:
   gatewayClassName: cilium
   addresses:

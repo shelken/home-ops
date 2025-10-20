@@ -87,6 +87,7 @@ spec:
               hide-url: true
             alerts:
               - type: telegram
+              - type: custom
         className: nginx-internal
         hosts:
           - host: "{{ .Release.Name }}.${MAIN_DOMAIN}"

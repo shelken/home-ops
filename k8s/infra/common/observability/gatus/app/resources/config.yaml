@@ -32,6 +32,23 @@ alerting:
   telegram:
     token: ${TELEGRAM_BOT_TOKEN}
     id: ${TELEGRAM_USER_ID}
+    default-alert:
+      send-on-resolved: true
+      failure-threshold: 1
+  # WeCom 企业微信
+  custom:
+    url: "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=${WECOM_BOT_TOKEN}"
+    method: "POST"
+    body: |
+      {
+        "msgtype": "text",
+        "text": {
+          "content": "[ALERT_TRIGGERED_OR_RESOLVED]: [ENDPOINT_GROUP] - [ENDPOINT_NAME] - [ALERT_DESCRIPTION] - [RESULT_ERRORS]"
+        }
+      }
+    default-alert:
+      send-on-resolved: true
+      failure-threshold: 1
 # security:
 #   oidc:
 #     issuer-url: "https://auth.${MAIN_DOMAIN}"

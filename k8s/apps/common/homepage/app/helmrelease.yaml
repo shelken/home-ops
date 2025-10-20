@@ -89,6 +89,7 @@ spec:
               network: ip4
             alerts:
               - type: telegram
+              - type: custom
         hosts:
           - host: "{{ .Release.Name }}.${MAIN_DOMAIN}"
             paths:

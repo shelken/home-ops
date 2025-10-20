@@ -15,6 +15,7 @@ metadata:
         - "[CONNECTED] == true"
       alerts:
         - type: telegram
+        - type: custom
 spec:
   type: LoadBalancer
   # externalTrafficPolicy: Cluster
