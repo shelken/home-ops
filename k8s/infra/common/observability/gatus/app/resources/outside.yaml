@@ -1,7 +1,7 @@
 ---
 endpoints:
   - name: sakamoto-caddy
-    group: outside
+    group: sakamoto
     url: "tcp://sakamoto.lan:443"
     interval: 1m
     ui:
@@ -14,7 +14,7 @@ endpoints:
     alerts:
       - type: custom
   - name: tvbox-caddy
-    group: outside
+    group: tvbox
     url: "tcp://tvbox.lan:443"
     interval: 1m
     ui:
@@ -27,7 +27,7 @@ endpoints:
     alerts:
       - type: custom
   - name: mosdns
-    group: outside
+    group: tvbox
     url: "udp://tvbox.lan:53"
     interval: 1m
     client:
@@ -40,7 +40,7 @@ endpoints:
     alerts:
       - type: custom
   - name: mirror-quay
-    group: outside
+    group: sakamoto
     url: "tcp://sakamoto.lan:5002"
     interval: 1m
     ui:
@@ -53,7 +53,7 @@ endpoints:
     alerts:
       - type: custom
   - name: mirror-docker
-    group: outside
+    group: sakamoto
     url: "tcp://sakamoto.lan:5006"
     interval: 1m
     ui:
@@ -66,7 +66,7 @@ endpoints:
     alerts:
       - type: custom
   - name: mirror-k8s
-    group: outside
+    group: sakamoto
     url: "tcp://sakamoto.lan:5005"
     interval: 1m
     ui:
@@ -79,7 +79,7 @@ endpoints:
     alerts:
       - type: custom
   - name: mirror-ghcr
-    group: outside
+    group: sakamoto
     url: "tcp://sakamoto.lan:5001"
     interval: 1m
     ui:
@@ -92,7 +92,7 @@ endpoints:
     alerts:
       - type: custom
   - name: minio-local
-    group: outside
+    group: sakamoto
     url: "tcp://sakamoto.lan:9000"
     interval: 1m
     ui:
@@ -105,8 +105,34 @@ endpoints:
     alerts:
       - type: custom
   - name: minio-domain
-    group: outside
+    group: sakamoto
     url: https://minio.${MAIN_DOMAIN}/minio/health/live
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    client:
+      network: ip4
+    conditions:
+      - "[STATUS] == 200"
+    alerts:
+      - type: custom
+  - name: subconverter
+    group: vps
+    url: https://sub.${MAIN_DOMAIN}
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    client: &client
+      network: ip4
+    conditions:
+      - "[STATUS] == 404"
+    alerts:
+      - type: custom
+  - name: derp
+    group: vps
+    url: https://derp.${MAIN_DOMAIN}
     interval: 1m
     ui:
       hide-hostname: true
