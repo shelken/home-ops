@@ -9,9 +9,9 @@ spec:
     - dnsName: "homelab-external.${MAIN_DOMAIN}"
       recordType: CNAME
       targets: ["homelab-dynamic.${MAIN_DOMAIN}"]
-    - dnsName: "homelab-nginx-external.${MAIN_DOMAIN}"
-      recordType: CNAME
-      targets: ["homelab-dynamic.${MAIN_DOMAIN}"]
+    # - dnsName: "homelab-nginx-external.${MAIN_DOMAIN}"
+    #   recordType: CNAME
+    #   targets: ["homelab-dynamic.${MAIN_DOMAIN}"]
     # - dnsName: "homelab-internal.${MAIN_DOMAIN}"
     #   recordType: A
     #   targets: ["192.168.6.46"]

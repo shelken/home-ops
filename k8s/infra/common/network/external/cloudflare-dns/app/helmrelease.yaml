@@ -58,11 +58,11 @@ spec:
       - --crd-source-kind=DNSEndpoint
       - --gateway-name=envoy-external
       # - --zone-id-filter=$(CF_ZONE_ID)
-      - --ignore-ingress-tls-spec
-      - --ingress-class=nginx-external
+      # - --ignore-ingress-tls-spec
+      # - --ingress-class=nginx-external
     triggerLoopOnEvent: true
     policy: sync
-    sources: ["crd", "gateway-httproute", "ingress"]
+    sources: ["crd", "gateway-httproute"] #, "ingress"
     txtOwnerId: default
     txtPrefix: k8s.
     domainFilters: ["${MAIN_DOMAIN}"]
