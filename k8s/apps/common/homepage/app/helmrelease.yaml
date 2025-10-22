@@ -72,33 +72,6 @@ spec:
           - backendRefs:
               - identifier: app
                 port: *port
-    # ingress:
-    #   main:
-    #     className: nginx-external
-    #     annotations:
-    #       nginx.ingress.kubernetes.io/auth-method: "GET"
-    #       nginx.ingress.kubernetes.io/auth-url: http://authelia.security.svc.cluster.local/api/authz/auth-request
-    #       nginx.ingress.kubernetes.io/auth-signin: https://auth.${MAIN_DOMAIN}?rm=$request_method
-    #       nginx.ingress.kubernetes.io/auth-snippet: proxy_set_header X-Forwarded-Method $request_method;
-    #       gatus.home-operations.com/endpoint: |-
-    #         url: https://{{ .Release.Name }}.${MAIN_DOMAIN}/api/healthcheck
-    #         group: nginx-external
-    #         interval: 2m
-    #         ui:
-    #           hide-hostname: true
-    #           hide-url: true
-    #         client:
-    #           dns-resolver: tcp://223.5.5.5:53
-    #           network: ip4
-    #         alerts:
-    #           - type: custom
-    #     hosts:
-    #       - host: "{{ .Release.Name }}.${MAIN_DOMAIN}"
-    #         paths:
-    #           - path: /
-    #             service:
-    #               identifier: app
-    #               port: http
     persistence:
       config:
         enabled: true

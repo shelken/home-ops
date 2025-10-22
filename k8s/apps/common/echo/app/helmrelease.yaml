@@ -90,19 +90,3 @@ spec:
           - backendRefs:
               - identifier: app
                 port: *port
-    # ingress:
-    #   app:
-    #     annotations:
-    #       gethomepage.dev/enabled: "true"
-    #       gethomepage.dev/group: external
-    #       gethomepage.dev/name: echo
-    #       gethomepage.dev/icon: kubernetes-dashboard.svg
-    #       gethomepage.dev/description: ""
-    #     className: nginx-external
-    #     hosts:
-    #       - host: "{{ .Release.Name }}.${MAIN_DOMAIN}"
-    #         paths:
-    #           - path: /
-    #             service:
-    #               identifier: app
-    #               port: http
