@@ -14,7 +14,7 @@ includes:
 
 tasks:
   default: task --list
-  
+
   bootstrap:
     desc: "k3s 部署"
     cmds:
@@ -27,8 +27,8 @@ tasks:
       - cmd: |
           echo "部署k3s"
           ansible-playbook {{.ROOT_DIR}}/ansible/playbooks/install-k3s.yaml
-          
-  init: 
+
+  init:
     desc: "集群中初始化内容（部署密钥/获取一些crd资源）"
     cmds:
       - task: add-gateway-crd
@@ -44,7 +44,7 @@ tasks:
     cmd: |
       # renovate: datasource=github-releases depName=kubernetes-sigs/gateway-api
       kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.4.0/experimental-install.yaml --server-side
-  
+
   # https://github.com/kubernetes-sigs/external-dns/blob/master/docs/sources/crd.md
   add-external-dns-crd:
     desc: "添加external-dns的CRD"
@@ -102,13 +102,15 @@ tasks:
       - { msg: "Start file not found", sh: "test -f {{ .start }}" }
       - { msg: "End file not found", sh: "test -d {{ .end }}" }
 
+  # 将某个pvc（可选）挂载并起一个pod
+  # pvc= kube-run
   kube-run:
     vars:
       image: '{{.image | default "busybox:latest"}}'
       pod: '{{.pod | default "test"}}'
       _node_default:
         sh: kubectl get nodes -l node-role.kubernetes.io/control-plane -o jsonpath='{.items[0].metadata.name}'
-      node: '{{.node | default ._node_default}}'
+      node: "{{.node | default ._node_default}}"
       pvc: '{{.pvc | default ""}}'
       mount_path: '{{.mount_path | default "/data"}}'
     cmds:
