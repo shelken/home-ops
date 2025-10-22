@@ -21,8 +21,8 @@ metadata:
 spec:
   hostnames: ["flux-webhook.${MAIN_DOMAIN}"]
   parentRefs:
-    - name: *network
-      namespace: kube-system
+    - name: envoy-external
+      namespace: network
       sectionName: https
   rules:
     - backendRefs:

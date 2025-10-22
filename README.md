@@ -38,8 +38,8 @@ homelab
 | k8s-gateway             | 192.168.6.41     | 开放给外部 dns |             |
 | nginx internal ingress  | 192.168.6.43     |                |             |
 | nginx external ingress  | 192.168.6.44     |                |             |
-| cilium external gateway | 192.168.6.45     |                |             |
-| cilium internal gateway | 192.168.6.46     |                |             |
+| envoy external gateway  | 192.168.6.45     |                |             |
+| envoy internal gateway  | 192.168.6.46     |                |             |
 | home assistant          | 192.168.6.51     |                |             |
 | postgres17              | 192.168.6.52     | 开放postgres   | postgres17. |
 | go2rtc                  | 192.168.6.53     |                |             |
@@ -102,7 +102,7 @@ ocirepo 在 2.6上才是v1，在2.5上配置是v1beta2
 kubectl -n longhorn-system patch -p '{"value": "true"}' --type=merge lhs deleting-confirmation-flag
 ```
 
-3. cilium-gateway 对 grpc-web 协议直接过滤成 grpc，目前无法关闭，在memos服务使用时调用出错
+3. envoy-gateway 对 grpc-web 协议直接过滤成 grpc，目前无法关闭，在memos服务使用时调用出错
 
 暂时使用nginx ingress作为入口
 

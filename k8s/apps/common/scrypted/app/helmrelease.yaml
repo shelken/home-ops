@@ -34,7 +34,7 @@ spec:
                 "ips": ["192.168.6.55/24"],
                 "mac": "02:D1:69:09:21:AF"
               }]
-          affinity: 
+          affinity:
             nodeAffinity:
               requiredDuringSchedulingIgnoredDuringExecution:
                 nodeSelectorTerms:
@@ -76,7 +76,7 @@ spec:
             portRange:
               start: 44831
               end: 44839
-          
+
     route:
       app:
         annotations:
@@ -88,8 +88,8 @@ spec:
           gethomepage.dev/app: *app
         hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
         parentRefs:
-          - name: internal
-            namespace: kube-system
+          - name: envoy-internal
+            namespace: network
             sectionName: https
     persistence:
       config:
