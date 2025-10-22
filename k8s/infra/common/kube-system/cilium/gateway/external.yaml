@@ -8,7 +8,7 @@ metadata:
     external-dns.alpha.kubernetes.io/target: &hostname homelab-external.${MAIN_DOMAIN}
     gatus.home-operations.com/endpoint: |-
       group: external
-      interval: 3m
+      interval: 2m
       ui:
         hide-hostname: true
         hide-url: true
