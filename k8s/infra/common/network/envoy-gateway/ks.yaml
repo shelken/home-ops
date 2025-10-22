@@ -3,19 +3,16 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app outside-service
-  namespace: &namespace staging
+  name: envoy-gateway
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
+  dependsOn:
+    - name: certificates-import
   interval: 1h
-  path: ./k8s/apps/staging/outside/service
+  path: ./k8s/infra/common/network/envoy-gateway/app
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: *namespace
-  timeout: 5m
+  targetNamespace: network
+  wait: false
