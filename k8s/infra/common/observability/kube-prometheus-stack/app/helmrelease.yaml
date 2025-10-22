@@ -102,7 +102,7 @@ spec:
               sectionName: https
       prometheusSpec:
         image:
-          registry: docker.io
+          registry: mirror.gcr.io
           repository: prompp/prompp
           tag: 2.53.2-0.3.3
         securityContext:

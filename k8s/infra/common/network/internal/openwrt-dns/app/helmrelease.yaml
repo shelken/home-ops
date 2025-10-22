@@ -36,12 +36,12 @@ spec:
     fullnameOverride: *app
     provider:
       name: webhook
-      webhook: 
+      webhook:
         image:
-          repository: docker.io/renanqts/external-dns-openwrt-webhook
+          repository: mirror.gcr.io/renanqts/external-dns-openwrt-webhook
           tag: v0.1.0
         env:
-          - name: ROUTER_PORT 
+          - name: ROUTER_PORT
             value: "8888"
           - name: SHUTDOWN_TIMEOUT_SECONDS
             value: "5"
