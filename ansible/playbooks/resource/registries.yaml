@@ -1,10 +1,16 @@
 mirrors:
   docker.io:
     endpoint:
+      - "https://mirror-gcr.mirror.ooooo.space"
       - "https://docker.mirror.ooooo.space"
       # - "https://dhp.ooooo.space"
-      # - "https://docker.m.daocloud.io"
+      - "https://docker.m.daocloud.io"
       # - "https://hub.mirrorify.net"
+  mirror.gcr.io:
+    endpoint:
+      - "https://mirror-gcr.mirror.ooooo.space"
+      - "https://docker.mirror.ooooo.space"
+      - "https://docker.m.daocloud.io"
   quay.io:
     endpoint:
       - "https://quay.mirror.ooooo.space"
