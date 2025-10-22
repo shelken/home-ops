@@ -5,6 +5,7 @@ resources:
   - helmrelease.yaml
   - externalsecret.yaml
   - rbac.yaml
+  - securitypolicy.yaml
 
 configMapGenerator:
   - name: homepage-config
