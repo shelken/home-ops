@@ -31,14 +31,14 @@ tasks:
   init-crd:
     desc: "初始化crd"
     cmd: |
-      helmfile --file bootstrap/crds.yaml sync --hide-notes
+      helmfile -f bootstrap/crds.yaml template -q | kubectl apply --server-side --field-manager bootstrap --force-conflicts -f -
 
   init:
     desc: "集群中初始化内容（部署密钥/获取一些crd资源）"
     cmds:
       - task: secret:bootstrap
       - cmd: |
-          helmfile --file bootstrap/crds.yaml sync --hide-notes
+          helmfile -f bootstrap/crds.yaml template -q | kubectl apply --server-side --field-manager bootstrap --force-conflicts -f -
           helmfile --file bootstrap/helmfile.yaml sync --hide-notes
           # helmfile apply -f bootstrap/helmfile.yaml
 
