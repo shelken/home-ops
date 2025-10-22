@@ -1,6 +1,5 @@
 # 配置：https://docs.cilium.io/en/latest/helm-reference
 # ref：https://github.com/cilium/cilium/blob/v1.17.5/install/kubernetes/cilium/values.yaml
-# gateway-api: https://docs.cilium.io/en/stable/network/servicemesh/gateway-api/gateway-api
 ipv6:
   enabled: false
 # enableIPv6Masquerade: true
@@ -39,10 +38,7 @@ dashboards:
   enabled: true
 
 envoy:
-  rollOutPods: true
-  prometheus:
-    serviceMonitor:
-      enabled: true
+  enabled: false
 
 operator:
   replicas: 1
@@ -53,11 +49,6 @@ operator:
       enabled: true
   dashboards:
     enabled: true
-
-gatewayAPI:
-  enabled: true
-  enableAlpn: true # grpc support https://github.com/bittrance/cilium/blob/d6f7acf1116e74ce493c87a8f5df96efac63df7b/Documentation/network/servicemesh/gateway-api/grpc.rst
-  xffNumTrustedHops: 2 # X-Forwarded-For 头
 
 # ingressController:
 #   enabled: true

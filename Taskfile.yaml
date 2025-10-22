@@ -28,35 +28,19 @@ tasks:
           echo "部署k3s"
           ansible-playbook {{.ROOT_DIR}}/ansible/playbooks/install-k3s.yaml
 
+  init-crd:
+    desc: "初始化crd"
+    cmd: |
+      helmfile --file bootstrap/crds.yaml sync --hide-notes
+
   init:
     desc: "集群中初始化内容（部署密钥/获取一些crd资源）"
     cmds:
-      - task: add-gateway-crd
-      - task: add-external-dns-crd
-      - task: add-prometheus-crd
       - task: secret:bootstrap
       - cmd: |
+          helmfile --file bootstrap/crds.yaml sync --hide-notes
           helmfile --file bootstrap/helmfile.yaml sync --hide-notes
           # helmfile apply -f bootstrap/helmfile.yaml
-
-  add-gateway-crd:
-    desc: "添加gateway的CRD"
-    cmd: |
-      # renovate: datasource=github-releases depName=kubernetes-sigs/gateway-api
-      kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.4.0/experimental-install.yaml --server-side
-
-  # https://github.com/kubernetes-sigs/external-dns/blob/master/docs/sources/crd.md
-  add-external-dns-crd:
-    desc: "添加external-dns的CRD"
-    cmd: |
-      # renovate: datasource=github-releases depName=kubernetes-sigs/external-dns
-      kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/external-dns/refs/tags/v0.19.0/config/crd/standard/dnsendpoints.externaldns.k8s.io.yaml --server-side
-
-  add-prometheus-crd:
-    desc: "添加prometheus的CRD"
-    cmd: |
-      # renovate: datasource=github-releases depName=prometheus-operator/prometheus-operator
-      kubectl apply -f https://github.com/prometheus-operator/prometheus-operator/releases/download/v0.86.1/stripped-down-crds.yaml --server-side
 
   show-route:
     desc: "显示gateway和对应的服务"
