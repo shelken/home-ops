@@ -48,7 +48,7 @@ spec:
       app:
         ports:
           http:
-            port: &port 8080  
+            port: &port 8080
     route:
       app:
         annotations:
@@ -63,11 +63,11 @@ spec:
               shlink,
               shlink-web
             )
-        hostnames: 
+        hostnames:
           - "s-web.${MAIN_DOMAIN}"
         parentRefs:
-          - name: internal
-            namespace: kube-system
+          - name: envoy-internal
+            namespace: network
             sectionName: https
         rules:
           - backendRefs:

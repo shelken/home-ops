@@ -91,11 +91,11 @@ spec:
               ollama,
               ollama-web
             )
-        hostnames: 
+        hostnames:
           - "chat.${MAIN_DOMAIN}"
         parentRefs:
-          - name: external
-            namespace: kube-system
+          - name: envoy-external
+            namespace: network
             sectionName: https
     persistence:
       config:

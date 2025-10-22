@@ -77,14 +77,14 @@ spec:
       app:
         annotations:
           gethomepage.dev/enabled: "true"
-          gethomepage.dev/group: &network internal
+          gethomepage.dev/group: internal
           gethomepage.dev/name: new-api
           gethomepage.dev/icon: kubernetes-dashboard.svg
           gethomepage.dev/description: ""
         hostnames: ["chat-api.${MAIN_DOMAIN}"]
         parentRefs:
-          - name: *network
-            namespace: kube-system
+          - name: envoy-internal
+            namespace: network
             sectionName: https
         rules:
           - backendRefs:

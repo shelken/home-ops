@@ -13,8 +13,8 @@ metadata:
 spec:
   hostnames: ["rook.${MAIN_DOMAIN}"]
   parentRefs:
-    - name: *network
-      namespace: kube-system
+    - name: envoy-internal
+      namespace: network
       sectionName: https
   rules:
     - backendRefs:

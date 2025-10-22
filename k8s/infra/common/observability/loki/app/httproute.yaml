@@ -13,8 +13,8 @@ metadata:
     gethomepage.dev/app: "loki"
 spec:
   parentRefs:
-    - name: *network
-      namespace: kube-system
+    - name: envoy-internal
+      namespace: network
       sectionName: https
   hostnames:
     - loki.${MAIN_DOMAIN}

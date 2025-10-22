@@ -111,11 +111,11 @@ spec:
           datasource:
             - { name: DS_PROMETHEUS, value: Prometheus }
         envoy:
-           # renovate: depName="Envoy Proxy Monitoring gRPC"
-           gnetId: 23239
-           revision: 1
-           datasource:
-             - { name: DS_AFRANET_PROMETHEUS, value: Prometheus }
+          # renovate: depName="Envoy Proxy Monitoring gRPC"
+          gnetId: 23239
+          revision: 1
+          datasource:
+            - { name: DS_AFRANET_PROMETHEUS, value: Prometheus }
         external-dns:
           # renovate: depName="External-dns"
           gnetId: 15038
@@ -156,12 +156,12 @@ spec:
           gnetId: 11454
           revision: 14
           datasource: Prometheus
-        longhorn: 
+        longhorn:
           # renovate: depName="Longhorn"
           gnetId: 16888
           revision: 9
           datasource: Prometheus
-        mosdns: 
+        mosdns:
           # renovate: depName="MOSDNS"
           gnetId: 19305
           revision: 2
@@ -174,7 +174,7 @@ spec:
           revision: 42
           datasource:
             - { name: DS_PROMETHEUS, value: Prometheus }
-        openwrt: 
+        openwrt:
           # renovate: depName="OpenWrt"
           gnetId: 21766
           revision: 1
@@ -231,8 +231,8 @@ spec:
         enabled: true
         hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
         parentRefs:
-          - name: internal
-            namespace: kube-system
+          - name: envoy-internal
+            namespace: network
             sectionName: https
     persistence:
       enabled: true
