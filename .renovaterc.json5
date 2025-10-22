@@ -22,7 +22,7 @@
     managerFilePatterns: ["/(^|/)k8s/.+\\.ya?ml(?:\\.j2)?$/"],
   },
   helmfile: {
-    managerFilePatterns: ["/(^|/)bootstrap/helmfile.*\\.ya?ml(?:\\.j2)?$/"],
+    managerFilePatterns: ["/(^|/)bootstrap/(helmfile|crds).*\\.ya?ml(?:\\.j2)?$/"],
   },
   kubernetes: {
     managerFilePatterns: ["/(^|/)k8s/.+\\.ya?ml(?:\\.j2)?$/"],
