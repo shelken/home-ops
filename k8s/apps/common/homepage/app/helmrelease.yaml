@@ -79,7 +79,7 @@ spec:
           gatus.home-operations.com/endpoint: |-
             url: https://{{ .Release.Name }}.${MAIN_DOMAIN}/api/healthcheck
             group: nginx-external
-            interval: 3m
+            interval: 2m
             ui:
               hide-hostname: true
               hide-url: true
