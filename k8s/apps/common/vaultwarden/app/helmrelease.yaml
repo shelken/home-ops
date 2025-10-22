@@ -139,9 +139,9 @@ spec:
         rules:
           - matches:
               - headers:
-                  - type: Exact
-                    name: X-ENVOY-INTERNAL
-                    value: "true"
+                  - type: RegularExpression
+                    name: X-Forwarded-For
+                    value: "^(192\\.168\\.)"
             backendRefs: &originBackend
               - identifier: app
                 port: *port

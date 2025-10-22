@@ -156,9 +156,9 @@ spec:
                       value: 1; mode=block
             matches:
               - headers:
-                  - type: Exact
-                    name: X-ENVOY-INTERNAL
-                    value: "true"
+                  - type: RegularExpression
+                    name: X-Forwarded-For
+                    value: "^(192\\.168\\.)"
             backendRefs:
               - identifier: app
                 port: *port
