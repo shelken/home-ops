@@ -33,7 +33,7 @@ servers:
         configBlock: |-
           force_tcp
           max_concurrent 1000
-          expire 5m
+          expire 2m
       - name: forward
         parameters: lan 192.168.6.1
       - name: forward
