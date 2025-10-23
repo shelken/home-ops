@@ -7,8 +7,6 @@ endpoints:
     ui:
       hide-hostname: true
       hide-url: true
-    client:
-      network: ip4
     conditions:
       - "[CONNECTED] == true"
     alerts:
@@ -20,8 +18,6 @@ endpoints:
     ui:
       hide-hostname: true
       hide-url: true
-    client:
-      network: ip4
     conditions:
       - "[CONNECTED] == true"
     alerts:
@@ -30,8 +26,6 @@ endpoints:
     group: tvbox
     url: "udp://tvbox.lan:53"
     interval: 1m
-    client:
-      network: ip4
     ui:
       hide-hostname: true
       hide-url: true
@@ -46,8 +40,6 @@ endpoints:
     ui:
       hide-hostname: true
       hide-url: true
-    client:
-      network: ip4
     conditions:
       - "[CONNECTED] == true"
     alerts:
@@ -59,8 +51,6 @@ endpoints:
     ui:
       hide-hostname: true
       hide-url: true
-    client:
-      network: ip4
     conditions:
       - "[CONNECTED] == true"
     alerts:
@@ -72,8 +62,6 @@ endpoints:
     ui:
       hide-hostname: true
       hide-url: true
-    client:
-      network: ip4
     conditions:
       - "[CONNECTED] == true"
     alerts:
@@ -85,8 +73,6 @@ endpoints:
     ui:
       hide-hostname: true
       hide-url: true
-    client:
-      network: ip4
     conditions:
       - "[CONNECTED] == true"
     alerts:
@@ -98,8 +84,6 @@ endpoints:
     ui:
       hide-hostname: true
       hide-url: true
-    client:
-      network: ip4
     conditions:
       - "[CONNECTED] == true"
     alerts:
@@ -111,8 +95,6 @@ endpoints:
     ui:
       hide-hostname: true
       hide-url: true
-    client:
-      network: ip4
     conditions:
       - "[STATUS] == 200"
     alerts:
@@ -124,8 +106,6 @@ endpoints:
     ui:
       hide-hostname: true
       hide-url: true
-    client: &client
-      network: ip4
     conditions:
       - "[STATUS] == 404"
     alerts:
@@ -137,8 +117,6 @@ endpoints:
     ui:
       hide-hostname: true
       hide-url: true
-    client:
-      network: ip4
     conditions:
       - "[STATUS] == 200"
     alerts:

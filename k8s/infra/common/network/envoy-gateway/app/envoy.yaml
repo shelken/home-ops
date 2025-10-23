@@ -58,7 +58,6 @@ metadata:
         hide-url: true
       client:
         dns-resolver: tcp://223.5.5.5:53
-        network: ip4
       alerts:
         - type: custom
 spec:
