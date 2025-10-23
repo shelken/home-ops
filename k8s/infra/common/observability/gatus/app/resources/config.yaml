@@ -27,14 +27,14 @@ alerting:
     default-alert:
       description: "health check failed"
       send-on-resolved: true
-      failure-threshold: 3
+      failure-threshold: 5
       success-threshold: 2
   telegram:
     token: ${TELEGRAM_BOT_TOKEN}
     id: ${TELEGRAM_USER_ID}
     default-alert:
       send-on-resolved: true
-      failure-threshold: 3
+      failure-threshold: 5
   # WeCom 企业微信
   custom:
     url: "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=${WECOM_BOT_TOKEN}"
@@ -54,7 +54,7 @@ alerting:
       }
     default-alert:
       send-on-resolved: true
-      failure-threshold: 3
+      failure-threshold: 5
 # security:
 #   oidc:
 #     issuer-url: "https://auth.${MAIN_DOMAIN}"
