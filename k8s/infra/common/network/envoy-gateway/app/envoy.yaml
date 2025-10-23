@@ -94,7 +94,7 @@ metadata:
     gatus.home-operations.com/endpoint: |-
       group: internal
       guarded: true
-      url: tcp://223.5.5.5:53
+      url: "tcp://223.5.5.5:53"
       ui:
         hide-hostname: true
         hide-url: true
