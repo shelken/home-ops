@@ -29,7 +29,7 @@ servers:
       - name: autopath
         parameters: "@kubernetes"
       - name: forward
-        parameters: ooooo.space 192.168.6.1
+        parameters: ooooo.space 223.5.5.5
       - name: forward
         parameters: lan 192.168.6.1
       - name: forward
