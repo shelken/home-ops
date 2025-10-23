@@ -93,11 +93,12 @@ metadata:
     external-dns.alpha.kubernetes.io/target: &hostname homelab-internal.${MAIN_DOMAIN}
     gatus.home-operations.com/endpoint: |-
       group: internal
-      url: tcp://223.5.5.5
       guarded: true
       ui:
         hide-hostname: true
         hide-url: true
+      client:
+        dns-resolver: tcp://223.5.5.5:53
       alerts:
         - type: custom
 spec:
