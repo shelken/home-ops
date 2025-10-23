@@ -81,6 +81,7 @@ spec:
           gatus.home-operations.com/endpoint: |-
             group: nginx-internal
             guarded: true
+            url: "${MAIN_VPS_IP}:5054"
             ui:
               hide-hostname: true
               hide-url: true
