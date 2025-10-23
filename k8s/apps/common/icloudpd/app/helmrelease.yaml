@@ -80,7 +80,7 @@ spec:
           nginx.ingress.kubernetes.io/auth-snippet: proxy_set_header X-Forwarded-Method $request_method;
           gatus.home-operations.com/endpoint: |-
             group: nginx-internal
-            #url: ${MAIN_VPS_IP}:5054
+            url: tcp://223.5.5.5:53
             guarded: true
             ui:
               hide-hostname: true
