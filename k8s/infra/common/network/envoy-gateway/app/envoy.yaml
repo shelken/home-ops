@@ -52,7 +52,7 @@ metadata:
     external-dns.alpha.kubernetes.io/target: &hostname homelab-external.${MAIN_DOMAIN}
     gatus.home-operations.com/endpoint: |-
       group: external
-      interval: 2m
+      interval: 3m
       ui:
         hide-hostname: true
         hide-url: true
