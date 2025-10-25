@@ -13,7 +13,7 @@ metadata:
     gethomepage.dev/app: *app
 spec:
   hostnames:
-    - "${APP_SUBDOMAIN:-${APP}}.${MAIN_DOMAIN}"
+    - "memos.${MAIN_DOMAIN}"
   parentRefs:
     - name: envoy-internal
       namespace: network
