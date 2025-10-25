@@ -90,8 +90,35 @@ spec:
             port: &grpc-port 5231
             targetPort: 5230
             appProtocol: kubernetes.io/h2c
-    route:
-      app:
+    # route:
+    #   app:
+    #     annotations:
+    #       gethomepage.dev/enabled: "true"
+    #       gethomepage.dev/group: 文章
+    #       gethomepage.dev/name: Memos
+    #       gethomepage.dev/icon: memos.png
+    #       gethomepage.dev/description: ""
+    #       gethomepage.dev/app: *app
+    #     hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
+    #     parentRefs:
+    #       - name: envoy-internal
+    #         namespace: network
+    #         sectionName: https
+    #     rules:
+    #       - matches:
+    #           - headers:
+    #               - name: Content-Type
+    #                 type: Exact
+    #                 value: "application/grpc-web+proto"
+    #         backendRefs:
+    #           - identifier: grpc
+    #             port: *grpc-port
+    #       - backendRefs:
+    #           - identifier: app
+    #             port: *port
+    ingress:
+      main:
+        className: nginx-internal
         annotations:
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: 文章
@@ -99,20 +126,15 @@ spec:
           gethomepage.dev/icon: memos.png
           gethomepage.dev/description: ""
           gethomepage.dev/app: *app
-        hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
-        parentRefs:
-          - name: envoy-internal
-            namespace: network
-            sectionName: https
-        rules:
-          - matches:
-              - headers:
-                  - name: Content-Type
-                    type: Exact
-                    value: "application/grpc-web+proto"
-            backendRefs:
-              - identifier: grpc
-                port: *grpc-port
-          - backendRefs:
-              - identifier: app
-                port: *port
+        #   nginx.ingress.kubernetes.io/auth-method: 'GET'
+        #   nginx.ingress.kubernetes.io/auth-url: http://authelia.security.svc.cluster.local/api/authz/auth-request
+        #   nginx.ingress.kubernetes.io/auth-signin: https://auth.${MAIN_DOMAIN}?rm=$request_method
+        #   nginx.ingress.kubernetes.io/auth-response-headers: Remote-User,Remote-Name,Remote-Groups,Remote-Email
+        #   nginx.ingress.kubernetes.io/auth-snippet: proxy_set_header X-Forwarded-Method $request_method;
+        hosts:
+          - host: memos.${MAIN_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
