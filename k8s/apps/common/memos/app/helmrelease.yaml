@@ -90,29 +90,29 @@ spec:
             port: &grpc-port 5231
             targetPort: 5230
             appProtocol: kubernetes.io/h2c
-    route:
-      app:
-        annotations:
-          gethomepage.dev/enabled: "true"
-          gethomepage.dev/group: 文章
-          gethomepage.dev/name: Memos
-          gethomepage.dev/icon: memos.png
-          gethomepage.dev/description: ""
-          gethomepage.dev/app: *app
-        hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
-        parentRefs:
-          - name: envoy-internal
-            namespace: network
-            sectionName: https
-        rules:
-          - matches:
-              - headers:
-                  - name: Content-Type
-                    type: Exact
-                    value: "application/grpc-web+proto"
-            backendRefs:
-              - identifier: grpc
-                port: *grpc-port
-          - backendRefs:
-              - identifier: app
-                port: *port
+    # route:
+    #   app:
+    #     annotations:
+    #       gethomepage.dev/enabled: "true"
+    #       gethomepage.dev/group: 文章
+    #       gethomepage.dev/name: Memos
+    #       gethomepage.dev/icon: memos.png
+    #       gethomepage.dev/description: ""
+    #       gethomepage.dev/app: *app
+    #     hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
+    #     parentRefs:
+    #       - name: envoy-internal
+    #         namespace: network
+    #         sectionName: https
+    #     rules:
+    #       - matches:
+    #           - headers:
+    #               - name: Content-Type
+    #                 type: Exact
+    #                 value: "application/grpc-web+proto"
+    #         backendRefs:
+    #           - identifier: grpc
+    #             port: *grpc-port
+    #       - backendRefs:
+    #           - identifier: app
+    #             port: *port
