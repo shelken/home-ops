@@ -38,10 +38,6 @@ servers:
         parameters: lan 192.168.6.1
       - name: forward
         parameters: . /etc/resolv.conf
-      - name: filter
-        configBlock: |-
-          # 过滤 ooooo.space 的 AAAA 记录
-          AAAA ooooo.space
       - name: cache
         configBlock: |-
           prefetch 20
