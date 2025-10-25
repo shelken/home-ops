@@ -23,6 +23,11 @@
       ansible.builtin.command: ip link delete cilium_host
       when: cilium_host_interface.rc == 0
       failed_when: false
+
+    #清除 multus
+    - name: 清除 multus
+      ansible.builtin.include_tasks: tasks/remove-multus.yaml
+
     - name: Uninstall
       ansible.builtin.include_role:
         name: xanmanning.k3s
