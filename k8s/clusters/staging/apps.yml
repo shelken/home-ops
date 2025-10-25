@@ -14,6 +14,9 @@ spec:
   #       name: cluster-secrets
   #     - kind: ConfigMap
   #       name: cluster-settings
+  dependsOn:
+    - name: infra
+      namespace: flux-system
   interval: 10m0s
   sourceRef:
     kind: GitRepository
