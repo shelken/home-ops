@@ -6,8 +6,8 @@ env:
   no_proxy: ""
 
 cpus: 8
-memory: 12GiB
-disk: 40GiB
+memory: 14G
+disk: 80G
 
 # 映射到vm中的目录为`/mnt/lima-longhorn`
 additionalDisks:
@@ -20,9 +20,9 @@ hostResolver:
   enabled: false
 
 dns:
-- 192.168.6.141
-- 192.168.6.1
-- 223.5.5.5
+  - 192.168.6.141
+  - 192.168.6.1
+  - 223.5.5.5
 
 # user:
 #   name: &username shelken
@@ -31,9 +31,9 @@ dns:
 # arm架构使用vznat
 # 如果要获取路由器网络ip，使用bridged（需要安装socket_vmnet）
 networks:
-- lima: bridged
-  interface: eth1
-  macAddress: "52:55:55:37:34:56"
+  - lima: bridged
+    interface: eth1
+    macAddress: "52:55:55:37:34:56"
 # - lima: shared
 #   interface: lima2
 # - vzNAT: true
@@ -48,15 +48,14 @@ portForwards:
     guestPort: 80
     guestIP: 0.0.0.0
 
-
 images:
-# Try to use release-yyyyMMdd image if available. Note that release-yyyyMMdd will be removed after several months.
-- location: "https://cloud-images.ubuntu.com/releases/oracular/release/ubuntu-24.10-server-cloudimg-amd64.img"
-  arch: "x86_64"
-  # digest: "sha256:eacac65efe9e9bae0cbcb3f9d5c2b5e8c5313fa78a3bc401c3fb28b2d48cefc0"
-- location: "https://cloud-images.ubuntu.com/releases/oracular/release/ubuntu-24.10-server-cloudimg-arm64.img"
-  arch: "aarch64"
-  # digest: "sha256:103f31c5a5b7f031a60ce3555c8fbd56317fd8ffbaaa7e17002879e6157d546d"
+  # Try to use release-yyyyMMdd image if available. Note that release-yyyyMMdd will be removed after several months.
+  - location: "https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-amd64.img"
+    arch: "x86_64"
+    # digest: "sha256:eacac65efe9e9bae0cbcb3f9d5c2b5e8c5313fa78a3bc401c3fb28b2d48cefc0"
+  - location: "https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-arm64.img"
+    arch: "aarch64"
+    # digest: "sha256:103f31c5a5b7f031a60ce3555c8fbd56317fd8ffbaaa7e17002879e6157d546d"
 
 # containerd is managed by k3s, not by Lima, so the values are set to false here.
 containerd:
