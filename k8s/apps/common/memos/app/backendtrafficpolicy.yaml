@@ -1,11 +1,20 @@
 apiVersion: gateway.envoyproxy.io/v1alpha1
-kind: BackendTrafficPolicy
+kind: EnvoyPatchPolicy
 metadata:
-  name: memos
+  name: memos-grpc-web
 spec:
   targetRef:
     group: gateway.networking.k8s.io
     kind: HTTPRoute
     name: memos-grpc
-  grpc:
-    webEnabled: true # 启用 gRPC-Web 支持
+  type: JSONPatch
+  jsonPatches:
+    # 在 route 级别添加 grpc_web 配置
+    - type: "type.googleapis.com/envoy.config.route.v3.RouteConfiguration"
+      name: default/grpc-gateway/http
+      operation:
+        op: add
+        path: "/virtual_hosts/0/routes/0/typed_per_filter_config"
+        value:
+          envoy.filters.http.grpc_web:
+            "@type": "type.googleapis.com/envoy.extensions.filters.http.grpc_web.v3.GrpcWeb"
