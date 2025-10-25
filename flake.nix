@@ -28,6 +28,7 @@
 
             # k9s
             # kustomize
+            krew
 
             ansible
             fluxcd
