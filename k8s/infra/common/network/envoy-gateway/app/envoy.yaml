@@ -113,7 +113,7 @@ spec:
       port: 80
       allowedRoutes:
         namespaces:
-          from: All
+          from: Same
     - name: https
       protocol: HTTPS
       port: 443
@@ -186,9 +186,9 @@ spec:
     - name: envoy-external
       namespace: network
       sectionName: http
-    # - name: envoy-internal
-    #   namespace: network
-    #   sectionName: http
+    - name: envoy-internal
+      namespace: network
+      sectionName: http
   rules:
     - filters:
         - type: RequestRedirect
