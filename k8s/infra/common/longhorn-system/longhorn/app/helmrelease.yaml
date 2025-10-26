@@ -24,10 +24,10 @@ spec:
     # ref: https://github.com/longhorn/charts/blob/v1.10.x/charts/longhorn/values.yaml
     # ref: https://github.com/blackjid/home-ops/blob/236881774e9e0fe48266db255d61ca220e64af5f/kubernetes/apps/longhorn-system/longhorn/app/helmrelease.yaml
     csi:
-      attacherReplicaCount: 1
-      provisionerReplicaCount: 1
-      resizerReplicaCount: 1
-      snapshotterReplicaCount: 1
+      attacherReplicaCount: 2
+      provisionerReplicaCount: 2
+      resizerReplicaCount: 2
+      snapshotterReplicaCount: 2
     persistence:
       defaultClassReplicaCount: 1 # 副本数量
       defaultDataLocality: best-effort # 副本倾向放在pod所在位置
