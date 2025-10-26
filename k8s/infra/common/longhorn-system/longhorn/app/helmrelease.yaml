@@ -45,3 +45,19 @@ spec:
     metrics:
       serviceMonitor:
         enabled: true
+    image:
+      longhorn:
+        engine:
+          registry: &registry "mirror.gcr.io"
+        manager:
+          registry: *registry
+        ui:
+          registry: *registry
+        instanceManager:
+          registry: *registry
+        shareManager:
+          registry: *registry
+        backingImageManager:
+          registry: *registry
+        supportBundleKit:
+          registry: *registry
