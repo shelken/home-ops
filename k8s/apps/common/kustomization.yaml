@@ -26,6 +26,6 @@ resources:
   - plex/ks.yaml
   # - scrypted/ks.yaml
   - seafile/ks.yaml
-  # - shlink/ks.yaml
+  - shlink/ks.yaml
   - smb-volumes/ks.yaml
   - vaultwarden/ks.yaml
