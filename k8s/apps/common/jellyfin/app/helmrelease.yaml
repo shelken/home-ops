@@ -100,6 +100,7 @@ spec:
         existingClaim: jellyfin-cache
         globalMounts:
           - path: /config/metadata
+          - path: /config/data/trickplay # 进度条预览
       music:
         existingClaim: smb-sakamoto-media
         globalMounts:
