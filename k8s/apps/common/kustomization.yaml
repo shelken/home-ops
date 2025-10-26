@@ -28,4 +28,4 @@ resources:
   # - seafile/ks.yaml
   # - shlink/ks.yaml
   - smb-volumes/ks.yaml
-  # - vaultwarden/ks.yaml
+  - vaultwarden/ks.yaml
