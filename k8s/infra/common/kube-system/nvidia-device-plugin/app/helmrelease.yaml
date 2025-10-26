@@ -32,6 +32,7 @@ spec:
     remediation:
       strategy: rollback
       retries: 3
+  # ref: https://github.com/NVIDIA/k8s-device-plugin/blob/main/deployments/helm/nvidia-device-plugin/values.yaml
   values:
     runtimeClassName: nvidia
     config:
