@@ -34,5 +34,5 @@ spec:
   # ref: https://artifacthub.io/packages/helm/intel/intel-device-plugins-gpu?modal=values
   values:
     name: i915
-    nodeFeatureRule: true # 自动打标签
+    nodeFeatureRule: false # 自动打标签(no matches for kind "NodeFeatureRule")
     sharedDevNum: 99
