@@ -12,18 +12,18 @@ resources:
   # - homarr/ks.yaml
   # - icloudpd/ks.yaml
   # - immich/ks.yaml
-  # - jellyfin/ks.yaml
+  - jellyfin/ks.yaml
   # - kite/ks.yaml
-  # - kromgo/ks.yaml
+  - kromgo/ks.yaml
   # - librespeed/ks.yaml
   # - memos/ks.yaml
-  # - metatube/ks.yaml
+  - metatube/ks.yaml
   # - n8n/ks.yaml
   # - new-api/ks.yaml
   # - ollama/ks.yaml
   - openlist/ks.yaml
   - qbittorrent/ks.yaml
-  # - plex/ks.yaml
+  - plex/ks.yaml
   # - scrypted/ks.yaml
   - seafile/ks.yaml
   # - shlink/ks.yaml
