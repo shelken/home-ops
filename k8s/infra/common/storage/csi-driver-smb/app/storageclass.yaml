@@ -2,30 +2,30 @@
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-    name: smb-app-storage
-    annotations:
-      kustomize.toolkit.fluxcd.io/substitute: disabled
+  name: smb-app-storage
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled
 provisioner: smb.csi.k8s.io
 parameters:
-    source: "//sakamoto/sakamoto-data"
-    subDir: "k8s/storage/${pvc.metadata.name}"
-    # if csi.storage.k8s.io/provisioner-secret is provided, will create a sub directory
-    # with PV name under source
-    csi.storage.k8s.io/provisioner-secret-name: smb-secret
-    csi.storage.k8s.io/provisioner-secret-namespace: storage
-    csi.storage.k8s.io/node-stage-secret-name: smb-secret
-    csi.storage.k8s.io/node-stage-secret-namespace: storage
+  source: "//sakamoto.lan/sakamoto-data"
+  subDir: "k8s/storage/${pvc.metadata.name}"
+  # if csi.storage.k8s.io/provisioner-secret is provided, will create a sub directory
+  # with PV name under source
+  csi.storage.k8s.io/provisioner-secret-name: smb-secret
+  csi.storage.k8s.io/provisioner-secret-namespace: storage
+  csi.storage.k8s.io/node-stage-secret-name: smb-secret
+  csi.storage.k8s.io/node-stage-secret-namespace: storage
 volumeBindingMode: WaitForFirstConsumer
 reclaimPolicy: Retain
 allowVolumeExpansion: true
 mountOptions:
-    - dir_mode=0777
-    - file_mode=0777
-    # - vers=3.1.1 # 不要指定版本
-    # - uid=1000
-    # - gid=1000
-    - iocharset=utf8
-    - mfsymlinks
-    - cache=strict
-    - noperm
-    - serverino
+  - dir_mode=0777
+  - file_mode=0777
+  # - vers=3.1.1 # 不要指定版本
+  # - uid=1000
+  # - gid=1000
+  - iocharset=utf8
+  - mfsymlinks
+  - cache=strict
+  - noperm
+  - serverino
