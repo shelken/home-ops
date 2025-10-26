@@ -33,5 +33,5 @@ spec:
       retries: 3
   values:
     name: i915
-    nodeFeatureRule: false
+    nodeFeatureRule: true # 自动打标签
     sharedDevNum: 99
