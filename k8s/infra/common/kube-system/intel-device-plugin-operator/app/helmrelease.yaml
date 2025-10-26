@@ -33,6 +33,7 @@ spec:
     crds: CreateReplace
     remediation:
       retries: 3
+  # ref: https://artifacthub.io/packages/helm/intel/intel-device-plugins-operator?modal=values
   values:
     manager:
       devices:
