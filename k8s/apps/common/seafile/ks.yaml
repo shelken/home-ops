@@ -45,6 +45,8 @@ spec:
     - ../../../../components/keda/smb-scaler
   dependsOn:
     - name: seafile-db
+    - name: csi-driver-smb
+      namespace: storage
   postBuild:
     substitute:
       APP: *app

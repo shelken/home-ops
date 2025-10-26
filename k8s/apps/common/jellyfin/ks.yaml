@@ -18,6 +18,8 @@ spec:
     - name: smb-volumes
     - name: keda
       namespace: observability
+    - name: csi-driver-smb
+      namespace: storage
   interval: 1h
   path: ./k8s/apps/common/jellyfin/app
   postBuild:
