@@ -63,8 +63,16 @@ containerd:
   user: false
 
 # 实例启动或初次安装执行
-provision: []
-
+provision:
+  - mode: system
+    script: |
+      #!/bin/bash
+      mkdir -p /home/{{.User}}/.ssh
+      echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN9sMBAahOZKZ5QXBEsu6ACfgX8TSt5EgD+E1h6mtzG2 shelken@mio" \
+      >> /home/{{.User}}/.ssh/authorized_keys
+      chmod 700 /home/{{.User}}/.ssh
+      chmod 600 /home/{{.User}}/.ssh/authorized_keys
+      chown -R {{.User}}:{{.User}} /home/{{.User}}/.ssh
 # 健康探针
 probes: []
 # - script: |
