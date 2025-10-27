@@ -6,7 +6,7 @@
 
 ### vGPU
 
-> 
+>
 > [vgpu 开启教程（驱动安装）](https://gitlab.com/polloloco/vgpu-proxmox)
 >
 > [自建vgpu认证服务教程](https://git.collinwebdesigns.de/oscar.krause/fastapi-dls)
@@ -17,6 +17,8 @@
 >
 > [英伟达 driver 官方](https://www.nvidia.com/en-us/drivers/)
 >
+
+#### 宿主机
 
 根据教程，宿主机安装patch之后的driver、 解锁消费级显卡、 覆盖配置要使用的profile
 
@@ -43,6 +45,7 @@ framebuffer = 0xEC000000
 framebuffer_reservation = 0x14000000
 ```
 
+#### vm
 
 然后虚拟机vm安装相关包和驱动
 
@@ -51,17 +54,21 @@ ansible-playbook ansible/playbooks/install-nvidia.yaml
 ```
 
 ```shell
-sudo ./NVIDIA-Linux-x86_64-550.163.02-grid.run
+#rsync传输文件
+rsync -avzP /Volumes/sakamoto-data/k8s/resource/nvidia-driver/vgpu-550.163.02-17.6/NVIDIA-Linux-x86_64-550.163.01-grid.run shelken@192.168.6.111:~/
+
+sudo ./NVIDIA-Linux-x86_64-550.163.01-grid.run --silent --no-questions --accept-license --disable-nouveau
 ```
 
 处理licence
 
-部署一个 [fastapi-dls](https://github.com/shelken/homelab-compose/blob/main/apps/nvidia-dls/docker-compose.yaml) 
+部署一个 [fastapi-dls](https://github.com/shelken/homelab-compose/blob/main/apps/nvidia-dls/docker-compose.yaml)
 
 ```shell
+export MAIN_DOMAIN=
 sudo curl --insecure -L -X GET https://nvidia-dls.$MAIN_DOMAIN/-/client-token -o /etc/nvidia/ClientConfigToken/client_configuration_token_$(date '+%d-%m-%Y-%H-%M-%S').tok
-sudo service nvidia-gridd restart
 sudo service nvidia-gridd enable --now
+sudo reboot
 
 # 检查
 sudo nvidia-smi -q | grep -i lic
@@ -144,4 +151,19 @@ lspci -nnk | grep -B5 i915
 
 ```shell
 k label node [node] intel.feature.node.kubernetes.io/gpu=true
+```
+
+## Intel
+
+```shell
+# 宿主机
+
+# 手动加载模块
+sudo modprobe i915
+
+# 设置开机自动加载
+echo "i915" | sudo tee -a /etc/modules
+
+# 更新 initramfs
+sudo update-initramfs -u
 ```
