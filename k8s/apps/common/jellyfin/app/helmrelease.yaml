@@ -59,7 +59,7 @@ spec:
               requests:
                 memory: 256Mi
               limits:
-                # gpu.intel.com/i915: 1
+                gpu.intel.com/i915: 1
                 nvidia.com/gpu: 1
                 memory: 8192Mi
     defaultPodOptions:
