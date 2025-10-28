@@ -10,7 +10,7 @@ spec:
       rules:
         - alert: GatusEndpointDown
           expr: |
-            gatus_results_endpoint_success{group="external"} == 0
+            gatus_results_endpoint_success{group=~"external|nginx-external"} == 0
           for: 5m
           annotations:
             summary: >-
@@ -20,10 +20,20 @@ spec:
 
         - alert: GatusEndpointExposed
           expr: |
-            gatus_results_endpoint_success{group="guarded"} == 0
+            gatus_results_endpoint_success{group=~"internal|nginx-internal"} == 0
           for: 5m
           annotations:
             summary: >-
               The {{ $labels.name }} endpoint has a public DNS record and is exposed
+          labels:
+            severity: critical
+
+        - alert: Gatus数据库警告
+          expr: |
+            gatus_results_endpoint_success{group=~"database"} == 0
+          for: 5m
+          annotations:
+            summary: >-
+              数据库 {{ $labels.name }} 五分钟内连接({{ $labels.type }})失败
           labels:
             severity: critical
