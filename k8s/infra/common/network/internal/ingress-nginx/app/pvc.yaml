@@ -4,7 +4,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: nginx-internal-cache
 spec:
-  accessModes: ["ReadWriteOne"]
+  accessModes: ["ReadWriteOnce"]
   resources:
     requests:
       storage: 12Gi
