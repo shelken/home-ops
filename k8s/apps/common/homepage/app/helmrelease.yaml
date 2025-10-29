@@ -43,7 +43,7 @@ spec:
               - secretRef:
                   name: *secret
             env:
-              LOG_LEVEL: info
+              LOG_LEVEL: debug
               HOMEPAGE_ALLOWED_HOSTS: "{{ .Release.Name }}.${MAIN_DOMAIN},hp.${MAIN_DOMAIN}"
             # envFrom:
             #   - secretRef:
