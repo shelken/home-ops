@@ -114,13 +114,14 @@ spec:
         globalMounts:
           - path: /backup-media
             readOnly: false
-      font:
-        type: hostPath
-        hostPath: /usr/share/fonts
-        hostPathType: Directory
-        globalMounts:
-          - path: /usr/share/fonts
-            readOnly: true
+      # fixed by https://github.com/jellyfin/jellyfin-packaging/pull/98
+      # font:
+      #   type: hostPath
+      #   hostPath: /usr/share/fonts
+      #   hostPathType: Directory
+      #   globalMounts:
+      #     - path: /usr/share/fonts
+      #       readOnly: true
       tmpfs:
         type: emptyDir
         advancedMounts:
