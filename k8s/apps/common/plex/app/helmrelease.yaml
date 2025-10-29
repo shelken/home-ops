@@ -88,8 +88,7 @@ spec:
           gethomepage.dev/description: ""
           gethomepage.dev/app: *app
           gatus.home-operations.com/endpoint: |-
-            conditions:
-              - "[STATUS] == 401"
+            url: https://{{ .Release.Name }}.${MAIN_DOMAIN}/identity
         hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
         parentRefs:
           - name: envoy-external

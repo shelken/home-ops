@@ -82,8 +82,7 @@ spec:
       app:
         annotations:
           gatus.home-operations.com/endpoint: |-
-            conditions:
-              - "[STATUS] == 404"
+            url: https://s.${MAIN_DOMAIN}/rest/health
         hostnames:
           - *host
         parentRefs:

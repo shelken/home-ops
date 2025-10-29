@@ -101,13 +101,13 @@ endpoints:
       - type: custom
   - name: subconverter
     group: vps
-    url: https://sub.${MAIN_DOMAIN}
+    url: https://sub.${MAIN_DOMAIN}/version
     interval: 1m
     ui:
       hide-hostname: true
       hide-url: true
     conditions:
-      - "[STATUS] == 404"
+      - "[STATUS] == 200"
     alerts:
       - type: custom
   - name: derp
