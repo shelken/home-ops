@@ -64,8 +64,7 @@ spec:
       app:
         annotations:
           gatus.home-operations.com/endpoint: |-
-            conditions:
-              - "[STATUS] == 401"
+            url: https://{{ .Release.Name }}.${MAIN_DOMAIN}/api/healthcheck
         hostnames:
           - "{{ .Release.Name }}.${MAIN_DOMAIN}"
         parentRefs:
