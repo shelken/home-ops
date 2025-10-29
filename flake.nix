@@ -57,9 +57,7 @@
 
           # Now we can execute any commands within the virtual environment.
           # This is optional and can be left out to run pip manually.
-          postShellHook = ''
-            # allow pip to install wheels
-          '';
+          postShellHook = '''';
         };
       }
     );
