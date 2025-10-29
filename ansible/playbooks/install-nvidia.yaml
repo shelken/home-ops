@@ -4,70 +4,70 @@
   become: true
   gather_facts: true
   tasks:
-    - name: Add NVIDIA Container Toolkit GPG key
-      ansible.builtin.apt_key:
-        url: https://nvidia.github.io/libnvidia-container/gpgkey
-        keyring: /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
-        state: present
-      when: 
-        - (nvidia_gpu | default(false)) | bool
+    - name: Install Nvidia Driver And Container Runtime
+      block:
+        - name: Add NVIDIA Container Toolkit GPG key
+          ansible.builtin.apt_key:
+            url: https://nvidia.github.io/libnvidia-container/gpgkey
+            keyring: /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+            state: present
 
-    - name: Download and configure NVIDIA container toolkit APT source list
-      ansible.builtin.get_url:
-        url: https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list
-        dest: /etc/apt/sources.list.d/nvidia-container-toolkit.list
-        mode: '0644'
-      when: 
-        - (nvidia_gpu | default(false)) | bool
+        - name: Download and configure NVIDIA container toolkit APT source list
+          ansible.builtin.get_url:
+            url: https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list
+            dest: /etc/apt/sources.list.d/nvidia-container-toolkit.list
+            mode: "0644"
 
-    - name: Update APT source list to use signed-by option
-      ansible.builtin.replace:
-        path: /etc/apt/sources.list.d/nvidia-container-toolkit.list
-        regexp: '^deb https://'
-        replace: 'deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://'
-      when: 
-        - (nvidia_gpu | default(false)) | bool
-    
-    - name: Update apt cache
-      apt:
-        update_cache: yes
-        cache_valid_time: 3600
-      when: 
-        - (nvidia_gpu | default(false)) | bool
+        - name: Update APT source list to use signed-by option
+          ansible.builtin.replace:
+            path: /etc/apt/sources.list.d/nvidia-container-toolkit.list
+            regexp: "^deb https://"
+            replace: "deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://"
 
-    - name: 安装 Nvidia 所需包
-      ansible.builtin.apt:
-        name: "{{ item }}"
-        state: present
-        install_recommends: no
-        force_apt_get: yes
-        allow_unauthenticated: no
-      loop: 
-        # - nvidia-headless-535-server
-        # - nvidia-utils-535-server
-        - nvidia-container-runtime  # 容器运行时
-        - pkg-config                # nvidia-driver 依赖
-        - libglvnd-dev              # nvidia-driver 依赖
-      when: 
-        - (nvidia_gpu | default(false)) | bool
+        - name: Update apt cache
+          ansible.builtin.apt:
+            update_cache: yes
+            cache_valid_time: 3600
 
-    - name: Disable nouveau driver
-      become: true
-      ansible.builtin.copy:
-        dest: /etc/modprobe.d/blacklist-nouveau.conf
-        content: |
-          blacklist nouveau
-          options nouveau modeset=0
-        owner: root
-        group: root
-        mode: '0644'
-      when: 
-        - (nvidia_gpu | default(false)) | bool
-    - name: Update initramfs to apply nouveau blacklist (Ubuntu/Debian)
-      become: true
-      ansible.builtin.command: update-initramfs -u
-      when: 
+        - name: 安装 Nvidia 所需包
+          ansible.builtin.apt:
+            update_cache: yes
+            name: "{{ item }}"
+            state: present
+            install_recommends: no
+            force_apt_get: yes
+            allow_unauthenticated: no
+          loop:
+            - nvidia-container-runtime # 容器运行时
+            - build-essential
+            - "linux-headers-{{ ansible_kernel }}"
+            - pkg-config # nvidia-driver 依赖
+            - libglvnd-dev # nvidia-driver 依赖
+
+        - name: Disable nouveau driver
+          become: true
+          ansible.builtin.copy:
+            dest: /etc/modprobe.d/blacklist-nouveau.conf
+            content: |
+              blacklist nouveau
+              options nouveau modeset=0
+            owner: root
+            group: root
+            mode: "0644"
+        - name: Update initramfs to apply nouveau blacklist (Ubuntu/Debian)
+          become: true
+          ansible.builtin.command: update-initramfs -u
+
+        - name: 重启系统
+          ansible.builtin.reboot:
+            msg: "重启以完全禁用nouveau"
+            connect_timeout: 5
+            reboot_timeout: 300
+            pre_reboot_delay: 5
+            post_reboot_delay: 30
+      when:
         - (nvidia_gpu | default(false)) | bool
 
     # 安装与宿主机版本一致的grid driver
+    # sudo ./NVIDIA-Linux-x86_64-550.163.01-grid.run --silent --no-questions --accept-license --disable-nouveau
     # 然后配置 licence/nvidia-gridd
