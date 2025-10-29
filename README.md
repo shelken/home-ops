@@ -137,3 +137,10 @@ kubectl -n longhorn-system patch -p '{"value": "true"}' --type=merge lhs deletin
 ```shell
 sudo apt-get install -y cifs-utils linux-modules-extra-$(uname -r)
 ```
+
+8. 遇到helmrelease/kustomization卡住的情况
+
+```shell
+flux suspend helmrelease cilium -n kube-system
+flux resume helmrelease cilium -n kube-system
+```
