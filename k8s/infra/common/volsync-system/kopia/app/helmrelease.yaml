@@ -70,6 +70,10 @@ spec:
             envFrom:
               - secretRef:
                   name: kopia-secret
+            command:
+              - catatonit
+              - --
+              - /config/entrypoint.sh
             args:
               - --without-password
             probes:
@@ -130,7 +134,7 @@ spec:
         identifier: entrypoint
         defaultMode: 0700
         globalMounts:
-          - path: /entrypoint.sh
+          - path: /config/entrypoint.sh
             subPath: entrypoint.sh
       tmpfs:
         type: emptyDir
