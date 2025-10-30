@@ -98,7 +98,8 @@ spec:
           - key: repository.config
             path: repository.config
         globalMounts:
-          - /config
+          - path: /config/repository.config
+            subPath: repository.config
       tmpfs:
         type: emptyDir
         advancedMounts:
