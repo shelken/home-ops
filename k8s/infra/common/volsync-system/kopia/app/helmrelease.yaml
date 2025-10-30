@@ -19,41 +19,6 @@ spec:
     remediation:
       retries: 3
   values:
-    configMaps:
-      entrypoint:
-        data:
-          entrypoint.sh: |
-            #!/usr/bin/env bash
-            set -e
-
-            KOPIA_CONFIG_PATH=/config/repository.config
-            rm /config/repository.config
-
-            # before start, connect the repo
-            /usr/local/bin/kopia repository connect s3 \
-            --bucket=$KOPIA_BUCKET \
-            --endpoint=$KOPIA_S3_ENDPOINT \
-            --access-key=$AWS_ACCESS_KEY_ID \
-            --secret-access-key=$AWS_SECRET_ACCESS_KEY \
-            --password=$KOPIA_PASSWORD \
-            --override-hostname volsync.volsync-system.svc.cluster.local \
-            --override-username volsync \
-            --disable-tls
-            ## --disable-tls depend on endpoint
-
-            if [[ ${KOPIA_WEB_ENABLED} == "true" ]]; then
-                exec \
-                    /usr/local/bin/kopia \
-                        server \
-                        start \
-                        --insecure \
-                        --address "0.0.0.0:${KOPIA_WEB_PORT}" \
-                        "$@"
-            else
-                exec \
-                    /usr/local/bin/kopia \
-                        "$@"
-            fi
     controllers:
       kopia:
         annotations:
@@ -70,10 +35,6 @@ spec:
             envFrom:
               - secretRef:
                   name: kopia-secret
-            command:
-              - catatonit
-              - --
-              - /config/entrypoint.sh
             args:
               - --without-password
             probes:
@@ -129,13 +90,13 @@ spec:
               - identifier: app
                 port: *port
     persistence:
-      entrypoint:
-        type: configMap
-        identifier: entrypoint
-        defaultMode: 0755
-        globalMounts:
-          - path: /config/entrypoint.sh
-            subPath: entrypoint.sh
+      repository-config:
+        enabled: true
+        type: secret
+        name: kopia-secret
+        items:
+          - key: repository.config
+            path: /config/repository.config
       tmpfs:
         type: emptyDir
         advancedMounts:
