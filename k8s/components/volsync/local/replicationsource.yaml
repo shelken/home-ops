@@ -3,28 +3,20 @@
 apiVersion: volsync.backube/v1alpha1
 kind: ReplicationSource
 metadata:
-  name: "${APP}"
+  name: ${APP}
 spec:
-  sourcePVC: "${APP}"
+  sourcePVC: ${APP}
   trigger:
-    schedule: "0 * * * *"
-  restic:
-    copyMethod: "${VOLSYNC_COPYMETHOD:=Snapshot}"
-    pruneIntervalDays: 14
-    repository: "${APP}-volsync-secret"
-    volumeSnapshotClassName: "${VOLSYNC_SNAPSHOTCLASS:=longhorn-snapclass}"
-    cacheCapacity: "${VOLSYNC_CACHE_CAPACITY:=3Gi}"
-    cacheStorageClassName: "${VOLSYNC_CACHE_SNAPSHOTCLASS:=longhorn-cache}"
-    cacheAccessModes: ["${VOLSYNC_CACHE_ACCESSMODES:=ReadWriteOnce}"]
-    storageClassName: "${VOLSYNC_STORAGECLASS:=longhorn-snapshot}"
-    accessModes: ["${VOLSYNC_SNAP_ACCESSMODES:=ReadWriteOnce}"]
-    moverSecurityContext:
-      runAsUser: ${VOLSYNC_PUID:=1000}
-      runAsGroup: ${VOLSYNC_PGID:=1000}
-      fsGroup: ${VOLSYNC_PGID:=1000}
-    retain:
-      hourly: 24
-      daily: 7
+    schedule: 0 * * * *
+  kopia:
+    accessModes:
+      - ${VOLSYNC_SNAP_ACCESSMODES:=ReadWriteOnce}
+    cacheAccessModes:
+      - ${VOLSYNC_CACHE_ACCESSMODES:=ReadWriteOnce}
+    cacheCapacity: ${VOLSYNC_CACHE_CAPACITY:=3Gi}
+    cacheStorageClassName: ${VOLSYNC_CACHE_SNAPSHOTCLASS:=longhorn-cache}
+    compression: zstd-fastest
+    copyMethod: Snapshot
     moverAffinity:
       nodeAffinity:
         requiredDuringSchedulingIgnoredDuringExecution:
@@ -40,3 +32,14 @@ spec:
               matchExpressions:
                 - key: node-role.kubernetes.io/control-plane
                   operator: Exists
+    moverSecurityContext:
+      runAsUser: ${VOLSYNC_PUID:=1000}
+      runAsGroup: ${VOLSYNC_PGID:=1000}
+      fsGroup: ${VOLSYNC_PGID:=1000}
+    parallelism: 2
+    repository: ${APP}-volsync-secret
+    retain:
+      hourly: 24
+      daily: 7
+    storageClassName: ${VOLSYNC_STORAGECLASS:=longhorn-snapshot}
+    volumeSnapshotClassName: ${VOLSYNC_SNAPSHOTCLASS:=longhorn-snapclass}

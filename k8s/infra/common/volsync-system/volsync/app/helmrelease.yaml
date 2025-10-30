@@ -1,18 +1,3 @@
----
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/source.toolkit.fluxcd.io/ocirepository_v1.json
-apiVersion: source.toolkit.fluxcd.io/v1
-kind: OCIRepository
-metadata:
-  name: volsync
-spec:
-  interval: 5m
-  layerSelector:
-    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
-    operation: copy
-  ref:
-    tag: 0.13.1
-  url: oci://ghcr.io/home-operations/charts-mirror/volsync
----
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -24,17 +9,19 @@ spec:
   chartRef:
     kind: OCIRepository
     name: volsync
-  install:
-    remediation:
-      retries: -1
-  upgrade:
-    cleanupOnFail: true
-    remediation:
-      retries: 3
   values:
-    # ref: https://artifacthub.io/packages/helm/backube-helm-charts/volsync?modal=values
+    fullnameOverride: volsync # Required for volsync-perfectra1n fork
+    image: &image
+      repository: ghcr.io/perfectra1n/volsync
+      tag: v0.16.13
+    kopia: *image
+    rclone: *image
+    restic: *image
+    rsync: *image
+    rsync-tls: *image
+    syncthing: *image
     manageCRDs: true
-    replicaCount: 1
+    # replicaCount: 1
     metrics:
       disableAuth: true
     podSecurityContext:
