@@ -103,3 +103,13 @@ spec:
         existingClaim: *app
         globalMounts:
           - path: /app/backend/data
+      #NOTE: 备用
+      # cache:
+      #   enabled: true
+      #   type: persistentVolumeClaim
+      #   accessMode: ReadWriteOnce
+      #   storageClass: longhorn-cache
+      #   size: 5Gi
+      #   globalMounts:
+      #     - path: /app/backend/data/cache
+      #       subPath: data-cache
