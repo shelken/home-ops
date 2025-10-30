@@ -12,6 +12,9 @@ spec:
   kopia:
     accessModes:
       - ${VOLSYNC_ACCESSMODES:=ReadWriteOnce}
+    # ref: https://github.com/perfectra1n/volsync/blob/main/docs/usage/kopia/additional-args.rst
+    additionalArgs:
+      - --parallel=4
     cacheAccessModes:
       - ${VOLSYNC_CACHE_ACCESSMODES:=ReadWriteOnce}
     cacheCapacity: ${VOLSYNC_CACHE_CAPACITY:=3Gi}
