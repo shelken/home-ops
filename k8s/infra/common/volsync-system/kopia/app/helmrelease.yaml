@@ -71,8 +71,8 @@ spec:
               - secretRef:
                   name: kopia-secret
             command:
-              - catatonit
-              - --
+              - /bin/sh
+              - -c
               - /config/entrypoint.sh
             args:
               - --without-password
