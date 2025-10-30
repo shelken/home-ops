@@ -71,8 +71,8 @@ spec:
               - secretRef:
                   name: kopia-secret
             command:
-              - /bin/sh
-              - -c
+              - catatonit
+              - --
               - /config/entrypoint.sh
             args:
               - --without-password
@@ -132,7 +132,7 @@ spec:
       entrypoint:
         type: configMap
         identifier: entrypoint
-        defaultMode: 0700
+        defaultMode: 0755
         globalMounts:
           - path: /config/entrypoint.sh
             subPath: entrypoint.sh
