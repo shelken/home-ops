@@ -96,7 +96,9 @@ spec:
         name: kopia-secret
         items:
           - key: repository.config
-            path: /config/repository.config
+            path: repository.config
+        globalMounts:
+          - /config
       tmpfs:
         type: emptyDir
         advancedMounts:
