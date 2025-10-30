@@ -21,4 +21,3 @@ volsync 将集群数据同步到内网部署的 minio
 - VOLSYNC_CAPACITY：PVC容量大小 默认 2
 - VOLSYNC_PUID：默认1000
 - VOLSYNC_PGID：默认1000
-- 
