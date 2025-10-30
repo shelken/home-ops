@@ -27,7 +27,7 @@ spec:
             set -e
 
             KOPIA_CONFIG_PATH=/config/repository.config
-            rm /config/repository.config
+            #rm /config/repository.config
 
             # before start, connect the repo
             /usr/local/bin/kopia repository connect s3 \
