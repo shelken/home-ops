@@ -38,8 +38,8 @@ spec:
             --password=$KOPIA_PASSWORD \
             --override-hostname volsync.volsync-system.svc.cluster.local \
             --override-username volsync \
-            ## depend on endpoint
             --disable-tls
+            ## --disable-tls depend on endpoint
 
             if [[ ${KOPIA_WEB_ENABLED} == "true" ]]; then
                 exec \
