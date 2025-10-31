@@ -5,11 +5,11 @@ components:
 resources:
   - dozzle/ks.yaml
   - echo/ks.yaml
-  # - frigate/ks.yaml
+  - frigate/ks.yaml
   # - go2rtc/ks.yaml
   - home-assistant/ks.yaml
   - homepage/ks.yaml
-  # - homarr/ks.yaml
+  - homarr/ks.yaml
   - icloudpd/ks.yaml
   - immich/ks.yaml
   - jellyfin/ks.yaml
@@ -18,13 +18,13 @@ resources:
   # - librespeed/ks.yaml
   # - memos/ks.yaml
   - metatube/ks.yaml
-  - n8n/ks.yaml
+  # - n8n/ks.yaml
   - new-api/ks.yaml
   # - ollama/ks.yaml
   - openlist/ks.yaml
   - qbittorrent/ks.yaml
   - plex/ks.yaml
-  - scrypted/ks.yaml
+  # - scrypted/ks.yaml
   - seafile/ks.yaml
   - shlink/ks.yaml
   - slash/ks.yaml
