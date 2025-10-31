@@ -25,7 +25,7 @@ detectors:
     device: 0
 
 model:
-  path: /config/model_cache/tensorrt/yolov7-320.trt  #预训练的模型文件
+  path: /config/model_cache/tensorrt/yolov7-320.trt #预训练的模型文件
   input_tensor: nchw
   input_pixel_format: rgb
   width: 320 #与上面文件尺寸对应
@@ -126,5 +126,3 @@ cameras:
           max_area: 100000
           threshold: 0.75
           min_score: 0.60
-    live:
-      stream_name: mercury1_record
