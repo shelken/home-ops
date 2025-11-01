@@ -169,7 +169,7 @@ spec:
         hostnames: ["drive-s3.${MAIN_DOMAIN}"]
         parentRefs:
           - name: envoy-internal
-            namespace: kube-system
+            namespace: network
             sectionName: https
         rules:
           - backendRefs:
