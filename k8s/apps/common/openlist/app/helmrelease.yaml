@@ -126,6 +126,7 @@ spec:
             namespace: network
             sectionName: https
         rules:
+          # 图床公开 cors（主要obsidian）
           - matches:
               # - path:
               #     type: RegularExpression
@@ -145,6 +146,7 @@ spec:
             backendRefs: &originBackend
               - identifier: app
                 port: *port
+          # 部分路径不走anubis
           - matches:
               - path:
                   type: PathPrefix
@@ -162,20 +164,21 @@ spec:
           - backendRefs:
               - identifier: app
                 port: *anubisPort
-      # s3:
-      #   annotations:
-      #     gatus.home-operations.com/endpoint: |-
-      #       conditions:
-      #         - "[STATUS] == 403"
-      #   hostnames: ["drive-s3.${MAIN_DOMAIN}"]
-      #   parentRefs:
-      #     - name: external
-      #       namespace: kube-system
-      #       sectionName: https
-      #   rules:
-      #     - backendRefs:
-      #         - name: *app
-      #           port: *s3-port
+      s3:
+        # for lan backup
+        annotations:
+          gatus.home-operations.com/endpoint: |-
+            conditions:
+              - "[STATUS] == 403"
+        hostnames: ["drive-s3.${MAIN_DOMAIN}"]
+        parentRefs:
+          - name: envoy-internal
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - name: app
+                port: *s3-port
     configMaps:
       scripts:
         data:
