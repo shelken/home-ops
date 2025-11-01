@@ -5,6 +5,8 @@
 
 ## 旧数据迁移
 
+### restic
+
 [文档](https://volsync.readthedocs.io)
 
 ```shell
@@ -13,6 +15,21 @@ export RESTIC_REPOSITORY=s3:minio.ooooo.space/k8s-restic/repos/[APP_NAME]
 cd /data/docker/[APP_NAME]
 restic init
 restic backup .
+```
+
+### kopia
+
+```shell
+export KOPIA_PASSWORD=''
+export AWS_SECRET_ACCESS_KEY=''
+export AWS_ACCESS_KEY_ID=''
+kopia repository connect s3 \
+--bucket=kopia-backup \
+--endpoint=sakamoto.lan:9000 \
+--disable-tls --override-hostname default --override-username={APP}
+
+kopia policy set {APP}@default:/data --compression=zstd-fastest
+kopia snapshot create . --override-source=/data
 ```
 
 ## 添加新应用
