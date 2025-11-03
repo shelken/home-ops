@@ -6,7 +6,7 @@ metadata:
 data:
   # URLS
   IMMICH_SERVER_URL: http://immich-server.default.svc.cluster.local:2283
-  # IMMICH_MACHINE_LEARNING_URL: http://immich-machine-learning.default.svc.cluster.local:3003
+  IMMICH_MACHINE_LEARNING_URL: http://immich-machine-learning.default.svc.cluster.local:3003
   PUBLIC_IMMICH_SERVER_URL: https://photo.${MAIN_DOMAIN}
   # SETTINGS
   IMMICH_LOG_LEVEL: log
