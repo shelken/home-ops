@@ -41,7 +41,7 @@ spec:
               TZ: ${TIMEZONE}
               IMMICH_WORKERS_INCLUDE: api
               IMMICH_METRICS_INCLUDE: all
-              IMMICH_CONFIG_FILE: &config /config/immich.yaml
+              # IMMICH_CONFIG_FILE: &config /config/immich.yaml
             envFrom:
               - configMapRef:
                   name: immich-configmap
@@ -129,7 +129,7 @@ spec:
           - key: immich.yaml
             path: immich.yaml
         globalMounts:
-          - path: *config
+          - path: /config/immich.yaml
             subPath: immich.yaml
             readOnly: true
       library:
