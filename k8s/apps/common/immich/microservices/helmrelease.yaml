@@ -30,6 +30,7 @@ spec:
             env:
               TZ: ${TIMEZONE}
               IMMICH_WORKERS_EXCLUDE: api
+              # IMMICH_CONFIG_FILE: &config /config/immich.yaml
             envFrom:
               - configMapRef:
                   name: immich-configmap
@@ -58,6 +59,16 @@ spec:
           - 44 # video
           - 992 # render(24.04)
     persistence:
+      config-file:
+        type: secret
+        name: immich-secret
+        items:
+          - key: immich.yaml
+            path: immich.yaml
+        globalMounts:
+          - path: /config/immich.yaml
+            subPath: immich.yaml
+            readOnly: true
       library:
         existingClaim: smb-sakamoto-media
         globalMounts:
