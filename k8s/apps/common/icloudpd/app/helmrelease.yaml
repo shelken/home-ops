@@ -65,7 +65,7 @@ spec:
         ports:
           http:
             port: *port
-    ingress:
+    route:
       app:
         annotations:
           gethomepage.dev/enabled: "true"
@@ -73,28 +73,16 @@ spec:
           gethomepage.dev/name: icloudpd
           gethomepage.dev/icon: icloud.svg
           gethomepage.dev/description: "同步 iCloud 照片"
-          # authelia
-          nginx.ingress.kubernetes.io/auth-method: GET
-          nginx.ingress.kubernetes.io/auth-url: http://authelia.security.svc.cluster.local/api/authz/auth-request
-          nginx.ingress.kubernetes.io/auth-signin: https://auth.${MAIN_DOMAIN}?rm=$request_method
-          nginx.ingress.kubernetes.io/auth-snippet: proxy_set_header X-Forwarded-Method $request_method;
-          gatus.home-operations.com/endpoint: |-
-            group: nginx-internal
-            guarded: true
-            url: ${MAIN_VPS_IP}:5054
-            ui:
-              hide-hostname: true
-              hide-url: true
-            alerts:
-              - type: custom
-        className: nginx-internal
-        hosts:
-          - host: "{{ .Release.Name }}.${MAIN_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
+        hostnames:
+          - "{{ .Release.Name }}.${MAIN_DOMAIN}"
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
     persistence:
       config:
         existingClaim: *app
