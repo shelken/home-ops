@@ -31,7 +31,6 @@ spec:
             env:
               TZ: ${TIMEZONE}
               QBT_WEBUI_PORT: &port 80
-              QBT_LOG_LEVEL: DEBUG
               QBT_TORRENTING_PORT: &torrentPort 50413
             probes:
               liveness: &probes
