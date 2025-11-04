@@ -19,17 +19,17 @@ mqtt:
 database:
   path: /config/frigate.db
 
-detectors:
-  tensorrt:
-    type: tensorrt
-    device: 0
+# detectors:
+#   tensorrt:
+#     type: tensorrt
+#     device: 0
 
-model:
-  path: /config/model_cache/tensorrt/yolov7-320.trt #预训练的模型文件
-  input_tensor: nchw
-  input_pixel_format: rgb
-  width: 320 #与上面文件尺寸对应
-  height: 320
+# model:
+#   path: /config/model_cache/tensorrt/yolov7-320.trt #预训练的模型文件
+#   input_tensor: nchw
+#   input_pixel_format: rgb
+#   width: 320 #与上面文件尺寸对应
+#   height: 320
 
 birdseye:
   enabled: false
@@ -77,13 +77,13 @@ record:
 
 review:
   alerts:
-    labels:
-      - person
+    labels: []
+      # - person
       # - dog
       # - car.
   detections:
-    labels:
-      - person
+    labels: []
+      # - person
       # - dog
       # - cat
 
@@ -97,8 +97,8 @@ snapshots:
 
 go2rtc:
   streams:
-    mercury1_detect:
-      - rtsp://admin:{FRIGATE_RTSP_PASSWORD}@mercury-1.lan:554/stream2
+    # mercury1_detect:
+    #   - rtsp://admin:{FRIGATE_RTSP_PASSWORD}@mercury-1.lan:554/stream2
     mercury1_record:
       - rtsp://admin:{FRIGATE_RTSP_PASSWORD}@mercury-1.lan:554/stream1
       - "ffmpeg:mercury1_record#audio=aac"
@@ -107,22 +107,22 @@ cameras:
   mercury1:
     ffmpeg:
       inputs:
-        - path: rtsp://127.0.0.1:8554/mercury1_detect
-          input_args: preset-rtsp-restream
-          roles:
-            - detect
+        # - path: rtsp://127.0.0.1:8554/mercury1_detect
+        #   input_args: preset-rtsp-restream
+        #   roles:
+        #     - detect
         - path: rtsp://127.0.0.1:8554/mercury1_record
           input_args: preset-rtsp-restream
           roles:
             - record
-    detect:
-      height: 480
-      width: 640
-      fps: 5
-    objects:
-      filters:
-        person:
-          min_area: 1500
-          max_area: 100000
-          threshold: 0.75
-          min_score: 0.60
+    # detect:
+    #   height: 480
+    #   width: 640
+    #   fps: 5
+    # objects:
+    #   filters:
+    #     person:
+    #       min_area: 1500
+    #       max_area: 100000
+    #       threshold: 0.75
+    #       min_score: 0.60

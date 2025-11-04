@@ -21,15 +21,15 @@ spec:
   values:
     controllers:
       frigate:
-        pod:
-          runtimeClassName: nvidia
+        # pod:
+        #   runtimeClassName: nvidia
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
           app:
             image:
               repository: ghcr.io/blakeblackshear/frigate
-              tag: 0.16.2-tensorrt
+              tag: 0.16.2
             env:
               TZ: ${TIMEZONE}
               YOLO_MODELS: yolov7-320
@@ -63,7 +63,7 @@ spec:
               limits:
                 memory: &memory 2048Mi
                 gpu.intel.com/i915: 1
-                nvidia.com/gpu: 1
+                # nvidia.com/gpu: 1
     # defaultPodOptions:
     #   securityContext:
     #     runAsNonRoot: true
