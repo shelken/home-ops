@@ -7,7 +7,7 @@ metadata:
     external-dns.alpha.kubernetes.io/hostname: immich-db.${MAIN_DOMAIN}
     lbipam.cilium.io/ips: 192.168.6.56
     gatus.home-operations.com/endpoint: |-
-      group: database
+      group: services
       ui:
         hide-url: true
         hide-hostname: true
