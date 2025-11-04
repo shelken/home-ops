@@ -37,14 +37,14 @@ birdseye:
   mode: continuous
 
 ffmpeg:
-  # hwaccel_args: preset-intel-qsv-h264
-  hwaccel_args: preset-nvidia-h264
+  hwaccel_args: preset-intel-qsv-h264
+  # hwaccel_args: preset-nvidia-h264
   output_args:
     record: preset-record-generic-audio-aac
 
 objects:
-  track:
-    - person
+  track: []
+    # - person
     # - dog
     # - cat
   filters:
