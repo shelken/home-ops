@@ -47,6 +47,7 @@ homelab
 | immich-db                  | 192.168.6.56     |                |             |
 | seafile-db                 | 192.168.6.57     |                |             |
 | qbittorrent                | 192.168.6.58     |                |             |
+| mosquitto                  | 192.168.6.59     |                |             |
 | longhorn                   |                  | longhorn ui    | longhorn.   |
 | ~~cilium ingress~~         | ~~192.168.6.40~~ | 已经关闭       |             |
 
