@@ -32,7 +32,7 @@
           url: http://gatus.observability.svc.cluster.local:80
     - UptimeKuma:
         icon: uptime-kuma.png
-        href: https://stats.${MAIN_DOMAIN}
+        href: http://tvbox.lan:6300
         description:
         widget:
           type: uptimekuma
@@ -61,7 +61,6 @@
         icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/avatar/mio-2.jpg
         href: https://xlog.${MAIN_DOMAIN}
         description:
-
 # - 网络:
 #     - Headscale Manage:
 #         icon: tailscale-light.png
