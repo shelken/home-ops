@@ -151,7 +151,8 @@ spec:
       expose:
         type: LoadBalancer
         annotations:
-          io.cilium/lb-ipam-ips: 192.168.6.51
+          lbipam.cilium.io/ips: 192.168.6.51
+        externalTrafficPolicy: Local
         ports:
           homekit:
             portRange:

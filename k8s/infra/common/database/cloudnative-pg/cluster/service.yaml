@@ -5,7 +5,7 @@ metadata:
   name: postgres17
   annotations:
     external-dns.alpha.kubernetes.io/hostname: postgres17.${MAIN_DOMAIN}
-    io.cilium/lb-ipam-ips: 192.168.6.52
+    lbipam.cilium.io/ips: 192.168.6.52
     gatus.home-operations.com/endpoint: |-
       group: database
       ui:
@@ -17,7 +17,7 @@ metadata:
         - type: custom
 spec:
   type: LoadBalancer
-  # externalTrafficPolicy: Cluster
+  externalTrafficPolicy: Local
   ports:
     - name: postgres
       port: 5432
