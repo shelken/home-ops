@@ -1,13 +1,13 @@
 ---
 <h3 align="center">
-  <img src="https://wsrv.nl?url=https://avatars.githubusercontent.com/u/33972006?fit=cover&mask=circle&maxage=7d" width="100" alt="Logo"/><br/>
-  <img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/misc/transparent.png" height="30" width="0px"/>
-  <img src="https://gcore.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/kubernetes-dashboard.svg" height="15" /> Homelab for <a href="https://github.com/shelken">Shelken</a>
-  <img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/misc/transparent.png" height="30" width="0px"/>
+<img src="https://wsrv.nl?url=https://avatars.githubusercontent.com/u/33972006?fit=cover&mask=circle&maxage=7d" width="100" alt="Logo"/><br/>
+<img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/misc/transparent.png" height="30" width="0px"/>
+<img src="https://gcore.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/kubernetes-dashboard.svg" height="15" /> Homelab for <a href="https://github.com/shelken">Shelken</a>
+<img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/misc/transparent.png" height="30" width="0px"/>
 </h3>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/palette/macchiato.png" width="400" />
+<img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/palette/macchiato.png" width="400" />
 </p>
 
 <div align="center">
@@ -22,34 +22,33 @@
 [![Alerts](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fcluster_alert_count&logo=prometheus&labelColor=363a4f&style=for-the-badge&label=Alerts)](https://prometheus.ooooo.space/alerts)
 
 </div>
-
 ---
+
 # home-ops
+
 homelab
-
-
 
 ## 设备网络
 
 > lb ip range: 192.168.6.40 ~ 192.168.6.59
 
-| 服务                    | ip               | 描述           | domain      |
-| ----------------------- | ---------------- | -------------- | ----------- |
-| k8s-gateway             | 192.168.6.41     | 开放给外部 dns |             |
-| nginx internal ingress  | 192.168.6.43     |                |             |
-| nginx external ingress  | 192.168.6.44     |                |             |
-| envoy external gateway  | 192.168.6.45     |                |             |
-| envoy internal gateway  | 192.168.6.46     |                |             |
-| home assistant          | 192.168.6.51     |                |             |
-| postgres17              | 192.168.6.52     | 开放postgres   | postgres17. |
-| go2rtc                  | 192.168.6.53     |                |             |
-| plex                    | 192.168.6.54     |                |             |
-| scrypted                | 192.168.6.55     |                |             |
-| immich-db               | 192.168.6.56     |                |             |
-| seafile-db              | 192.168.6.57     |                |             |
-| qbittorrent             | 192.168.6.58     |                |             |
-| longhorn                |                  | longhorn ui    | longhorn.   |
-| cilium ingress          | ~~192.168.6.40~~ | 已经关闭       |             |
+| 服务                       | ip               | 描述           | domain      |
+| -------------------------- | ---------------- | -------------- | ----------- |
+| k8s-gateway                | 192.168.6.41     | 开放给外部 dns |             |
+| nginx internal ingress     | 192.168.6.43     |                |             |
+| ~~nginx external ingress~~ | ~~192.168.6.44~~ | 已经关闭       |             |
+| envoy external gateway     | 192.168.6.45     |                |             |
+| envoy internal gateway     | 192.168.6.46     |                |             |
+| home assistant             | 192.168.6.51     |                |             |
+| postgres17                 | 192.168.6.52     | 开放postgres   | postgres17. |
+| go2rtc                     | 192.168.6.53     |                |             |
+| plex                       | 192.168.6.54     |                |             |
+| scrypted                   | 192.168.6.55     |                |             |
+| immich-db                  | 192.168.6.56     |                |             |
+| seafile-db                 | 192.168.6.57     |                |             |
+| qbittorrent                | 192.168.6.58     |                |             |
+| longhorn                   |                  | longhorn ui    | longhorn.   |
+| ~~cilium ingress~~         | ~~192.168.6.40~~ | 已经关闭       |             |
 
 ## 服务网络
 
@@ -65,11 +64,11 @@ homelab
 - [cilium](https://github.com/cilium/cilium): eBPF-based networking for my workloads.
 - [external-dns](https://github.com/kubernetes-sigs/external-dns): Automatically syncs ingress DNS records to a DNS provider.
 - [k8s-gateway](https://github.com/k8s-gateway/k8s_gateway): https://github.com/k8s-gateway/k8s_gateway
-<!-- - [external-secrets](https://github.com/external-secrets/external-secrets): Managed Kubernetes secrets using [1Password Connect](https://github.com/1Password/connect). -->
-<!-- - [rook](https://github.com/rook/rook): Distributed block storage for peristent storage. -->
+  <!-- - [external-secrets](https://github.com/external-secrets/external-secrets): Managed Kubernetes secrets using [1Password Connect](https://github.com/1Password/connect). -->
+  <!-- - [rook](https://github.com/rook/rook): Distributed block storage for peristent storage. -->
 - [sops](https://github.com/getsops/sops): Managed secrets for Kubernetes and Terraform which are commited to Git.
-<!-- - [spegel](https://github.com/spegel-org/spegel): Stateless cluster local OCI registry mirror. -->
-<!-- - [volsync](https://github.com/backube/volsync): Backup and recovery of persistent volume claims. -->
+  <!-- - [spegel](https://github.com/spegel-org/spegel): Stateless cluster local OCI registry mirror. -->
+  <!-- - [volsync](https://github.com/backube/volsync): Backup and recovery of persistent volume claims. -->
 
 ## 初始化所需Secret
 
@@ -113,7 +112,11 @@ kubectl -n longhorn-system patch -p '{"value": "true"}' --type=merge lhs deletin
 5. lima 无法挂载磁盘
 
 ```json
-{"level":"fatal","msg":"failed to run attach disk \"longhorn\", in use by instance \"sakamoto-k8s\"","time":"2025-07-08T14:24:21+08:00"}
+{
+  "level": "fatal",
+  "msg": "failed to run attach disk \"longhorn\", in use by instance \"sakamoto-k8s\"",
+  "time": "2025-07-08T14:24:21+08:00"
+}
 ```
 
 `limactl disk unlock longhorn`
