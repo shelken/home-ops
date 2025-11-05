@@ -1,7 +1,7 @@
 ---
 log:
   output: stdout
-  level: debug
+  level: info
 
 api:
   listen: :1984
@@ -25,8 +25,6 @@ streams:
     - ffmpeg:mercury_1_hq#audio=opus
   mercury_1_lq:
     - rtsp://admin:${CAMERA_PASSWORD}@mercury-1.lan:554/stream2
-    # - ffmpeg:mercury_1#audio=opus
-    # - ffmpeg:mercury_1#video=mjpeg
 
 # ref: https://github.com/adampetrovic/home-ops/blob/main/kubernetes/apps/automation/go2rtc/app/resources/go2rtc.yaml
 homekit:
