@@ -20,7 +20,16 @@ webrtc:
         - stun:stun1.l.google.com:19302 # Google STUN
 
 streams:
-  mercury_1:
+  mercury_1_hq:
     - rtsp://admin:${RTSP_PASSWORD}@mercury-1.lan:554/stream1
+  mercury_1_lq:
+    - rtsp://admin:${RTSP_PASSWORD}@mercury-1.lan:554/stream2
     # - ffmpeg:mercury_1#audio=opus
     # - ffmpeg:mercury_1#video=mjpeg
+
+homekit:
+  mercury_1_hq:
+    pin: "19550224"
+    name: My Room
+    # pairings:
+    #   - client_id=$${GO2RTC_HOMEKIT_CLIENT_ID_0}&client_public=$${GO2RTC_HOMEKIT_CLIENT_PUBLIC_0}&permissions=1
