@@ -39,6 +39,7 @@ spec:
               S3_ENABLE: "true"
               HTTP_PORT: &port 80
               S3_PORT: &s3-port 5246
+              LOG_LEVEL: info
             probes:
               liveness: &probes
                 enabled: true
