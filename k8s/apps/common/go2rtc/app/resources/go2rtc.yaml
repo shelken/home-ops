@@ -22,10 +22,7 @@ webrtc:
 streams:
   mercury_1_hq:
     - rtsp://admin:${CAMERA_PASSWORD}@mercury-1.lan:554/stream1
-    # 如果摄像头不是H264，需要视频转码
-    - ffmpeg:mercury_1_hq#video=h264#hardware
-    # 确保音频为OPUS
-    - ffmpeg:mercury_1_hq#audio=opus
+    - "ffmpeg:mercury_1_hq#video=h264#hardware=vaapi#audio=opus"
   mercury_1_lq:
     - rtsp://admin:${CAMERA_PASSWORD}@mercury-1.lan:554/stream2
     # - ffmpeg:mercury_1#audio=opus
