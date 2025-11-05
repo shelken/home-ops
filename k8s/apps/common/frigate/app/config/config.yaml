@@ -95,13 +95,13 @@ snapshots:
   retain:
     default: 7
 
-go2rtc:
-  streams:
-    # mercury1_detect:
-    #   - rtsp://admin:{FRIGATE_RTSP_PASSWORD}@mercury-1.lan:554/stream2
-    mercury1_record:
-      - rtsp://admin:{FRIGATE_RTSP_PASSWORD}@mercury-1.lan:554/stream1
-      - "ffmpeg:mercury1_record#audio=aac"
+# go2rtc:
+#   streams:
+#     # mercury1_detect:
+#     #   - rtsp://admin:{FRIGATE_RTSP_PASSWORD}@mercury-1.lan:554/stream2
+#     mercury1_record:
+#       - rtsp://admin:{FRIGATE_RTSP_PASSWORD}@mercury-1.lan:554/stream1
+#       - "ffmpeg:mercury1_record#audio=aac"
 
 cameras:
   mercury1:
@@ -111,7 +111,7 @@ cameras:
         #   input_args: preset-rtsp-restream
         #   roles:
         #     - detect
-        - path: rtsp://127.0.0.1:8554/mercury1_record
+        - path: rtsp://go2rtc.default.svc:8555/mercury_1
           input_args: preset-rtsp-restream
           roles:
             - record
