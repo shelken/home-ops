@@ -18,6 +18,7 @@ spec:
     - name: keda
       namespace: observability
     - name: smb-volumes
+    - name: go2rtc
   interval: 1h
   path: ./k8s/apps/common/frigate/app
   postBuild:

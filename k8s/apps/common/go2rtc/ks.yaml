@@ -12,8 +12,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-  dependsOn:
-    - name: scrypted
   interval: 1h
   path: ./k8s/apps/common/go2rtc/app
   prune: true

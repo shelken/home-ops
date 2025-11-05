@@ -13,10 +13,11 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: ${APP}
+    name: go2rtc
   triggers:
-    - type: kubernetes-workload
+    - type: prometheus
       metadata:
-        podSelector: "app.kubernetes.io/name=frigate"
-        value: "1"
-        activationValue: "0"
+        serverAddress: http://prometheus-operated.observability.svc.cluster.local:9090
+        query: max(probe_success{job="probe/observability/cameras"})
+        threshold: "1"
+        ignoreNullValues: "0"
