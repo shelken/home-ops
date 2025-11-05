@@ -22,7 +22,7 @@ webrtc:
 streams:
   mercury_1_hq:
     - rtsp://admin:${CAMERA_PASSWORD}@mercury-1.lan:554/stream1
-    - "ffmpeg:mercury_1_hq#video=h264#hardware=vaapi#audio=opus"
+    - ffmpeg:mercury_1_hq#audio=libopus
   mercury_1_lq:
     - rtsp://admin:${CAMERA_PASSWORD}@mercury-1.lan:554/stream2
     # - ffmpeg:mercury_1#audio=opus
