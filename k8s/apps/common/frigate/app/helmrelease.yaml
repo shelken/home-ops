@@ -34,9 +34,6 @@ spec:
               TZ: ${TIMEZONE}
               YOLO_MODELS: yolov7-320
               USE_FP16: "false"
-            envFrom:
-              - secretRef:
-                  name: frigate-secret
             probes:
               liveness: &probes
                 enabled: true
