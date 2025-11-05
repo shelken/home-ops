@@ -5,7 +5,7 @@ kind: Kustomization
 resources:
   - ./helmrelease.yaml
   - ./externalsecret.yaml
-  # - ./scaledobject.yaml
+  - ./scaledobject.yaml
 configMapGenerator:
   - name: go2rtc-configmap
     files:

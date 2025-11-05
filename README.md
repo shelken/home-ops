@@ -148,3 +148,7 @@ sudo apt-get install -y cifs-utils linux-modules-extra-$(uname -r)
 flux suspend helmrelease cilium -n kube-system
 flux resume helmrelease cilium -n kube-system
 ```
+
+9. 遇到multus设备无法获取，且同时存在两个相同pod
+
+检查更新策略，不要设置滚动更新
