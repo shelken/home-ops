@@ -15,12 +15,12 @@ webrtc:
     - 192.168.6.53:8555
     - stun:8555
   ice_servers:
-    - urls: 
-      - stun:stun.miwifi.com:3478   # 小米 STUN
-      - stun:stun1.l.google.com:19302 # Google STUN
+    - urls:
+        - stun:stun.miwifi.com:3478 # 小米 STUN
+        - stun:stun1.l.google.com:19302 # Google STUN
 
 streams:
   mercury_1:
-    - ffmpeg:rtsp://scrypted.default.svc.cluster.local:44831/d331e692a4ee88d2
+    - ffmpeg:rtsp://admin:{RTSP_PASSWORD}@mercury-1.lan:554/stream1
     - ffmpeg:mercury_1#audio=opus
     - ffmpeg:mercury_1#video=mjpeg
