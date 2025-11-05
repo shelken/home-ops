@@ -17,6 +17,6 @@ spec:
   triggers:
     - type: kubernetes-workload
       metadata:
-        podSelector: 'app.kubernetes.io/name=scrypted'
-        value: '1'
-        activationValue: '0'
+        podSelector: "app.kubernetes.io/name=frigate"
+        value: "1"
+        activationValue: "0"
