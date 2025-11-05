@@ -21,6 +21,6 @@ webrtc:
 
 streams:
   mercury_1:
-    - ffmpeg:rtsp://admin:${RTSP_PASSWORD}@mercury-1.lan:554/stream1
+    - rtsp://admin:${RTSP_PASSWORD}@mercury-1.lan:554/stream1
     - ffmpeg:mercury_1#audio=opus
     - ffmpeg:mercury_1#video=mjpeg
