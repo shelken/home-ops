@@ -21,8 +21,8 @@ webrtc:
 
 streams:
   mercury_1_hq:
-    - ffmpeg:rtsp://admin:${CAMERA_PASSWORD}@mercury-1.lan:554/stream1#video=copy#audio=copy#audio=opus
-    # - ffmpeg:mercury_1_hq#audio=opus # only OPUS audio supported by HomeKit
+    - rtsp://admin:${CAMERA_PASSWORD}@mercury-1.lan:554/stream1
+    - ffmpeg:mercury_1_hq#audio=opus # only OPUS audio supported by HomeKit
   mercury_1_lq:
     - rtsp://admin:${CAMERA_PASSWORD}@mercury-1.lan:554/stream2
     # - ffmpeg:mercury_1#audio=opus
