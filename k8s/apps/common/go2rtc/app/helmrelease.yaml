@@ -21,7 +21,6 @@ spec:
   values:
     controllers:
       go2rtc:
-        strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:

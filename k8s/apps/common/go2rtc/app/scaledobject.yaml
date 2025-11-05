@@ -6,8 +6,8 @@ metadata:
   name: go2rtc
 spec:
   advanced:
-    restoreToOriginalReplicaCount: false
-  cooldownPeriod: 60
+    restoreToOriginalReplicaCount: true
+  cooldownPeriod: 30
   minReplicaCount: 0
   maxReplicaCount: 1
   scaleTargetRef:
