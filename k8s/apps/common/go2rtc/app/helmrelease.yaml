@@ -54,19 +54,42 @@ spec:
                 cpu: 10m
                 memory: 16Mi
               limits:
+                gpu.intel.com/i915: 1
                 memory: 512Mi
 
     defaultPodOptions:
+      annotations:
+        k8s.v1.cni.cncf.io/networks: |
+          [{
+            "name": "multus-second",
+            "namespace": "network",
+            "interface": "eth1",
+            "ips": ["192.168.6.53/24"],
+            "mac": "02:8F:EB:E4:33:6C"
+          }]
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: NotIn
+                    values:
+                      - sakamoto-k8s
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
         runAsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+        supplementalGroups:
+          - 44 # video
+          - 992 # render(24.04)
     service:
       app:
-        type: LoadBalancer
-        annotations:
-          lbipam.cilium.io/ips: 192.168.6.53
-        externalTrafficPolicy: Local
+        # type: LoadBalancer
+        # annotations:
+        #   lbipam.cilium.io/ips: 192.168.6.53
+        # externalTrafficPolicy: Local
         ports:
           api:
             port: *port

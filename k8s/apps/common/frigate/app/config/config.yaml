@@ -111,7 +111,7 @@ cameras:
         #   input_args: preset-rtsp-restream
         #   roles:
         #     - detect
-        - path: rtsp://go2rtc.default.svc:554/mercury_1
+        - path: rtsp://go2rtc.default.svc:554/mercury_1_hq
           input_args: preset-rtsp-restream
           roles:
             - record

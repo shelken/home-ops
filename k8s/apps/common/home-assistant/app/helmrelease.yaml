@@ -148,16 +148,16 @@ spec:
             port: *port
           code:
             port: 8080
-      expose:
-        type: LoadBalancer
-        annotations:
-          lbipam.cilium.io/ips: 192.168.6.51
-        externalTrafficPolicy: Local
-        ports:
-          homekit:
-            portRange:
-              start: 21061
-              end: 21069
+      # expose:
+      #   type: LoadBalancer
+      #   annotations:
+      #     lbipam.cilium.io/ips: 192.168.6.51
+      #   externalTrafficPolicy: Local
+      #   ports:
+      #     homekit:
+      #       portRange:
+      #         start: 21061
+      #         end: 21069
     persistence:
       config:
         existingClaim: home-assistant
