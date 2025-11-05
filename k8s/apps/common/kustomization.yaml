@@ -25,7 +25,6 @@ resources:
   - openlist/ks.yaml
   - qbittorrent/ks.yaml
   - plex/ks.yaml
-  # - scrypted/ks.yaml
   - seafile/ks.yaml
   - shlink/ks.yaml
   - slash/ks.yaml
