@@ -10,7 +10,10 @@ metadata:
     gethomepage.dev/name: Grafana
     gethomepage.dev/icon: grafana.svg
     gethomepage.dev/description: Dashboard
-    gethomepage.dev/app: grafana
+    gethomepage.dev/pod-selector: >-
+      app in (
+         grafana
+      )
 spec:
   hostnames:
     - grafana.${MAIN_DOMAIN}
