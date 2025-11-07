@@ -36,9 +36,9 @@ Temporary Items
 
 # End of https://www.toptal.com/developers/gitignore/api/macos
 
+.idea
+
 kubeconfig
 _out/**
-
 .direnv/**
-
 .ansible/**
