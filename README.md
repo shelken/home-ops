@@ -149,3 +149,8 @@ flux resume helmrelease cilium -n kube-system
 9. 遇到multus设备无法获取，且同时存在两个相同pod
 
 检查更新策略，不要设置滚动更新
+
+9. 哪些情形不适合使用滚动更新？
+
+- 设置了multus的容器，会被上一个占用网卡
+- 设置了 readwriteonce pvc的
