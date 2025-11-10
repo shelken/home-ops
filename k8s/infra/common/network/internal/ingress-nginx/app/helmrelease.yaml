@@ -29,6 +29,7 @@ spec:
         annotations:
           external-dns.alpha.kubernetes.io/hostname: &hostname homelab-nginx-internal.${MAIN_DOMAIN}
           lbipam.cilium.io/ips: 192.168.6.43
+          netbird.io/setup-key: side-car-setup-key
       ingressClassResource:
         name: nginx-internal
         default: false
