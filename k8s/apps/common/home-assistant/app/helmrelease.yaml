@@ -33,16 +33,21 @@ spec:
               TZ: ${TIMEZONE}
               HASS_HTTP_TRUSTED_PROXY_1: 192.168.0.0/16
               HASS_HTTP_TRUSTED_PROXY_2: 10.42.0.0/16
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 10m
                 memory: 256Mi
               limits:
                 memory: 1Gi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+              runAsNonRoot: true
+              runAsUser: 1000
+              runAsGroup: 1000
+              fsGroup: 1000
+              fsGroupChangePolicy: OnRootMismatch
           code-server:
             image:
               repository: ghcr.io/coder/code-server
@@ -76,6 +81,15 @@ spec:
                 memory: 500Mi
               limits:
                 memory: 500Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              capabilities: { drop: ["ALL"] }
+              runAsNonRoot: true
+              runAsUser: 1000
+              runAsGroup: 1000
+              fsGroup: 1000
+              fsGroupChangePolicy: OnRootMismatch
 
     defaultPodOptions:
       annotations:
@@ -97,12 +111,12 @@ spec:
       #               operator: In
       #               values:
       #                 - sakamoto-k8s
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
-        fsGroupChangePolicy: OnRootMismatch
+      # securityContext:
+      #   runAsNonRoot: true
+      #   runAsUser: 1000
+      #   runAsGroup: 1000
+      #   fsGroup: 1000
+      #   fsGroupChangePolicy: OnRootMismatch
     route:
       app:
         annotations:
