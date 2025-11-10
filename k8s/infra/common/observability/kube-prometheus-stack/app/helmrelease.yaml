@@ -92,8 +92,6 @@ spec:
     kubeProxy:
       enabled: false
     prometheus:
-      annotations:
-        netbird.io/setup-key: ${APP}-side-car-setup-key
       route:
         main:
           enabled: true
@@ -107,6 +105,8 @@ spec:
           registry: mirror.gcr.io
           repository: prompp/prompp
           tag: 2.53.2-0.3.3
+        podAnnotations:
+          netbird.io/setup-key: ${APP}-side-car-setup-key
         securityContext:
           runAsNonRoot: true
           runAsUser: 64535
