@@ -1,5 +1,5 @@
 # 配置：https://docs.cilium.io/en/latest/helm-reference
-# ref：https://github.com/cilium/cilium/blob/v1.17.5/install/kubernetes/cilium/values.yaml
+# ref：https://github.com/cilium/cilium/blob/v1.18.3/install/kubernetes/cilium/values.yaml
 ipv6:
   enabled: false
 # enableIPv6Masquerade: true
