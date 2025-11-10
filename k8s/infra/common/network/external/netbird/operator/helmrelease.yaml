@@ -19,3 +19,6 @@ spec:
       keyFromSecret:
         name: netbird-operator-secret
         key: "NB_API_KEY"
+    operator:
+      image:
+        registry: mirror.gcr.io
