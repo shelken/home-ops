@@ -30,6 +30,10 @@ spec:
           external-dns.alpha.kubernetes.io/hostname: &hostname homelab-nginx-internal.${MAIN_DOMAIN}
           lbipam.cilium.io/ips: 192.168.6.43
           netbird.io/setup-key: side-car-setup-key
+      extraContainers:
+        - image:
+            repository: mirror.gcr.io/netbirdio/netbird
+            tag: 0.59.12
       ingressClassResource:
         name: nginx-internal
         default: false
