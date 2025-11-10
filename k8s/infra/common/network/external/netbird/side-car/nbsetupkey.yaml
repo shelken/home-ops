@@ -1,0 +1,11 @@
+apiVersion: netbird.io/v1
+kind: NBSetupKey
+metadata:
+  name: side-car-setup-key
+spec:
+  # Optional, overrides management URL for this setupkey only
+  # defaults to https://api.netbird.io
+  # managementURL: https://netbird.example.com
+  secretKeyRef:
+    name: netbird-operator-secret
+    key: SIDE_CAR_SETUP_KEY
