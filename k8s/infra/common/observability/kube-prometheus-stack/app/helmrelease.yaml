@@ -105,7 +105,7 @@ spec:
           registry: mirror.gcr.io
           repository: prompp/prompp
           tag: 2.53.2-0.3.3
-        podAnnotations:
+        annotations:
           netbird.io/setup-key: ${APP}-side-car-setup-key
         securityContext:
           runAsNonRoot: true
