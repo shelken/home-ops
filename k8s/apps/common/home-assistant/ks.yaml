@@ -12,6 +12,7 @@ spec:
   components:
     # - ../../../components/volsync/init
     - ../../../../components/volsync
+    - ../../../../components/netbird/side-car
   dependsOn:
     - name: azure-store
       namespace: external-secrets

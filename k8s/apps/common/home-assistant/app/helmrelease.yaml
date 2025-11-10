@@ -87,6 +87,7 @@ spec:
             "ips": ["192.168.6.51/24"],
             "mac": "02:7f:5c:50:6c:fe"
           }]
+        netbird.io/setup-key: ${APP}-side-car-setup-key
       # affinity:
       #   nodeAffinity:
       #     requiredDuringSchedulingIgnoredDuringExecution:
