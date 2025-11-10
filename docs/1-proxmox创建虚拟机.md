@@ -36,6 +36,9 @@ export TEMPLATE_NAME=ubuntu-24-04-homelab-template
 export TEMPLATE_CI_PASS=xxxxxxxx
 export MIO_KEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN9sMBAahOZKZ5QXBEsu6ACfgX8TSt5EgD+E1h6mtzG2 shelken@mio"
 
+# note
+# 使用 net1 而不是 net0 可以生成 eth1 设备名（期望与lima的设备统一）
+# 可以使用`qm cloudinit dump 110 network`提前验证生成的network
 qm create $TEMPLATE_ID \
   --name $TEMPLATE_NAME \
   --bios ovmf \
@@ -49,11 +52,12 @@ qm create $TEMPLATE_ID \
   --scsihw virtio-scsi-pci \
   --efidisk0 local-lvm:4,efitype=4m,pre-enrolled-keys=0 \
   --ide0 local-lvm:cloudinit \
-  --net0 virtio,bridge=vmbr0,firewall=1 \
+  --net1 virtio,bridge=vmbr0,firewall=1 \
   --agent 1 \
   --serial0 socket \
   --ciuser shelken \
   --cipassword $(openssl passwd -5 "$TEMPLATE_CI_PASS") \
+  --ciupgrade: 0 \
   --sshkeys <(echo "$MIO_KEY") \
   --nameserver "192.168.6.141 192.168.6.1 223.5.5.5"
 
@@ -78,7 +82,7 @@ export CURRENT_VM_ID=110
 qm clone $TEMPLATE_ID $CURRENT_VM_ID --name "homelab-$CURRENT_VM_ID"
 
 # 静态ip
-qm set $CURRENT_VM_ID --ipconfig0 ip=192.168.6.110/24,gw=192.168.6.1
+qm set $CURRENT_VM_ID --ipconfig1 ip=192.168.6.110/24,gw=192.168.6.1
 
 # cpu, memory, resize
 qm set $CURRENT_VM_ID --cores 4
