@@ -43,11 +43,11 @@ spec:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
               capabilities: { drop: ["ALL"] }
-              runAsNonRoot: true
-              runAsUser: 1000
-              runAsGroup: 1000
-              fsGroup: 1000
-              fsGroupChangePolicy: OnRootMismatch
+              # runAsNonRoot: true
+              # runAsUser: 1000
+              # runAsGroup: 1000
+              # fsGroup: 1000
+              # fsGroupChangePolicy: OnRootMismatch
           code-server:
             image:
               repository: ghcr.io/coder/code-server
@@ -85,11 +85,11 @@ spec:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false
               capabilities: { drop: ["ALL"] }
-              runAsNonRoot: true
-              runAsUser: 1000
-              runAsGroup: 1000
-              fsGroup: 1000
-              fsGroupChangePolicy: OnRootMismatch
+            #   runAsNonRoot: true
+            #   runAsUser: 1000
+            #   runAsGroup: 1000
+            #   fsGroup: 1000
+            #   fsGroupChangePolicy: OnRootMismatch
 
     defaultPodOptions:
       annotations:
@@ -101,7 +101,6 @@ spec:
             "ips": ["192.168.6.51/24"],
             "mac": "02:7f:5c:50:6c:fe"
           }]
-        netbird.io/setup-key: ${APP}-side-car-setup-key
       # affinity:
       #   nodeAffinity:
       #     requiredDuringSchedulingIgnoredDuringExecution:
@@ -111,12 +110,12 @@ spec:
       #               operator: In
       #               values:
       #                 - sakamoto-k8s
-      # securityContext:
-      #   runAsNonRoot: true
-      #   runAsUser: 1000
-      #   runAsGroup: 1000
-      #   fsGroup: 1000
-      #   fsGroupChangePolicy: OnRootMismatch
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
     route:
       app:
         annotations:
