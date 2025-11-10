@@ -40,7 +40,7 @@ spec:
       "plugins": [
         {
           "type": "macvlan",
-          "master": "eth0",
+          "master": "eth1",
           "mode": "bridge",
           "capabilities": { "ips": true, "mac": true },
           "ipam": {
