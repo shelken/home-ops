@@ -107,6 +107,8 @@ spec:
           tag: 2.53.2-0.3.3
         annotations:
           netbird.io/setup-key: ${APP}-side-car-setup-key
+        podAnnotations:
+          netbird.io/setup-key: ${APP}-side-car-setup-key
         securityContext:
           runAsNonRoot: true
           runAsUser: 64535
