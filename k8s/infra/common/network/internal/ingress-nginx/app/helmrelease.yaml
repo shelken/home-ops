@@ -31,7 +31,7 @@ spec:
           lbipam.cilium.io/ips: 192.168.6.43
       extraContainers:
         - image: mirror.gcr.io/netbirdio/netbird:0.59.12
-          name: netbird
+          name: netbird-nginx
       podAnnotations:
         netbird.io/setup-key: side-car-setup-key
       ingressClassResource:
