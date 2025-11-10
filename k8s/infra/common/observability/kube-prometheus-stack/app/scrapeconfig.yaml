@@ -24,7 +24,7 @@ spec:
   staticConfigs:
     - targets:
         - tvbox.lan:2019
-      labels: 
+      labels:
         job: *name
   metricsPath: /metrics
   scrapeInterval: 30s
@@ -39,7 +39,7 @@ spec:
   staticConfigs:
     - targets:
         - sakamoto.lan:2019
-      labels: 
+      labels:
         job: *name
   metricsPath: /metrics
   scrapeInterval: 30s
@@ -54,7 +54,7 @@ spec:
   staticConfigs:
     - targets:
         - router-mine.lan:9100
-      labels: 
+      labels:
         job: *name
   metricsPath: /metrics
 
@@ -68,7 +68,21 @@ spec:
   staticConfigs:
     - targets:
         - 192.168.0.1:9100
-      labels: 
+      labels:
+        job: *name
+  metricsPath: /metrics
+
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/scrapeconfig_v1alpha1.json
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: &name vps-cc
+spec:
+  staticConfigs:
+    - targets:
+        - 100.113.0.8:9100
+      labels:
         job: *name
   metricsPath: /metrics
 
@@ -82,7 +96,7 @@ spec:
   staticConfigs:
     - targets:
         - tvbox.lan:8338
-      labels: 
+      labels:
         job: *name
   metricsPath: /metrics
   scrapeInterval: 10s

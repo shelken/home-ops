@@ -92,7 +92,8 @@ spec:
     kubeProxy:
       enabled: false
     prometheus:
-      # annotations: {}
+      annotations:
+        netbird.io/setup-key: ${APP}-side-car-setup-key
       route:
         main:
           enabled: true
