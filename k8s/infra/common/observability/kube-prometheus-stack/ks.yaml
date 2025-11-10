@@ -32,3 +32,17 @@ spec:
   targetNamespace: *namespace
   timeout: 5m
   wait: false
+  patches:
+    - target:
+        kind: StatefulSet
+        name: my-app
+      patch: |-
+        apiVersion: apps/v1
+        kind: StatefulSet
+        metadata:
+          name: prometheus-kube-prometheus-stack
+        spec:
+          template:
+            metadata:
+              annotations:
+                netbird.io/setup-key: kube-prometheus-stack-side-car-setup-key
