@@ -36,7 +36,7 @@ spec:
     - target:
         kind: StatefulSet
         name: prometheus-kube-prometheus-stack
-      patch: |-
+      patch: |
         apiVersion: apps/v1
         kind: StatefulSet
         metadata:
