@@ -92,6 +92,7 @@ spec:
     kubeProxy:
       enabled: false
     prometheus:
+      # annotations: {}
       route:
         main:
           enabled: true
