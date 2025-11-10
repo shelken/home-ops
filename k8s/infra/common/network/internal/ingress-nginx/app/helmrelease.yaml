@@ -31,9 +31,8 @@ spec:
           lbipam.cilium.io/ips: 192.168.6.43
           netbird.io/setup-key: side-car-setup-key
       extraContainers:
-        - image:
-            repository: mirror.gcr.io/netbirdio/netbird
-            tag: 0.59.12
+        - image: mirror.gcr.io/netbirdio/netbird:0.59.12
+          name: netbird
       ingressClassResource:
         name: nginx-internal
         default: false
