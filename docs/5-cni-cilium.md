@@ -17,8 +17,8 @@
 
 ```shell
 # 这里的版本根据flux中定义的来，如果不一致也没关系。flux后续会重新安装定义的版本。但是最好一直，省的二次下载安装
-helm install cilium cilium/cilium --version 1.17.5 --namespace kube-system -f infra/common/kube-system/cilium/app/values.yaml
-helm upgrade cilium cilium/cilium --version 1.17.5 --namespace kube-system -f infra/common/kube-system/cilium/app/values.yaml
+helm install cilium cilium/cilium --version 1.18.3 --namespace kube-system -f infra/common/kube-system/cilium/app/values.yaml
+helm upgrade cilium cilium/cilium --version 1.18.3 --namespace kube-system -f infra/common/kube-system/cilium/app/values.yaml
 
 cilium status --wait
 
