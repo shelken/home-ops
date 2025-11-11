@@ -9,11 +9,6 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  components:
-    - ../../../../../components/netbird/side-car
-  postBuild:
-    substitute:
-      APP: *app
   dependsOn:
     - name: longhorn
       namespace: longhorn-system
