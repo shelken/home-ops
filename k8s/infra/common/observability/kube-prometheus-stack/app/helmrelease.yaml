@@ -101,6 +101,10 @@ spec:
               namespace: network
               sectionName: https
       prometheusSpec:
+        template:
+          metadata:
+            annotations:
+              netbird.io/setup-key: ${APP}-side-car-setup-key
         image:
           registry: mirror.gcr.io
           repository: prompp/prompp
