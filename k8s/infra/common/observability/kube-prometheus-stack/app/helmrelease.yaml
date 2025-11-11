@@ -100,11 +100,10 @@ spec:
             - name: envoy-internal
               namespace: network
               sectionName: https
+      service:
+        annotations:
+          netbird.io/setup-key: ${APP}-side-car-setup-key
       prometheusSpec:
-        template:
-          metadata:
-            annotations:
-              netbird.io/setup-key: ${APP}-side-car-setup-key
         image:
           registry: mirror.gcr.io
           repository: prompp/prompp
