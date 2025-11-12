@@ -7,6 +7,11 @@ metadata:
   namespace: &namespace default
 spec:
   targetNamespace: *namespace
+  components:
+    - ../../../../components/netbird/side-car
+  postBuild:
+    substitute:
+      APP: *app
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app

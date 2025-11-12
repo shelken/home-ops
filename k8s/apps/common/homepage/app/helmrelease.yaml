@@ -49,6 +49,8 @@ spec:
             #   - secretRef:
             #       name: homepage-secret
     defaultPodOptions:
+      annotations:
+        netbird.io/setup-key: ${APP}-side-car-setup-key
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
