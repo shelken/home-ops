@@ -36,10 +36,8 @@ spec:
 
             (with-tls) {
               tls {
-                dns cloudflare {env.CLOUDFLARE_API_TOKEN} {
-                  propagation_timeout 10m
-                  resolvers ${MAIN_VPS_IP}:5054
-                }
+                dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+                resolvers ${MAIN_VPS_IP}:5054
               }
               # tls /etc/caddy/tls/tls.crt /etc/caddy/tls/tls.key
             }
