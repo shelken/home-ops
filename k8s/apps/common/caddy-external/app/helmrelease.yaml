@@ -36,8 +36,12 @@ spec:
 
             (with-tls) {
               tls {
-                dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+                dns cloudflare {env.CLOUDFLARE_API_TOKEN} {
+                  propagation_timeout 10m
+                  resolvers ${MAIN_VPS_IP}:5054
+                }
               }
+              # tls /etc/caddy/tls/tls.crt /etc/caddy/tls/tls.key
             }
             *.{$MAIN_DOMAIN} {
               import with-tls
@@ -178,6 +182,14 @@ spec:
                 subPath: data
               - path: /config
                 subPath: config
+      tls:
+        type: secret
+        name: ooooo-space-tls
+        advancedMounts:
+          caddy-external:
+            app:
+              - path: /etc/caddy/tls
+                readOnly: true
       tmpfs:
         type: emptyDir
         globalMounts:
