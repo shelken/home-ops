@@ -23,6 +23,14 @@ spec:
       qbittorrent:
         annotations:
           reloader.stakater.com/auto: "true"
+          k8s.v1.cni.cncf.io/networks: |
+            [{
+              "name":"multus-main",
+              "namespace": "network",
+              "interface": "eth1",
+              "ips": ["192.168.6.58/24"],
+              "mac": "02:1A:7C:8E:4F:B3"
+            }]
         containers:
           app:
             image:
@@ -67,15 +75,6 @@ spec:
         runAsGroup: 1000
         fsGroup: 1000
         fsGroupChangePolicy: OnRootMismatch
-      annotations:
-        k8s.v1.cni.cncf.io/networks: |
-          [{
-            "name":"multus-main",
-            "namespace": "network",
-            "interface": "eth1",
-            "ips": ["192.168.6.58/24"],
-            "mac": "02:1A:7C:8E:4F:B3"
-          }]
     service:
       app:
         forceRename: "{{ .Release.Name }}"

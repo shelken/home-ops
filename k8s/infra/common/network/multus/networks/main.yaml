@@ -4,7 +4,6 @@ kind: NetworkAttachmentDefinition
 metadata:
   name: multus-main
 spec:
-  # 该配置仅在sakamoto-k8s上使用，如果需要pve vm上，新建配置，将master改成eth0
   config: |-
     {
       "cniVersion": "0.3.1",
