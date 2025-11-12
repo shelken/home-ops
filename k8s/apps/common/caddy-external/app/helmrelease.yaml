@@ -122,7 +122,7 @@ spec:
                   secretKeyRef:
                     name: caddy-external-secret
                     key: CLOUDFLARE_API_TOKEN
-              DOMAINS: homelab-dynamic-test.${MAIN_DOMAIN}
+              DOMAINS: homelab-dynamic.${MAIN_DOMAIN}
               PROXIED: "false"
               IP4_PROVIDER: "none"
               UPDATE_CRON: "@every 5m"
