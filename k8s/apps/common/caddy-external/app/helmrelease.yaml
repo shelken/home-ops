@@ -182,14 +182,14 @@ spec:
                 subPath: data
               - path: /config
                 subPath: config
-      tls:
-        type: secret
-        name: ooooo-space-tls
-        advancedMounts:
-          caddy-external:
-            app:
-              - path: /etc/caddy/tls
-                readOnly: true
+      # tls:
+      #   type: secret
+      #   name: ooooo-space-tls
+      #   advancedMounts:
+      #     caddy-external:
+      #       app:
+      #         - path: /etc/caddy/tls
+      #           readOnly: true
       tmpfs:
         type: emptyDir
         globalMounts:
