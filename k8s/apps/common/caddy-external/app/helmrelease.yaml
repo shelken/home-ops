@@ -37,14 +37,6 @@ spec:
       caddy-external:
         annotations:
           reloader.stakater.com/auto: "true"
-          k8s.v1.cni.cncf.io/networks: |
-            [{
-              "name": "multus-main",
-              "namespace": "network",
-              "interface": "eth1",
-              "ips": ["192.168.6.47/24"],
-              "mac": "02:63:D3:26:B4:39"
-            }]
         containers:
           app:
             image:
@@ -110,6 +102,15 @@ spec:
               limits:
                 memory: 64Mi
     defaultPodOptions:
+      annotations:
+        k8s.v1.cni.cncf.io/networks: |
+          [{
+            "name": "multus-main",
+            "namespace": "network",
+            "interface": "eth1",
+            "ips": ["192.168.6.47/24"],
+            "mac": "02:63:D3:26:B4:39"
+          }]
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
