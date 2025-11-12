@@ -1,5 +1,11 @@
 # multus 使用
 
+## 生成 MAC
+
+```shell
+printf '02:%02X:%02X:%02X:%02X:%02X\n' $((RANDOM%256)) $((RANDOM%256)) $((RANDOM%256)) $((RANDOM%256)) $((RANDOM%256))
+```
+
 ## 用途
 
 - 需要 IPv6 的访问时。当前集群不使用 hostnetwork，也因为一些限制不能使用IPv6，但是可以通过multus让容器单独拥有ipv6。
