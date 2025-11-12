@@ -24,6 +24,14 @@ spec:
       home-assistant:
         annotations:
           reloader.stakater.com/auto: "true"
+          k8s.v1.cni.cncf.io/networks: |
+            [{
+              "name": "multus-main",
+              "namespace": "network",
+              "interface": "eth1",
+              "ips": ["192.168.6.51/24"],
+              "mac": "02:7f:5c:50:6c:fe"
+            }]
         containers:
           app:
             image:
@@ -92,24 +100,6 @@ spec:
             #   fsGroupChangePolicy: OnRootMismatch
 
     defaultPodOptions:
-      annotations:
-        k8s.v1.cni.cncf.io/networks: |
-          [{
-            "name": "multus-main",
-            "namespace": "network",
-            "interface": "eth1",
-            "ips": ["192.168.6.51/24"],
-            "mac": "02:7f:5c:50:6c:fe"
-          }]
-      # affinity:
-      #   nodeAffinity:
-      #     requiredDuringSchedulingIgnoredDuringExecution:
-      #       nodeSelectorTerms:
-      #         - matchExpressions:
-      #             - key: kubernetes.io/hostname
-      #               operator: In
-      #               values:
-      #                 - sakamoto-k8s
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
