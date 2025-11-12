@@ -83,7 +83,7 @@ spec:
                 memory: 256Mi
           ddns:
             image:
-              repository: favonia/cloudflare-ddns
+              repository: mirror.gcr.io/favonia/cloudflare-ddns
               tag: 1.15.1
             env:
               TZ: ${TIMEZONE}
