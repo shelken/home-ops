@@ -39,6 +39,7 @@ homelab
 | netbird                | 192.168.6.44 |                |             |
 | envoy external gateway | 192.168.6.45 |                |             |
 | envoy internal gateway | 192.168.6.46 |                |             |
+| caddy-external| 192.168.6.47 |                |             |
 | home assistant         | 192.168.6.51 |                |             |
 | postgres17             | 192.168.6.52 | 开放postgres   | postgres17. |
 | go2rtc                 | 192.168.6.53 |                |             |

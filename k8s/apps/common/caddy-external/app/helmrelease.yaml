@@ -1,0 +1,148 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app caddy-external
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  values:
+    configMaps:
+      caddyfile:
+        enabled: true
+        data:
+          Caddyfile: |-
+            {
+                # Global options
+                admin :2019
+                log {
+                    level INFO
+                }
+            }
+
+            :8080 {
+              handle /health {
+                respond "OK" 200
+              }
+            }
+
+            :443 {
+                respond "HTTPS OK"
+            }
+    controllers:
+      caddy-external:
+        annotations:
+          reloader.stakater.com/auto: "true"
+          k8s.v1.cni.cncf.io/networks: |
+            [{
+              "name": "multus-main",
+              "namespace": "network",
+              "interface": "eth1",
+              "ips": ["192.168.6.47/24"],
+              "mac": "02:63:D3:26:B4:39"
+            }]
+        containers:
+          app:
+            image:
+              repository: ghcr.io/shelken/caddy
+              tag: 2.10.2
+            env:
+              TZ: ${TIMEZONE}
+              MAIN_DOMAIN: ${MAIN_DOMAIN}
+              CLOUDFLARE_API_TOKEN:
+                valueFrom:
+                  secretKeyRef:
+                    name: caddy-external-secret
+                    key: CLOUDFLARE_API_TOKEN
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: 8080
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 10
+              readiness: *probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 10m
+                memory: 16Mi
+              limits:
+                memory: 256Mi
+          ddns:
+            image:
+              repository: favonia/cloudflare-ddns
+              tag: 1.15.1
+            env:
+              TZ: ${TIMEZONE}
+              CLOUDFLARE_API_TOKEN:
+                valueFrom:
+                  secretKeyRef:
+                    name: caddy-external-secret
+                    key: CLOUDFLARE_API_TOKEN
+              DOMAINS: homelab-dynamic-test.${MAIN_DOMAIN}
+              PROXIED: "false"
+              IP4_PROVIDER: "none"
+              UPDATE_CRON: "@every 5m"
+              IP6_PROVIDER: "url:https://6.ipw.cn"
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 10m
+                memory: 16Mi
+              limits:
+                memory: 64Mi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        ports:
+          http:
+            port: 443
+          admin:
+            port: 2019
+          health:
+            port: 8080
+    persistence:
+      caddyfile:
+        type: configMap
+        identifier: caddyfile
+        advancedMounts:
+          caddy-external:
+            app:
+              - subPath: Caddyfile
+                path: /etc/caddy/Caddyfile
+      data:
+        existingClaim: *app
+        advancedMounts:
+          caddy-external:
+            app:
+              - path: /data
+                subPath: data
+              - path: /config
+                subPath: config
+      tmpfs:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
+            subPath: tmp

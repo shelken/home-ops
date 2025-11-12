@@ -3,6 +3,7 @@ kind: Kustomization
 components:
   - ../../components/common
 resources:
+  - caddy-external/ks.yaml
   - dozzle/ks.yaml
   - echo/ks.yaml
   - frigate/ks.yaml
