@@ -24,6 +24,7 @@ spec:
           annotations:
             configmap.reloader.stakater.com/reload: &config homepage-config
             secret.reloader.stakater.com/reload: &secret homepage-secret
+            netbird.io/setup-key: ${APP}-side-car-setup-key
         containers:
           app:
             image:
@@ -49,8 +50,6 @@ spec:
             #   - secretRef:
             #       name: homepage-secret
     defaultPodOptions:
-      annotations:
-        netbird.io/setup-key: ${APP}-side-car-setup-key
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000

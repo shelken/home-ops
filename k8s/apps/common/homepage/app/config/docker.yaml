@@ -1,13 +1,13 @@
 ---
 # For configuration options and examples, please see:
-# https://gethomepage.dev/en/configs/docker/
+# https://gethomepage.dev/configs/docker/
 
 # box-docker:
 #   # socket: /var/run/docker.sock
 #   host: tvbox.lan
 #   port: 2575
 
-vps-161-docker:
+vps-docker:
   host: 100.113.0.8
   port: 2575
 # my-docker:
