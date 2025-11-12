@@ -17,11 +17,15 @@ spec:
         data:
           Caddyfile: |-
             {
-                # Global options
-                admin :2019
-                log {
-                    level INFO
-                }
+              # Global options
+              admin :2019
+              log {
+                level DEBUG
+              }
+              servers {
+                #trusted_proxies static private_ranges 100.96.0.0/11 # 信任局域网的XFF头
+                protocols h1 h2 h3
+              }
             }
 
             :8080 {
@@ -30,9 +34,39 @@ spec:
               }
             }
 
-            :443 {
-                respond "HTTPS OK"
+            (with-tls) {
+              tls {
+                dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+              }
             }
+            *.{$MAIN_DOMAIN} {
+              import with-tls
+
+              # 转发所有流量到 external gateway
+              handle {
+                reverse_proxy {
+                  to https://envoy-external.network.svc.cluster.local:443
+                  transport http {
+                    tls
+                    tls_server_name {http.request.host}
+
+                    #dial_timeout 10s
+                    #response_header_timeout 30s
+                    #expect_continue_timeout 15s
+
+                    #keepalive 300s
+                    #keepalive_idle_conns 10
+                    #keepalive_interval 30s
+                  }
+                }
+                header {
+                  +My-Server "caddy-external"
+                  -Server
+                  -via
+                }
+              }
+            }
+
     controllers:
       caddy-external:
         annotations:
