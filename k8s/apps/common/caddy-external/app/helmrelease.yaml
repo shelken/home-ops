@@ -41,7 +41,7 @@ spec:
               }
               # tls /etc/caddy/tls/tls.crt /etc/caddy/tls/tls.key
             }
-            *.{$MAIN_DOMAIN} {
+            *.{env.MAIN_DOMAIN} {
               import with-tls
 
               # 转发所有流量到 external gateway
