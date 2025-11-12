@@ -11,17 +11,6 @@ endpoints:
       - "[CONNECTED] == true"
     alerts:
       - type: custom
-  - name: tvbox-caddy
-    group: tvbox
-    url: "tcp://tvbox.lan:443"
-    interval: 1m
-    ui:
-      hide-hostname: true
-      hide-url: true
-    conditions:
-      - "[CONNECTED] == true"
-    alerts:
-      - type: custom
   - name: mosdns
     group: tvbox
     url: "udp://tvbox.lan:53"
