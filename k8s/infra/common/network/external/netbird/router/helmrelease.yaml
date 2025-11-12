@@ -16,14 +16,6 @@ spec:
         replicas: 2
         annotations:
           reloader.stakater.com/auto: "true"
-          k8s.v1.cni.cncf.io/networks: |
-            [{
-              "name": "multus-main",
-              "namespace": "network",
-              "interface": "eth1",
-              "ips": ["192.168.6.44/24"],
-              "mac": "02:A8:04:C8:E9:BC"
-            }]
         containers:
           app:
             image:
@@ -55,6 +47,15 @@ spec:
               limits:
                 memory: 256Mi
     defaultPodOptions:
+      annotations:
+        k8s.v1.cni.cncf.io/networks: |
+          [{
+            "name": "multus-main",
+            "namespace": "network",
+            "interface": "eth1",
+            "ips": ["192.168.6.44/24"],
+            "mac": "02:A8:04:C8:E9:BC"
+          }]
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
