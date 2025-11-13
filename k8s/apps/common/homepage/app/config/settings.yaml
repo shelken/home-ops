@@ -19,6 +19,8 @@ maxGroupColumns: 7
 useEqualHeights: true
 disableCollapse: false
 fullWidth: true
+disableUpdateCheck: true
+hideVersion: false
 
 # icon from: https://pictogrammers.com/library/mdi/
 layout:
