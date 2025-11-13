@@ -20,7 +20,7 @@
           - <<: *openwrt-common
             interfaceName: br-lan
           - <<: *openwrt-common
-            interfaceName: wwan
+            interfaceName: phy0-sta0 # wwan
     - 家路由:
         icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/uPic/2024-01/AaQpSo.png
         href: http://router-home.lan/cgi-bin/luci/
