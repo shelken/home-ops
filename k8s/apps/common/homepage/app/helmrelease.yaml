@@ -38,7 +38,7 @@ spec:
                 memory: 500Mi
             securityContext:
               allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
+              readOnlyRootFilesystem: false
               capabilities: { drop: ["ALL"] }
               runAsNonRoot: true
               runAsUser: 1000
@@ -111,7 +111,5 @@ spec:
             app:
               - path: /app/config/logs
                 subPath: logs
-              - path: /app/.next
-                subPath: next
     serviceAccount:
       homepage: {}
