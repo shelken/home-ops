@@ -111,5 +111,7 @@ spec:
             app:
               - path: /app/config/logs
                 subPath: logs
+              - path: /app/.next
+                subPath: next
     serviceAccount:
       homepage: {}
