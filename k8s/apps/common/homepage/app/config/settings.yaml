@@ -19,7 +19,7 @@ quicklaunch:
   hideInternetSearch: false # 隐藏网络搜索
   hideVisitURL: false # 隐藏访问url
   searchDescriptions: true # 显示描述
-showStats: true # 显示docker状态
+showStats: false # 显示docker详细状态
 statusStyle: "dot"
 useEqualHeights: true
 
