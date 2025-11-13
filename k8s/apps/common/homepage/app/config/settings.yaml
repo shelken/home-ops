@@ -7,20 +7,21 @@ language: zh-CN
 #background: https://gcore.jsdelivr.net/gh/shelken/picbed@main/uPic/2024-01/z2YYAJ.jpeg # 芙莉莲
 background: https://gcore.jsdelivr.net/gh/shelken/picbed@main/uPic/2024-01/zszSjh.jpeg #
 backgroundOpacity: 0.35
+disableCollapse: false
+disableUpdateCheck: true
+fullWidth: true
+hideVersion: false
+maxGroupColumns: 7
 providers:
   openweathermap: openweathermapapikey
   weatherapi: weatherapiapikey
 quicklaunch:
-  searchDescriptions: true
-  hideInternetSearch: false
-  hideVisitURL: false
+  hideInternetSearch: false # 隐藏网络搜索
+  hideVisitURL: false # 隐藏访问url
+  searchDescriptions: true # 显示描述
+showStats: true # 显示docker状态
 statusStyle: "dot"
-maxGroupColumns: 7
 useEqualHeights: true
-disableCollapse: false
-fullWidth: true
-disableUpdateCheck: true
-hideVersion: false
 
 # icon from: https://pictogrammers.com/library/mdi/
 layout:
