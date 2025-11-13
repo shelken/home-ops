@@ -12,8 +12,8 @@
         widget:
           type: openwrt
           url: http://router-mine.lan
-          username: HOMEPAGE_VAR_ROUTER_MINE_OPENWRT_USERNAME
-          password: HOMEPAGE_VAR_ROUTER_MINE_OPENWRT_PASSWORD
+          username: "{{HOMEPAGE_VAR_ROUTER_MINE_OPENWRT_USERNAME}}"
+          password: "{{HOMEPAGE_VAR_ROUTER_MINE_OPENWRT_PASSWORD}}"
           # interfaceName: eth0 # optional
     - 家路由:
         icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/uPic/2024-01/AaQpSo.png
