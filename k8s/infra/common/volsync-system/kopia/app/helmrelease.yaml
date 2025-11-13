@@ -80,6 +80,8 @@ spec:
           gethomepage.dev/name: kopia
           gethomepage.dev/icon: kopia.svg
           gethomepage.dev/description: ""
+          gethomepage.dev/widget.type: kopia
+          gethomepage.dev/widget.url: http://kopia.volsync-system.svc.cluster.local:80
         hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
         parentRefs:
           - name: envoy-internal
