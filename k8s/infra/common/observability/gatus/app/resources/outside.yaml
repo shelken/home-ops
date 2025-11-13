@@ -33,17 +33,6 @@ endpoints:
       - "[CONNECTED] == true"
     alerts:
       - type: custom
-  - name: mirror-docker
-    group: sakamoto
-    url: "tcp://sakamoto.lan:5006"
-    interval: 1m
-    ui:
-      hide-hostname: true
-      hide-url: true
-    conditions:
-      - "[CONNECTED] == true"
-    alerts:
-      - type: custom
   - name: mirror-k8s
     group: sakamoto
     url: "tcp://sakamoto.lan:5005"
