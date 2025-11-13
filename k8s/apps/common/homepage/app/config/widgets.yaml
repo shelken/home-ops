@@ -3,10 +3,22 @@
 # https://gethomepage.dev/configs/widgets
 - logo:
     icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/avatar/mio-1.webp
-- resources:
-    cpu: true
-    memory: true
-    disk: /
+# - resources:
+#     cpu: true
+#     memory: true
+#     disk: /
+
+- kubernetes:
+    cluster:
+      # Shows cluster-wide statistics
+      show: true
+      # Shows the aggregate CPU stats
+      cpu: true
+      # Shows the aggregate memory stats
+      memory: true
+      # Shows a custom label
+      showLabel: true
+      label: "cluster"
 
 - search:
     provider: google
