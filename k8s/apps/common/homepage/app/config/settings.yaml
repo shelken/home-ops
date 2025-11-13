@@ -1,11 +1,11 @@
 ---
 # For configuration options and examples, please see:
-# https://gethomepage.dev/en/configs/settings
+# https://gethomepage.dev/configs/settings
 title: Shelken's Homepage
 language: zh-CN
 #instanceName: public
 #background: https://gcore.jsdelivr.net/gh/shelken/picbed@main/uPic/2024-01/z2YYAJ.jpeg # 芙莉莲
-background: https://gcore.jsdelivr.net/gh/shelken/picbed@main/uPic/2024-01/zszSjh.jpeg # 
+background: https://gcore.jsdelivr.net/gh/shelken/picbed@main/uPic/2024-01/zszSjh.jpeg #
 backgroundOpacity: 0.35
 providers:
   openweathermap: openweathermapapikey
@@ -21,7 +21,7 @@ disableCollapse: false
 fullWidth: true
 
 # icon from: https://pictogrammers.com/library/mdi/
-layout: 
+layout:
   设备:
     icon: mdi-desktop-classic
   观测:

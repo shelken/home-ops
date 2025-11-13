@@ -1,6 +1,6 @@
 ---
 # For configuration options and examples, please see:
-# https://gethomepage.dev/en/configs/widgets
+# https://gethomepage.dev/configs/widgets
 - logo:
     icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/avatar/mio-1.webp
 - resources:
@@ -18,8 +18,6 @@
     format:
       timeStyle: short
       dateStyle: short
-
-
 # - greeting:
 #     text_size: xl
 #     text: Greeting Text

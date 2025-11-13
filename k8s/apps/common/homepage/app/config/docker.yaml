@@ -9,5 +9,7 @@ box-docker:
 vps-docker:
   host: 100.113.0.8
   port: 2575
-# my-docker:
-#   socket: /var/run/docker.sock
+
+sakamoto-docker:
+  host: sakamoto.lan
+  port: 2575
