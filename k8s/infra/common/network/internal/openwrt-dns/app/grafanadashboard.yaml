@@ -13,3 +13,24 @@ spec:
     - datasourceName: prometheus
       inputName: DS_PROMETHEUS
   url: https://grafana.com/api/dashboards/21766/revisions/1/download
+#  安装 prometheus-node-exporter-*
+# prometheus-node-exporter-lua
+# prometheus-node-exporter-lua-nat_traffic
+# prometheus-node-exporter-lua-netstat
+# prometheus-node-exporter-lua-openwrt
+# prometheus-node-exporter-lua-wifi
+# prometheus-node-exporter-lua-wifi_stations
+
+# 一条命令解决
+# opkg update && \
+# opkg install prometheus-node-exporter-lua \
+#   prometheus-node-exporter-lua-nat_traffic \
+#   prometheus-node-exporter-lua-netstat \
+#   prometheus-node-exporter-lua-openwrt \
+#   prometheus-node-exporter-lua-wifi \
+#   prometheus-node-exporter-lua-wifi_stations \
+#   prometheus-node-exporter-lua-mwan3 && \
+# uci set prometheus-node-exporter-lua.main.listen_interface='lan' && \
+# uci commit prometheus-node-exporter-lua && \
+# /etc/init.d/prometheus-node-exporter-lua enable && \
+# /etc/init.d/prometheus-node-exporter-lua restart
