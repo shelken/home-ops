@@ -19,21 +19,6 @@ spec:
 apiVersion: monitoring.coreos.com/v1alpha1
 kind: ScrapeConfig
 metadata:
-  name: &name caddy-tvbox
-spec:
-  staticConfigs:
-    - targets:
-        - tvbox.lan:2019
-      labels:
-        job: *name
-  metricsPath: /metrics
-  scrapeInterval: 30s
-
----
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/scrapeconfig_v1alpha1.json
-apiVersion: monitoring.coreos.com/v1alpha1
-kind: ScrapeConfig
-metadata:
   name: &name caddy-sakamoto
 spec:
   staticConfigs:
