@@ -73,9 +73,6 @@ spec:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
               capabilities: { drop: ["ALL"] }
-              sysctls:
-                - name: net.ipv6.conf.all.disable_ipv6
-                  value: "1"
             resources:
               requests:
                 cpu: 10m
@@ -110,6 +107,15 @@ spec:
               runAsUser: 1000
               runAsGroup: 1000
     defaultPodOptions:
+      annotations:
+        k8s.v1.cni.cncf.io/networks: |
+          [{
+            "name": "multus-main",
+            "namespace": "network",
+            "interface": "eth1",
+            "ips": ["192.168.6.49/24"],
+            "mac": "02:2E:5F:AE:6A:AE"
+          }]
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
