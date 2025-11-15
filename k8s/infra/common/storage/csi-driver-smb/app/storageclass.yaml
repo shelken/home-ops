@@ -24,8 +24,10 @@ mountOptions:
   # - vers=3.1.1 # 不要指定版本
   # - uid=1000
   # - gid=1000
+  - hard
   - iocharset=utf8
   - mfsymlinks
   - cache=strict
+  - actimeo=30
   - noperm
-  - serverino
+  - noserverino

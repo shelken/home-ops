@@ -14,11 +14,13 @@ spec:
     - dir_mode=0777
     - file_mode=0777
     # - vers=3.1.1
+    - hard
     - iocharset=utf8
     - mfsymlinks
     - cache=strict
+    - actimeo=30
     - noperm
-    - serverino
+    - noserverino
   csi:
     driver: smb.csi.k8s.io
     volumeHandle: smb-sakamoto-sakamoto-storage
@@ -36,7 +38,7 @@ spec:
   volumeName: smb-sakamoto-storage-static-pv
   storageClassName: smb
   accessModes:
-  - ReadWriteMany
+    - ReadWriteMany
   resources:
     requests:
       storage: 4Ti
