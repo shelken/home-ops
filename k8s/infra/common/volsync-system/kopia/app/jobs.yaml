@@ -1,9 +1,12 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/refs/heads/master/v1.34.1/cronjob-batch-v1.json
 apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: job-cleaner
 spec:
   schedule: "0/5 * * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
       template:
