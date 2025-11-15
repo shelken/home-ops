@@ -12,7 +12,8 @@
 
     - name: 下载换源脚本
       ansible.builtin.get_url:
-        url: https://linuxmirrors.cn/main.sh
+        # url: https://linuxmirrors.cn/main.sh
+        url: https://raw.githubusercontent.com/SuperManito/LinuxMirrors/refs/heads/main/ChangeMirrors.sh
         dest: /tmp/linuxmirrors.sh
         mode: "0755"
     - name: 换源
