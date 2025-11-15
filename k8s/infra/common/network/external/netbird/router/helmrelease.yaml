@@ -73,7 +73,8 @@ spec:
                   - key: kubernetes.io/hostname
                     operator: In
                     values:
-                      - homelab-1
+                      # - homelab-1
+                      - sakamoto-k8s
       # securityContext:
       #   runAsNonRoot: false
       #   # runAsUser: 65534
