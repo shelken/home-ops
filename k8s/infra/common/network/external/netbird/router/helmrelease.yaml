@@ -26,6 +26,7 @@ spec:
               NB_HOSTNAME: k8s-router # name that will appear in the management UI
               NB_LOG_LEVEL: info
               NB_EXTRA_IFACE_BLACKLIST: eth0
+              NETBIRD_WG_PORT: 50820
               NB_SETUP_KEY:
                 valueFrom:
                   secretKeyRef:
