@@ -1,0 +1,64 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: job-cleaner
+spec:
+  schedule: "0 */1 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: job-cleaner
+          restartPolicy: Never
+          containers:
+            - name: kubectl
+              image: bitnami/kubectl:latest
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "Starting volsync job cleanup..."
+                  CUTOFF_TIME=$(date -u -d '2 hour ago' +%Y-%m-%dT%H:%M:%SZ)
+
+                  # 查找带有 app.kubenertes.io/created-by=volsync 标签且超过2小时未完成的Job
+                  kubectl get jobs --all-namespaces \
+                    -l app.kubernetes.io/created-by=volsync \
+                    -o json | \
+                  jq -r --arg cutoff "$CUTOFF_TIME" '.items[] |
+                    select(.status.startTime != null) |
+                    select(.status.startTime < $cutoff) |
+                    "\(.metadata.namespace) \(.metadata.name) \(.status.startTime)"' | \
+                  while read ns name startTime; do
+                    echo "Deleting stuck job: $name in namespace: $ns (started at: $startTime)"
+                    kubectl delete job -n "$ns" "$name" --ignore-not-found=true
+                  done
+
+                  echo "Cleanup completed"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: job-cleaner
+  namespace: volsync-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: job-cleaner
+rules:
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: job-cleaner
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: job-cleaner
+subjects:
+  - kind: ServiceAccount
+    name: job-cleaner
+    namespace: volsync-system
