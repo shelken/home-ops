@@ -27,7 +27,7 @@
             # azure-cli
 
             # k9s
-            # kustomize
+            kustomize
             krew
 
             ansible

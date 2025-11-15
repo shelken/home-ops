@@ -10,7 +10,6 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-      test: test
   dependsOn:
     - name: cilium
       namespace: kube-system
