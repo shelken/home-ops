@@ -13,7 +13,7 @@ spec:
   values:
     controllers:
       router:
-        replicas: 1
+        replicas: 2
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
@@ -65,16 +65,16 @@ spec:
           labelSelector:
             matchLabels:
               app.kubernetes.io/name: *app
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: kubernetes.io/hostname
-                    operator: In
-                    values:
-                      # - homelab-1
-                      - sakamoto-k8s
+      # affinity:
+      #   nodeAffinity:
+      #     requiredDuringSchedulingIgnoredDuringExecution:
+      #       nodeSelectorTerms:
+      #         - matchExpressions:
+      #             - key: kubernetes.io/hostname
+      #               operator: In
+      #               values:
+      #                 # - homelab-1
+      #                 - sakamoto-k8s
       # securityContext:
       #   runAsNonRoot: false
       #   # runAsUser: 65534
