@@ -6,15 +6,15 @@ spec:
   statefulSet:
     pod:
       tailscaleContainer:
-        #        resources:
-        #          limits:
-        #            kernel.org/tun: "1"
+        resources:
+          limits:
+            squat.ai/tun: "1"
         securityContext:
           #FIXME https://github.com/tailscale/tailscale/issues/10814
-          privileged: true
-          # allowPrivilegeEscalation: false
-          # capabilities:
-          #   drop:
-          #     - ALL
-          #   add:
-          #     - NET_ADMIN
+          # privileged: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+            add:
+              - NET_ADMIN

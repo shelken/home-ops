@@ -35,6 +35,8 @@ spec:
       app.kubernetes.io/name: *appname
   dependsOn:
     - name: tailscale
+    - name: generic-device-plugin
+      namespace: kube-system
   interval: 30m
   timeout: 5m
   path: ./k8s/infra/common/network/tailscale/proxy
