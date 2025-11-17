@@ -10,9 +10,11 @@ spec:
         #          limits:
         #            kernel.org/tun: "1"
         securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-              - ALL
-            add:
-              - NET_ADMIN
+          #FIXME https://github.com/tailscale/tailscale/issues/10814
+          privileged: true
+          # allowPrivilegeEscalation: false
+          # capabilities:
+          #   drop:
+          #     - ALL
+          #   add:
+          #     - NET_ADMIN
