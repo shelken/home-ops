@@ -52,7 +52,7 @@ qm create $TEMPLATE_ID \
   --scsihw virtio-scsi-pci \
   --efidisk0 local-lvm:4,efitype=4m,pre-enrolled-keys=0 \
   --ide0 local-lvm:cloudinit \
-  --net1 virtio,bridge=vmbr0,firewall=1 \
+  --net1 virtio,bridge=vmbr0 \
   --agent 1 \
   --serial0 socket \
   --ciuser shelken \

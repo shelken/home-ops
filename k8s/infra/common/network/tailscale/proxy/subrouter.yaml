@@ -43,4 +43,3 @@ spec:
               - ALL
             add:
               - NET_ADMIN
-      tailscaleInitContainer: *c
