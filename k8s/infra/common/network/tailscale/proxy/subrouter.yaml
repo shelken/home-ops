@@ -42,3 +42,5 @@ spec:
           #     - ALL
           #   add:
           #     - NET_ADMIN
+  tailscale:
+    port: 41641
