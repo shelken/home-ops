@@ -37,7 +37,6 @@
         "linuxserver/mariadb", // seafile-db
         "/rook/",
         "/homarr-labs/",
-        "tailscale-operator"
       ],
       enabled: false
     },
