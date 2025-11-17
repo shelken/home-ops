@@ -14,7 +14,7 @@ spec:
       namespace: external-secrets
   interval: 30m
   timeout: 5m
-  path: ./k8s/infra/common/network/etailscale/app
+  path: ./k8s/infra/common/network/tailscale/app
   prune: true
   sourceRef:
     kind: GitRepository
@@ -37,7 +37,7 @@ spec:
     - name: tailscale
   interval: 30m
   timeout: 5m
-  path: ./k8s/infra/common/network/etailscale/proxy
+  path: ./k8s/infra/common/network/tailscale/proxy
   prune: true
   sourceRef:
     kind: GitRepository
