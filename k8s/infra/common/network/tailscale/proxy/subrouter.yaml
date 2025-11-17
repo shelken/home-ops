@@ -20,15 +20,15 @@ spec:
   # ref: https://github.com/tailscale/tailscale/blob/main/k8s-operator/api.md#proxyclassspec
   statefulSet:
     pod:
-      annotations:
-        k8s.v1.cni.cncf.io/networks: |
-          [{
-            "name": "multus-main",
-            "namespace": "network",
-            "interface": "eth1",
-            "ips": ["192.168.6.49/24"],
-            "mac": "02:68:91:C1:1A:56"
-          }]
+      # annotations:
+      #   k8s.v1.cni.cncf.io/networks: |
+      #     [{
+      #       "name": "multus-main",
+      #       "namespace": "network",
+      #       "interface": "eth1",
+      #       "ips": ["192.168.6.49/24"],
+      #       "mac": "02:68:91:C1:1A:56"
+      #     }]
       tailscaleContainer:
         resources:
           limits:
