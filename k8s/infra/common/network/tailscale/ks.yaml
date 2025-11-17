@@ -2,7 +2,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &appname tailscale-external
+  name: &appname tailscale
   namespace: &namespace network
 spec:
   targetNamespace: *namespace
@@ -14,7 +14,7 @@ spec:
       namespace: external-secrets
   interval: 30m
   timeout: 5m
-  path: ./k8s/infra/common/network/external/tailscale/app
+  path: ./k8s/infra/common/network/etailscale/app
   prune: true
   sourceRef:
     kind: GitRepository
