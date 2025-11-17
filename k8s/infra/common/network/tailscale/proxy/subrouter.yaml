@@ -23,7 +23,7 @@ spec:
       annotations:
         k8s.v1.cni.cncf.io/networks: |
           [{
-            "name": "multus-tailscale",
+            "name": "multus-main",
             "namespace": "network",
             "interface": "eth1",
             "ips": ["192.168.6.65/24"],
