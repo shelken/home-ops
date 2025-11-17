@@ -3,7 +3,7 @@ kind: Kustomization
 namespace: kube-system
 components:
   - ../../../components/common
-resources: 
+resources:
   - cilium/ks.yaml
   - reloader/ks.yaml
   - snapshot-controller/ks.yaml
@@ -12,3 +12,4 @@ resources:
   - descheduler/ks.yaml
   - intel-device-plugin-operator/ks.yaml
   - nvidia-device-plugin/ks.yaml
+  - generic-device-plugin/ks.yaml
