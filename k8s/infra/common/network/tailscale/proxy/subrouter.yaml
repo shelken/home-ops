@@ -36,6 +36,8 @@ spec:
         env:
           - name: TS_PORT
             value: "41641"
+          - name: PORT
+            value: "41641"
         securityContext:
           #FIXME https://github.com/tailscale/tailscale/issues/10814
           privileged: true
