@@ -33,6 +33,8 @@ spec:
         #        resources:
         #          limits:
         #            kernel.org/tun: "1"
+        env:
+          TS_PORT: 41641
         securityContext:
           #FIXME https://github.com/tailscale/tailscale/issues/10814
           privileged: true
@@ -42,5 +44,3 @@ spec:
           #     - ALL
           #   add:
           #     - NET_ADMIN
-  tailscale:
-    port: 41641
