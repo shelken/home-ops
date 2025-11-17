@@ -27,7 +27,7 @@ spec:
             "namespace": "network",
             "interface": "eth1",
             "ips": ["192.168.6.65/24"],
-            "mac": "02:68:91:C1:1A:65"
+            "mac": "02:68:91:C1:1A:56"
           }]
       tailscaleContainer:
         #        resources:
