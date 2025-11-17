@@ -19,6 +19,6 @@ spec:
       image:
         repository: ghcr.io/tailscale/k8s-operator
     proxyConfig:
-      defaultProxyClass: ""
+      defaultProxyClass: "tun-access"
     apiServerProxyConfig:
       mode: "false"
