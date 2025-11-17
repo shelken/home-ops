@@ -29,7 +29,7 @@ spec:
             "ips": ["192.168.6.49/24"],
             "mac": "02:2E:5F:AE:6A:AE"
           }]
-      tailscaleContainer:
+      tailscaleContainer: &c
         resources:
           limits:
             squat.ai/tun: "1"
@@ -37,11 +37,10 @@ spec:
           - name: PORT
             value: "41641"
         securityContext:
-          #FIXME https://github.com/tailscale/tailscale/issues/10814
-          # privileged: true
           allowPrivilegeEscalation: false
           capabilities:
             drop:
               - ALL
             add:
               - NET_ADMIN
+      tailscaleInitContainer: *c
