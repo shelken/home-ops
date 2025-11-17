@@ -35,6 +35,8 @@ spec:
       app.kubernetes.io/name: *appname
   dependsOn:
     - name: tailscale
+    - name: multus-networks
+      namespace: network
     - name: generic-device-plugin
       namespace: kube-system
   interval: 30m
