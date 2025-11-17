@@ -34,8 +34,6 @@ spec:
         #          limits:
         #            kernel.org/tun: "1"
         env:
-          - name: TS_PORT
-            value: "41641"
           - name: PORT
             value: "41641"
         securityContext:
