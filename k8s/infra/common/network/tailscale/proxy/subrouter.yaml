@@ -25,7 +25,8 @@ spec:
           [{
             "name": "multus-tailscale",
             "namespace": "network",
-            "interface": "eth1"
+            "interface": "eth1",
+            "ips": ["192.168.6.65","192.168.6.66"]
           }]
       tailscaleContainer:
         #        resources:

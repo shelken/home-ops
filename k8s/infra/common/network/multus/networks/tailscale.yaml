@@ -15,7 +15,7 @@ spec:
           "mode": "bridge",
           "capabilities": { "ips": true, "mac": true },
           "ipam": {
-            "type": "host-local",
+            "type": "static",
             "subnet": "192.168.6.64/29",
             "gateway": "192.168.6.1"
           }
