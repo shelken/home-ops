@@ -1,0 +1,40 @@
+---
+apiVersion: tailscale.com/v1alpha1
+kind: Connector
+metadata:
+  name: ts-router
+spec:
+  #ref: https://github.com/tailscale/tailscale/blob/main/k8s-operator/api.md#connectorspec
+  hostname: k8s-router
+  proxyClass: k8s-router
+  subnetRouter:
+    advertiseRoutes:
+      - "192.168.6.0/24"
+
+---
+apiVersion: tailscale.com/v1alpha1
+kind: ProxyClass
+metadata:
+  name: k8s-router
+spec:
+  # ref: https://github.com/tailscale/tailscale/blob/main/k8s-operator/api.md#proxyclassspec
+  statefulSet:
+    pod:
+      annotations:
+        k8s.v1.cni.cncf.io/networks: |
+          [{
+            "name": "multus-tailscale",
+            "namespace": "network",
+            "interface": "eth1"
+          }]
+      tailscaleContainer:
+        #        resources:
+        #          limits:
+        #            kernel.org/tun: "1"
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+            add:
+              - NET_ADMIN

@@ -4,3 +4,4 @@ resources:
   - helmrelease.yaml
   - externalsecret.yaml
   - helmrepository.yaml
+  - proxyclass.yaml

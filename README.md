@@ -39,7 +39,7 @@ homelab
 | netbird                | 192.168.6.44 |                |             |
 | envoy external gateway | 192.168.6.45 |                |             |
 | envoy internal gateway | 192.168.6.46 |                |             |
-| caddy-external| 192.168.6.47 |                |             |
+| caddy-external         | 192.168.6.47 |                |             |
 | home assistant         | 192.168.6.51 |                |             |
 | postgres17             | 192.168.6.52 | 开放postgres   | postgres17. |
 | go2rtc                 | 192.168.6.53 |                |             |
@@ -49,6 +49,14 @@ homelab
 | qbittorrent            | 192.168.6.58 |                |             |
 | mosquitto              | 192.168.6.59 |                |             |
 | longhorn               |              | longhorn ui    | longhorn.   |
+
+## multus
+
+### tailscale
+
+| 服务                | ip-range        | 描述 |
+| ------------------- | --------------- | ---- |
+| tailscale-subrouter | 192.168.6.64/29 |      |
 
 ## 服务网络
 
