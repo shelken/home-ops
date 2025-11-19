@@ -3,8 +3,42 @@ kind: Service
 metadata:
   annotations:
     tailscale.com/tailnet-ip: "100.97.0.8"
-    tailscale.com/proxy-class: k8s-router
+    tailscale.com/proxy-class: ts-node-vps
   name: ts-node-vps
 spec:
   externalName: unused
   type: ExternalName
+
+---
+apiVersion: tailscale.com/v1alpha1
+kind: ProxyClass
+metadata:
+  name: ts-node-vps
+spec:
+  tailscale:
+    acceptRoutes: true
+  statefulSet:
+    pod:
+      annotations:
+        k8s.v1.cni.cncf.io/networks: |
+          [{
+            "name": "multus-tailscale",
+            "namespace": "network",
+            "interface": "eth1",
+            "ips": ["192.168.6.66/32"],
+            "mac": "02:2E:5F:AE:6A:66"
+          }]
+      tailscaleContainer: &c
+        resources:
+          limits:
+            squat.ai/tun: "1"
+        env:
+          - name: PORT
+            value: "44555"
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+            add:
+              - NET_ADMIN
