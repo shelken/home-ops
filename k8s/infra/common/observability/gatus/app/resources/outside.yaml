@@ -11,6 +11,17 @@ endpoints:
       - "[CONNECTED] == true"
     alerts:
       - type: custom
+  - name: vps-caddy
+    group: vps
+    url: "tcp://ts-node-vps.network.svc:443"
+    interval: 2m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[CONNECTED] == true"
+    alerts:
+      - type: custom
   - name: mosdns
     group: tvbox
     url: "udp://tvbox.lan:53"
