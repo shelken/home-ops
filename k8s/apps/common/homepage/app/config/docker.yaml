@@ -7,7 +7,7 @@ box-docker:
   port: 2575
 
 vps-docker:
-  host: 100.113.0.8
+  host: ts-node-vps.network.svc
   port: 2575
 
 sakamoto-docker:
