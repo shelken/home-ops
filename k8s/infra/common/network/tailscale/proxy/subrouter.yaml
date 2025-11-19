@@ -18,6 +18,8 @@ metadata:
   name: k8s-router
 spec:
   # ref: https://github.com/tailscale/tailscale/blob/main/k8s-operator/api.md#proxyclassspec
+  tailscale:
+    acceptRoutes: true
   statefulSet:
     pod:
       annotations:

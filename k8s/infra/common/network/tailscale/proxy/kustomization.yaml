@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - subrouter.yaml
   - proxyclass.yaml
+  - node-vps.yaml
