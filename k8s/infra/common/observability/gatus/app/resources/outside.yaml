@@ -110,3 +110,26 @@ endpoints:
       - "[STATUS] == 200"
     alerts:
       - type: custom
+  - name: f50
+    group: device
+    url: http://router-f50.lan
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[STATUS] == 200"
+    alerts:
+      - type: custom
+  - name: f50
+    group: device
+    url: http://router-f50.lan
+    method: HEAD
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[STATUS] == 200"
+    alerts:
+      - type: custom
