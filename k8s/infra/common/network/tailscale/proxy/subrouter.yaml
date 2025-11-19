@@ -23,11 +23,11 @@ spec:
       annotations:
         k8s.v1.cni.cncf.io/networks: |
           [{
-            "name": "multus-main",
+            "name": "multus-tailscale",
             "namespace": "network",
             "interface": "eth1",
-            "ips": ["192.168.6.49/24"],
-            "mac": "02:2E:5F:AE:6A:AE"
+            "ips": ["192.168.6.65/32"],
+            "mac": "02:2E:5F:AE:6A:65"
           }]
       tailscaleContainer: &c
         resources:
@@ -35,7 +35,7 @@ spec:
             squat.ai/tun: "1"
         env:
           - name: PORT
-            value: "41641"
+            value: "44555"
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
