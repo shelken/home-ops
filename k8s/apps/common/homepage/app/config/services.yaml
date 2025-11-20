@@ -3,8 +3,13 @@
 - 设备:
     - PVE:
         icon: proxmox.png
-        href: https://192.168.6.213:8006
+        href: &proxmox https://pve.lan:8006
         description:
+        widgets:
+          - type: proxmox
+            url: *proxmox
+            username: api@pve!homepage
+            password: "{{HOMEPAGE_VAR_PROXMOX_PASSWORD}}"
     - 我的路由:
         icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/uPic/2024-01/RdRn6J.png
         href: http://router-mine.lan/cgi-bin/luci/
