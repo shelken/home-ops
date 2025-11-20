@@ -64,7 +64,7 @@ spec:
                 valueFrom:
                   secretKeyRef:
                     name: karakeep-secret
-                    key: OIDC_CLIENT_SECRET
+                    key: OAUTH_CLIENT_SECRET
               OAUTH_CLIENT_ID: karakeep
               OAUTH_PROVIDER_NAME: Authelia
               OAUTH_SCOPE: "openid profile email"
