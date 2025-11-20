@@ -58,6 +58,18 @@ spec:
               # OpenAI Config
               # ref：https://docs.karakeep.app/configuration/#inference-configs-for-automatic-tagging
               INFERENCE_LANG: chinese
+              OPENAI_BASE_URL: http://chat-api.default.svc:3000
+              OPENAI_API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: karakeep-secret
+                    key: OPENAI_API_KEY
+              INFERENCE_TEXT_MODEL: gemini-2.5-flash
+              INFERENCE_IMAGE_MODEL: gemini-2.5-flash
+              EMBEDDING_TEXT_MODEL: gemini-embedding-exp
+              INFERENCE_ENABLE_AUTO_TAGGING: "true"
+              INFERENCE_NUM_WORKERS: "1"
+              INFERENCE_CONTEXT_LENGTH: "100000"
               # OAuth
               OAUTH_WELLKNOWN_URL: https://auth.${MAIN_DOMAIN}/.well-known/openid-configuration
               OAUTH_CLIENT_SECRET:
