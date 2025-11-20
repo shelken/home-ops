@@ -48,12 +48,12 @@ spec:
                 valueFrom:
                   secretKeyRef:
                     name: karakeep-secret
-                    key: meilisearch_master_key
+                    key: MEILI_MASTER_KEY
               NEXTAUTH_SECRET:
                 valueFrom:
                   secretKeyRef:
                     name: karakeep-secret
-                    key: encryption_key
+                    key: NEXTAUTH_SECRET
               NEXTAUTH_URL: https://karakeep.${MAIN_DOMAIN}
               # OpenAI Config
               # ref：https://docs.karakeep.app/configuration/#inference-configs-for-automatic-tagging
