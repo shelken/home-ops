@@ -15,6 +15,7 @@ resources:
   - immich/ks.yaml
   - jellyfin/ks.yaml
   # - kite/ks.yaml
+  - karakeep/ks.yaml
   - kromgo/ks.yaml
   # - librespeed/ks.yaml
   # - memos/ks.yaml
