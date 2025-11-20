@@ -14,8 +14,6 @@ spec:
       namespace: longhorn-system
     - name: azure-store
       namespace: external-secrets
-    - name: netbird-operator
-      namespace: network
   interval: 1h
   path: ./k8s/infra/common/observability/kube-prometheus-stack/app
   prune: true
