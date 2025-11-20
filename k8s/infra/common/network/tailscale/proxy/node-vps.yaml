@@ -12,12 +12,16 @@ spec:
   ports:
     - port: 9100
       protocol: TCP
+      name: node-export
     - port: 2575
       protocol: TCP
+      name: docker-proxy
     - port: 2019
       protocol: TCP
+      name: caddy-metrics
     - port: 443
       protocol: TCP
+      name: caddy
 
 ---
 apiVersion: tailscale.com/v1alpha1
