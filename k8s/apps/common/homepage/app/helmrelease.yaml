@@ -24,7 +24,7 @@ spec:
           annotations:
             configmap.reloader.stakater.com/reload: &config homepage-config
             secret.reloader.stakater.com/reload: &secret homepage-secret
-            netbird.io/setup-key: ${APP}-side-car-setup-key
+            # netbird.io/setup-key: ${APP}-side-car-setup-key
         containers:
           app:
             image:
