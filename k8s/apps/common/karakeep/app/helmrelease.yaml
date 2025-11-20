@@ -58,7 +58,7 @@ spec:
               # OpenAI Config
               # ref：https://docs.karakeep.app/configuration/#inference-configs-for-automatic-tagging
               INFERENCE_LANG: chinese
-              OPENAI_BASE_URL: http://new-api.default.svc:3000
+              OPENAI_BASE_URL: http://new-api.default.svc:3000/v1
               OPENAI_API_KEY:
                 valueFrom:
                   secretKeyRef:
