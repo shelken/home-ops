@@ -68,6 +68,7 @@ spec:
               OAUTH_CLIENT_ID: karakeep
               OAUTH_PROVIDER_NAME: Authelia
               OAUTH_SCOPE: "openid profile email"
+              OAUTH_ALLOW_DANGEROUS_EMAIL_ACCOUNT_LINKING: "true"
               OCR_LANGS: chi_sim,eng
             probes:
               liveness:
