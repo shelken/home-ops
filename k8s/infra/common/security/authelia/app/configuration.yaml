@@ -65,6 +65,8 @@ identity_providers:
       # 给那些使用id-token提取用户名信息的服务。让authelia在idtoken中额外添加信息
       id_token:
         id_token: ["preferred_username"]
+      karakeep:
+        id_token: ["email"]
     clients:
       # ref: https://www.authelia.com/integration/openid-connect/memos/
       - client_id: memos
@@ -258,6 +260,7 @@ identity_providers:
       - client_id: "karakeep"
         client_name: "Karakeep"
         client_secret: "$pbkdf2-sha512$310000$5t.DD2VmDSfQNmxT1iwOgw$IcUQKbZtE7AI7gkw6f3LfWTZ3GkL4LWSXZmpD86gehmZf19Rap/7EQ60S8x.Mhw9VKYAncRF6bsyZE1yXbWB8g"
+        claims_policy: karakeep
         public: false
         authorization_policy: "two_factor"
         pre_configured_consent_duration: 1y
