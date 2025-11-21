@@ -103,7 +103,17 @@ spec:
             namespace: network
             sectionName: https
         rules:
-          - backendRefs:
+          - filters:
+              - type: RequestHeaderModifier
+                requestHeaderModifier:
+                  set:
+                    - name: Cache-Control
+                      value: no-store
+                    - name: Pragma
+                      value: no-cache
+                    - name: X-Frame-Options
+                      value: SAMEORIGIN
+            backendRefs:
               - identifier: app
                 port: *port
     serviceMonitor:
