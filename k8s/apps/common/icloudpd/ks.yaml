@@ -13,6 +13,7 @@ spec:
   components:
     - ../../../../components/keda/smb-scaler
     - ../../../../components/volsync
+    - ../../../../components/authelia
   dependsOn:
     - name: smb-volumes
     - name: keda

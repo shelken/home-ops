@@ -9,6 +9,11 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  components:
+    - ../../../../../components/authelia
+  postBuild:
+    substitute:
+      APP: *app
   interval: 1h
   path: ./k8s/infra/common/volsync-system/kopia/app
   prune: true

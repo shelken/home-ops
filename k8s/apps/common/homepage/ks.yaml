@@ -9,6 +9,7 @@ spec:
   targetNamespace: *namespace
   components:
     - ../../../../components/netbird/side-car
+    - ../../../../components/authelia
   postBuild:
     substitute:
       APP: *app
