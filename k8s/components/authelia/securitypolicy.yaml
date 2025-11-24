@@ -2,12 +2,12 @@
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: SecurityPolicy
 metadata:
-  name: &app homepage
+  name: ${APP}
 spec:
   targetRefs:
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
-      name: *app
+      name: ${APP}
   extAuth:
     headersToExtAuth:
       - "accept"
@@ -25,8 +25,3 @@ spec:
           group: ""
           kind: Service
       path: /api/authz/ext-authz/
-      # headersToBackend:
-      #   - Remote-User
-      #   - Remote-Groups
-      #   - Remote-Name
-      #   - Remote-Email
