@@ -18,7 +18,7 @@ spec:
       podMonitorEnabled: false
       grafanaDashboard:
         create: true
-    strategy:
+    updateStrategy:
       type: Recreate
     affinity:
       podAntiAffinity:
