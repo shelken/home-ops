@@ -13,17 +13,18 @@ spec:
   path: ./k8s/infra/common/longhorn-system/longhorn/app
   prune: true
   retryInterval: 2m
-  # healthChecks:
-  #   - kind: HelmRelease
-  #     apiVersion: helm.toolkit.fluxcd.io/v2
-  #     name: *app
-  #     namespace: *namespace
+  healthChecks:
+    - kind: DaemonSet
+      apiVersion: apps/v1
+      name: longhorn-manager
+      namespace: *namespace
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
   targetNamespace: *namespace
   timeout: 5m
+  wait: true
 
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
