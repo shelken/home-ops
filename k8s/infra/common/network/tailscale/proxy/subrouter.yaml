@@ -58,3 +58,6 @@ spec:
               - ALL
             add:
               - NET_ADMIN
+          sysctls:
+            - name: net.ipv6.conf.eth1.accept_ra
+              value: "2"
