@@ -9,6 +9,7 @@ spec:
   chartRef:
     kind: OCIRepository
     name: cloudnative-pg
+  # ref: https://github.com/cloudnative-pg/charts/blob/main/charts/cloudnative-pg/values.yaml
   values:
     crds:
       create: true
@@ -17,10 +18,10 @@ spec:
       podMonitorEnabled: false
       grafanaDashboard:
         create: true
-    topologySpreadConstraints:
-      - maxSkew: 1
-        topologyKey: "kubernetes.io/hostname"
-        whenUnsatisfiable: DoNotSchedule
-        labelSelector:
-          matchLabels:
-            app.kubernetes.io/name: *app
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: cloudnative-pg
+            topologyKey: kubernetes.io/hostname
