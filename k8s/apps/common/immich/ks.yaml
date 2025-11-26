@@ -11,6 +11,7 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+      app.ooooo.space/need-smb: "true"
   components:
     - ../../../../components/keda/smb-scaler
   postBuild:
