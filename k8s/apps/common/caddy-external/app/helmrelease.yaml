@@ -71,6 +71,9 @@ spec:
 
     controllers:
       caddy-external:
+        labels:
+          app.ooooo.space/need-ipv6: "true"
+          app.ooooo.space/multus: "true"
         annotations:
           reloader.stakater.com/auto: "true"
         containers:

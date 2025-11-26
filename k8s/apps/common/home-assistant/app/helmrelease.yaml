@@ -22,6 +22,9 @@ spec:
     # ref: https://github.com/perryhuynh/homelab/blob/main/kubernetes/apps/home/home-assistant/app/helmrelease.yaml
     controllers:
       home-assistant:
+        labels:
+          app.ooooo.space/need-mdns: "true"
+          app.ooooo.space/multus: "true"
         annotations:
           reloader.stakater.com/auto: "true"
         containers:

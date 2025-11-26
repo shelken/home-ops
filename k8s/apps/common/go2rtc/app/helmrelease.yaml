@@ -21,6 +21,9 @@ spec:
   values:
     controllers:
       go2rtc:
+        labels:
+          app.ooooo.space/need-mdns: "true"
+          app.ooooo.space/multus: "true"
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
