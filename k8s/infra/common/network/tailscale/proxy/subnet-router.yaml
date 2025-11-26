@@ -35,15 +35,15 @@ spec:
             "ips": ["192.168.6.65/32"],
             "mac": "02:2E:5F:AE:6A:65"
           }]
-      # affinity:
-      #   nodeAffinity:
-      #     requiredDuringSchedulingIgnoredDuringExecution:
-      #       nodeSelectorTerms:
-      #         - matchExpressions:
-      #             - key: kubernetes.io/hostname
-      #               operator: In
-      #               values:
-      #                 - homelab-1
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: NotIn
+                    values:
+                      - sakamoto-k8s
       securityContext:
         sysctls:
           - name: net.ipv6.conf.eth1.accept_ra
