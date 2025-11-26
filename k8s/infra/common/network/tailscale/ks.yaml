@@ -12,6 +12,8 @@ spec:
   dependsOn:
     - name: azure-store
       namespace: external-secrets
+    - name: generic-device-plugin
+      namespace: kube-system
   interval: 30m
   timeout: 5m
   path: ./k8s/infra/common/network/tailscale/app
