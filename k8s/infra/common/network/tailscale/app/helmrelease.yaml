@@ -14,10 +14,14 @@ spec:
         kind: HelmRepository
         name: tailscale
   values:
+    #ref: https://github.com/tailscale/tailscale/blob/main/cmd/k8s-operator/deploy/chart/values.yaml
     operatorConfig:
       hostname: "tailscale-operator"
       image:
         repository: ghcr.io/tailscale/k8s-operator
+      resources:
+        limits:
+          squat.ai/tun: "1"
     proxyConfig:
       defaultProxyClass: "tun-access"
     apiServerProxyConfig:
