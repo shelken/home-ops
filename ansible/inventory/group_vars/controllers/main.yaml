@@ -30,6 +30,7 @@ k3s_server:
       "image-gc-low-threshold=50",
       "image-gc-high-threshold=55",
       "feature-gates=ImageVolume=true",
+      "allowed-unsafe-sysctls=net.ipv6.*", # 给 tailscale 等使用
     ] # 镜像回收
   node-ip: "{{ ansible_host }}"
   secrets-encryption: true
