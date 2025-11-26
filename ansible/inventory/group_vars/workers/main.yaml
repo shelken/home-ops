@@ -2,3 +2,9 @@
 k3s_control_node: false
 k3s_agent:
   node-ip: "{{ ansible_host }}"
+  kubelet-arg: [
+      "image-gc-low-threshold=50",
+      "image-gc-high-threshold=55",
+      "feature-gates=ImageVolume=true",
+      "allowed-unsafe-sysctls=net.ipv6.*", # 给 tailscale 等使用
+    ]
