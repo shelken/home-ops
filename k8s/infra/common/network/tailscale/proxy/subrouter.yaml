@@ -35,6 +35,15 @@ spec:
             "mac": "02:2E:5F:AE:6A:65"
           }]
       tailscaleContainer: &c
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: kubernetes.io/hostname
+                      operator: In
+                      values:
+                        - homelab-1
         resources:
           limits:
             squat.ai/tun: "1"
