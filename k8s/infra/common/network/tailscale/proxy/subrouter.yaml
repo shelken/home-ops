@@ -44,6 +44,10 @@ spec:
                     operator: In
                     values:
                       - homelab-1
+      securityContext:
+        sysctls:
+          - name: net.ipv6.conf.eth1.accept_ra
+            value: "2"
       tailscaleContainer: &c
         resources:
           limits:
@@ -58,6 +62,3 @@ spec:
               - ALL
             add:
               - NET_ADMIN
-          sysctls:
-            - name: net.ipv6.conf.eth1.accept_ra
-              value: "2"
