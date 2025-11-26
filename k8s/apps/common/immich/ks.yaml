@@ -50,12 +50,14 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+      app.ooooo.space/need-smb: "true"
   components:
     - ../../../../components/keda/smb-scaler
   postBuild:
     substitute:
       APP: *app
   dependsOn:
+    - name: smb-volumes
     - name: immich-server
   interval: 1h
   path: ./k8s/apps/common/immich/microservices
@@ -80,6 +82,7 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+      app.ooooo.space/need-smb: "true"
   components:
     - ../../../../components/keda/smb-scaler
   postBuild:
@@ -87,6 +90,7 @@ spec:
       APP: *app
   dependsOn:
     - name: immich-server
+    - name: smb-volumes
   interval: 1h
   path: ./k8s/apps/common/immich/machine-learning
   prune: true
