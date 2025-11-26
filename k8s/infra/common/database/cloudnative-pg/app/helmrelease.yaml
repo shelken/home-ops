@@ -18,6 +18,8 @@ spec:
       podMonitorEnabled: false
       grafanaDashboard:
         create: true
+    strategy:
+      type: Recreate
     affinity:
       podAntiAffinity:
         requiredDuringSchedulingIgnoredDuringExecution:
