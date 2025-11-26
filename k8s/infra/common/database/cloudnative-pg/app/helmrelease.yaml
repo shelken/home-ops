@@ -19,7 +19,9 @@ spec:
       grafanaDashboard:
         create: true
     updateStrategy:
-      type: Recreate
+      type: RollingUpdate
+      rollingUpdate:
+        maxUnavailable: 50%
     affinity:
       podAntiAffinity:
         requiredDuringSchedulingIgnoredDuringExecution:
