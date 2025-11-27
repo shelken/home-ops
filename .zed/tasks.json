@@ -1,0 +1,13 @@
+[
+  {
+    "label": "Sops: Edit current file",
+    "command": "sops",
+    "args": ["edit", "$ZED_FILE"],
+    "env": {
+      "EDITOR": "zed --wait"
+    },
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "hide": "always"
+  }
+]
