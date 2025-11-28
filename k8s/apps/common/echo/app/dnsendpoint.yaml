@@ -10,5 +10,6 @@ spec:
       recordType: CNAME
       targets:
         - cloudflare.182682.xyz # 您的优选 IP CNAME
-      labels:
-        external-dns.alpha.kubernetes.io/cloudflare-proxied: "false" # 强制关闭小云朵
+      providerSpecific:
+        - name: external-dns.alpha.kubernetes.io/cloudflare-proxied
+          value: "false"
