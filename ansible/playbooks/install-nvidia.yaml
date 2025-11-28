@@ -58,6 +58,18 @@
           become: true
           ansible.builtin.command: update-initramfs -u
 
+        - name: Check if NVIDIA Grid driver installer exists
+          ansible.builtin.stat:
+            path: /home/shelken/NVIDIA-Linux-x86_64-550.163.01-grid.run
+          register: nvidia_grid_installer
+
+        - name: Install NVIDIA Grid driver if installer exists
+          become: true
+          ansible.builtin.command:
+            cmd: ./NVIDIA-Linux-x86_64-550.163.01-grid.run --silent --no-questions --accept-license --disable-nouveau
+            chdir: /home/shelken
+          when: nvidia_grid_installer.stat.exists
+
         - name: 重启系统
           ansible.builtin.reboot:
             msg: "重启以完全禁用nouveau"
@@ -68,6 +80,4 @@
       when:
         - (nvidia_gpu | default(false)) | bool
 
-    # 安装与宿主机版本一致的grid driver
-    # sudo ./NVIDIA-Linux-x86_64-550.163.01-grid.run --silent --no-questions --accept-license --disable-nouveau
     # 然后配置 licence/nvidia-gridd

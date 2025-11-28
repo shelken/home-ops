@@ -1,0 +1,25 @@
+---
+- name: install cifs pkgs
+  ansible.builtin.apt:
+    name: "{{ cifs_packages }}"
+    state: present
+
+- name: Create persistent module loading config for CIFS
+  ansible.builtin.lineinfile:
+    path: /etc/modules
+    line: "{{ item }}"
+    create: yes
+    state: present
+  loop:
+    - cifs
+    - nls_utf8
+
+# 立即加载模块，这样如果不重启机器也能马上用
+# check: lsmod | grep nls
+- name: Load CIFS kernel modules immediately
+  community.general.modprobe:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - cifs
+    - nls_utf8

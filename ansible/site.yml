@@ -10,29 +10,31 @@
       community.general.timezone:
         name: "{{ system_timezone }}"
 
-    - name: 下载换源脚本
-      ansible.builtin.get_url:
-        # url: https://linuxmirrors.cn/main.sh
-        url: https://raw.githubusercontent.com/SuperManito/LinuxMirrors/refs/heads/main/ChangeMirrors.sh
-        dest: /tmp/linuxmirrors.sh
-        mode: "0755"
-    - name: 换源
-      ansible.builtin.command: |
-        bash /tmp/linuxmirrors.sh \
-          --source mirrors.ustc.edu.cn \
-          --protocol http \
-          --use-intranet-source false \
-          --backup true \
-          --upgrade-software false \
-          --clean-cache false \
-          --ignore-backup-tips \
-          --pure-mode
+    # - name: 下载换源脚本
+    #   ansible.builtin.get_url:
+    #     # url: https://linuxmirrors.cn/main.sh
+    #     url: https://raw.githubusercontent.com/SuperManito/LinuxMirrors/refs/heads/main/ChangeMirrors.sh
+    #     dest: /tmp/linuxmirrors.sh
+    #     mode: "0755"
+    # - name: 换源
+    #   ansible.builtin.command: |
+    #     bash /tmp/linuxmirrors.sh \
+    #       --source mirrors.ustc.edu.cn \
+    #       --protocol http \
+    #       --use-intranet-source false \
+    #       --backup true \
+    #       --upgrade-software false \
+    #       --clean-cache false \
+    #       --ignore-backup-tips \
+    #       --pure-mode
 
-    - name: install pkgs
+    - name: install system pkgs
       ansible.builtin.apt:
         name: "{{ system_packages }}"
         state: present
         # update_cache: yes
+
+    - import_tasks: playbooks/tasks/cifs.yaml
 
     - name: 配置 Intel GPU 驱动
       block:
