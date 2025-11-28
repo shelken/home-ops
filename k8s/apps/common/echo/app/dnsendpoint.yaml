@@ -1,0 +1,14 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/externaldns.k8s.io/dnsendpoint_v1alpha1.json
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: echo
+spec:
+  endpoints:
+    - dnsName: echo.${MAIN_DOMAIN}
+      recordType: CNAME
+      targets:
+        - cloudflare.182682.xyz # 您的优选 IP CNAME
+      labels:
+        external-dns.alpha.kubernetes.io/cloudflare-proxied: "false" # 强制关闭小云朵
