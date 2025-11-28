@@ -11,6 +11,8 @@ system_packages:
   - vim
   - htop
   - open-iscsi # longhorn
+
+cifs_packages:
   - cifs-utils # smb 挂载
   - linux-modules-extra-{{ ansible_kernel }} # smb 中文挂载（iocharset=utf8）## 检查smb错误：sudo dmesg | grep -i cifs
 
