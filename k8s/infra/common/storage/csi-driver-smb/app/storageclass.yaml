@@ -21,13 +21,13 @@ allowVolumeExpansion: true
 mountOptions:
   - dir_mode=0777
   - file_mode=0777
-  # - vers=3.1.1 # 不要指定版本
+  - vers=3.0
   # - uid=1000
   # - gid=1000
   - hard
   - iocharset=utf8
   - mfsymlinks
-  - cache=strict
+  - cache=none
   - actimeo=30
   - noperm
   - noserverino
