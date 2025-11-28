@@ -74,6 +74,8 @@ spec:
           gethomepage.dev/name: echo
           gethomepage.dev/icon: kubernetes-dashboard.svg
           gethomepage.dev/description: ""
+          external-dns.alpha.kubernetes.io/target: "cloudflare.182682.xyz"
+          external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
         hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
         parentRefs:
           - name: envoy-external
