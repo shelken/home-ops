@@ -57,10 +57,10 @@ spec:
       - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
       - --crd-source-kind=DNSEndpoint
       - --gateway-name=envoy-external
-      - --annotation-filter="external-dns.alpha.kubernetes.io/exclude notin (true)"
       # - --zone-id-filter=$(CF_ZONE_ID)
       # - --ignore-ingress-tls-spec
       # - --ingress-class=nginx-external
+    annotationFilter: "external-dns.alpha.kubernetes.io/exclude notin (true)"
     triggerLoopOnEvent: true
     policy: sync
     sources: ["crd", "gateway-httproute"] #, "ingress"
