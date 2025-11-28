@@ -74,7 +74,7 @@ spec:
           gethomepage.dev/name: echo
           gethomepage.dev/icon: kubernetes-dashboard.svg
           gethomepage.dev/description: ""
-          external-dns.alpha.kubernetes.io/exclude: "true"
+          # external-dns.alpha.kubernetes.io/exclude: "true"
         hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
         parentRefs:
           - name: envoy-external
