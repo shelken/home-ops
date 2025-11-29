@@ -89,7 +89,7 @@ spec:
               #     http2Origin: true
               #     originServerName: homelab-external.${MAIN_DOMAIN}
               #   service: http://jellyfin.default.svc.cluster.local:8096
-              # - service: http_status:404
+              - service: http_status:404
     persistence:
       config-file:
         type: configMap
