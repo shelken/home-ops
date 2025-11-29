@@ -37,6 +37,8 @@
         "linuxserver/mariadb", // seafile-db
         "/rook/",
         "/homarr-labs/",
+        "/n8n-io/",
+        "/netbirdio/",
       ],
       enabled: false
     },
@@ -110,7 +112,7 @@
       automerge: true,
       automergeType: "pr",
       matchUpdateTypes: ["minor", "patch"],
-      matchPackageNames: ["/kube-prometheus-stack/", "/grafana/", "/n8n/", "/netbird/"],
+      matchPackageNames: ["/kube-prometheus-stack/", "/grafana/"],
       ignoreTests: false,
       rebaseWhen: "behind-base-branch",
     },
