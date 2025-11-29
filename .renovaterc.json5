@@ -110,7 +110,7 @@
       automerge: true,
       automergeType: "pr",
       matchUpdateTypes: ["minor", "patch"],
-      matchPackageNames: ["/kube-prometheus-stack/", "/grafana/", "/n8n/"],
+      matchPackageNames: ["/kube-prometheus-stack/", "/grafana/", "/n8n/", "/netbird/"],
       ignoreTests: false,
       rebaseWhen: "behind-base-branch",
     },
