@@ -22,4 +22,4 @@ spec:
     operator:
       image:
         registry: mirror.gcr.io
-    routingClientImage: mirror.gcr.io/netbirdio/netbird:0.60.0
+    routingClientImage: mirror.gcr.io/netbirdio/netbird:0.60.3
