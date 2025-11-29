@@ -39,6 +39,7 @@
         "/homarr-labs/",
         "/n8n-io/",
         "/netbirdio/",
+        "open-webui/open-webui",
       ],
       enabled: false
     },
@@ -92,6 +93,15 @@
       groupName: "Immich",
       matchDatasources: ["docker"],
       matchPackageNames: ["/immich-app/"],
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
+    {
+      description: "Dragonfly Group",
+      groupName: "Dragonfly",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/dragonflydb/"],
       group: {
         commitMessageTopic: "{{{groupName}}} group",
       },
