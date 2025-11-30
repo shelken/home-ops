@@ -25,11 +25,17 @@ spec:
             provider:
               name: "envoy.geoip_providers.maxmind"
               typed_config:
-                "@type": type.googleapis.com/envoy.extensions.geoip_providers.maxmind.v3.MaxMindConfig
-                common_provider_config:
-                  geo_headers_to_add:
-                    country: "x-geo-country"
-                    region: "x-geo-region"
-                    city: "x-geo-city"
-                    asn: "x-geo-asn"
-              city_db_path: "/etc/envoy/geoip/GeoLite2-City.mmdb"
+                "@type": "type.googleapis.com/envoy.extensions.filters.http.geoip.v3.Geoip"
+                geo_headers_to_add:
+                  country: "x-geo-country"
+                  city: "x-geo-city"
+                  region: "x-geo-region"
+                provider:
+                  name: "envoy.geoip_providers.maxmind"
+                  typed_config:
+                    "@type": "type.googleapis.com/envoy.extensions.geoip_providers.maxmind.v3.MaxMindConfig"
+                    common_provider_config:
+                      geo_headers_to_add:
+                        country: "x-geo-country"
+                        city: "x-geo-city"
+                    database_file: "/etc/envoy/geoip/GeoLite2-City.mmdb"
