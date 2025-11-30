@@ -57,7 +57,8 @@ metadata:
         hide-hostname: true
         hide-url: true
       client:
-        dns-resolver: tcp://223.5.5.5:53
+        #dns-resolver: tcp://223.5.5.5:53
+        dns-resolver: 223.5.5.5
       alerts:
         - type: custom
 spec:
@@ -107,7 +108,7 @@ metadata:
       group: internal
       guarded: true
       # 只能udp
-      url: ${MAIN_VPS_IP}:5054
+      url: 223.5.5.5
       ui:
         hide-hostname: true
         hide-url: true
