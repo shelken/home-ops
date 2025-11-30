@@ -10,24 +10,25 @@ spec:
   type: JSONPatch
   jsonPatches:
     - type: "type.googleapis.com/envoy.config.listener.v3.Listener"
-      # 这里的过滤器通常放在 HTTP Connection Manager 的 http_filters 列表中
-      # 下面的 patch 意为：找到 HCM 配置，在过滤器列表顶部插入 GeoIP 过滤器
-      operation: add
-      path: "/default_filter_chain/filters/0/typed_config/http_filters/0"
-      value:
-        name: envoy.filters.http.geoip
-        typed_config:
-          "@type": "type.googleapis.com/envoy.extensions.filters.http.geoip.v3.Geoip"
-          geo_headers_to_add:
-            country: "x-geo-country"
-            city: "x-geo-city"
-            region: "x-geo-region"
-          provider:
-            name: "envoy.geoip_providers.maxmind"
-            typed_config:
-              "@type": "type.googleapis.com/envoy.extensions.geoip_providers.maxmind.v3.MaxMindConfig"
-              common_provider_config:
-                geo_headers_to_add:
-                  country: "x-geo-country"
-                  city: "x-geo-city"
-              database_file: "/etc/envoy/geoip/GeoLite2-City.mmdb"
+      # 【重要变化】这里不再直接写 path/value，而是包裹在 operation 对象里
+      operation:
+        op: "add" # 动作：add/remove/replace
+        path: "/default_filter_chain/filters/0/typed_config/http_filters/0"
+        value:
+          name: envoy.filters.http.geoip
+          typed_config:
+            "@type": "type.googleapis.com/envoy.extensions.filters.http.geoip.v3.Geoip"
+            geo_headers_to_add:
+              country: "x-geo-country"
+              city: "x-geo-city"
+              region: "x-geo-region"
+            provider:
+              name: "envoy.geoip_providers.maxmind"
+              typed_config:
+                "@type": "type.googleapis.com/envoy.extensions.geoip_providers.maxmind.v3.MaxMindConfig"
+                common_provider_config:
+                  geo_headers_to_add:
+                    country: "x-geo-country"
+                    city: "x-geo-city"
+                # 确保这个路径与 EnvoyProxy 挂载的路径一致
+                database_file: "/etc/envoy/geoip/GeoLite2-City.mmdb"
