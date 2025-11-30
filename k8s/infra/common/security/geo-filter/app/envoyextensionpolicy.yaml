@@ -27,6 +27,9 @@ spec:
 
           # 调试日志 (生产环境建议关掉)
           SecDebugLogLevel 3
+          SecAuditEngine On
+          # 极其重要：将日志打到标准输出，这样 kubectl logs 才能看到
+          SecAuditLog /dev/stdout
 
           SecRule REMOTE_ADDR ".*" \
               "id:9001,phase:1,pass,log,msg:'DEBUG: Coraza sees IP as %{REMOTE_ADDR}'"
