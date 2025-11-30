@@ -30,6 +30,31 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
+  name: &appname cert-manager-alidns-webhook
+  namespace: &namespace cert-manager
+spec:
+  targetNamespace: *namespace
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *appname
+  dependsOn:
+    - name: cert-manager
+      namespace: cert-manager
+  interval: 30m
+  timeout: 5m
+  path: "./k8s/infra/common/cert-manager/cert-manager/alidns-webhook"
+  prune: true
+  retryInterval: 2m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  wait: false
+
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
   name: &app cert-manager-tls
   namespace: &namespace cert-manager
 spec:
