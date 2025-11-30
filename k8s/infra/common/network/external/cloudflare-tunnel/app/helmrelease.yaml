@@ -82,7 +82,7 @@ spec:
               - hostname: "*.${SECOND_DOMAIN}"
                 originRequest:
                   http2Origin: true
-                  originServerName: homelab-external.${MAIN_DOMAIN}
+                  originServerName: homelab-external.${SECOND_DOMAIN}
                 service: https://envoy-external.{{ .Release.Namespace }}.svc.cluster.local:443
               - service: http_status:404
     persistence:
