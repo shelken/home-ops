@@ -56,6 +56,7 @@ spec:
             command: ["/bin/sh", "-c"]
             securityContext:
               privileged: true
+              runAsUser: 0
             # 核心脚本：
             # -R: 保持服务器时间
             # -z: 只有比本地文件新才下载
