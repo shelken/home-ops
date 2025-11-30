@@ -76,6 +76,7 @@ spec:
     - name: https
       protocol: HTTPS
       port: 443
+      hostname: "*.${MAIN_DOMAIN}"
       allowedRoutes:
         namespaces:
           from: All
@@ -83,6 +84,17 @@ spec:
         certificateRefs:
           - kind: Secret
             name: ooooo-space-tls
+    - name: https-second
+      protocol: HTTPS
+      port: 443
+      hostname: "*.${SECOND_DOMAIN}"
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        certificateRefs:
+          - kind: Secret
+            name: second-domain-tls
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/gateway.networking.k8s.io/gateway_v1.json
 apiVersion: gateway.networking.k8s.io/v1
@@ -117,6 +129,7 @@ spec:
     - name: https
       protocol: HTTPS
       port: 443
+      hostname: "*.${MAIN_DOMAIN}"
       allowedRoutes:
         namespaces:
           from: All
@@ -124,6 +137,18 @@ spec:
         certificateRefs:
           - kind: Secret
             name: ooooo-space-tls
+    - name: https-second
+      protocol: HTTPS
+      port: 443
+      hostname: "*.${SECOND_DOMAIN}"
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        certificateRefs:
+          - kind: Secret
+            name: second-domain-tls
+
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/envoyproxy/gateway/refs/heads/main/charts/gateway-helm/crds/generated/gateway.envoyproxy.io_clienttrafficpolicies.yaml
 apiVersion: gateway.envoyproxy.io/v1alpha1
