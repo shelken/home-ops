@@ -17,7 +17,6 @@ spec:
         # 0.6.0 是目前的稳定版本 (2025年验证)
         image:
           url: ghcr.io/corazawaf/coraza-proxy-wasm:0.6.0
-          pullPolicy: IfNotPresent
       # 这里直接写 Coraza 的配置文件
       config:
         "@type": "type.googleapis.com/google.protobuf.StringValue"
