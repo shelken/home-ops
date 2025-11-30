@@ -54,6 +54,8 @@ spec:
           - name: geoip-downloader
             image: curlimages/curl:latest
             command: ["/bin/sh", "-c"]
+            securityContext:
+              privileged: true
             # 核心脚本：
             # -R: 保持服务器时间
             # -z: 只有比本地文件新才下载
