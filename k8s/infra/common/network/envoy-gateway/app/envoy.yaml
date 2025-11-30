@@ -65,88 +65,81 @@ spec:
               - |
                 #!/bin/sh
 
-                # ==========================================
-                # 函数定义: 通用下载与更新逻辑
-                # 参数: $1=URL, $2=目标路径, $3=最小文件大小(字节)
-                # ==========================================
                 update_db() {
                     local URL="$1"
-                    local TARGET="$2"
+                    local FILE_NAME="$2"
                     local MIN_SIZE="$3"
-                    local TEMP="${TARGET}.tmp"
-                    local DB_NAME=$(basename "$TARGET")
+
+                    local TARGET_DIR="/geoip"
+                    local TARGET_FILE="${TARGET_DIR}/${FILE_NAME}"
+                    local ETAG_FILE="${TARGET_FILE}.etag"  # 用来存上次的指纹
+                    local TEMP_FILE="${TARGET_FILE}.tmp"
 
                     echo "----------------------------------------------------"
-                    echo "Processing $DB_NAME..."
+                    echo "Checking ${FILE_NAME}..."
 
-                    # 1. 准备目录
-                    mkdir -p "$(dirname "$TARGET")"
+                    # 1. 获取远程 ETag (指纹)
+                    # -sI: 静默仅获取头部
+                    # grep -i: 不区分大小写找 etag
+                    # awk/tr: 提取值并去除引号和回车符
+                    local REMOTE_ETAG=$(curl -sI "$URL" | grep -i "etag:" | awk '{print $2}' | tr -d '"\r')
 
-                    # 2. 构建 curl 参数
-                    # -s: 静默 (配合 -w 获取状态码)
-                    # -L: 跟随跳转
-                    # --fail: 4xx/5xx 报错
-                    # -R: 同步远程文件时间 (用于下次 -z 对比)
-                    local CURL_ARGS="-L --fail --retry 3 -R -o $TEMP"
-
-                    # 如果本地文件存在，开启 Time-Condition (-z)
-                    if [ -f "$TARGET" ]; then
-                        CURL_ARGS="$CURL_ARGS -z $TARGET"
-                        echo "   (Local file exists, checking for updates...)"
-                    else
-                        echo "   (Local file missing, performing full download...)"
+                    # 如果网络问题拿不到 ETag，为了安全起见，本次假设需要更新（或者你可以选择跳过）
+                    if [ -z "$REMOTE_ETAG" ]; then
+                        echo "⚠️  Warning: Could not fetch remote ETag. Proceeding with download check..."
+                        # 设置为一个不存在的值，强制触发下载
+                        REMOTE_ETAG="force_update_$(date +%s)"
                     fi
 
-                    # 3. 执行下载
-                    # 捕获 HTTP 状态码
-                    local HTTP_CODE=$(curl $CURL_ARGS -w "%{http_code}" "$URL")
-                    local CURL_EXIT_CODE=$?
+                    # 2. 读取本地存的旧 ETag
+                    local LOCAL_ETAG=""
+                    if [ -f "$ETAG_FILE" ] && [ -f "$TARGET_FILE" ]; then
+                        LOCAL_ETAG=$(cat "$ETAG_FILE")
+                    fi
 
-                    # 4. 逻辑判断
-                    if [ $CURL_EXIT_CODE -eq 0 ] && [ "$HTTP_CODE" = "200" ]; then
-                        # === 下载成功 (HTTP 200) ===
-                        local FILE_SIZE=$(stat -c%s "$TEMP" 2>/dev/null || stat -f%z "$TEMP")
+                    echo "   Remote ETag: ${REMOTE_ETAG}"
+                    echo "   Local ETag:  ${LOCAL_ETAG:-"(none)"}"
 
-                        # 安全检查: 文件大小是否达标
-                        if [ "$FILE_SIZE" -gt "$MIN_SIZE" ]; then
-                            echo "✅ Success: New file downloaded ($((FILE_SIZE/1024/1024)) MB)."
-                            mv "$TEMP" "$TARGET"
-                            chmod 644 "$TARGET"
-                        else
-                            echo "⚠️  Warning: Downloaded file too small ($FILE_SIZE bytes < $MIN_SIZE bytes). Discarding."
-                            rm -f "$TEMP"
-                        fi
+                    # 3. 核心比对：如果指纹一样，直接跳过
+                    if [ "$REMOTE_ETAG" = "$LOCAL_ETAG" ]; then
+                        echo "✅ Up to date (ETag matches)."
+                        return
+                    fi
 
-                    elif [ "$HTTP_CODE" = "304" ]; then
-                        # === 文件未修改 (HTTP 304) ===
-                        echo "✅ Up to date: Remote file has not changed."
-                        rm -f "$TEMP"
+                    # 4. 只有指纹不同时，才开始下载
+                    echo "🔄 Update found! Downloading..."
 
+                    curl -L --fail --retry 3 -o "$TEMP_FILE" "$URL"
+
+                    # 5. 下载后检查文件大小 (防空文件/防报错页)
+                    local FILE_SIZE=$(stat -c%s "$TEMP_FILE" 2>/dev/null || stat -f%z "$TEMP_FILE")
+
+                    if [ "$FILE_SIZE" -gt "$MIN_SIZE" ]; then
+                        mv "$TEMP_FILE" "$TARGET_FILE"
+                        # 更新成功后，把新的 ETag 存下来，供下次比对
+                        echo "$REMOTE_ETAG" > "$ETAG_FILE"
+                        chmod 644 "$TARGET_FILE"
+                        echo "✅ Update successful. ETag saved."
                     else
-                        # === 失败 ===
-                        echo "❌ Error: Download failed. HTTP: $HTTP_CODE, Exit: $CURL_EXIT_CODE"
-                        rm -f "$TEMP"
+                        echo "❌ Error: Downloaded file too small ($FILE_SIZE bytes). Discarding."
+                        rm -f "$TEMP_FILE"
+                        # 注意：这里不更新 ETag 文件，下次还会重试
                     fi
                 }
 
-                # ==========================================
-                # 主执行逻辑
-                # ==========================================
-
-                # 1. 更新 GeoLite2-City.mmdb (最小 10MB)
+                # 执行任务
                 update_db \
                   "https://v6.gh-proxy.org/https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-City.mmdb" \
-                  "/geoip/GeoLite2-City.mmdb" \
+                  "GeoLite2-City.mmdb" \
                   10000000
 
-                # 2. 更新 GeoLite2-ASN.mmdb (最小 3MB)
                 update_db \
                   "https://v6.gh-proxy.org/https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-ASN.mmdb" \
-                  "/geoip/GeoLite2-ASN.mmdb" \
+                  "GeoLite2-ASN.mmdb" \
                   3000000
 
                 echo "----------------------------------------------------"
-                echo "All updates completed."
+
             volumeMounts:
               - name: geoip-storage
                 mountPath: /geoip
