@@ -34,6 +34,7 @@ spec:
   # ref: https://github.com/kubernetes-sigs/external-dns/blob/master/charts/external-dns/values.yaml
   # ref: https://github.com/kubernetes-sigs/external-dns/blob/master/docs/sources/crd.md
   values:
+    logLevel: debug
     # image:
     #   repository: k8s.m.daocloud.io/external-dns/external-dns
     fullnameOverride: *app
