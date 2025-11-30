@@ -43,6 +43,14 @@ spec:
             rules:
               action: ALLOW
               policies:
+                allow-specific-domains:
+                  # 特定域名不限制地理位置
+                  permissions: [{any: true}]
+                  principals:
+                    - or_ids:
+                        ids:
+                          - header: {name: ":authority", string_match: {exact: "flux-webhook.${MAIN_DOMAIN}"}}
+                          # - header: {name: ":authority", string_match: {suffix: ".suffix.example.com"}}
                 # allow-private-networks:
                 #   permissions: [{any: true}]
                 #   principals:
