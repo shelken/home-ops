@@ -7,29 +7,44 @@ spec:
     - name: envoy-external
       group: gateway.networking.k8s.io
       kind: Gateway
-  wasm:
-    - name: geo-filter
-      failOpen: false
-      rootID: geo-filter
-      code:
-        type: Image
-        image:
-          url: ghcr.io/corazawaf/coraza-proxy-wasm:0.6.0
-      config:
-        default_directives: default
-        directives_map:
-          default:
-            [
-              "SecDebugLogLevel 9",
-              "SecRuleEngine On",
-              "SecRequestBodyAccess On",
-              "SecAuditEngine On",
-              "SecAuditLogFormat JSON",
-              "SecAuditLogType Serial",
-              "SecAuditLog /dev/stdout",
-              "SecAuditLogParts ABCEFGHIJKZ",
-              "SecGeoLookupDb /etc/envoy/geoip/GeoLite2-City.mmdb",
-              'SecRule REMOTE_ADDR ".*" "id:9001,phase:1,pass,log,msg:''Coraza DEBUG: Client IP is %{REMOTE_ADDR}''"',
-              'SecRule REMOTE_ADDR "@geoLookup" "id:100,phase:1,nolog,pass"',
-              'SecRule GEO:REGION "!@streq GD" "id:101,phase:1,deny,status:403,msg:''Blocked: Non-GD Region (%{GEO:REGION})''"',
-            ]
+  httpFilters:
+    - name: envoy.filters.http.geoip
+      type: DECODER
+      typedConfig:
+        "@type": type.googleapis.com/envoy.extensions.filters.http.geoip.v3.Geoip
+        xffConfig:
+          xffNumTrustedHops: 1
+        provider:
+          name: envoy.geoip_providers.maxmind
+          typedConfig:
+            "@type": type.googleapis.com/envoy.extensions.geoip_providers.maxmind.v3.MaxMindConfig
+            commonProviderConfig:
+              geoHeadersToAdd:
+                country: "x-geo-country"
+                region: "x-geo-region"
+                city: "x-geo-city"
+                asn: "x-geo-asn"
+            cityDbPath: "/etc/envoy/geoip/GeoLite2-City.mmdb"
+
+    - name: envoy.filters.http.lua
+      type: DECODER
+      typedConfig:
+        "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+        inlineCode: |
+          function envoy_on_request(request_handle)
+            local country = request_handle:headers():get("x-geo-country")
+            local region = request_handle:headers():get("x-geo-region")
+
+            -- 调试日志
+            request_handle:logInfo("GeoIP - Country: " .. (country or "unknown") .. ", Region: " .. (region or "unknown"))
+
+            -- 检查地区，如果不是广东 (GD) 则拒绝访问
+            if country ~= "CN" or region ~= "GD" then
+              request_handle:logWarn("Blocked access from Country: " .. (country or "unknown") .. ", Region: " .. (region or "unknown"))
+              request_handle:respond(
+                {[":status"] = "403"},
+                "Access Denied: This service is only available in Guangdong region."
+              )
+              return
+            end
+          end
