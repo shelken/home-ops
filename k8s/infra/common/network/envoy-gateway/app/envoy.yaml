@@ -58,7 +58,7 @@ metadata:
         hide-url: true
       client:
         #dns-resolver: tcp://223.5.5.5:53
-        dns-resolver: 223.5.5.5
+        dns-resolver: udp://223.5.5.5:53
       alerts:
         - type: custom
 spec:
