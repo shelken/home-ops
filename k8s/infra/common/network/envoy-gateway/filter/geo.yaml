@@ -1,50 +1,33 @@
 apiVersion: gateway.envoyproxy.io/v1alpha1
-kind: EnvoyExtensionPolicy
+kind: EnvoyPatchPolicy
 metadata:
   name: geo-filter
 spec:
-  targetRefs:
-    - name: envoy-external
-      group: gateway.networking.k8s.io
-      kind: Gateway
-  httpFilters:
-    - name: envoy.filters.http.geoip
-      type: DECODER
-      typedConfig:
-        "@type": type.googleapis.com/envoy.extensions.filters.http.geoip.v3.Geoip
-        xffConfig:
-          xffNumTrustedHops: 1
-        provider:
-          name: envoy.geoip_providers.maxmind
-          typedConfig:
-            "@type": type.googleapis.com/envoy.extensions.geoip_providers.maxmind.v3.MaxMindConfig
-            commonProviderConfig:
-              geoHeadersToAdd:
-                country: "x-geo-country"
-                region: "x-geo-region"
-                city: "x-geo-city"
-                asn: "x-geo-asn"
-            cityDbPath: "/etc/envoy/geoip/GeoLite2-City.mmdb"
-
-    - name: envoy.filters.http.lua
-      type: DECODER
-      typedConfig:
-        "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
-        inlineCode: |
-          function envoy_on_request(request_handle)
-            local country = request_handle:headers():get("x-geo-country")
-            local region = request_handle:headers():get("x-geo-region")
-
-            -- 调试日志
-            request_handle:logInfo("GeoIP - Country: " .. (country or "unknown") .. ", Region: " .. (region or "unknown"))
-
-            -- 检查地区，如果不是广东 (GD) 则拒绝访问
-            if country ~= "CN" or region ~= "GD" then
-              request_handle:logWarn("Blocked access from Country: " .. (country or "unknown") .. ", Region: " .. (region or "unknown"))
-              request_handle:respond(
-                {[":status"] = "403"},
-                "Access Denied: This service is only available in Guangdong region."
-              )
-              return
-            end
-          end
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: envoy-gateway # 你的 Gateway 名称
+  type: JSONPatch
+  jsonPatches:
+    - type: "type.googleapis.com/envoy.config.listener.v3.Listener"
+      # 这里的过滤器通常放在 HTTP Connection Manager 的 http_filters 列表中
+      # 下面的 patch 意为：找到 HCM 配置，在过滤器列表顶部插入 GeoIP 过滤器
+      operation: add
+      path: "/default_filter_chain/filters/0/typed_config/http_filters/0"
+      value:
+        name: envoy.filters.http.geoip
+        typed_config:
+          "@type": "type.googleapis.com/envoy.extensions.filters.http.geoip.v3.Geoip"
+          geo_headers_to_add:
+            country: "x-geo-country"
+            city: "x-geo-city"
+            region: "x-geo-region"
+          provider:
+            name: "envoy.geoip_providers.maxmind"
+            typed_config:
+              "@type": "type.googleapis.com/envoy.extensions.geoip_providers.maxmind.v3.MaxMindConfig"
+              common_provider_config:
+                geo_headers_to_add:
+                  country: "x-geo-country"
+                  city: "x-geo-city"
+              database_file: "/etc/envoy/geoip/GeoLite2-City.mmdb"
