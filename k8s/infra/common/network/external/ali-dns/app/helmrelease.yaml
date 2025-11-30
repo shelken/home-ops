@@ -42,15 +42,15 @@ spec:
       name: alibabacloud
     # ref: https://github.com/kubernetes-sigs/external-dns/blob/master/docs/flags.md
     extraArgs:
-      # - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
-      # - --crd-source-kind=DNSEndpoint
+      - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
+      - --crd-source-kind=DNSEndpoint
       - --gateway-name=envoy-external
       - --alibaba-cloud-zone-type=public
       - --alibaba-cloud-config-file=/etc/kubernetes/external-dns/alibabacloud-cloud-config.yaml
     annotationFilter: "external-dns.alpha.kubernetes.io/exclude notin (true)"
     triggerLoopOnEvent: true
     policy: sync
-    sources: ["gateway-httproute"]
+    sources: ["crd", "gateway-httproute"]
     txtOwnerId: default
     txtPrefix: k8s.
     domainFilters: ["${SECOND_DOMAIN}"]
