@@ -3,36 +3,42 @@ kind: EnvoyExtensionPolicy
 metadata:
   name: geo-filter
 spec:
-  # 绑定到你的 Gateway
+  # 绑定到 Gateway
   targetRef:
     group: gateway.networking.k8s.io
     kind: Gateway
     name: envoy-external
+    namespace: network
   wasm:
     - name: coraza-filter
-      rootID: ""
+      rootID: coraza_root
       code:
         type: Image
-        # 这是 Coraza 官方维护的最新镜像
-        # 0.6.0 是目前的稳定版本 (2025年验证)
+        # 使用 Coraza 官方维护的 WASM 镜像
         image:
           url: ghcr.io/corazawaf/coraza-proxy-wasm:0.6.0
-      # 这里直接写 Coraza 的配置文件
+      # WASM 配置
       config:
         "@type": "type.googleapis.com/google.protobuf.StringValue"
         value: |
           SecRuleEngine On
-          # 引用我们之前通过 InitContainer 下载好的数据库
+          # 引用通过 InitContainer 下载的 GeoIP 数据库
           SecGeoLookupDb /etc/envoy/geoip/GeoLite2-City.mmdb
 
-          # 调试日志 (生产环境建议关掉)
+          # 调试日志 (生产环境建议关闭)
           SecDebugLogLevel 3
           SecAuditEngine On
-          # 极其重要：将日志打到标准输出，这样 kubectl logs 才能看到
+          # 将日志打到标准输出，便于 kubectl logs 查看
           SecAuditLog /dev/stdout
 
+          # 调试规则：记录客户端 IP
           SecRule REMOTE_ADDR ".*" \
-              "id:9001,phase:1,pass,log,msg:'DEBUG: Coraza sees IP as %{REMOTE_ADDR}'"
+              "id:9001,phase:1,pass,log,msg:'Coraza DEBUG: Client IP is %{REMOTE_ADDR}'"
+
           # 核心逻辑：拦截非广东 (GD) 地区
+          # 首先进行 GeoIP 查找
           SecRule REMOTE_ADDR "@geoLookup" "id:100,phase:1,nolog,pass"
+          # 然后检查地区代码
           SecRule GEO:REGION "!@streq GD" "id:101,phase:1,deny,status:403,msg:'Blocked: Non-GD Region (%{GEO:REGION})'"
+      # 如果 WASM 扩展失败，不允许流量通过
+      failOpen: false
