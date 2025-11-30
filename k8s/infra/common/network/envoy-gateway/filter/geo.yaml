@@ -6,16 +6,16 @@ spec:
   targetRef:
     group: gateway.networking.k8s.io
     kind: Gateway
-    name: envoy-external # 你的 Gateway 名称
+    name: envoy-external
   type: JSONPatch
   jsonPatches:
     - type: "type.googleapis.com/envoy.config.listener.v3.Listener"
-      # 【关键修复】必须给这个 patch 起一个名字，否则校验失败
       name: "inject-geoip-http-filter"
-      # 之前的修复：operation 必须是对象
       operation:
         op: "add"
-        path: "/default_filter_chain/filters/0/typed_config/http_filters/0"
+        # 【修改点】不要用 default_filter_chain，改为 filter_chains/0
+        # 注意：如果有多个 chain (比如同时开启 HTTP 和 HTTPS)，你可能需要写两个 patch，分别针对 0 和 1
+        path: "/filter_chains/1/filters/0/typed_config/http_filters/0"
         value:
           name: envoy.filters.http.geoip
           typed_config:
@@ -32,5 +32,4 @@ spec:
                   geo_headers_to_add:
                     country: "x-geo-country"
                     city: "x-geo-city"
-                # 再次提醒：确保这个路径与 EnvoyProxy 挂载的路径完全一致
                 database_file: "/etc/envoy/geoip/GeoLite2-City.mmdb"
