@@ -3,37 +3,33 @@ kind: EnvoyExtensionPolicy
 metadata:
   name: geo-filter
 spec:
-  # 绑定到 Gateway
-  targetRef:
-    group: gateway.networking.k8s.io
-    kind: Gateway
-    name: envoy-external
+  targetRefs:
+    - name: envoy-external
+      group: gateway.networking.k8s.io
+      kind: Gateway
   wasm:
-    - name: coraza-filter
-      rootID: coraza_root
+    - name: geo-filter
+      failOpen: false
+      rootID: geo-filter
       code:
         type: Image
-        # 使用 Coraza 官方维护的 WASM 镜像
         image:
           url: ghcr.io/corazawaf/coraza-proxy-wasm:0.6.0
-      # WASM 配置 - 必须使用 JSON 格式
       config:
-        "@type": "type.googleapis.com/google.protobuf.StringValue"
-        value: |
-          {
-            "directives_map": {
-              "default": [
-                "SecRuleEngine On",
-                "SecGeoLookupDb /etc/envoy/geoip/GeoLite2-City.mmdb",
-                "SecDebugLogLevel 3",
-                "SecAuditEngine On",
-                "SecAuditLog /dev/stdout",
-                "SecRule REMOTE_ADDR \".*\" \"id:9001,phase:1,pass,log,msg:'Coraza DEBUG: Client IP is %{REMOTE_ADDR}'\"",
-                "SecRule REMOTE_ADDR \"@geoLookup\" \"id:100,phase:1,nolog,pass\"",
-                "SecRule GEO:REGION \"!@streq GD\" \"id:101,phase:1,deny,status:403,msg:'Blocked: Non-GD Region (%{GEO:REGION})'\""
-              ]
-            },
-            "default_directives": "default"
-          }
-      # 如果 WASM 扩展失败，不允许流量通过
-      failOpen: false
+        default_directives: default
+        directives_map:
+          default:
+            [
+              "SecDebugLogLevel 9",
+              "SecRuleEngine On",
+              "SecRequestBodyAccess On",
+              "SecAuditEngine On",
+              "SecAuditLogFormat JSON",
+              "SecAuditLogType Serial",
+              "SecAuditLog /dev/stdout",
+              "SecAuditLogParts ABCEFGHIJKZ",
+              "SecGeoLookupDb /etc/envoy/geoip/GeoLite2-City.mmdb",
+              'SecRule REMOTE_ADDR ".*" "id:9001,phase:1,pass,log,msg:''Coraza DEBUG: Client IP is %{REMOTE_ADDR}''"',
+              'SecRule REMOTE_ADDR "@geoLookup" "id:100,phase:1,nolog,pass"',
+              'SecRule GEO:REGION "!@streq GD" "id:101,phase:1,deny,status:403,msg:''Blocked: Non-GD Region (%{GEO:REGION})''"',
+            ]
