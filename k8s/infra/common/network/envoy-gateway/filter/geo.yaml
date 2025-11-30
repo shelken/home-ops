@@ -10,12 +10,12 @@ spec:
   type: JSONPatch
   jsonPatches:
     - type: "type.googleapis.com/envoy.config.listener.v3.Listener"
-      name: "inject-geoip-http-filter"
+      name: "network/envoy-external/https"
       operation:
         op: "add"
         # 【修改点】不要用 default_filter_chain，改为 filter_chains/0
         # 注意：如果有多个 chain (比如同时开启 HTTP 和 HTTPS)，你可能需要写两个 patch，分别针对 0 和 1
-        path: "/filter_chains/1/filters/0/typed_config/http_filters/0"
+        path: "/filter_chains/0/filters/0/typed_config/http_filters/0"
         value:
           name: envoy.filters.http.geoip
           typed_config:
