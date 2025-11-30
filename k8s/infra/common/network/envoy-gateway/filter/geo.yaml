@@ -43,16 +43,18 @@ spec:
             rules:
               action: ALLOW
               policies:
-                "geo-allowlist":
-              principals:
-                - or_ids:
-                    ids:
-                      # 城市级别控制
-                      # - and_ids: {ids: [{header: {name: "x-geo-country", string_match: {exact: "CN"}}}, {header: {name: "x-geo-city", string_match: {exact: "Shenzhen"}}}]}
-                      - and_ids: {ids: [{header: {name: "x-geo-country", string_match: {exact: "US"}}}, {header: {name: "x-geo-city", string_match: {exact: "Los Angeles"}}}]}
-                      # 国家级别控制
-                      # - header: {name: "x-geo-country", string_match: {exact: "JP"}}
-                      # 省级别
-                      # - and_ids: {ids: [{header: {name: "x-geo-country", string_match: {exact: "CN"}}}, {header: {name: "x-geo-region", string_match: {exact: "Guangdong"}}}]}
-                            # - header: {name: "x-geo-country", string_match: {exact: "CN"}}
-                            # - header: {name: "x-geo-region", string_match: {exact: "Guangdong"}}}
+                geo-allowlist:
+                  permissions:
+                   - any: true
+                  principals:
+                    - or_ids:
+                        ids:
+                          # 城市级别控制
+                          # - and_ids: {ids: [{header: {name: "x-geo-country", string_match: {exact: "CN"}}}, {header: {name: "x-geo-city", string_match: {exact: "Shenzhen"}}}]}
+                          - and_ids: {ids: [{header: {name: "x-geo-country", string_match: {exact: "US"}}}, {header: {name: "x-geo-city", string_match: {exact: "Los Angeles"}}}]}
+                          # 国家级别控制
+                          # - header: {name: "x-geo-country", string_match: {exact: "JP"}}
+                          # 省级别
+                          # - and_ids: {ids: [{header: {name: "x-geo-country", string_match: {exact: "CN"}}}, {header: {name: "x-geo-region", string_match: {exact: "Guangdong"}}}]}
+                                # - header: {name: "x-geo-country", string_match: {exact: "CN"}}
+                                # - header: {name: "x-geo-region", string_match: {exact: "Guangdong"}}}
