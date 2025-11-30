@@ -6,10 +6,7 @@ metadata:
   name: echo
 spec:
   endpoints:
-    - dnsName: echo.${MAIN_DOMAIN}
+    - dnsName: echo.${SECOND_DOMAIN}
       recordType: CNAME
       targets:
-        - cloudflare.182682.xyz # 您的优选 IP CNAME
-      providerSpecific:
-        - name: external-dns.alpha.kubernetes.io/cloudflare-proxied
-          value: "false"
+        - cloudflare.182682.xyz
