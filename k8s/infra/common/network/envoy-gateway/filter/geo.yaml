@@ -43,6 +43,15 @@ spec:
             rules:
               action: ALLOW
               policies:
+                allow-private-networks:
+                  permissions: [{any: true}]
+                  principals:
+                    - or_ids:
+                        ids:
+                          - remote_ip: {address_prefix: "192.168.0.0", prefix_len: 16}
+                          - remote_ip: {address_prefix: "10.0.0.0", prefix_len: 8}
+                          - remote_ip: {address_prefix: "172.16.0.0", prefix_len: 12}
+                          - remote_ip: {address_prefix: "127.0.0.0", prefix_len: 8}
                 geo-allowlist:
                   permissions:
                    - any: true
