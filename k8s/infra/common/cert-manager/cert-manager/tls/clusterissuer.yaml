@@ -17,3 +17,17 @@ spec:
               key: API_TOKEN
         selector:
           dnsZones: ["${MAIN_DOMAIN}"]
+      - dns01:
+          webhook:
+            config:
+              regionId: cn-shenzhen
+              accessTokenSecretRef:
+                key: access-token
+                name: alidns-webhook-secret
+              secretKeySecretRef:
+                key: secret-key
+                name: alidns-webhook-secret
+            groupName: acme.${MAIN_DOMAIN}
+            solverName: alidns-solver
+        selector:
+          dnsZones: ["${SECOND_DOMAIN}"]
