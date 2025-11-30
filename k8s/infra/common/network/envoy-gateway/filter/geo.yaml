@@ -82,7 +82,7 @@ spec:
                           - and_ids: {ids: [{header: {name: "x-geo-country", string_match: {exact: "CN"}}}, {header: {name: "x-geo-city", string_match: {exact: "Shenzhen"}}}]}
                           - and_ids: {ids: [{header: {name: "x-geo-country", string_match: {exact: "US"}}}, {header: {name: "x-geo-city", string_match: {exact: "Los Angeles"}}}]}
                           # 国家/地区 级别控制
-                          # - header: {name: "x-geo-country", string_match: {exact: "CN"}}
+                          - header: {name: "x-geo-country", string_match: {exact: "CN"}} # maxmind国内v6太差
                           - header: {name: "x-geo-country", string_match: {exact: "HK"}}
                           # 省级别
                           - and_ids: {ids: [{header: {name: "x-geo-country", string_match: {exact: "CN"}}}, {header: {name: "x-geo-region", string_match: {exact: "GD"}}}]}
