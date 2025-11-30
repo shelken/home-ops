@@ -53,7 +53,7 @@ spec:
     sources: ["gateway-httproute"]
     txtOwnerId: default
     txtPrefix: k8s.
-    domainFilters: ["${SECOND_DOMAIN}", "homelab-external.${MAIN_DOMAIN}"]
+    domainFilters: ["${SECOND_DOMAIN}"]
     serviceMonitor:
       enabled: true
     podAnnotations:
