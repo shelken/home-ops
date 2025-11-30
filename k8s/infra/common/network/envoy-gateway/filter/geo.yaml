@@ -16,30 +16,24 @@ spec:
         # 使用 Coraza 官方维护的 WASM 镜像
         image:
           url: ghcr.io/corazawaf/coraza-proxy-wasm:0.6.0
-      # WASM 配置
+      # WASM 配置 - 必须使用 JSON 格式
       config:
         "@type": "type.googleapis.com/google.protobuf.StringValue"
         value: |
-          SecRuleEngine On
-          # 创建默认 WAF 实例
-          SecDefaultAction "phase:1,log,auditlog,pass"
-          # 引用通过 InitContainer 下载的 GeoIP 数据库
-          SecGeoLookupDb /etc/envoy/geoip/GeoLite2-City.mmdb
-
-          # 调试日志 (生产环境建议关闭)
-          SecDebugLogLevel 3
-          SecAuditEngine On
-          # 将日志打到标准输出，便于 kubectl logs 查看
-          SecAuditLog /dev/stdout
-
-          # 调试规则：记录客户端 IP
-          SecRule REMOTE_ADDR ".*" \
-              "id:9001,phase:1,pass,log,msg:'Coraza DEBUG: Client IP is %{REMOTE_ADDR}'"
-
-          # 核心逻辑：拦截非广东 (GD) 地区
-          # 首先进行 GeoIP 查找
-          SecRule REMOTE_ADDR "@geoLookup" "id:100,phase:1,nolog,pass"
-          # 然后检查地区代码
-          SecRule GEO:REGION "!@streq GD" "id:101,phase:1,deny,status:403,msg:'Blocked: Non-GD Region (%{GEO:REGION})'"
+          {
+            "directives_map": {
+              "default": [
+                "SecRuleEngine On",
+                "SecGeoLookupDb /etc/envoy/geoip/GeoLite2-City.mmdb",
+                "SecDebugLogLevel 3",
+                "SecAuditEngine On",
+                "SecAuditLog /dev/stdout",
+                "SecRule REMOTE_ADDR \".*\" \"id:9001,phase:1,pass,log,msg:'Coraza DEBUG: Client IP is %{REMOTE_ADDR}'\"",
+                "SecRule REMOTE_ADDR \"@geoLookup\" \"id:100,phase:1,nolog,pass\"",
+                "SecRule GEO:REGION \"!@streq GD\" \"id:101,phase:1,deny,status:403,msg:'Blocked: Non-GD Region (%{GEO:REGION})'\""
+              ]
+            },
+            "default_directives": "default"
+          }
       # 如果 WASM 扩展失败，不允许流量通过
       failOpen: false
