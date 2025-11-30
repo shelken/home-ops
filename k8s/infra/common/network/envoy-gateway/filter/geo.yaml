@@ -58,3 +58,34 @@ spec:
                           # - and_ids: {ids: [{header: {name: "x-geo-country", string_match: {exact: "CN"}}}, {header: {name: "x-geo-region", string_match: {exact: "Guangdong"}}}]}
                                 # - header: {name: "x-geo-country", string_match: {exact: "CN"}}
                                 # - header: {name: "x-geo-region", string_match: {exact: "Guangdong"}}}
+    # 3. 添加 Local Reply 配置来自定义 RBAC 拒绝响应
+    - type: "type.googleapis.com/envoy.config.listener.v3.Listener"
+      name: "network/envoy-external/https"
+      operation:
+        op: "add"
+        path: "/filter_chains/0/filters/0/typed_config/local_reply_config"
+        value:
+          mappers:
+            - filter:
+                status_code_filter:
+                  comparison:
+                    op: EQ
+                    value:
+                      default_value: 403
+                      runtime_key: unused_key
+              body_format_override:
+                text_format_source:
+                  inline_string: |
+                    {
+                      "error": "Access Denied - Geographic Restriction",
+                      "message": "Your location is not allowed to access this service",
+                      "your_location": {
+                        "country": "%REQ(x-geo-country)%",
+                        "region": "%REQ(x-geo-region)%",
+                        "city": "%REQ(x-geo-city)%"
+                      },
+                      "client_ip": "%DOWNSTREAM_REMOTE_ADDRESS_WITHOUT_PORT%",
+                      "timestamp": "%START_TIME%",
+                      "request_id": "%REQ(x-request-id)%"
+                    }
+                content_type: "application/json"
