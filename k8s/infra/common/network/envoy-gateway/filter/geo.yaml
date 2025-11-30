@@ -17,15 +17,16 @@ spec:
         # 注意：如果有多个 chain (比如同时开启 HTTP 和 HTTPS)，你可能需要写两个 patch，分别针对 0 和 1
         path: "/filter_chains/0/filters/0/typed_config/http_filters/0"
         value:
-          name: envoy.filters.http.geoip
-          typed_config:
-            "@type": type.googleapis.com/envoy.extensions.filters.http.geoip.v3.Geoip
-            xff_config:
-              xff_num_trusted_hops: 1
-            provider:
-              name: "envoy.geoip_providers.maxmind"
+          name: "network/envoy-external/https"
+          operation:
+            op: "add"
+            # 【2. 针对 HTTPS 流量的过滤器链路径】
+            path: "/filter_chains/0/filters/0/typed_config/http_filters/0"
+            value:
+              name: envoy.filters.http.geoip
               typed_config:
                 "@type": "type.googleapis.com/envoy.extensions.filters.http.geoip.v3.Geoip"
+                # 这里是 Filter 级别的 Header 添加（可选）
                 geo_headers_to_add:
                   country: "x-geo-country"
                   city: "x-geo-city"
@@ -34,6 +35,8 @@ spec:
                   name: "envoy.geoip_providers.maxmind"
                   typed_config:
                     "@type": "type.googleapis.com/envoy.extensions.geoip_providers.maxmind.v3.MaxMindConfig"
+                    # 【3. 关键修复：MaxMindConfig 下面不能直接写 geo_headers_to_add】
+                    # 必须包裹在 common_provider_config 里面
                     common_provider_config:
                       geo_headers_to_add:
                         country: "x-geo-country"
