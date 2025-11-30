@@ -75,11 +75,14 @@ spec:
           gethomepage.dev/icon: kubernetes-dashboard.svg
           gethomepage.dev/description: ""
           # external-dns.alpha.kubernetes.io/exclude: "true"
-        hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
+        hostnames:
+          [
+            "{{ .Release.Name }}.${MAIN_DOMAIN}",
+            "{{ .Release.Name }}.${SECOND_DOMAIN}",
+          ]
         parentRefs:
           - name: envoy-external
             namespace: network
-            sectionName: https
         rules:
           - backendRefs:
               - identifier: app
