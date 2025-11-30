@@ -79,16 +79,11 @@ spec:
                   http2Origin: true
                   originServerName: homelab-external.${MAIN_DOMAIN}
                 service: https://envoy-external.{{ .Release.Namespace }}.svc.cluster.local:443
-              # - hostname: "echo.${SECOND_DOMAIN}"
-              #   originRequest:
-              #     http2Origin: true
-              #     originServerName: homelab-external.${MAIN_DOMAIN}
-              #   service: http://echo.default.svc.cluster.local:80
-              # - hostname: "jellyfin.${SECOND_DOMAIN}"
-              #   originRequest:
-              #     http2Origin: true
-              #     originServerName: homelab-external.${MAIN_DOMAIN}
-              #   service: http://jellyfin.default.svc.cluster.local:8096
+              - hostname: "*.${SECOND_DOMAIN}"
+                originRequest:
+                  http2Origin: true
+                  originServerName: homelab-external.${MAIN_DOMAIN}
+                service: https://envoy-external.{{ .Release.Namespace }}.svc.cluster.local:443
               - service: http_status:404
     persistence:
       config-file:
