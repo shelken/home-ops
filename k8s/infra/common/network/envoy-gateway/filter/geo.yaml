@@ -29,4 +29,4 @@ spec:
                     country: "x-geo-country"
                     city: "x-geo-city"
                     region: "x-geo-region"
-                database_file: "/etc/envoy/geoip/GeoLite2-City.mmdb"
+                city_db_path: "/etc/envoy/geoip/GeoLite2-City.mmdb"
