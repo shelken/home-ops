@@ -1,0 +1,36 @@
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyExtensionPolicy
+metadata:
+  name: geo-filter
+spec:
+  # 绑定到你的 Gateway
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: envoy-external
+  wasm:
+    - name: coraza-filter
+      rootID: ""
+      code:
+        type: Image
+        # 这是 Coraza 官方维护的最新镜像
+        # 0.6.0 是目前的稳定版本 (2025年验证)
+        image:
+          url: ghcr.io/corazawaf/coraza-proxy-wasm:0.6.0
+          pullPolicy: IfNotPresent
+      # 这里直接写 Coraza 的配置文件
+      config:
+        "@type": "type.googleapis.com/google.protobuf.StringValue"
+        value: |
+          SecRuleEngine On
+          # 引用我们之前通过 InitContainer 下载好的数据库
+          SecGeoLookupDb /etc/envoy/geoip/GeoLite2-City.mmdb
+
+          # 调试日志 (生产环境建议关掉)
+          SecDebugLogLevel 3
+
+          SecRule REMOTE_ADDR ".*" \
+              "id:9001,phase:1,pass,log,msg:'DEBUG: Coraza sees IP as %{REMOTE_ADDR}'"
+          # 核心逻辑：拦截非广东 (GD) 地区
+          SecRule REMOTE_ADDR "@geoLookup" "id:100,phase:1,nolog,pass"
+          SecRule GEO:REGION "!@streq GD" "id:101,phase:1,deny,status:403,msg:'Blocked: Non-GD Region (%{GEO:REGION})'"

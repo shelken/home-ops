@@ -7,3 +7,4 @@ components:
 resources:
   - authelia/ks.yaml
   - pocket-id/ks.yaml
+  - geo-filter/ks.yaml
