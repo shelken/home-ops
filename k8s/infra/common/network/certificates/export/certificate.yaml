@@ -11,3 +11,16 @@ spec:
     kind: ClusterIssuer
   commonName: ${MAIN_DOMAIN}
   dnsNames: ["${MAIN_DOMAIN}", "*.${MAIN_DOMAIN}"]
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: second-domain-tls
+spec:
+  secretName: second-domain-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: ${SECOND_DOMAIN}
+  dnsNames: ["${SECOND_DOMAIN}", "*.${SECOND_DOMAIN}"]
