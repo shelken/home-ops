@@ -6,7 +6,7 @@ spec:
   targetRef:
     group: gateway.networking.k8s.io
     kind: Gateway
-    name: envoy-gateway # 你的 Gateway 名称
+    name: envoy-external # 你的 Gateway 名称
   type: JSONPatch
   jsonPatches:
     - type: "type.googleapis.com/envoy.config.listener.v3.Listener"
