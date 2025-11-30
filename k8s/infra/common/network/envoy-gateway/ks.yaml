@@ -34,10 +34,10 @@ spec:
   interval: 1h
   path: ./k8s/infra/common/network/envoy-gateway/filter
   prune: true
-  retryInterval: 2m
+  retryInterval: 1m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  timeout: 5m
+  timeout: 1m
   wait: false
