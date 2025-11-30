@@ -11,8 +11,8 @@ spec:
   jsonPatches:
     - type: "type.googleapis.com/envoy.config.listener.v3.Listener"
       name: "network/envoy-external/https"
-      operation:
-        op: "add"
+      operation: &op1
+        op: add
         path: "/filter_chains/0/filters/0/typed_config/http_filters/0"
         value:
           name: envoy.filters.http.geoip
@@ -29,12 +29,17 @@ spec:
                     country: "x-geo-country"
                     city: "x-geo-city"
                     region: "x-geo-region"
+                    asn: "x-geo-asn"
                 city_db_path: "/etc/envoy/geoip/GeoLite2-City.mmdb"
+                asn_db_path: "/etc/envoy/geoip/GeoLite2-ASN.mmdb"
+    - type: type.googleapis.com/envoy.config.listener.v3.Listener
+      name: network/envoy-external/https-quic
+      operation: *op1
     # 2. 添加 RBAC filter 进行地理位置访问控制
     - type: "type.googleapis.com/envoy.config.listener.v3.Listener"
       name: "network/envoy-external/https"
-      operation:
-        op: "add"
+      operation: &op2
+        op: add
         path: "/filter_chains/0/filters/0/typed_config/http_filters/1"
         value:
           name: envoy.filters.http.rbac
@@ -81,22 +86,33 @@ spec:
                           - header: {name: "x-geo-country", string_match: {exact: "HK"}}
                           # 省级别
                           - and_ids: {ids: [{header: {name: "x-geo-country", string_match: {exact: "CN"}}}, {header: {name: "x-geo-region", string_match: {exact: "GD"}}}]}
-
+    - type: type.googleapis.com/envoy.config.listener.v3.Listener
+      name: network/envoy-external/https-quic
+      operation: *op2
     # 3. 添加 Local Reply 配置来自定义 RBAC 拒绝响应
     - type: "type.googleapis.com/envoy.config.listener.v3.Listener"
       name: "network/envoy-external/https"
-      operation:
-        op: "add"
+      operation: &op3
+        op: add
         path: "/filter_chains/0/filters/0/typed_config/local_reply_config"
         value:
           mappers:
             - filter:
-                status_code_filter:
-                  comparison:
-                    op: EQ
-                    value:
-                      default_value: 403
-                      runtime_key: unused_key
+              # 使用 and_filter 组合两个条件
+              and_filter:
+                filters:
+                  # 条件1: 状态码必须是 403
+                  - status_code_filter:
+                      comparison:
+                        op: EQ
+                        value:
+                          default_value: 403
+                          runtime_key: unused_key
+                  # 条件2: 必须包含 x-geo-country 头部 (证明已经经过了 GeoIP 处理)
+                  - header_filter:
+                      header:
+                        name: "x-geo-country"
+                        present_match: true
               body_format_override:
                 text_format_source:
                   inline_string: |
@@ -113,3 +129,6 @@ spec:
                       "request_id": "%REQ(x-request-id)%"
                     }
                 content_type: "application/json"
+    - type: type.googleapis.com/envoy.config.listener.v3.Listener
+      name: network/envoy-external/https-quic
+      operation: *op3
