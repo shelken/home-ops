@@ -97,7 +97,7 @@ spec:
                         LOCAL_ETAG=$(cat "$ETAG_FILE")
                     fi
 
-                    echo "   Remote ETag: $EMOTE_ETAG"
+                    echo "   Remote ETag: $REMOTE_ETAG"
                     echo "   Local ETag:  $LOCAL_ETAG"
 
                     # 3. 核心比对：如果指纹一样，直接跳过
