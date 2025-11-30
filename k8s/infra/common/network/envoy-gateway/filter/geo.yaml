@@ -30,3 +30,29 @@ spec:
                     city: "x-geo-city"
                     region: "x-geo-region"
                 city_db_path: "/etc/envoy/geoip/GeoLite2-City.mmdb"
+    # 2. 添加 RBAC filter 进行地理位置访问控制
+    - type: "type.googleapis.com/envoy.config.listener.v3.Listener"
+      name: "network/envoy-external/https"
+      operation:
+        op: "add"
+        path: "/filter_chains/0/filters/0/typed_config/http_filters/1"
+        value:
+          name: envoy.filters.http.rbac
+          typed_config:
+            "@type": "type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBAC"
+            rules:
+              action: ALLOW
+              policies:
+                "geo-allowlist":
+              principals:
+                - or_ids:
+                    ids:
+                      # 城市级别控制
+                      # - and_ids: {ids: [{header: {name: "x-geo-country", string_match: {exact: "CN"}}}, {header: {name: "x-geo-city", string_match: {exact: "Shenzhen"}}}]}
+                      - and_ids: {ids: [{header: {name: "x-geo-country", string_match: {exact: "US"}}}, {header: {name: "x-geo-city", string_match: {exact: "Los Angeles"}}}]}
+                      # 国家级别控制
+                      # - header: {name: "x-geo-country", string_match: {exact: "JP"}}
+                      # 省级别
+                      # - and_ids: {ids: [{header: {name: "x-geo-country", string_match: {exact: "CN"}}}, {header: {name: "x-geo-region", string_match: {exact: "Guangdong"}}}]}
+                            # - header: {name: "x-geo-country", string_match: {exact: "CN"}}
+                            # - header: {name: "x-geo-region", string_match: {exact: "Guangdong"}}}
