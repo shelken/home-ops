@@ -16,3 +16,4 @@ spec:
     - backendRefs:
         - name: echo
           port: 80
+          namespace: default
