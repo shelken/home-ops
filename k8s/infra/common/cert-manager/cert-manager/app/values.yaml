@@ -1,9 +1,10 @@
 ---
+# ref: https://github.com/cert-manager/cert-manager/blob/master/deploy/charts/cert-manager/values.yaml
 crds:
   enabled: true
 replicaCount: 1
 # cert-manager涉及初始化，不要有涉及到变量注入，必须在flux完成之后才有可能。
-dns01RecursiveNameservers: https://223.5.5.5:443/dns-query,https://223.6.6.6:443/dns-query
+dns01RecursiveNameservers: https://cloudflare-dns.com/dns-query,https://223.5.5.5:443/dns-query,https://223.6.6.6:443/dns-query
 dns01RecursiveNameserversOnly: true
 prometheus:
   enabled: true
