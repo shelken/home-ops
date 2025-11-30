@@ -10,9 +10,11 @@ spec:
   type: JSONPatch
   jsonPatches:
     - type: "type.googleapis.com/envoy.config.listener.v3.Listener"
-      # 【重要变化】这里不再直接写 path/value，而是包裹在 operation 对象里
+      # 【关键修复】必须给这个 patch 起一个名字，否则校验失败
+      name: "inject-geoip-http-filter"
+      # 之前的修复：operation 必须是对象
       operation:
-        op: "add" # 动作：add/remove/replace
+        op: "add"
         path: "/default_filter_chain/filters/0/typed_config/http_filters/0"
         value:
           name: envoy.filters.http.geoip
@@ -30,5 +32,5 @@ spec:
                   geo_headers_to_add:
                     country: "x-geo-country"
                     city: "x-geo-city"
-                # 确保这个路径与 EnvoyProxy 挂载的路径一致
+                # 再次提醒：确保这个路径与 EnvoyProxy 挂载的路径完全一致
                 database_file: "/etc/envoy/geoip/GeoLite2-City.mmdb"
