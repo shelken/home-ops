@@ -21,6 +21,8 @@ spec:
         "@type": "type.googleapis.com/google.protobuf.StringValue"
         value: |
           SecRuleEngine On
+          # 创建默认 WAF 实例
+          SecDefaultAction "phase:1,log,auditlog,pass"
           # 引用通过 InitContainer 下载的 GeoIP 数据库
           SecGeoLookupDb /etc/envoy/geoip/GeoLite2-City.mmdb
 
