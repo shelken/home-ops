@@ -71,12 +71,12 @@ spec:
                     local MIN_SIZE="$3"
 
                     local TARGET_DIR="/geoip"
-                    local TARGET_FILE="${TARGET_DIR}/${FILE_NAME}"
-                    local ETAG_FILE="${TARGET_FILE}.etag"  # 用来存上次的指纹
-                    local TEMP_FILE="${TARGET_FILE}.tmp"
+                    local TARGET_FILE="$TARGET_DIR/$FILE_NAME"
+                    local ETAG_FILE="$TARGET_FILE.etag"  # 用来存上次的指纹
+                    local TEMP_FILE="$TARGET_FILE.tmp"
 
                     echo "----------------------------------------------------"
-                    echo "Checking ${FILE_NAME}..."
+                    echo "Checking $FILE_NAME..."
 
                     # 1. 获取远程 ETag (指纹)
                     # -sI: 静默仅获取头部
@@ -97,8 +97,8 @@ spec:
                         LOCAL_ETAG=$(cat "$ETAG_FILE")
                     fi
 
-                    echo "   Remote ETag: ${REMOTE_ETAG}"
-                    echo "   Local ETag:  ${LOCAL_ETAG:-"(none)"}"
+                    echo "   Remote ETag: $EMOTE_ETAG"
+                    echo "   Local ETag:  $LOCAL_ETAG"
 
                     # 3. 核心比对：如果指纹一样，直接跳过
                     if [ "$REMOTE_ETAG" = "$LOCAL_ETAG" ]; then
