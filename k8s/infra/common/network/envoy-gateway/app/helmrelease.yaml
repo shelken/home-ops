@@ -30,5 +30,11 @@ spec:
                   operator: In
                   values:
                     - envoy-external
+              topologyKey: kubernetes.io/hostname  # 确保不在同一主机
+            - labelSelector:
+                matchExpressions:
+                - key: gateway.networking.k8s.io/gateway-name
+                  operator: In
+                  values:
                     - envoy-internal
               topologyKey: kubernetes.io/hostname  # 确保不在同一主机
