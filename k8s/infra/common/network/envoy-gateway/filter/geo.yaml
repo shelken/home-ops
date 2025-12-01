@@ -55,6 +55,8 @@ spec:
                     - or_ids:
                         ids:
                           - header: {name: ":authority", string_match: {exact: "flux-webhook.${MAIN_DOMAIN}"}}
+                          - remote_ip: {address_prefix: "${MAIN_VPS_IP}", prefix_len: 32}
+                          - remote_ip: {address_prefix: "${MAIN_VPS_IP_V6}", prefix_len: 128}
                           # - header: {name: ":authority", string_match: {suffix: ".suffix.example.com"}}
                 # allow-private-networks:
                 #   permissions: [{any: true}]
@@ -78,9 +80,11 @@ spec:
                   principals:
                     - or_ids:
                         ids:
+                          # asn
+                          # - header: {name: "x-geo-asn", string_match: {exact: "35916"}}
                           # 城市级别控制
                           - and_ids: {ids: [{header: {name: "x-geo-country", string_match: {exact: "CN"}}}, {header: {name: "x-geo-city", string_match: {exact: "Shenzhen"}}}]}
-                          - and_ids: {ids: [{header: {name: "x-geo-country", string_match: {exact: "US"}}}, {header: {name: "x-geo-city", string_match: {exact: "Los Angeles"}}}]}
+                          # - and_ids: {ids: [{header: {name: "x-geo-country", string_match: {exact: "US"}}}, {header: {name: "x-geo-city", string_match: {exact: "Los Angeles"}}}]}
                           # 国家/地区 级别控制
                           - header: {name: "x-geo-country", string_match: {exact: "CN"}} # maxmind国内v6太差
                           - header: {name: "x-geo-country", string_match: {exact: "HK"}}
