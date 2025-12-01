@@ -297,6 +297,10 @@ spec:
   timeout:
     http:
       requestTimeout: 0s
+  requestHeaderModifier:
+    set:
+    - name: X-Real-IP
+      value: "%DOWNSTREAM_REMOTE_ADDRESS_WITHOUT_PORT%"
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/envoyproxy/gateway/refs/heads/main/charts/gateway-helm/crds/generated/gateway.envoyproxy.io_clienttrafficpolicies.yaml
 apiVersion: gateway.envoyproxy.io/v1alpha1
@@ -305,8 +309,6 @@ metadata:
   name: envoy
 spec:
   clientIPDetection:
-    customHeader:
-      name: X-Real-IP
     xForwardedFor:
       numTrustedHops: 1
   connection:
