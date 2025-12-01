@@ -305,6 +305,8 @@ metadata:
   name: envoy
 spec:
   clientIPDetection:
+    customHeader:
+      name: X-Real-IP
     xForwardedFor:
       numTrustedHops: 1
   connection:
