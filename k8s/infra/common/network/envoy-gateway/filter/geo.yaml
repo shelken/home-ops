@@ -55,7 +55,7 @@ spec:
                         ids:
                           - header: {name: ":authority", string_match: {exact: "flux-webhook.${MAIN_DOMAIN}"}}
                           - header: {name: ":authority", string_match: {exact: "status.${MAIN_DOMAIN}"}}
-                          - header: {name: "user-agent", string_match: {prefix: "Shields.io"}} # kromgo
+                          - and_ids: {ids: [{header: {name: "user-agent", string_match: {prefix: "Shields.io"}}}, {header: {name: ":authority", string_match: {exact: "kromgo.${MAIN_DOMAIN}"}}}]}
                           - remote_ip: {address_prefix: "${MAIN_VPS_IP}", prefix_len: 32}
                           - remote_ip: {address_prefix: "${MAIN_VPS_IP_V6}", prefix_len: 128}
                           # - header: {name: ":authority", string_match: {suffix: ".suffix.example.com"}}
