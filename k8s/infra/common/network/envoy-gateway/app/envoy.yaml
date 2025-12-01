@@ -330,7 +330,7 @@ spec:
       - http/1.1
   headers:
     earlyRequestHeaders:
-      add:
+      set:
         - name: "X-Real-IP"
           value: "%DOWNSTREAM_REMOTE_ADDRESS_WITHOUT_PORT%"
 ---
