@@ -48,13 +48,14 @@ spec:
             rules:
               action: ALLOW
               policies:
-                allow-specific-domains:
-                  # 特定域名不限制地理位置
+                allow-specific:
                   permissions: [{any: true}]
                   principals:
                     - or_ids:
                         ids:
                           - header: {name: ":authority", string_match: {exact: "flux-webhook.${MAIN_DOMAIN}"}}
+                          - header: {name: ":authority", string_match: {exact: "status.${MAIN_DOMAIN}"}}
+                          - header: {name: "user-agent", string_match: {prefix: "Shields.io"}} # kromgo
                           - remote_ip: {address_prefix: "${MAIN_VPS_IP}", prefix_len: 32}
                           - remote_ip: {address_prefix: "${MAIN_VPS_IP_V6}", prefix_len: 128}
                           # - header: {name: ":authority", string_match: {suffix: ".suffix.example.com"}}
