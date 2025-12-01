@@ -13,6 +13,7 @@ spec:
   healthChecks:
     - kind: Deployment
       name: dragonfly-operator
+      namespace: *namespace
   prune: true
   sourceRef:
     kind: GitRepository
