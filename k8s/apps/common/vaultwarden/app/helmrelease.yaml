@@ -138,6 +138,9 @@ spec:
             namespace: network
             sectionName: https
         rules:
+          - backendRefs:
+              - identifier: app
+                port: *anubisPort
           - matches:
               - path:
                   type: PathPrefix
@@ -154,9 +157,6 @@ spec:
             backendRefs:
               - identifier: app
                 port: *port
-          - backendRefs:
-              - identifier: app
-                port: *anubisPort
     persistence:
       config:
         existingClaim: vaultwarden
