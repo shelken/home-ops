@@ -11,7 +11,8 @@ spec:
       app.kubernetes.io/name: *app
   path: ./k8s/infra/common/database/dragonfly/app
   healthChecks:
-    - kind: Deployment
+    - apiVersion: apps/v1
+      kind: Deployment
       name: dragonfly-operator
       namespace: *namespace
   prune: true
