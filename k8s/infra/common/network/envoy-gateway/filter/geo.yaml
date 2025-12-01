@@ -98,21 +98,21 @@ spec:
         value:
           mappers:
             - filter:
-              # 使用 and_filter 组合两个条件
-              and_filter:
-                filters:
-                  # 条件1: 状态码必须是 403
-                  - status_code_filter:
-                      comparison:
-                        op: EQ
-                        value:
-                          default_value: 403
-                          runtime_key: unused_key
-                  # 条件2: 必须包含 x-geo-country 头部 (证明已经经过了 GeoIP 处理)
-                  - header_filter:
-                      header:
-                        name: "x-geo-country"
-                        present_match: true
+                # 使用 and_filter 组合两个条件
+                and_filter:
+                  filters:
+                    # 条件1: 状态码必须是 403
+                    - status_code_filter:
+                        comparison:
+                          op: EQ
+                          value:
+                            default_value: 403
+                            runtime_key: unused_key
+                    # 条件2: 必须包含 x-geo-country 头部 (证明已经经过了 GeoIP 处理)
+                    - header_filter:
+                        header:
+                          name: "x-geo-country"
+                          present_match: true
               body_format_override:
                 text_format_source:
                   inline_string: |
