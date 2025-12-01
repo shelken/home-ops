@@ -19,9 +19,10 @@ ssh:
 hostResolver:
   enabled: false
 
+# eth0 dns
 dns:
-  - 192.168.6.141
   - 192.168.6.1
+  - 192.168.6.141
   - 223.5.5.5
 
 # user:
@@ -30,10 +31,13 @@ dns:
 # https://lima-vm.io/docs/config/network/vmnet/
 # arm架构使用vznat
 # 如果要获取路由器网络ip，使用bridged（需要安装socket_vmnet）
+# 使用这个的理由在于获取路由器ip与让集群网卡使用
 networks:
   - lima: bridged
     interface: eth1
     macAddress: "52:55:55:37:34:56"
+    # Defaults to 100. Builtin SLIRP network uses 200.
+    metric: 100
 # - lima: shared
 #   interface: lima2
 # - vzNAT: true
@@ -73,6 +77,21 @@ provision:
       chmod 700 /home/{{.User}}/.ssh
       chmod 600 /home/{{.User}}/.ssh/authorized_keys
       chown -R {{.User}}:{{.User}} /home/{{.User}}/.ssh
+  - mode: system
+    script: |
+      #!/bin/bash
+      cat <<EOF | tee /etc/netplan/99-eth1.yaml
+      network:
+        version: 2
+        ethernets:
+          eth1:
+            nameservers:
+              addresses: [192.168.6.1, 192.168.6.141, 223.5.5.5]
+      EOF
+      # 应用更改
+      chmod 600 /etc/netplan/99-eth1.yaml
+      netplan apply
+
 # 健康探针
 probes: []
 # - script: |

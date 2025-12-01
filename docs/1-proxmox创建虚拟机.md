@@ -59,7 +59,7 @@ qm create $TEMPLATE_ID \
   --cipassword $(openssl passwd -5 "$TEMPLATE_CI_PASS") \
   --ciupgrade: 0 \
   --sshkeys <(echo "$MIO_KEY") \
-  --nameserver "192.168.6.141 192.168.6.1 223.5.5.5"
+  --nameserver "192.168.6.1 192.168.6.141 223.5.5.5"
 
 ```
 
