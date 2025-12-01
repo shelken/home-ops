@@ -34,6 +34,7 @@ spec:
     remediation:
       retries: 3
   values:
+    #ref: https://github.com/grafana/loki/blob/main/production/helm/loki/values.yaml
     deploymentMode: SingleBinary
     loki:
       auth_enabled: false
@@ -51,6 +52,8 @@ spec:
         chunk_encoding: snappy
       limits_config:
         retention_period: 14d
+      podSecurityContext:
+        fsGroupChangePolicy: OnRootMismatch
       storage:
         type: filesystem
       schemaConfig:
