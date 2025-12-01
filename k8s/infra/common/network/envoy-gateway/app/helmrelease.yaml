@@ -22,16 +22,13 @@ spec:
             deploy:
               type: GatewayNamespace
         pod:
-          topologySpreadConstraints:
-            - maxSkew: 1
-              topologyKey: "kubernetes.io/hostname"
-              whenUnsatisfiable: DoNotSchedule
-              labelSelector:
-                matchLabels:
-                  gateway.networking.k8s.io/gateway-name: envoy-internal
-            - maxSkew: 1
-              topologyKey: "kubernetes.io/hostname"
-              whenUnsatisfiable: DoNotSchedule
-              labelSelector:
-                matchLabels:
-                  gateway.networking.k8s.io/gateway-name: envoy-external
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                - key: gateway.networking.k8s.io/gateway-name
+                  operator: In
+                  values:
+                    - envoy-external
+                    - envoy-internal
+              topologyKey: kubernetes.io/hostname  # 确保不在同一主机
