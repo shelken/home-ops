@@ -32,3 +32,4 @@ spec:
     remediation:
       retries: 3
   values:
+    #ref: https://github.com/kubernetes-csi/csi-driver-smb/blob/master/charts/latest/csi-driver-smb/values.yaml
