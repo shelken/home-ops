@@ -307,7 +307,7 @@ metadata:
 spec:
   clientIPDetection:
     xForwardedFor:
-      numTrustedHops: 2
+      numTrustedHops: 1
   connection:
     bufferLimit: 4Mi
     maxAcceptPerSocketEvent: 0
