@@ -150,7 +150,7 @@ spec:
         value: *v2
 
     - type: type.googleapis.com/envoy.config.listener.v3.Listener
-      name: network/envoy-external/http
+      name: network/envoy-external/https-quic
       operation: *op3
     - type: type.googleapis.com/envoy.config.listener.v3.Listener
       name: network/envoy-external/http
