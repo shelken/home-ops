@@ -82,3 +82,9 @@ spec:
           - backendRefs:
               - identifier: app
                 port: *port
+            filters:
+              - type: RequestHeaderModifier
+                requestHeaderModifier:
+                  set:
+                    - name: X-Real-IP
+                      value: "%DOWNSTREAM_REMOTE_ADDRESS_WITHOUT_PORT%"
