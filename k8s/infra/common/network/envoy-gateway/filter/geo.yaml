@@ -132,29 +132,29 @@ spec:
     - type: type.googleapis.com/envoy.config.listener.v3.Listener
       name: network/envoy-external/https-quic
       operation: *op1
-    - type: type.googleapis.com/envoy.config.listener.v3.Listener
-      name: network/envoy-external/http
-      operation:
-        op: add
-        path: "/default_filter_chain/filters/0/typed_config/http_filters/0"
-        value: *v1
+    # - type: type.googleapis.com/envoy.config.listener.v3.Listener
+    #   name: network/envoy-external/http
+    #   operation:
+    #     op: add
+    #     path: "/default_filter_chain/filters/0/typed_config/http_filters/0"
+    #     value: *v1
 
     - type: type.googleapis.com/envoy.config.listener.v3.Listener
       name: network/envoy-external/https-quic
       operation: *op2
-    - type: type.googleapis.com/envoy.config.listener.v3.Listener
-      name: network/envoy-external/http
-      operation:
-        op: add
-        path: "/default_filter_chain/filters/0/typed_config/http_filters/1"
-        value: *v2
+    # - type: type.googleapis.com/envoy.config.listener.v3.Listener
+    #   name: network/envoy-external/http
+    #   operation:
+    #     op: add
+    #     path: "/default_filter_chain/filters/0/typed_config/http_filters/1"
+    #     value: *v2
 
     - type: type.googleapis.com/envoy.config.listener.v3.Listener
       name: network/envoy-external/https-quic
       operation: *op3
-    - type: type.googleapis.com/envoy.config.listener.v3.Listener
-      name: network/envoy-external/http
-      operation:
-        op: add
-        path: "/default_filter_chain/filters/0/typed_config/local_reply_config"
-        value: *v3
+    # - type: type.googleapis.com/envoy.config.listener.v3.Listener
+    #   name: network/envoy-external/http
+    #   operation:
+    #     op: add
+    #     path: "/default_filter_chain/filters/0/typed_config/local_reply_config"
+    #     value: *v3
