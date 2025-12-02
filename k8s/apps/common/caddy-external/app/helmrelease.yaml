@@ -49,8 +49,6 @@ spec:
                 reverse_proxy {
                   to http://envoy-external.network.svc.cluster.local:10080
                   transport http {
-                    # 添加以下行，确保转发客户端IP
-                    header_up X-Forwarded-For {remote_host}
                     #tls
                     #tls_server_name {http.request.host}
 
