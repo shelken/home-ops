@@ -165,7 +165,13 @@ spec:
                   type: PathPrefix
                   value: /dav
             backendRefs: *originBackend
-          - backendRefs:
+          - filters:
+              - type: RequestHeaderModifier
+                requestHeaderModifier:
+                  set:
+                    - name: X-Real-IP
+                      value: "%DOWNSTREAM_REMOTE_ADDRESS_WITHOUT_PORT%"
+            backendRefs:
               - identifier: app
                 port: *anubisPort
       s3:

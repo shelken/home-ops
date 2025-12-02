@@ -330,10 +330,7 @@ spec:
       - http/1.1
   headers:
     enableEnvoyHeaders: true
-    earlyRequestHeaders:
-      set:
-        - name: "X-Real-IP"
-          value: "%DOWNSTREAM_REMOTE_ADDRESS_WITHOUT_PORT%"
+
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/gateway.networking.k8s.io/httproute_v1.json
 apiVersion: gateway.networking.k8s.io/v1
