@@ -51,7 +51,7 @@ spec:
               METRICS_ENABLED: "true"
               OTEL_METRICS_EXPORTER: prometheus
               TRUST_PROXY: true
-              TZ: ${TIME_ZONE}
+              TZ: ${TIMEZONE}
             envFrom: *envFrom
             probes:
               liveness:
