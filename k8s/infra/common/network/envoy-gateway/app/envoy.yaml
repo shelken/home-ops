@@ -329,6 +329,7 @@ spec:
       - h2
       - http/1.1
   headers:
+    enableEnvoyHeaders: true
     earlyRequestHeaders:
       set:
         - name: "X-Real-IP"
