@@ -49,8 +49,8 @@ spec:
                 reverse_proxy {
                   to http://envoy-external.network.svc.cluster.local:10080
                   transport http {
-                    tls
-                    tls_server_name {http.request.host}
+                    #tls
+                    #tls_server_name {http.request.host}
 
                     #dial_timeout 10s
                     #response_header_timeout 30s
