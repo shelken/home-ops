@@ -171,7 +171,6 @@ spec:
         parentRefs:
           - name: envoy-internal
             namespace: network
-            sectionName: https
         rules:
           - filters:
               - type: RequestHeaderModifier
