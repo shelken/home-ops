@@ -265,6 +265,12 @@ spec:
       allowedRoutes:
         namespaces:
           from: Same
+    - name: http-speed
+      protocol: HTTP
+      port: 1080
+      allowedRoutes:
+        namespaces:
+          from: All
     - name: https
       protocol: HTTPS
       port: 443
