@@ -47,10 +47,10 @@ spec:
               # 转发所有流量到 external gateway
               handle {
                 reverse_proxy {
-                  to http://envoy-external.network.svc.cluster.local:10080
+                  to https://envoy-external.network.svc.cluster.local:443
                   transport http {
-                    #tls
-                    #tls_server_name {http.request.host}
+                    tls
+                    tls_server_name {http.request.host}
 
                     #dial_timeout 10s
                     #response_header_timeout 30s
