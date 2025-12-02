@@ -149,6 +149,7 @@ spec:
     #     path: "/default_filter_chain/filters/0/typed_config/http_filters/1"
     #     value: *v2
 
+    # local_reply_config 似乎在http上有问题，如果重新开启的话，不要使用
     - type: type.googleapis.com/envoy.config.listener.v3.Listener
       name: network/envoy-external/https-quic
       operation: *op3
