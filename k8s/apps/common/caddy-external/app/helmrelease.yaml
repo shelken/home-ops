@@ -161,6 +161,10 @@ spec:
         ports:
           http:
             port: 443
+            protocol: TCP
+          http-quic:
+            port: 443
+            protocol: UDP
           admin:
             port: 2019
           health:
