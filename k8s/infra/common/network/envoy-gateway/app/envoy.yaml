@@ -223,7 +223,7 @@ spec:
           from: Same
     - name: http-speed
       protocol: HTTP
-      port: 1080
+      port: 10080
       allowedRoutes:
         namespaces:
           from: All
