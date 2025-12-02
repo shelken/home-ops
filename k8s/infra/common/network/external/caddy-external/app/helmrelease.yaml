@@ -35,11 +35,7 @@ spec:
             }
 
             (with-tls) {
-              tls {
-                dns cloudflare {env.CLOUDFLARE_API_TOKEN}
-                resolvers ${MAIN_VPS_IP}:5054
-              }
-              # tls /etc/caddy/tls/tls.crt /etc/caddy/tls/tls.key
+              tls /etc/caddy/tls/tls.crt /etc/caddy/tls/tls.key
             }
             *.{env.MAIN_DOMAIN} {
               import with-tls
@@ -76,11 +72,6 @@ spec:
             env:
               TZ: ${TIMEZONE}
               MAIN_DOMAIN: ${MAIN_DOMAIN}
-              CLOUDFLARE_API_TOKEN:
-                valueFrom:
-                  secretKeyRef:
-                    name: caddy-external-secret
-                    key: CLOUDFLARE_API_TOKEN
             probes:
               liveness: &probes
                 enabled: true
@@ -170,23 +161,14 @@ spec:
             app:
               - subPath: Caddyfile
                 path: /etc/caddy/Caddyfile
-      data:
-        existingClaim: *app
+      tls:
+        type: secret
+        name: ooooo-space-tls
         advancedMounts:
           caddy-external:
             app:
-              - path: /data
-                subPath: data
-              - path: /config
-                subPath: config
-      # tls:
-      #   type: secret
-      #   name: ooooo-space-tls
-      #   advancedMounts:
-      #     caddy-external:
-      #       app:
-      #         - path: /etc/caddy/tls
-      #           readOnly: true
+              - path: /etc/caddy/tls
+                readOnly: true
       tmpfs:
         type: emptyDir
         globalMounts:
