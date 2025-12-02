@@ -35,6 +35,9 @@ spec:
     - type: type.googleapis.com/envoy.config.listener.v3.Listener
       name: network/envoy-external/https-quic
       operation: *op1
+    - type: type.googleapis.com/envoy.config.listener.v3.Listener
+      name: network/envoy-external/http-speed
+      operation: *op1
     # 2. 添加 RBAC filter 进行地理位置访问控制
     - type: "type.googleapis.com/envoy.config.listener.v3.Listener"
       name: "network/envoy-external/https"
@@ -94,6 +97,9 @@ spec:
     - type: type.googleapis.com/envoy.config.listener.v3.Listener
       name: network/envoy-external/https-quic
       operation: *op2
+    - type: type.googleapis.com/envoy.config.listener.v3.Listener
+      name: network/envoy-external/http-speed
+      operation: *op2
     # 3. 添加 Local Reply 配置来自定义 RBAC 拒绝响应
     - type: "type.googleapis.com/envoy.config.listener.v3.Listener"
       name: "network/envoy-external/https"
@@ -136,4 +142,7 @@ spec:
                 content_type: "application/json"
     - type: type.googleapis.com/envoy.config.listener.v3.Listener
       name: network/envoy-external/https-quic
+      operation: *op3
+    - type: type.googleapis.com/envoy.config.listener.v3.Listener
+      name: network/envoy-external/http-speed
       operation: *op3
