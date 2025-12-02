@@ -51,14 +51,6 @@ spec:
                   transport http {
                     #tls
                     #tls_server_name {http.request.host}
-
-                    #dial_timeout 10s
-                    #response_header_timeout 30s
-                    #expect_continue_timeout 15s
-
-                    #keepalive 300s
-                    #keepalive_idle_conns 10
-                    #keepalive_interval 30s
                   }
                 }
                 header {
