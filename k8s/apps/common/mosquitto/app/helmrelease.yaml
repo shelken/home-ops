@@ -28,6 +28,7 @@ spec:
             resources:
               requests:
                 cpu: 10m
+                memory: 32Mi
               limits:
                 memory: 100Mi
         statefulset:
@@ -56,7 +57,7 @@ spec:
             alerts:
               - type: custom
           lbipam.cilium.io/ips: 192.168.6.59
-        externalTrafficPolicy: Local
+        # externalTrafficPolicy: Local
         ports:
           mqtt:
             port: 1883
