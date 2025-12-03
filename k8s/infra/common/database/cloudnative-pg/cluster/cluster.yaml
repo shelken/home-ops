@@ -5,6 +5,8 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: &cluster postgres17
+  annotations:
+    cnpg.io/skipEmptyWalArchiveCheck: "enabled"
 spec:
   affinity:
     nodeAffinity:
@@ -41,31 +43,18 @@ spec:
       memory: 1Gi
   monitoring:
     enablePodMonitor: true
-  backup:
-    retentionPolicy: 30d
-    barmanObjectStore: &barmanObjectStore
-      data:
-        compression: bzip2
-      wal:
-        compression: bzip2
-        maxParallel: 8
-      destinationPath: s3://cloudnative-pg/
-      endpointURL: https://minio.${MAIN_DOMAIN}
-      serverName: postgres17-v5
-      s3Credentials:
-        accessKeyId:
-          name: cloudnative-pg-secret
-          key: aws-access-key-id
-        secretAccessKey:
-          name: cloudnative-pg-secret
-          key: aws-secret-access-key
-
-  # #NOTE: 需要恢复时取消注释，并修改backup
-  # bootstrap:
-  #   recovery:
-  #     source: &previous-cluster postgres17-v4
-  # externalClusters:
-  #   - name: *previous-cluster
-  #     barmanObjectStore:
-  #       <<: *barmanObjectStore
-  #       serverName: *previous-cluster
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters: &backupParameters
+        barmanObjectName: cloudnative-pg
+        serverName: postgres17-v5
+  bootstrap:
+    recovery:
+      source: source
+  externalClusters:
+    - name: source
+      plugin:
+        enabled: true
+        name: barman-cloud.cloudnative-pg.io
+        parameters: *backupParameters
