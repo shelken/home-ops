@@ -24,10 +24,10 @@ spec:
   tailscale:
     acceptRoutes: true
   statefulSet:
+    labels:
+      app.ooooo.space/need-ipv6: "true"
+      app.ooooo.space/multus: "true"
     pod:
-      labels:
-        app.ooooo.space/need-ipv6: "true"
-        app.ooooo.space/multus: "true"
       annotations:
         k8s.v1.cni.cncf.io/networks: |
           [{
