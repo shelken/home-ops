@@ -1,13 +1,51 @@
 # 配置：https://docs.cilium.io/en/latest/helm-reference
 # ref：https://github.com/cilium/cilium/blob/v1.18.3/install/kubernetes/cilium/values.yaml
-ipv6:
-  enabled: false
-# enableIPv6Masquerade: true
-# ipv6NativeRoutingCIDR: "fd80:dead:42::/56"
+
+# 在所有节点都在同一个l2网段时可以启用
+# https://docs.cilium.io/en/stable/network/concepts/routing/
+autoDirectNodeRoutes: true
 
 bandwidthManager:
   enabled: true
   bbr: true
+
+bpf:
+  masquerade: true
+  # 6.8+
+  # datapathMode: netkit
+  # hostLegacyRouting: true
+  # tproxy: true
+
+bpfClockProbe: true
+
+cgroup:
+  automount:
+    enabled: false
+  hostRoot: /sys/fs/cgroup
+
+cni:
+  # for multus
+  exclusive: false
+
+dashboards:
+  enabled: true
+
+devices: lima1 eth+
+
+endpointRoutes:
+  enabled: true
+
+envoy:
+  enabled: false
+
+# enableIPv4BIGTCP: true # Linux 5.19+
+
+# enableIPv6Masquerade: true
+# ipv6NativeRoutingCIDR: "fd80:dead:42::/56"
+
+ipv4NativeRoutingCIDR: "10.42.0.0/16"
+ipv6:
+  enabled: false
 
 # ref: https://docs.cilium.io/en/stable/network/concepts/ipam/
 ipam:
@@ -18,27 +56,15 @@ ipam:
 
 k8sServiceHost: 127.0.0.1
 k8sServicePort: 6444 # k3s
-l2announcements:
-  enabled: true
 
 kubeProxyReplacement: true
 
-cgroup:
-  automount:
-    enabled: false
-  hostRoot: /sys/fs/cgroup
-
-prometheus:
-  enabled: true
-  serviceMonitor:
-    enabled: true
-    trustCRDsExist: true
-
-dashboards:
+l2announcements:
   enabled: true
 
-envoy:
-  enabled: false
+loadBalancer:
+  algorithm: maglev
+  mode: dsr
 
 operator:
   replicas: 1
@@ -50,10 +76,16 @@ operator:
   dashboards:
     enabled: true
 
-# ingressController:
-#   enabled: true
-#   default: true
-#   loadbalancerMode: shared
+prometheus:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    trustCRDsExist: true
+
+rollOutCiliumPods: true
+# localRedirectPolicy: true
+
+routingMode: native
 
 # !!!不要随便加下面，问题多
 # securityContext:
@@ -77,35 +109,5 @@ operator:
 #       - SYS_ADMIN
 #       - SYS_RESOURCE
 
-rollOutCiliumPods: true
-# localRedirectPolicy: true
-bpf:
-  masquerade: true
-  # 6.8+
-  # datapathMode: netkit
-  # hostLegacyRouting: true
-  # tproxy: true
-bpfClockProbe: true
-
-# 在所有节点都在同一个l2网段时可以启用
-# https://docs.cilium.io/en/stable/network/concepts/routing/
-autoDirectNodeRoutes: true
-routingMode: native
-ipv4NativeRoutingCIDR: "10.42.0.0/16"
-devices: lima1 eth+
-
-loadBalancer:
-  algorithm: maglev
-  mode: dsr
-
-endpointRoutes:
-  enabled: true
-
 socketLB:
   hostNamespaceOnly: true # for tailscale ref: https://tailscale.com/kb/1236/kubernetes-operator#cilium-in-kube-proxy-replacement-mode
-
-# enableIPv4BIGTCP: true # Linux 5.19+
-
-# for multus
-cni:
-  exclusive: false
