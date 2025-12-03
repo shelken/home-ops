@@ -4,13 +4,13 @@ apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: &app outside-service
-  namespace: &namespace staging
+  namespace: &namespace default
 spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
   interval: 1h
-  path: ./k8s/apps/staging/outside/service
+  path: ./k8s/apps/common/outside/service
   prune: true
   retryInterval: 2m
   sourceRef:

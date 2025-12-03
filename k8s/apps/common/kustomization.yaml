@@ -30,6 +30,7 @@ resources:
   - shlink/ks.yaml
   - slash/ks.yaml
   - smb-volumes/ks.yaml
+  - outside/ks.yaml
   # - vaultwarden/ks.yaml
 
 patches:
