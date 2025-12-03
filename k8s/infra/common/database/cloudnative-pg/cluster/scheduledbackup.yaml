@@ -2,7 +2,7 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
 metadata:
-  name: &name postgres17
+  name: &name postgres
 spec:
   schedule: "@daily"
   immediate: true
