@@ -78,10 +78,6 @@ spec:
           - 992 # render(24.04)
     service:
       app:
-        # type: LoadBalancer
-        # annotations:
-        #   lbipam.cilium.io/ips: 192.168.6.53
-        # externalTrafficPolicy: Local
         ports:
           api:
             port: *port
