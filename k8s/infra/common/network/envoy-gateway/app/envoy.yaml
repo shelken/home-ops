@@ -18,6 +18,9 @@ spec:
             - maxSkew: 1
               topologyKey: kubernetes.io/hostname
               whenUnsatisfiable: DoNotSchedule
+              labelSelector:
+                matchLabels:
+                  gateway.networking.k8s.io/gateway-name: envoy-internal
         container:
           image: mirror.gcr.io/envoyproxy/envoy:v1.36.2
           resources:
@@ -53,6 +56,9 @@ spec:
             - maxSkew: 1
               topologyKey: kubernetes.io/hostname
               whenUnsatisfiable: DoNotSchedule
+              labelSelector:
+                matchLabels:
+                  gateway.networking.k8s.io/gateway-name: envoy-external
           volumes:
             - name: geoip-storage
               hostPath:
