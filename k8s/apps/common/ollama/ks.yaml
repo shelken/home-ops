@@ -38,6 +38,7 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+      app.ooooo.space/need-main-pg: "true"
   components:
     - ../../../../components/volsync
   postBuild:
