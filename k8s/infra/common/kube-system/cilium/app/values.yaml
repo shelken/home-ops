@@ -66,6 +66,9 @@ loadBalancer:
   algorithm: maglev
   mode: dsr
 
+localRedirectPolicies:
+  enabled: true
+
 operator:
   replicas: 1
   rollOutPods: true
@@ -83,7 +86,6 @@ prometheus:
     trustCRDsExist: true
 
 rollOutCiliumPods: true
-# localRedirectPolicy: true
 
 routingMode: native
 
@@ -110,4 +112,5 @@ routingMode: native
 #       - SYS_RESOURCE
 
 socketLB:
+  enabled: true
   hostNamespaceOnly: true # for tailscale ref: https://tailscale.com/kb/1236/kubernetes-operator#cilium-in-kube-proxy-replacement-mode
