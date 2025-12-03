@@ -4,7 +4,7 @@ kind: Service
 metadata:
   name: postgres-lb
   annotations:
-    external-dns.alpha.kubernetes.io/hostname: postgres17.${MAIN_DOMAIN}
+    external-dns.alpha.kubernetes.io/hostname: postgres-lb.${MAIN_DOMAIN}
     lbipam.cilium.io/ips: 192.168.6.52
     gatus.home-operations.com/endpoint: |-
       group: services
