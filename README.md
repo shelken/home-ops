@@ -30,33 +30,33 @@ homelab
 
 ## 设备网络
 
-> lb ip range: 192.168.6.40 ~ 192.168.6.59
+> lb ip range: 192.168.69.40 ~ 192.168.69.59
 
-| 服务                   | ip           | 描述             | domain      |
-| ---------------------- | ------------ | ---------------- | ----------- |
-| k8s-gateway            | 192.168.6.41 | 开放给外部 dns   |             |
-| nginx internal ingress | 192.168.6.43 |                  |             |
-| netbird                | 192.168.6.44 |                  |             |
-| envoy external gateway | 192.168.6.45 |                  |             |
-| envoy internal gateway | 192.168.6.46 |                  |             |
-| caddy-external         | 192.168.6.47 | 关闭，使用tunnel |             |
-| home assistant         | 192.168.6.51 |                  |             |
-| postgres17             | 192.168.6.52 | 开放postgres     | postgres17. |
-| go2rtc                 | 192.168.6.53 |                  |             |
-| plex                   | 192.168.6.54 |                  |             |
-| immich-db              | 192.168.6.56 |                  |             |
-| seafile-db             | 192.168.6.57 |                  |             |
-| qbittorrent            | 192.168.6.58 |                  |             |
-| mosquitto              | 192.168.6.59 |                  |             |
-| longhorn               |              | longhorn ui      | longhorn.   |
+| 服务                   | ip            | 描述           | domain    | multus |
+| ---------------------- | ------------- | -------------- | --------- | ------ |
+| k8s-gateway            | 192.168.69.41 | 开放给外部 dns |           |        |
+| nginx internal ingress | 192.168.69.43 |                |           |        |
+| envoy external gateway | 192.168.69.45 |                |           |        |
+| envoy internal gateway | 192.168.69.46 |                |           |        |
+| postgres-lb            | 192.168.69.52 | 开放postgres   | postgres. |        |
+| plex                   | 192.168.69.54 |                |           |        |
+| immich-db              | 192.168.69.56 |                |           |        |
+| seafile-db             | 192.168.69.57 |                |           |        |
+| mosquitto              | 192.168.69.59 |                |           |        |
+| netbird                | 192.168.6.44  | 关闭 保留      |           | 是     |
+| caddy-external         | 192.168.6.47  |                |           | 是     |
+| home assistant         | 192.168.6.51  |                |           | 是     |
+| go2rtc                 | 192.168.6.53  |                |           | 是     |
+| qbittorrent            | 192.168.6.58  |                |           | 是     |
 
 ## multus
 
 ### tailscale
 
-| 服务                | ip-range        | 描述 |
-| ------------------- | --------------- | ---- |
-| tailscale-subrouter | 192.168.6.64/29 |      |
+| 服务                 | ip-range        | 描述 | multus |
+| -------------------- | --------------- | ---- | ------ |
+| tailscale-sub-router | 192.168.6.64/29 |      | 是     |
+| tailscale-node-vps   | 192.168.6.65/29 |      | 是     |
 
 ## 服务网络
 
@@ -160,7 +160,31 @@ flux resume helmrelease cilium -n kube-system
 
 检查更新策略，不要设置滚动更新
 
-9. 哪些情形不适合使用滚动更新？
+10. 哪些情形不适合使用滚动更新？
 
 - 设置了multus的容器，会被上一个占用网卡
 - 设置了 readwriteonce pvc的
+
+11. L2宣告问题，导致某个lbip无法连接
+
+我们可能会有这种情况，一个服务，例如a，此时a服务需要一个lbip
+
+当分配时，例如节点a获取到了这个服务的领导（因为各种情况，例如仅只有a节点存活），
+
+此时lease在a，a只有一个副本，且我们配置了a服务仅能运行在节点b。当我们把externalTrafficPolicy设为local时
+
+此时我们对a发起请求，或者连接a的端口，发现被拒绝，因为此时b节点拿到流量发现没有a服务且`externalTrafficPolicy=Local`，直接丢弃流量
+
+我们可以删除a当前获取的lease `kubectl delete lease x -n kube-system`
+
+但是，不想每次手动，需要考虑为服务创建2个以上
+
+12. multus 网卡的使用情况
+
+只有两种情况需要用multus。
+
+第一 需要ipv6。例如 tailscale/qbit 等需要v6直连的情况（因为当前集群为单栈）
+
+第二 mdns，例如home-assistant/go2rtc
+
+除此之外需要单独ip的都应该使用L2宣告，并严格限定端口

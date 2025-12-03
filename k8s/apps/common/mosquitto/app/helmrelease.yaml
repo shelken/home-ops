@@ -56,8 +56,8 @@ spec:
               hide-hostname: true
             alerts:
               - type: custom
-          lbipam.cilium.io/ips: 192.168.6.59
-        # externalTrafficPolicy: Local
+          lbipam.cilium.io/ips: 192.168.69.59
+        externalTrafficPolicy: Local
         ports:
           mqtt:
             port: 1883

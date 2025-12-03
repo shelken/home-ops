@@ -5,7 +5,7 @@ metadata:
   name: immich-lb
   annotations:
     external-dns.alpha.kubernetes.io/hostname: immich-db.${MAIN_DOMAIN}
-    lbipam.cilium.io/ips: 192.168.6.56
+    lbipam.cilium.io/ips: 192.168.69.56
     gatus.home-operations.com/endpoint: |-
       group: services
       ui:
@@ -17,7 +17,7 @@ metadata:
         - type: custom
 spec:
   type: LoadBalancer
-  # externalTrafficPolicy: Local
+  externalTrafficPolicy: Local
   ports:
     - name: postgres
       port: 5432
