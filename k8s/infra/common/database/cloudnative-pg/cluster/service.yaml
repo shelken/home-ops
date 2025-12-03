@@ -17,7 +17,7 @@ metadata:
         - type: custom
 spec:
   type: LoadBalancer
-  externalTrafficPolicy: Local
+  # externalTrafficPolicy: Local
   ports:
     - name: postgres
       port: 5432

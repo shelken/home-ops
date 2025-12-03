@@ -74,7 +74,7 @@ spec:
         annotations:
           external-dns.alpha.kubernetes.io/hostname: seafile-db.${MAIN_DOMAIN}
           lbipam.cilium.io/ips: 192.168.6.57
-        externalTrafficPolicy: Local
+        # externalTrafficPolicy: Local
         ports:
           mariadb:
             primary: true
