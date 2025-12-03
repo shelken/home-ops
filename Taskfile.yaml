@@ -37,7 +37,7 @@ tasks:
   init:
     desc: "集群中初始化内容（部署密钥/获取一些crd资源）"
     cmds:
-      - task: add-gateway-crd
+      # - task: add-gateway-crd
       - task: add-external-dns-crd
       - task: add-prometheus-crd
       - task: secret:bootstrap
