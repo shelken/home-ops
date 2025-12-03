@@ -11,8 +11,8 @@ bandwidthManager:
 
 bpf:
   masquerade: true
-  # 6.8+
-  # datapathMode: netkit
+  # 6.7+
+  datapathMode: netkit
   # hostLegacyRouting: true
   # tproxy: true
 
