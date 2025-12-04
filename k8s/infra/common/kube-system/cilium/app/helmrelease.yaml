@@ -38,12 +38,7 @@ spec:
       #     enabled: true
       #   dashboards:
       #     enabled: true
-      # relay:
-      #   enabled: false
-      #   rollOutPods: true
-      #   prometheus:
-      #     serviceMonitor:
-      #       enabled: true
+      relay:
+        enabled: false
       # ui:
-      #   enabled: false
-      #   rollOutPods: true
+      #   enabled: true
