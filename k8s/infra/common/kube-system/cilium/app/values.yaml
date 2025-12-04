@@ -5,6 +5,9 @@
 # https://docs.cilium.io/en/stable/network/concepts/routing/
 autoDirectNodeRoutes: true
 
+pmtuDiscovery:
+  enabled: true
+
 bandwidthManager:
   enabled: true
   bbr: true
@@ -33,7 +36,7 @@ cni:
 dashboards:
   enabled: true
 
-devices: lima1 eth+
+devices: eth+
 
 endpointRoutes:
   enabled: true
@@ -41,7 +44,7 @@ endpointRoutes:
 envoy:
   enabled: false
 
-enableIPv4BIGTCP: true # Linux 5.19+
+enableIPv4BIGTCP: false # Linux 5.19+
 
 # enableIPv6Masquerade: true
 # ipv6NativeRoutingCIDR: "fd80:dead:42::/56"
