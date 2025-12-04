@@ -25,12 +25,6 @@ protocol kernel {
     persist;
 }
 
-# 静态路由
-protocol static {
-    ipv4;
-    route 192.168.6.0/24 via 192.168.6.1;
-}
-
 # 过滤器
 filter service_only {
     # 只接受 /32 路由（Service IP）
