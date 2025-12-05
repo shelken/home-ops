@@ -29,7 +29,6 @@ spec:
     - backendRefs:
         - name: memos-app
           port: 5230
-          weight: 1
 
 ---
 apiVersion: gateway.networking.k8s.io/v1
@@ -68,5 +67,5 @@ spec:
         - method:
             service: memos.api.v1.WorkspaceSettingService
       backendRefs:
-        - name: memos-app
-          port: 5230
+        - name: memos-grpc
+          port: 5231
