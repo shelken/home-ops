@@ -17,7 +17,7 @@ resources:
   - karakeep/ks.yaml
   - kromgo/ks.yaml
   # - librespeed/ks.yaml
-  # - memos/ks.yaml
+  - memos/ks.yaml
   - metatube/ks.yaml
   - mosquitto/ks.yaml
   # - n8n/ks.yaml
