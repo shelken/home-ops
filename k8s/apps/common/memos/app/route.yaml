@@ -27,7 +27,7 @@ spec:
     #           name: Content-Type
     #           value: "application/grpc-web+proto"
     - backendRefs:
-        - name: memos-app
+        - name: memos
           port: 5230
 
 ---
@@ -67,5 +67,5 @@ spec:
         - method:
             service: memos.api.v1.WorkspaceSettingService
       backendRefs:
-        - name: memos-grpc
+        - name: memos
           port: 5231
