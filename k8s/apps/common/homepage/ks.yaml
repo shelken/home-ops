@@ -8,7 +8,6 @@ metadata:
 spec:
   targetNamespace: *namespace
   components:
-    - ../../../../components/netbird/side-car
     # - ../../../../components/authelia
     - ../../../../components/envoy-gateway-oidc
   postBuild:
