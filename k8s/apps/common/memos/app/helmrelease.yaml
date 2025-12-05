@@ -37,6 +37,7 @@ spec:
               tag: 0.25.3@sha256:40db300a188ede0c2cf1fc0c49741a03077478d6891fd3ace05c16d702b536a6
             env:
               TZ: ${TIMEZONE}
+              MEMOS_PUBLIC: "false"
               MEMOS_PORT: &port 5230 # https://github.com/usememos/memos/issues/1782
               MEMOS_DRIVER: postgres
               MEMOS_DSN:
@@ -79,14 +80,24 @@ spec:
     #   memos: {}
     service:
       app:
+        controller: memos
         ports:
           http:
             port: *port
             appProtocol: http
-          grpc:
-            port: &grpc-port 5231
+      grpc:
+        controller: memos
+        ports:
+          http:
+            port: 5231
             targetPort: 5230
             appProtocol: kubernetes.io/h2c
+    route: {}
+    persistence:
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
     # route:
     #   app:
     #     annotations:
