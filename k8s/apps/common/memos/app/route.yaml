@@ -25,7 +25,7 @@ spec:
         - headers:
             - type: Exact
               name: Content-Type
-              value: application/grpc-web+proto
+              value: "application/grpc-web+proto"
             - type: Exact
               name: x-grpc-web
               value: "1"
