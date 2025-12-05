@@ -10,7 +10,8 @@ spec:
       name: ${APP}
   oidc:
     provider:
-      issuer: https://oidc.${MAIN_DOMAIN}
+      # 默认用 pocket-id
+      issuer: https://${OIDC_SUBDOMAIN:-oidc}.${MAIN_DOMAIN}
     clientIDRef:
       name: "${APP}-oidc"
     clientSecret:
