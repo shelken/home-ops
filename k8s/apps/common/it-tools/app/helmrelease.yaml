@@ -58,7 +58,7 @@ spec:
           gethomepage.dev/icon: it-tools.svg
           gethomepage.dev/description: ""
         hostnames:
-          - it-tools.${SECRET_DOMAIN}
+          - it-tools.${MAIN_DOMAIN}
         parentRefs:
           - name: envoy-internal
             namespace: network
