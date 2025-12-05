@@ -12,6 +12,7 @@ spec:
       app.kubernetes.io/name: *app
       app.ooooo.space/need-smb: "true"
   components:
+    - ../../../../components/authelia
     - ../../../../components/keda/smb-scaler
     - ../../../../components/volsync
   dependsOn:
