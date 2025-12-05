@@ -68,5 +68,5 @@ spec:
         - method:
             service: memos.api.v1.WorkspaceSettingService
       backendRefs:
-        - name: memos-grpc
-          port: 5231
+        - name: memos-app
+          port: 5230
