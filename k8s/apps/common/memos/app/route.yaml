@@ -19,18 +19,17 @@ spec:
       namespace: network
   rules:
     - backendRefs:
-        - name: memos
+        - name: "memos-grpc"
+          namespace: default
           port: 5231
       matches:
         - headers:
             - type: Exact
               name: Content-Type
               value: "application/grpc-web+proto"
-            - type: Exact
-              name: x-grpc-web
-              value: "1"
     - backendRefs:
-        - name: memos
+        - name: memos-app
+          namespace: default
           port: 5230
           weight: 1
 
@@ -77,5 +76,5 @@ spec:
 #         - method:
 #             service: memos.api.v1.AttachmentService
 #       backendRefs:
-#         - name: memos
+#         - name: memos-grpc
 #           port: 5231
