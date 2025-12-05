@@ -12,6 +12,7 @@ spec:
       app.ooooo.space/need-smb: "true"
   components:
     - ../../../../components/volsync
+    - ../../../../components/authelia
     # - ../../../../components/keda/smb-scaler
   dependsOn:
     - name: longhorn
