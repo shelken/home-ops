@@ -22,7 +22,7 @@ spec:
                 matchLabels:
                   gateway.networking.k8s.io/gateway-name: envoy-internal
         container:
-          image: mirror.gcr.io/envoyproxy/envoy:v1.36.2
+          image: mirror.gcr.io/envoyproxy/envoy:v1.36.3
           resources:
             requests:
               cpu: 100m
@@ -159,7 +159,7 @@ spec:
               - name: geoip-storage
                 mountPath: /geoip
         container:
-          image: mirror.gcr.io/envoyproxy/envoy:v1.36.2
+          image: mirror.gcr.io/envoyproxy/envoy:v1.36.3
           volumeMounts:
             - name: geoip-storage
               mountPath: /etc/envoy/geoip
