@@ -57,6 +57,7 @@ spec:
               AFFINE_SERVER_HTTPS: "true"
               CONFIG_LOCATION: /root/.affine/config
               UPLOAD_LOCATION: /root/.affine/storage
+              selfhosted: true # 开启AI自定义前提(ref:http://torchtree.com/post/affine-selfhost-ai-configuration/)
             envFrom: *envFrom
             probes:
               liveness: &probes
