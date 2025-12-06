@@ -96,7 +96,11 @@ spec:
         globalMounts:
           - path: /config
       config-cache:
-        existingClaim: jellyfin-cache
+        forceRename: jellyfin-cache
+        type: persistentVolumeClaim
+        storageClass: smb-app-storage
+        accessMode: ReadWriteOnce
+        size: 10Gi
         globalMounts:
           - path: /config/metadata
             subPath: metadata
