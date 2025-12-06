@@ -30,14 +30,15 @@ spec:
             args:
               - --log-dir
               - /app/logs
-            # ref: https://docs.newapi.pro/installation/environment-variables
+            # ref: https://docs.newapi.pro/zh/docs/installation/config-maintenance/environment-variables
             env:
-              TZ: ${TIMEZONE}
+              DEBUG: false
+              GEMINI_VERSION: v1beta
               PORT: &port 3000
               REDIS_CONN_STRING: redis://dragonfly.database.svc.cluster.local:6379
               # SQL_DSN: # 默认sqlite
-              GEMINI_VERSION: v1beta
-              DEBUG: false
+              SYNC_FREQUENCY: 180 # 秒 默认60
+              TZ: ${TIMEZONE}
             probes:
               liveness: &probes
                 enabled: true
