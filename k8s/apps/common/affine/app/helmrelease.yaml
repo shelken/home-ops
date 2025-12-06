@@ -27,16 +27,18 @@ spec:
             image:
               repository: ghcr.io/home-operations/postgres-init
               tag: 18@sha256:866f15038ed5185a2b8118821f470bb7ca0df8c4231b8e277446e681ebb1ed84
-            envFrom: &envFrom
+            envFrom:
               - secretRef:
-                  name: affine-secret
+                  name: affine-init-db-secret
           init-config:
             dependsOn: init-db
             image:
               repository: ghcr.io/toeverything/affine
               tag: 0.25.6@sha256:bd463a9e07bb9b336b032858e2700541763b3556a6d50430b68d97c6c309bc23
             command: ["sh", "-c", "node ./scripts/self-host-predeploy.js"]
-            envFrom: *envFrom
+            envFrom: &envFrom
+              - secretRef:
+                  name: affine-secret
             resources:
               requests:
                 cpu: 20m
@@ -115,7 +117,6 @@ spec:
         globalMounts:
           - path: /root/.affine/config
       storage:
-        volumeName: affine-storage
         type: persistentVolumeClaim
         storageClass: smb-app-storage
         accessMode: ReadWriteOnce
