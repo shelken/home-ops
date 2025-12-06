@@ -1,0 +1,129 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app affine
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      affine:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          init-db:
+            image:
+              repository: ghcr.io/home-operations/postgres-init
+              tag: 18@sha256:866f15038ed5185a2b8118821f470bb7ca0df8c4231b8e277446e681ebb1ed84
+            envFrom: &envFrom
+              - secretRef:
+                  name: affine-secret
+          init-config:
+            dependsOn: init-db
+            image:
+              repository: ghcr.io/toeverything/affine
+              tag: 0.25.6@sha256:bd463a9e07bb9b336b032858e2700541763b3556a6d50430b68d97c6c309bc23
+            command: ["sh", "-c", "node ./scripts/self-host-predeploy.js"]
+            envFrom: *envFrom
+            resources:
+              requests:
+                cpu: 20m
+              limits:
+                memory: 1Gi
+        containers:
+          app:
+            image:
+              repository: ghcr.io/toeverything/affine
+              tag: 0.25.6@sha256:bd463a9e07bb9b336b032858e2700541763b3556a6d50430b68d97c6c309bc23
+            env:
+              TZ: ${TIMEZONE}
+              NODE_ENV: production
+              AFFINE_INDEXER_ENABLED: false
+              CONFIG_LOCATION: /root/.affine/config
+              UPLOAD_LOCATION: /root/.affine/storage
+            envFrom: *envFrom
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: &port 3010
+                  initialDelaySeconds: 30
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 5
+                  timeoutSeconds: 5
+                  failureThreshold: 30
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              limits:
+                memory: 2Gi
+        pod:
+          securityContext:
+            #TODO: non root should be done oneday
+            runAsUser: 0
+    service:
+      app:
+        controller: affine
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: 文章
+          gethomepage.dev/name: Affine
+          gethomepage.dev/icon: affine.svg
+          gethomepage.dev/description: 知识库
+        hostnames: ["affine.${MAIN_DOMAIN}"]
+        parentRefs:
+          - name: nginx-internal
+            namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
+    persistence:
+      config:
+        existingClaim: affine
+        globalMounts:
+          - path: /root/.affine/config
+      storage:
+        volumeName: affine-storage
+        type: persistentVolumeClaim
+        storageClass: smb-app-storage
+        accessMode: ReadWriteOnce
+        size: 10Gi
+        advancedMounts:
+          affine:
+            app:
+              - path: /root/.affine/storage
+                subPath: storage
+      tmpfs:
+        type: emptyDir
