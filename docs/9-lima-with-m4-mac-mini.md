@@ -25,7 +25,7 @@ rm etc_sudoers.d_lima
 ```yaml
 networks:
 - lima: bridged
-  interface: lima1
+  interface: eth1
   macAddress: "52:55:55:37:34:56"
 ```
 
