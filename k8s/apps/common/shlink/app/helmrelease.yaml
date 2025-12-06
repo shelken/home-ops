@@ -22,9 +22,9 @@ spec:
             image:
               repository: ghcr.io/home-operations/postgres-init
               tag: 18@sha256:866f15038ed5185a2b8118821f470bb7ca0df8c4231b8e277446e681ebb1ed84
-            envFrom: &envFrom
+            envFrom:
               - secretRef:
-                  name: shlink-secret
+                  name: shlink-init-db-secret
         containers:
           app:
             image:
@@ -42,7 +42,9 @@ spec:
               WEB_WORKER_NUM: 1
               SKIP_INITIAL_GEOLITE_DOWNLOAD: "true"
               DISABLE_IP_TRACKING: "true" # 取消下载geoip数据
-            envFrom: *envFrom
+            envFrom:
+              - secretRef:
+                  name: shlink-secret
             probes:
               liveness: &probes
                 enabled: true
