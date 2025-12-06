@@ -193,7 +193,7 @@ identity_providers:
         userinfo_signed_response_alg: "none"
         token_endpoint_auth_method: "client_secret_post"
       - client_id: "affine"
-        client_name: "Affine"
+        client_name: "AFFiNE"
         client_secret: "$argon2id$v=19$m=65536,t=3,p=4$QVRuoba6B0sJNcizfz0u9Q$ujCr9y16zlTuvqMC61EbVSUOMiKsjl89f1amaA3xaUc"
         public: false
         authorization_policy: "two_factor"
@@ -206,12 +206,14 @@ identity_providers:
           - "openid"
           - "profile"
           - "email"
+          - "offline_access"
         response_types:
           - "code"
         grant_types:
           - "authorization_code"
+          - "refresh_token"
         #access_token_signed_response_alg: "none"
-        #userinfo_signed_response_alg: "none"
+        userinfo_signed_response_alg: "none"
         token_endpoint_auth_method: "client_secret_post"
       # - client_id: "gatus"
       #   client_name: "Gatus"
