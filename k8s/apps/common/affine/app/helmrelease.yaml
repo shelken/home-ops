@@ -105,7 +105,7 @@ spec:
           gethomepage.dev/description: 知识库
         hostnames: ["affine.${MAIN_DOMAIN}"]
         parentRefs:
-          - name: external-internal
+          - name: envoy-internal
             namespace: network
         rules:
           - backendRefs:
