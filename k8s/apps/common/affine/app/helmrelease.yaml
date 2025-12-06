@@ -116,7 +116,9 @@ spec:
         existingClaim: affine
         globalMounts:
           - path: /root/.affine/config
+            subPath: config
       storage:
+        forceRename: affine-storage
         type: persistentVolumeClaim
         storageClass: smb-app-storage
         accessMode: ReadWriteOnce
