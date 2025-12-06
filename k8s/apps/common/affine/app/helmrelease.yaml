@@ -53,6 +53,8 @@ spec:
               TZ: ${TIMEZONE}
               NODE_ENV: production
               AFFINE_INDEXER_ENABLED: false
+              AFFINE_SERVER_EXTERNAL_URL: "https://affine.${MAIN_DOMAIN}"
+              AFFINE_SERVER_HTTPS: "true"
               CONFIG_LOCATION: /root/.affine/config
               UPLOAD_LOCATION: /root/.affine/storage
             envFrom: *envFrom
