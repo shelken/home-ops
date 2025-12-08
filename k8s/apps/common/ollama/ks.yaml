@@ -6,9 +6,6 @@ metadata:
   namespace: &namespace default
 spec:
   targetNamespace: *namespace
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   components:
     - ../../../../components/volsync
   postBuild:
@@ -37,7 +34,6 @@ spec:
   targetNamespace: *namespace
   commonMetadata:
     labels:
-      app.kubernetes.io/name: *app
       app.ooooo.space/need-main-pg: "true"
   components:
     - ../../../../components/volsync

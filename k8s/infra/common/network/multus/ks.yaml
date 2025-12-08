@@ -6,9 +6,6 @@ metadata:
   name: &app multus
   namespace: &namespace network
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   interval: 1h
   path: ./k8s/infra/common/network/multus/app
   prune: true
@@ -29,9 +26,6 @@ metadata:
   name: &app multus-networks
   namespace: &namespace network
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   interval: 1h
   path: ./k8s/infra/common/network/multus/networks
   prune: true

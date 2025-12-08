@@ -35,9 +35,6 @@ metadata:
   namespace: &namespace default
 spec:
   targetNamespace: *namespace
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   dependsOn:
     - name: cilium
       namespace: kube-system
