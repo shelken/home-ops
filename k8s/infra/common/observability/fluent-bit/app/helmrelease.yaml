@@ -10,6 +10,9 @@ spec:
     name: fluent-bit
   interval: 1h
   values:
+    #ref: https://github.com/fluent/helm-charts/blob/main/charts/fluent-bit/values.yaml
+    image:
+      repository: ghcr.io/fluent/fluent-bit
     config:
       service: |-
         [SERVICE]
