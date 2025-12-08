@@ -107,43 +107,16 @@ spec:
                 memory: 700Mi
               limits:
                 memory: 4Gi
-          anubis:
-            image:
-              repository: ghcr.io/techarohq/anubis
-              tag: v1.23.1
-            env:
-              # ref: https://anubis.techaro.lol/docs/admin/installation#environment-variables
-              ED25519_PRIVATE_KEY_HEX: "${ANUBIS_ED25519_PRIVATE_KEY_HEX}"
-              TZ: "${TIMEZONE}"
-              COOKIE_DOMAIN: ${MAIN_DOMAIN}
-              BIND: ":8923"
-              METRICS_BIND: ":8924"
-              DIFFICULTY: "4"
-              SERVE_ROBOTS_TXT: "true"
-              TARGET: "http://localhost:80"
-            resources:
-              limits:
-                memory: 256Mi
-              requests:
-                cpu: 10m
-                memory: 16Mi
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
-              runAsNonRoot: true
-              runAsUser: 1000
-              runAsGroup: 1000
     defaultPodOptions:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: kubernetes.io/hostname
-                    operator: In
-                    values:
-                      - sakamoto-k8s
+      # affinity:
+      #   nodeAffinity:
+      #     requiredDuringSchedulingIgnoredDuringExecution:
+      #       nodeSelectorTerms:
+      #         - matchExpressions:
+      #             - key: kubernetes.io/hostname
+      #               operator: In
+      #               values:
+      #                 - sakamoto-k8s
       securityContext:
         # runAsNonRoot: true
         # runAsUser: 1000
@@ -155,8 +128,6 @@ spec:
         ports:
           http:
             port: *port
-          anubis:
-            port: &anubisPort 8923
     route:
       app:
         annotations:
@@ -172,15 +143,6 @@ spec:
           - name: envoy-internal
             namespace: network
         rules:
-          - filters:
-              - type: RequestHeaderModifier
-                requestHeaderModifier:
-                  set:
-                    - name: X-Real-IP
-                      value: "%DOWNSTREAM_REMOTE_ADDRESS_WITHOUT_PORT%"
-            backendRefs:
-              - identifier: app
-                port: *anubisPort
           - matches:
               - path:
                   type: PathPrefix
