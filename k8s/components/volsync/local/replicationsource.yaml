@@ -26,12 +26,12 @@ spec:
                   operator: NotIn
                   values:
                     - tvbox
-        preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 1
-            preference:
-              matchExpressions:
-                - key: node-role.kubernetes.io/control-plane
-                  operator: Exists
+        # preferredDuringSchedulingIgnoredDuringExecution:
+        #   - weight: 1
+        #     preference:
+        #       matchExpressions:
+        #         - key: node-role.kubernetes.io/control-plane
+        #           operator: Exists
     moverSecurityContext:
       runAsUser: ${VOLSYNC_PUID:=1000}
       runAsGroup: ${VOLSYNC_PGID:=1000}
