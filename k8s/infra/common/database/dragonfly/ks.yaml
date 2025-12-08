@@ -6,9 +6,6 @@ metadata:
   namespace: &namespace database
 spec:
   targetNamespace: *namespace
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   path: ./k8s/infra/common/database/dragonfly/app
   healthChecks:
     - apiVersion: apps/v1
@@ -31,9 +28,6 @@ metadata:
   namespace: &namespace database
 spec:
   targetNamespace: *namespace
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   dependsOn:
     - name: dragonfly
   path: ./k8s/infra/common/database/dragonfly/cluster

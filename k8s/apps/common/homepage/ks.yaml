@@ -13,9 +13,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   dependsOn:
     - name: azure-store
       namespace: external-secrets

@@ -6,9 +6,6 @@ metadata:
   name: &app longhorn
   namespace: &namespace longhorn-system
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   interval: 1h
   path: ./k8s/infra/common/longhorn-system/longhorn/app
   prune: true
@@ -33,9 +30,6 @@ metadata:
   name: &app storageclass
   namespace: &namespace longhorn-system
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   interval: 1h
   path: ./k8s/infra/common/longhorn-system/longhorn/storageclass
   prune: true
