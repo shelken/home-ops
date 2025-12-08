@@ -12,6 +12,4 @@ spec:
   datasources:
     - datasourceName: prometheus
       inputName: DS_PROMETHEUS-1
-    - datasourceName: loki
-      inputName: DS_LOKI-1
   url: https://grafana.com/api/dashboards/19305/revisions/2/download
