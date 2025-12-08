@@ -17,8 +17,7 @@ spec:
         enabled: true
         storageClassName: longhorn
         size: 20Gi
-      podLabels:
-        app.ooooo.space/internal-lb-only: "true"
+      podLabels: {}
       retentionPeriod: 14d
       route:
         enabled: true
