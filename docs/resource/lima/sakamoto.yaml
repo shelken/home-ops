@@ -22,7 +22,6 @@ hostResolver:
 # eth0 dns
 dns:
   - 192.168.6.1
-  - 223.5.5.5
 
 # user:
 #   name: &username shelken
@@ -85,11 +84,19 @@ provision:
         ethernets:
           eth1:
             nameservers:
-              addresses: [192.168.6.1, 223.5.5.5]
+              addresses: [192.168.6.1]
       EOF
       # 应用更改
-      chmod 600 /etc/netplan/99-eth1.yaml
+      chmod 644 /etc/netplan/99-eth1.yaml
       netplan apply
+      # 拒绝接收来自远程的ipv6 dns
+      sudo grep -i IPv6AcceptRA /run/systemd/network/10-netplan-eth1.network || \
+      sudo tee -a /run/systemd/network/10-netplan-eth1.network > /dev/null <<EOF
+      [IPv6AcceptRA]
+      UseDNS=false
+      UseDomains=false
+      EOF
+      sudo systemctl restart systemd-networkd.service && sudo systemctl restart systemd-resolved.service
 
 # 健康探针
 probes: []
