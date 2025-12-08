@@ -11,7 +11,7 @@ detect:
 
 mqtt:
   enabled: true
-  host: mqtt.${MAIN_DOMAIN}
+  host: mosquitto.default.svc
   port: 1883
   # user: ""
   # password: ""
