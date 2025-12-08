@@ -5,7 +5,7 @@ components:
   - ../../components/common
 resources:
   - affine/ks.yaml
-  - dozzle/ks.yaml
+  # - dozzle/ks.yaml
   - echo/ks.yaml
   - frigate/ks.yaml
   - go2rtc/ks.yaml
@@ -16,12 +16,12 @@ resources:
   - it-tools/ks.yaml
   - jellyfin/ks.yaml
   # - kite/ks.yaml
-  - karakeep/ks.yaml
+  # - karakeep/ks.yaml
   - kromgo/ks.yaml
   # - librespeed/ks.yaml
   - memos/ks.yaml
   - metatube/ks.yaml
-  - mosquitto/ks.yaml
+  - mosquitto/ks.yaml # for frigate
   # - n8n/ks.yaml
   - new-api/ks.yaml
   # - ollama/ks.yaml
