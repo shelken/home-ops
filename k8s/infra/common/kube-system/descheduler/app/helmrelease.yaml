@@ -35,14 +35,30 @@ spec:
     kind: Deployment
     deschedulerPolicyAPIVersion: descheduler/v1alpha2
     deschedulerPolicy:
+      metricsProviders:
+        - source: KubernetesMetrics
       profiles:
         - name: Default
           pluginConfig:
             - name: DefaultEvictor
               args:
-                evictFailedBarePods: true
-                evictLocalStoragePods: true
-                evictSystemCriticalPods: true
+                podProtections:
+                  defaultDisabled:
+                    - FailedBarePods
+                    - PodsWithLocalStorage
+                    - SystemCriticalPods
+            - name: LowNodeUtilization
+              args:
+                metricsUtilization:
+                  source: KubernetesMetrics
+                thresholds:
+                  cpu: 20
+                  memory: 20
+                  pods: 20
+                targetThresholds:
+                  cpu: 50
+                  memory: 50
+                  pods: 50
             - name: RemoveFailedPods
               args:
                 reasons:
@@ -62,23 +78,11 @@ spec:
                   - requiredDuringSchedulingIgnoredDuringExecution
             - name: RemovePodsViolatingNodeTaints
             - name: RemovePodsViolatingTopologySpreadConstraint
-            # - name: LowNodeUtilization
-            #   args:
-            #     thresholds:
-            #       # "cpu" : 20
-            #       "memory": 20
-            #       "pods": 15
-            #     targetThresholds:
-            #       # "cpu" : 50
-            #       "memory": 60
-            #       "pods": 50
-            #   metricsUtilization:
-            #     source: KubernetesMetrics
           plugins:
             balance:
               enabled:
+                - LowNodeUtilization
                 - RemovePodsViolatingTopologySpreadConstraint
-                # - LowNodeUtilization
             deschedule:
               enabled:
                 - RemoveFailedPods
@@ -89,5 +93,5 @@ spec:
       enabled: true
     serviceMonitor:
       enabled: true
-    # leaderElection:
-    #   enabled: true
+    leaderElection:
+      enabled: true
