@@ -38,9 +38,10 @@ spec:
                   type: Exact
                   value: /
       service:
-        annotations: {}
-        type: ClusterIP
-        clusterIP: 10.43.69.66
+        annotations:
+          lbipam.cilium.io/ips: 192.168.69.66
+          app.ooooo.space/internal-lb-only: "true"
+        type: LoadBalancer
         servicePort: 9428
       serviceMonitor:
         enabled: true
