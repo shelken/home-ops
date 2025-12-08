@@ -5,6 +5,7 @@ resources:
   - helmrelease.yaml
   - networks.yaml
   - grafanadashboard.yaml
+  - ciliumclusterwidenetworkpolicy.yaml
 
 configurations:
   - kustomizeconfig.yaml
