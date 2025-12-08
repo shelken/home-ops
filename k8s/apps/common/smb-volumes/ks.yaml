@@ -6,9 +6,6 @@ metadata:
   name: &app smb-volumes
   namespace: &namespace default
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   dependsOn:
     - name: csi-driver-smb
       namespace: storage

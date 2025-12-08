@@ -6,9 +6,6 @@ metadata:
   name: &app k8s-gateway
   namespace: &namespace network
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   interval: 1h
   path: ./k8s/infra/common/network/internal/k8s-gateway/app
   prune: true

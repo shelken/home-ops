@@ -6,9 +6,6 @@ metadata:
   name: &app go2rtc
   namespace: &namespace default
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   postBuild:
     substitute:
       APP: *app

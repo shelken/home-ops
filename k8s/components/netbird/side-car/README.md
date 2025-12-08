@@ -18,7 +18,7 @@ ks.yaml
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &appname example
+  name: &app example
   namespace: &namespace default
 spec:
   components:
