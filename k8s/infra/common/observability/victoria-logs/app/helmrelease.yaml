@@ -43,6 +43,7 @@ spec:
         annotations:
           lbipam.cilium.io/ips: 192.168.69.66
         type: LoadBalancer
+        externalTrafficPolicy: Local
         servicePort: 9428
       serviceMonitor:
         enabled: true
