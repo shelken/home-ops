@@ -8,13 +8,15 @@ resources:
   - ./externalsecret.yaml
   - ./prometheusrule.yaml
 configMapGenerator:
-  - name: gatus-configmap
+  - name: gatus-config
     files:
       - config.yaml=./resources/config.yaml
-      - outside/f50.yaml=./resources/outside/f50.yaml
-      - outside/sakamoto.yaml=./resources/outside/sakamoto.yaml
-      - outside/tvbox.yaml=./resources/outside/tvbox.yaml
-      - outside/vps.yaml=./resources/outside/vps.yaml
+  - name: gatus-outside
+    files:
+      - f50.yaml=./resources/outside/f50.yaml
+      - sakamoto.yaml=./resources/outside/sakamoto.yaml
+      - tvbox.yaml=./resources/outside/tvbox.yaml
+      - vps.yaml=./resources/outside/vps.yaml
 generatorOptions:
   disableNameSuffixHash: true
   annotations:
