@@ -1,0 +1,13 @@
+---
+endpoints:
+  - name: mosdns
+    group: tvbox
+    url: "udp://tvbox.lan:53"
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[CONNECTED] == true"
+    alerts:
+      - type: custom

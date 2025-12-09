@@ -194,6 +194,6 @@ spec:
           - path: /config/config.yaml
             subPath: config.yaml
             readOnly: true
-          - path: /config/outside.yaml
-            subPath: outside.yaml
+          - path: /config/outside
+            subPath: outside
             readOnly: true
