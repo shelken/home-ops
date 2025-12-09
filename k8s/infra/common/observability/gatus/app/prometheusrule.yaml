@@ -8,32 +8,62 @@ spec:
   groups:
     - name: gatus.rules
       rules:
-        - alert: GatusEndpointDown
+        - alert: Gatus|外部服务无法访问
           expr: |
-            gatus_results_endpoint_success{group=~"external|nginx-external"} == 0
+            gatus_results_endpoint_success{group=~"external"} == 0
           for: 5m
           annotations:
             summary: >-
-              The {{ $labels.name }} endpoint is down
+              服务 {{ $labels.name }} 无法访问({{ $labels.type }})
           labels:
             severity: critical
 
-        - alert: GatusEndpointExposed
+        - alert: Gatus|内部服务暴露
           expr: |
-            gatus_results_endpoint_success{group=~"internal|nginx-internal"} == 0
+            gatus_results_endpoint_success{group=~"internal"} == 0
           for: 5m
           annotations:
             summary: >-
-              The {{ $labels.name }} endpoint has a public DNS record and is exposed
+              内部服务 {{ $labels.name }} 从公共DNS查询到了
           labels:
             severity: critical
 
-        - alert: Gatus数据库警告
+        - alert: Gatus|Sakamoto 服务
           expr: |
-            gatus_results_endpoint_success{group=~"database"} == 0
+            gatus_results_endpoint_success{group=~"sakamoto"} == 0
           for: 5m
           annotations:
             summary: >-
-              数据库 {{ $labels.name }} 五分钟内连接({{ $labels.type }})失败
+              Sakamoto 的 {{ $labels.name }} 连接({{ $labels.type }})失败
+          labels:
+            severity: critical
+
+        - alert: Gatus|tvbox 服务
+          expr: |
+            gatus_results_endpoint_success{group=~"tvbox"} == 0
+          for: 5m
+          annotations:
+            summary: >-
+              盒子 {{ $labels.name }} 连接({{ $labels.type }})失败
+          labels:
+            severity: critical
+
+        - alert: Gatus|设备检测
+          expr: |
+            gatus_results_endpoint_success{group=~"device"} == 0
+          for: 5m
+          annotations:
+            summary: >-
+              物理设备 {{ $labels.name }} 连接({{ $labels.type }})失败
+          labels:
+            severity: critical
+
+        - alert: Gatus|基础服务连接失败
+          expr: |
+            gatus_results_endpoint_success{group=~"services"} == 0
+          for: 5m
+          annotations:
+            summary: >-
+              基础服务 {{ $labels.name }} 连接({{ $labels.type }})失败
           labels:
             severity: critical

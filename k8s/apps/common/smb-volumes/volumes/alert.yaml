@@ -1,0 +1,34 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/probe_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: smb-dns-resolve
+spec:
+  module: dns
+  prober:
+    url: blackbox-exporter.observability.svc.cluster.local:9115
+  targets:
+    staticConfig:
+      static:
+        - sakamoto.lan
+
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: smb-dns-resolve
+spec:
+  groups:
+    - name: smb.rules
+      rules:
+        - alert: SMB 地址无法DNS解析
+          expr: |
+            probe_success{job="probe/default/smb-dns-resolve"} == 0
+          for: 30s
+          annotations:
+            summary: >-
+              SMB地址: {{ $labels.instance }} 无法进行域名解析
+          labels:
+            severity: critical
