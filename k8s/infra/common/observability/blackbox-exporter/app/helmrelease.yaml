@@ -46,12 +46,13 @@ spec:
         add: ["NET_RAW"]
     config:
       modules:
-        dns:
+        dns_sakamoto:
           prober: dns
           timeout: 5s
           dns:
             preferred_ip_protocol: ipv4
             query_type: A
+            query_name: sakamoto.lan
         http_2xx:
           prober: http
           timeout: 5s
