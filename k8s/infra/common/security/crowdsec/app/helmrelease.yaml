@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: crowdsec
-      version: "0.21.0"
+      version: 0.21.0
       sourceRef:
         kind: HelmRepository
         name: crowdsec
@@ -17,9 +17,9 @@ spec:
   values:
     #ref: https://github.com/crowdsecurity/helm-charts/blob/main/charts/crowdsec/values.yaml
     container_runtime: containerd
-    image:
-      repository: ghcr.io/crowdsecurity/crowdsec
-      tag: v1.7.3
+    # image:
+    #   repository: ghcr.io/crowdsecurity/crowdsec
+    #   tag: v1.7.3
     config:
       config.yaml.local: |
         api:
