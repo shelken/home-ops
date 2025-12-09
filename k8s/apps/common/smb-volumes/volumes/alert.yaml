@@ -5,13 +5,13 @@ kind: Probe
 metadata:
   name: smb-dns-resolve
 spec:
-  module: dns
+  module: dns_sakamoto
   prober:
     url: blackbox-exporter.observability.svc.cluster.local:9115
   targets:
     staticConfig:
       static:
-        - sakamoto.lan
+        - kube-dns.kube-system.svc
 
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
@@ -29,6 +29,6 @@ spec:
           for: 30s
           annotations:
             summary: >-
-              SMB地址: {{ $labels.instance }} 无法进行域名解析
+              SMB 地址无法从coredns解析
           labels:
             severity: critical
