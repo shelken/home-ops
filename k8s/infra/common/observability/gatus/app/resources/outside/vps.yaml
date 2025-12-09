@@ -1,0 +1,24 @@
+---
+endpoints:
+  - &common
+    name: subconverter
+    group: vps
+    url: https://sub.${MAIN_DOMAIN}/version
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[STATUS] == 200"
+    alerts:
+      - type: custom
+  - <<: *common
+    name: derp
+    url: https://derp.${MAIN_DOMAIN}
+  - <<: *common
+    name: vps-caddy
+    url: "tcp://ts-node-vps.network.svc:443"
+    interval: 2m
+    conditions:
+      - "[CONNECTED] == true"
+    ui: {}

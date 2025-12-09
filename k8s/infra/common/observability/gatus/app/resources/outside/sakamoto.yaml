@@ -1,0 +1,40 @@
+---
+endpoints:
+  - &common-mirror
+    name: mirror-ghcr
+    group: sakamoto
+    url: "tcp://sakamoto.lan:5001"
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[CONNECTED] == true"
+    alerts:
+      - type: custom
+  - <<: *common-mirror
+    name: mirror-quay
+    url: "tcp://sakamoto.lan:5002"
+  - <<: *common-mirror
+    name: mirror-mirror-gcr
+    url: "tcp://sakamoto.lan:5003"
+  - <<: *common-mirror
+    name: mirror-k8s
+    url: "tcp://sakamoto.lan:5005"
+  - <<: *common-mirror
+    name: sakamoto-caddy
+    url: "tcp://sakamoto.lan:443"
+  - <<: *common-mirror
+    name: minio-local
+    url: "tcp://sakamoto.lan:9000"
+  - name: minio-domain
+    group: sakamoto
+    url: https://minio.${MAIN_DOMAIN}/minio/health/live
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[STATUS] == 200"
+    alerts:
+      - type: custom

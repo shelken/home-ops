@@ -11,7 +11,10 @@ configMapGenerator:
   - name: gatus-configmap
     files:
       - config.yaml=./resources/config.yaml
-      - outside.yaml=./resources/outside.yaml
+      - outside/f50.yaml=./resources/outside/f50.yaml
+      - outside/sakamoto.yaml=./resources/outside/sakamoto.yaml
+      - outside/tvbox.yaml=./resources/outside/tvbox.yaml
+      - outside/vps.yaml=./resources/outside/vps.yaml
 generatorOptions:
   disableNameSuffixHash: true
   annotations:
