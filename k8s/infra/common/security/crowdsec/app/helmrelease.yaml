@@ -47,7 +47,8 @@ spec:
         share_context: false
 
     lapi:
-      podAnnotations:
+      podAnnotations: {}
+      podLabels:
         app.kubernetes.io/name: crowdsec-lapi
       extraInitContainers:
         - name: init-db
