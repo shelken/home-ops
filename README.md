@@ -30,24 +30,26 @@ homelab
 
 ## 设备网络
 
-> lb ip range: 192.168.69.40 ~ 192.168.69.59
+> lb ip range: 192.168.69.0/24
 
-| 服务                   | ip            | 描述           | domain    | multus |
-| ---------------------- | ------------- | -------------- | --------- | ------ |
-| k8s-gateway            | 192.168.69.41 | 开放给外部 dns |           |        |
-| nginx internal ingress | 192.168.69.43 |                |           |        |
-| envoy external gateway | 192.168.69.45 |                |           |        |
-| envoy internal gateway | 192.168.69.46 |                |           |        |
-| postgres-lb            | 192.168.69.52 | 开放postgres   | postgres. |        |
-| plex                   | 192.168.69.54 |                |           |        |
-| immich-db              | 192.168.69.56 |                |           |        |
-| seafile-db             | 192.168.69.57 |                |           |        |
-| mosquitto              | 192.168.69.59 |                |           |        |
-| netbird                | 192.168.6.44  | 关闭 保留      |           | 是     |
-| caddy-external         | 192.168.6.47  |                |           | 是     |
-| home assistant         | 192.168.6.51  |                |           | 是     |
-| go2rtc                 | 192.168.6.53  |                |           | 是     |
-| qbittorrent            | 192.168.6.58  |                |           | 是     |
+| 服务                   | ip            | 描述                      | domain    | multus |
+| ---------------------- | ------------- | ------------------------- | --------- | ------ |
+| k8s-gateway            | 192.168.69.41 | 开放给外部 dns            |           |        |
+| nginx internal ingress | 192.168.69.43 |                           |           |        |
+| envoy external gateway | 192.168.69.45 |                           |           |        |
+| envoy internal gateway | 192.168.69.46 |                           |           |        |
+| postgres-lb            | 192.168.69.52 | 开放postgres              | postgres. |        |
+| plex                   | 192.168.69.54 |                           |           |        |
+| immich-db              | 192.168.69.56 |                           |           |        |
+| seafile-db             | 192.168.69.57 |                           |           |        |
+| mosquitto              | 192.168.69.59 |                           |           |        |
+| vistoria-logs          | 192.168.69.66 | 给其他设备（vps）发送日志 |           |        |
+| crowdsec               | 192.168.69.67 | 其他设备agent/bounce连接  |           |        |
+| netbird                | 192.168.6.44  | 关闭 保留                 |           | 是     |
+| caddy-external         | 192.168.6.47  |                           |           | 是     |
+| home assistant         | 192.168.6.51  |                           |           | 是     |
+| go2rtc                 | 192.168.6.53  |                           |           | 是     |
+| qbittorrent            | 192.168.6.58  |                           |           | 是     |
 
 ## multus
 
