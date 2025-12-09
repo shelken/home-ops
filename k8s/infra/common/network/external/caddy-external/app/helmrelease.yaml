@@ -83,6 +83,11 @@ spec:
             env:
               TZ: ${TIMEZONE}
               MAIN_DOMAIN: ${MAIN_DOMAIN}
+              CROWDSEC_API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: caddy-external-secret
+                    key: CROWDSEC_API_KEY
             probes:
               liveness: &probes
                 enabled: true
@@ -114,11 +119,11 @@ spec:
               tag: 1.15.1
             env:
               TZ: ${TIMEZONE}
-              CROWDSEC_API_KEY:
+              CLOUDFLARE_API_TOKEN:
                 valueFrom:
                   secretKeyRef:
                     name: caddy-external-secret
-                    key: CROWDSEC_API_KEY
+                    key: CLOUDFLARE_API_TOKEN
               DOMAINS: homelab-dynamic.${MAIN_DOMAIN}
               PROXIED: "false"
               IP4_PROVIDER: "none"
