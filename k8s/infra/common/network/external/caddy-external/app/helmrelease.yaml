@@ -26,6 +26,12 @@ spec:
                 #trusted_proxies static private_ranges 100.96.0.0/11 # 信任局域网的XFF头
                 protocols h1 h2 h3
               }
+              crowdsec {
+                api_url http://crowdsec-service.security.svc.cluster.local:8080
+                api_key {$CROWDSEC_API_KEY}
+                ticker_interval 15s
+                #appsec_url http://crowdsec-agent:7422
+              }
             }
 
             :8080 {
@@ -40,19 +46,24 @@ spec:
             *.{$MAIN_DOMAIN} {
               import with-tls
 
-              # 转发所有流量到 external gateway
-              handle {
-                reverse_proxy {
-                  to https://envoy-external.network.svc.cluster.local:443
-                  transport http {
-                    tls
-                    tls_server_name {http.request.host}
+              route {
+
+                crowdsec
+
+                # 转发所有流量到 external gateway
+                handle {
+                  reverse_proxy {
+                    to https://envoy-external.network.svc.cluster.local:443
+                    transport http {
+                      tls
+                      tls_server_name {http.request.host}
+                    }
                   }
-                }
-                header {
-                  +My-Server "caddy-external"
-                  -Server
-                  -via
+                  header {
+                    +My-Server "caddy-external"
+                    -Server
+                    -via
+                  }
                 }
               }
             }
@@ -103,11 +114,11 @@ spec:
               tag: 1.15.1
             env:
               TZ: ${TIMEZONE}
-              CLOUDFLARE_API_TOKEN:
+              CROWDSEC_API_KEY:
                 valueFrom:
                   secretKeyRef:
                     name: caddy-external-secret
-                    key: CLOUDFLARE_API_TOKEN
+                    key: CROWDSEC_API_KEY
               DOMAINS: homelab-dynamic.${MAIN_DOMAIN}
               PROXIED: "false"
               IP4_PROVIDER: "none"
