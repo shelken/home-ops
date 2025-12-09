@@ -190,3 +190,15 @@ flux resume helmrelease cilium -n kube-system
 第二 mdns，例如home-assistant/go2rtc
 
 除此之外需要单独ip的都应该使用L2宣告，并严格限定端口
+
+13. 容器频繁重启且有规律（smb）
+
+如果都是使用smb，那么应该是`smb-scaler`的问题
+
+keda 通过检查 prometheus 的指标获取smb服务情况。
+
+blackbox 采集smb端口连通性（使用了域名）
+
+dns 如果无法正常解析lan域名的话，blackbox会失败，进而出问题。
+
+因此检查blackbox容器是否存在检测问题或者当前smb连接情况
