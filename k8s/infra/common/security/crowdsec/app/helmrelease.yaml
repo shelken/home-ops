@@ -71,9 +71,8 @@ spec:
         serviceMonitor:
           enabled: true
       persistentVolume:
-        # data:
-        #   existingClaim: *app
-        #   subPath: data
+        data:
+          existingClaim: crowdsec-data
         config:
           existingClaim: *app
           subPath: config
