@@ -78,7 +78,21 @@ provision:
   - mode: system
     script: |
       #!/bin/bash
-      cat <<EOF | tee /etc/netplan/99-eth1.yaml
+      cat <<EOF | tee /etc/netplan/90-eth0.yaml
+      network:
+        version: 2
+        ethernets:
+          eth0:
+            dhcp4: true
+            dhcp4-overrides:
+              use-dns: false
+      EOF
+  - mode: system
+    script: |
+      #!/bin/bash
+      # 删除旧文件
+      rm -f /etc/netplan/99-eth1.yaml > /dev/null
+      cat <<EOF | tee /etc/netplan/90-eth1.yaml
       network:
         version: 2
         ethernets:
@@ -87,7 +101,7 @@ provision:
               addresses: [192.168.6.1]
       EOF
       # 应用更改
-      chmod 644 /etc/netplan/99-eth1.yaml
+      chmod 644 /etc/netplan/90-eth1.yaml
       netplan apply
       # 拒绝接收来自远程的ipv6 dns
       sudo grep -i IPv6AcceptRA /run/systemd/network/10-netplan-eth1.network || \
