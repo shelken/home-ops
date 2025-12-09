@@ -14,6 +14,8 @@ spec:
       APP: *app
       VOLSYNC_CAPACITY: 1Gi
       VOLSYNC_CACHE_CAPACITY: 1Gi
+      VOLSYNC_PUID: "0"
+      VOLSYNC_PGID: "0"
   dependsOn:
     - name: volsync
       namespace: volsync-system
