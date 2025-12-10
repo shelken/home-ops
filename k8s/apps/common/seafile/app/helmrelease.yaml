@@ -163,6 +163,9 @@ spec:
             backendRefs:
               - identifier: app
                 port: *port
+          - backendRefs:
+              - identifier: app
+                port: *port
     persistence:
       data:
         existingClaim: seafile
