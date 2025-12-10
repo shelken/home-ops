@@ -1,0 +1,186 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: icache-nginx-config
+data:
+  nginx.conf: |
+    worker_processes auto;
+    error_log stderr debug;
+    error_log /var/log/nginx/error.log debug;
+    pid /tmp/nginx.pid;
+
+    events {
+        worker_connections 1024;
+    }
+
+    http {
+        include /usr/local/openresty/nginx/conf/mime.types;
+        default_type application/octet-stream;
+
+        log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                        '$status $body_bytes_sent "$http_referer" '
+                        '"$http_user_agent" cache:$upstream_cache_status';
+
+        access_log /dev/stdout main;
+        access_log /var/log/nginx/access.log main;
+
+        sendfile on;
+        tcp_nopush on;
+        tcp_nodelay on;
+        keepalive_timeout 65;
+        types_hash_max_size 2048;
+
+        # temp paths for non-root
+        client_body_temp_path /tmp/client_body;
+        proxy_temp_path /tmp/proxy;
+        fastcgi_temp_path /tmp/fastcgi;
+        uwsgi_temp_path /tmp/uwsgi;
+        scgi_temp_path /tmp/scgi;
+
+        # cache configuration
+        proxy_cache_path /cache levels=1:2 keys_zone=proxy_cache:100m max_size=10g inactive=7d use_temp_path=off;
+
+        # resolver for dynamic proxy_pass
+        resolver 223.5.5.5 223.6.6.6 8.8.8.8 valid=300s ipv6=off;
+        resolver_timeout 5s;
+
+        # whitelist and cache control
+        # is_allowed: 0=blocked, 1=allowed
+        map $target_host $is_allowed {
+            default 0;
+            # github
+            "github.com" 1;
+            "raw.githubusercontent.com" 1;
+            "objects.githubusercontent.com" 1;
+            "codeload.github.com" 1;
+            # nix
+            "cache.nixos.org" 1;
+            "mirrors.ustc.edu.cn" 1;
+        }
+
+        # no_cache: 1=skip cache, 0=use cache
+        map $target_host $no_cache {
+            default 1;
+            # github - no cache
+            "github.com" 1;
+            "raw.githubusercontent.com" 1;
+            "objects.githubusercontent.com" 1;
+            "codeload.github.com" 1;
+            # nix - cache enabled
+            "cache.nixos.org" 0;
+            "mirrors.ustc.edu.cn" 0;
+        }
+
+        # cache_ttl: local cache duration in seconds (used via X-Accel-Expires)
+        # 3600=1h, 86400=1d, 604800=7d
+        map $target_host $cache_ttl {
+            default 3600;
+            # nix - 7 days (immutable content)
+            "cache.nixos.org" 604800;
+            "mirrors.ustc.edu.cn" 604800;
+        }
+
+        server {
+            listen 8080;
+            server_name _;
+
+            # health check (exact match to avoid regex capture)
+            location = /healthz {
+                access_log off;
+                default_type text/plain;
+                return 200 "ok";
+            }
+
+            # cache status endpoint
+            location = /status {
+                access_log off;
+                default_type text/plain;
+                return 200 "icache proxy running\n";
+            }
+
+            # main proxy location: /domain.com/path
+            location ~ ^/([^/]+)(/.*)?$ {
+                set $target_host $1;
+                set $target_path $2;
+
+                # check whitelist
+                if ($is_allowed = 0) {
+                    return 403 "Domain not in whitelist";
+                }
+
+                # block webpage requests
+                if ($target_path ~* "\.(html|htm|php|asp|aspx|jsp)$") {
+                    return 403 "Webpage requests not allowed";
+                }
+
+                # proxy settings
+                proxy_pass https://$target_host$target_path$is_args$args;
+                proxy_ssl_server_name on;
+                proxy_ssl_name $target_host;
+                proxy_ssl_protocols TLSv1.2 TLSv1.3;
+
+                # clear all request headers, then set only what we need
+                proxy_pass_request_headers off;
+                proxy_set_header Host $target_host;
+                proxy_set_header Accept */*;
+                proxy_set_header User-Agent "Mozilla/5.0 (compatible; icache/1.0)";
+
+                # cache settings
+                proxy_cache proxy_cache;
+                proxy_cache_key $target_host$target_path$is_args$args;
+                proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
+                proxy_cache_lock on;
+                proxy_cache_lock_timeout 5s;
+                proxy_cache_revalidate on;
+
+                # conditional cache based on domain
+                proxy_no_cache $no_cache;
+                proxy_cache_bypass $no_cache;
+
+                # ignore upstream cache headers, use $cache_ttl for duration
+                proxy_ignore_headers Cache-Control Expires Set-Cookie;
+                proxy_cache_valid 200 206 301 302 30d;
+                proxy_cache_valid 404 1m;
+
+                # set X-Accel-Expires to control cache TTL per domain/file type
+                # rewrite Location header to keep redirects through proxy
+                header_filter_by_lua_block {
+                    local uri = ngx.var.target_path or ""
+                    local ttl = tonumber(ngx.var.cache_ttl) or 3600
+                    
+                    -- immutable files: cache 30 days
+                    -- .nar, .nar.xz, .nar.zst, .narinfo (nix packages)
+                    if uri:match("%.nar$") or uri:match("%.nar%.") or uri:match("%.narinfo$") then
+                        ttl = 2592000  -- 30 days
+                    end
+                    
+                    ngx.header["X-Accel-Expires"] = ttl
+                    
+                    local location = ngx.header["Location"]
+                    if location then
+                        -- rewrite https://domain.com/path to /domain.com/path
+                        local new_location = location:gsub("^https?://([^/]+)(.*)", "/%1%2")
+                        if new_location ~= location then
+                            ngx.header["Location"] = new_location
+                        end
+                    end
+                }
+
+                # response headers
+                proxy_hide_header X-Accel-Expires;
+                add_header X-Cache-Status $upstream_cache_status always;
+                add_header X-Target-Host $target_host always;
+
+                # timeouts
+                proxy_connect_timeout 10s;
+                proxy_read_timeout 60s;
+                proxy_send_timeout 60s;
+
+                # buffer settings
+                proxy_buffering on;
+                proxy_buffer_size 16k;
+                proxy_buffers 8 16k;
+            }
+        }
+    }
