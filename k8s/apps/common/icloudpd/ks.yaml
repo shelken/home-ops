@@ -12,7 +12,6 @@ spec:
       app.ooooo.space/need-smb: "true"
   components:
     - ../../../../components/keda/smb-scaler
-    - ../../../../components/volsync
     - ../../../../components/authelia
   dependsOn:
     - name: smb-volumes
