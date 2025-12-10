@@ -9,6 +9,7 @@ spec:
     kind: OCIRepository
     name: grafana-operator
   values:
+    # ref: https://github.com/grafana/grafana-operator/blob/master/deploy/helm/grafana-operator/values.yaml
     dashboard:
       enabled: true
     serviceMonitor:
