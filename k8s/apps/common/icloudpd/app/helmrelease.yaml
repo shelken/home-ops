@@ -83,7 +83,12 @@ spec:
                 port: *port
     persistence:
       config:
-        existingClaim: *app
+        # existingClaim: *app
+        forceRename: *app
+        type: persistentVolumeClaim
+        storageClass: longhorn
+        accessMode: ReadWriteOnce
+        size: 100Mi
         globalMounts:
           - path: /config
       data:
