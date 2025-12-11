@@ -1,0 +1,62 @@
+---
+# yaml-language-server: $schema=https://homelab-schemas-epg.pages.dev/postgresql.cnpg.io/cluster_v1.json
+# ref: https://github.com/cloudnative-pg/charts/blob/main/charts/cluster/values.yaml
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: &cluster postgres-test
+  annotations:
+    cnpg.io/skipEmptyWalArchiveCheck: "enabled"
+spec:
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 1
+          preference:
+            matchExpressions:
+              - key: node-role.kubernetes.io/control-plane
+                operator: Exists
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: "kubernetes.io/hostname"
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          cnpg.io/cluster: *cluster
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.5@sha256:6d41466de5d43a80544cc5768038b2de964ae5b1d725683c03c5d9f81fdc2e43
+  primaryUpdateStrategy: unsupervised
+  storage:
+    size: 10Gi
+    storageClass: longhorn
+  superuserSecret:
+    name: cloudnative-pg-secret
+  enableSuperuserAccess: true
+  postgresql:
+    parameters:
+      max_connections: "400"
+      shared_buffers: 256MB
+  resources:
+    requests:
+      memory: 400Mi
+    limits:
+      memory: 1Gi
+  monitoring:
+    enablePodMonitor: true
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters: &backupParameters
+        barmanObjectName: cloudnative-pg
+        serverName: postgres-test
+  bootstrap:
+    recovery:
+      source: source
+  externalClusters:
+    - name: source
+      plugin:
+        enabled: true
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          barmanObjectName: cloudnative-pg
+          serverName: postgres17-v5
