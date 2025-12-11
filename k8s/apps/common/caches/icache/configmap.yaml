@@ -101,7 +101,8 @@ data:
             }
 
             # main proxy location: /domain.com/path or /https://domain.com/path
-            location ~ ^/(https?://)?([^/]+)(/.*)?$ {
+            # Note: browsers merge // to /, so https://domain becomes https:/domain
+            location ~ ^/(https?:/+)?([^/]+)(/.*)?$ {
                 set $target_host $2;
                 set $target_path $3;
 
