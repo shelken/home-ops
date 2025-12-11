@@ -50,6 +50,7 @@ spec:
               UPLOAD_PATH: /data/uploads
               METRICS_ENABLED: "true"
               OTEL_METRICS_EXPORTER: prometheus
+              OTEL_EXPORTER_PROMETHEUS_HOST: 0.0.0.0
               TRUST_PROXY: true
               TZ: ${TIMEZONE}
             envFrom:
