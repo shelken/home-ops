@@ -35,7 +35,6 @@ homelab
 | 服务                   | ip            | 描述                      | domain    | multus |
 | ---------------------- | ------------- | ------------------------- | --------- | ------ |
 | k8s-gateway            | 192.168.69.41 | 开放给外部 dns            |           |        |
-| nginx internal ingress | 192.168.69.43 |                           |           |        |
 | envoy external gateway | 192.168.69.45 |                           |           |        |
 | envoy internal gateway | 192.168.69.46 |                           |           |        |
 | postgres-lb            | 192.168.69.52 | 开放postgres              | postgres. |        |
@@ -97,7 +96,7 @@ homelab
 
 ### 疑难问题
 
-1. `dry-run failed: no matches for kind "OCIRepository in version "source.toolkit.fluxcd.io/v1`
+- `dry-run failed: no matches for kind "OCIRepository in version "source.toolkit.fluxcd.io/v1`
 
 检查cli安装的版本，版本太低与文件定义的api版本和实际版本对不上。
 
@@ -105,21 +104,17 @@ homelab
 
 ocirepo 在 2.6上才是v1，在2.5上配置是v1beta2
 
-2. 卸载longhorn（删除helmrelease）前
+- 卸载longhorn（删除helmrelease）前
 
 ```shell
 kubectl -n longhorn-system patch -p '{"value": "true"}' --type=merge lhs deleting-confirmation-flag
 ```
 
-3. envoy-gateway 对 grpc-web 协议直接过滤成 grpc，目前无法关闭，在memos服务使用时调用出错
-
-暂时使用nginx ingress作为入口
-
-4. 每次重建集群之后，cilium总是不给gateway ip
+- 每次重建集群之后，cilium总是不给gateway ip
 
 `task restart-cilium` 重启后正常了
 
-5. lima 无法挂载磁盘
+- lima 无法挂载磁盘
 
 ```json
 {
@@ -131,19 +126,19 @@ kubectl -n longhorn-system patch -p '{"value": "true"}' --type=merge lhs deletin
 
 `limactl disk unlock longhorn`
 
-6. 迁移secret后， external-secrets 无法push
+- 迁移secret后， external-secrets 无法push
 
 因为external-secret azure会自动给pushsecret打上tag，表示由external-secret管理，迁移时没有加上这个tag
 
 导致出现问题, 删掉secret让external-secret重新同步。
 
-6. longhorn 的daemonset在重启k3s或者机器时存在Misscheduled的情况
+- longhorn 的daemonset在重启k3s或者机器时存在Misscheduled的情况
 
 删掉对应 pod 解决
 
 非常奇怪。。。。。。
 
-7. smb 中文乱码问题
+- smb 中文乱码问题
 
 宿主机缺失相关动态库
 
@@ -151,23 +146,23 @@ kubectl -n longhorn-system patch -p '{"value": "true"}' --type=merge lhs deletin
 sudo apt-get install -y cifs-utils linux-modules-extra-$(uname -r)
 ```
 
-8. 遇到helmrelease/kustomization卡住的情况
+- 遇到helmrelease/kustomization卡住的情况
 
 ```shell
 flux suspend helmrelease cilium -n kube-system
 flux resume helmrelease cilium -n kube-system
 ```
 
-9. 遇到multus设备无法获取，且同时存在两个相同pod
+- 遇到multus设备无法获取，且同时存在两个相同pod
 
 检查更新策略，不要设置滚动更新
 
-10. 哪些情形不适合使用滚动更新？
+- 哪些情形不适合使用滚动更新？
 
 - 设置了multus的容器，会被上一个占用网卡
 - 设置了 readwriteonce pvc的
 
-11. L2宣告问题，导致某个lbip无法连接
+- L2宣告问题，导致某个lbip无法连接
 
 我们可能会有这种情况，一个服务，例如a，此时a服务需要一个lbip
 
@@ -181,7 +176,7 @@ flux resume helmrelease cilium -n kube-system
 
 但是，不想每次手动，需要考虑为服务创建2个以上
 
-12. multus 网卡的使用情况
+- multus 网卡的使用情况
 
 只有两种情况需要用multus。
 
@@ -191,7 +186,7 @@ flux resume helmrelease cilium -n kube-system
 
 除此之外需要单独ip的都应该使用L2宣告，并严格限定端口
 
-13. 容器频繁重启且有规律（smb）
+- 容器频繁重启且有规律（smb）
 
 如果都是使用smb，那么应该是`smb-scaler`的问题
 

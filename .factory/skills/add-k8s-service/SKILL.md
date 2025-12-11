@@ -189,7 +189,7 @@ spec:
 ## 网络配置
 
 - **外部访问**: 使用 `envoy-external` (192.168.69.45)
-- **内部访问**: 使用 `envoy-internal` (192.168.69.46) 或 `nginx-internal` (192.168.69.43)
+- **内部访问**: 使用 `envoy-internal` (192.168.69.46)
 - **域名**: 使用 `${MAIN_DOMAIN}` 或 `${SECOND_DOMAIN}` 变量
 
 ## 验证
