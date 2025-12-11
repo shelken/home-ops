@@ -42,8 +42,9 @@ data:
         proxy_cache_path /cache levels=1:2 keys_zone=proxy_cache:100m max_size=10g inactive=7d use_temp_path=off;
 
         # resolver for dynamic proxy_pass
-        resolver 223.5.5.5 223.6.6.6 8.8.8.8 valid=300s ipv6=off;
-        resolver_timeout 5s;
+        # Use cluster DNS (kube-dns) as primary for better reliability
+        resolver kube-dns.kube-system.svc.cluster.local 223.5.5.5 223.6.6.6 valid=300s ipv6=off;
+        resolver_timeout 10s;
 
         # whitelist and cache control
         # is_allowed: 0=blocked, 1=allowed
@@ -99,10 +100,10 @@ data:
                 return 200 "icache proxy running\n";
             }
 
-            # main proxy location: /domain.com/path
-            location ~ ^/([^/]+)(/.*)?$ {
-                set $target_host $1;
-                set $target_path $2;
+            # main proxy location: /domain.com/path or /https://domain.com/path
+            location ~ ^/(https?://)?([^/]+)(/.*)?$ {
+                set $target_host $2;
+                set $target_path $3;
 
                 # check whitelist
                 if ($is_allowed = 0) {
