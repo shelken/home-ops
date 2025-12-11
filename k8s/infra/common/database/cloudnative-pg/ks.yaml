@@ -61,6 +61,10 @@ metadata:
   namespace: &namespace database
 spec:
   targetNamespace: *namespace
+  postBuild:
+    substitute:
+      # renovate: datasource=docker depName=ghcr.io/cloudnative-pg/postgresql
+      POSTGRESQL_VERSION: 18.0-standard-trixie
   dependsOn:
     - name: cloudnative-pg
       namespace: *namespace
