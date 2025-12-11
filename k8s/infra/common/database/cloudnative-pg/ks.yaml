@@ -96,6 +96,10 @@ metadata:
   namespace: &namespace database
 spec:
   targetNamespace: *namespace
+  postBuild:
+    substitute:
+      # renovate: datasource=docker depName=ghcr.io/tensorchord/cloudnative-vectorchord versioning=redhat
+      POSTGRESQL_VERSION: 17.6-0.5.3
   dependsOn:
     - name: cloudnative-pg
       namespace: *namespace
