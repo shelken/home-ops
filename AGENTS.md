@@ -16,7 +16,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **容器编排**: Kubernetes (k3s)
 - **GitOps**: Flux CD v2
 - **网络**: Cilium (eBPF), Multus (多网络接口)
-- **入口**: Envoy Gateway, Nginx Ingress
+- **入口**: Envoy Gateway
 - **证书**: Cert-Manager
 - **密钥管理**: SOPS + External-Secrets + Azure KeyVault
 - **存储**: Longhorn (分布式存储), CloudNative-PG (PostgreSQL)
@@ -131,7 +131,7 @@ task relpath --start=<start-file> --end=<end-dir>
 ### 网络配置
 - **L2 宣告**: 用于需要固定 IP 的服务 (IP 范围: 192.168.69.40-59)
 - **Multus**: 仅用于需要 IPv6 或 mDNS 的服务
-- **外部访问**: 通过 Envoy Gateway (外部) 和 Nginx Ingress (内部)
+- **外部访问**: 通过 Envoy Gateway (外部)
 
 ## 疑难问题解决
 
@@ -160,7 +160,6 @@ task relpath --start=<start-file> --end=<end-dir>
 
 ### 核心服务 IP
 - k8s-gateway: 192.168.69.41
-- nginx internal ingress: 192.168.69.43
 - envoy external gateway: 192.168.69.45
 - envoy internal gateway: 192.168.69.46
 - postgres-lb: 192.168.69.52

@@ -83,7 +83,7 @@ spec:
           gethomepage.dev/name: icache
           gethomepage.dev/icon: nginx.svg
           gethomepage.dev/description: ""
-        hostnames: ["proxy.${MAIN_DOMAIN}"]
+        hostnames: ["icache.${MAIN_DOMAIN}"]
         parentRefs:
           - name: envoy-internal
             namespace: network
