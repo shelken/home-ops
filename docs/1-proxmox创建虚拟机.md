@@ -49,9 +49,9 @@ qm create $TEMPLATE_ID \
   --sockets 1 \
   --memory 2048 \
   --numa 0 \
-  --scsihw virtio-scsi-pci \
+  --scsihw virtio-scsi-single \
   --efidisk0 local-lvm:4,efitype=4m,pre-enrolled-keys=0 \
-  --ide0 local-lvm:cloudinit \
+  --scsi1 local-lvm:cloudinit \
   --net1 virtio,bridge=vmbr0 \
   --agent 1 \
   --serial0 socket \
@@ -66,7 +66,12 @@ qm create $TEMPLATE_ID \
 ```shell
 ## disk 操作
 qm importdisk $TEMPLATE_ID ubuntu-24.04.qcow2 local-lvm
-qm set $TEMPLATE_ID --scsi0 "local-lvm:vm-$TEMPLATE_ID-disk-1,cache=writethrough"
+
+# 普通hdd
+qm set $TEMPLATE_ID --scsi0 "local-lvm:vm-$TEMPLATE_ID-disk-1,ssd=0,discard=on,iothread=1,aio=io_uring,cache=none"
+# or ssd 优化
+qm set $TEMPLATE_ID --scsi0 "local-lvm:vm-$TEMPLATE_ID-disk-1,ssd=1,discard=on,iothread=1,aio=io_uring,cache=none"
+
 qm set $TEMPLATE_ID --boot order=scsi0
 
 qm template $TEMPLATE_ID
@@ -102,4 +107,16 @@ qm set $CURRENT_VM_ID --hostpci1 0000:01:00.0,mdev=nvidia-49,pcie=1,rombar=0
 
 qm start $CURRENT_VM_ID
 qm terminal $CURRENT_VM_ID
+```
+
+
+### 额外操作
+
+增删 cloud-init
+
+如果原来是ide0
+
+```shell
+qm set $CURRENT_VM_ID --delete ide0
+qm set $CURRENT_VM_ID --scsi1 local-lvm:cloudinit
 ```
