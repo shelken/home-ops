@@ -48,8 +48,9 @@ spec:
       affinity:
         nodeAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
+            - weight: 100  # 必须指定权重 (1-100)
+              preference:  # 必须包含 preference 字段
+                matchExpressions:
                   - key: kubernetes.io/hostname
                     operator: NotIn
                     values:
