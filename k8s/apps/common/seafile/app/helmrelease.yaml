@@ -144,6 +144,9 @@ spec:
           - name: envoy-internal
             namespace: network
         rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
           - matches:
               - path:
                   type: PathPrefix
@@ -161,9 +164,6 @@ spec:
                   type: PathPrefix
                   value: /media
             backendRefs:
-              - identifier: app
-                port: *port
-          - backendRefs:
               - identifier: app
                 port: *port
     persistence:
