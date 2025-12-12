@@ -2,9 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## 对话原则
+## 最高原则
 
 - 使用中文对话
+- 任何资源的删除操作必须询问确认之后才可以执行
 
 ## 项目概述
 
