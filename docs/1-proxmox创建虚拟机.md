@@ -58,8 +58,7 @@ qm create $TEMPLATE_ID \
   --ciuser shelken \
   --cipassword $(openssl passwd -5 "$TEMPLATE_CI_PASS") \
   --ciupgrade: 0 \
-  --sshkeys <(echo "$MIO_KEY") \
-  --nameserver "192.168.6.1"
+  --sshkeys <(echo "$MIO_KEY")
 
 ```
 

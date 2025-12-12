@@ -16,6 +16,9 @@ cifs_packages:
   - cifs-utils # smb 挂载
   - linux-modules-extra-{{ ansible_kernel }} # smb 中文挂载（iocharset=utf8）## 检查smb错误：sudo dmesg | grep -i cifs
 
+dns_servers:
+  - 192.168.6.1
+
 k3s_become: true
 k3s_etcd_datastore: true
 k3s_install_hard_links: true

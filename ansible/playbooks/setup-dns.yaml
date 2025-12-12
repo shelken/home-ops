@@ -1,0 +1,20 @@
+---
+- name: 重置 DNS
+  hosts: all
+  become: true
+  gather_facts: true
+  tasks:
+    - name: 重设dns
+      ansible.builtin.include_tasks: tasks/dns-patch.yaml
+  handlers:
+    - name: Reload systemd-networkd
+      ansible.builtin.service:
+        name: systemd-networkd
+        state: reloaded
+      # 级联触发 resolved 重启
+      notify: Restart systemd-resolved
+
+    - name: Restart systemd-resolved
+      ansible.builtin.service:
+        name: systemd-resolved
+        state: restarted

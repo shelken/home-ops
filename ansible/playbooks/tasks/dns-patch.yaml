@@ -1,0 +1,59 @@
+---
+- name: 实施全局 DNS 纯净策略
+  block:
+    # -------------------------------------------------------
+    # 第一步：配置全局统一的 DNS 服务器 IP
+    # 这是一个真正的全局配置，位于 /etc/systemd/resolved.conf
+    # -------------------------------------------------------
+    - name: 配置 systemd-resolved 全局 DNS
+      ansible.builtin.lineinfile:
+        path: /etc/systemd/resolved.conf
+        regexp: '^#?DNS='
+        # 这里填你固定的 DNS
+        line: "DNS={{ dns_servers | default(['223.5.5.5', '192.168.6.1']) | join(' ') }}"
+        state: present
+      notify: Restart systemd-resolved
+
+    # -------------------------------------------------------
+    # 第二步：自动化屏蔽所有网卡的上游 DNS (IPv6 RA / DHCP)
+    # -------------------------------------------------------
+    - name: 发现所有 Netplan 生成的网卡配置
+      ansible.builtin.find:
+        paths: /run/systemd/network
+        patterns: "*netplan*.network" # 自动匹配所有 Netplan 网卡，无需人工指定
+      register: target_interfaces
+
+    - name: 为所有网卡创建补丁目录
+      ansible.builtin.file:
+        path: "/etc/systemd/network/{{ item.path | basename }}.d"
+        state: directory
+        mode: '0755'
+      loop: "{{ target_interfaces.files }}"
+      loop_control:
+        label: "{{ item.path | basename }}"
+
+    - name: 下发屏蔽策略 (禁止接收上游 DNS)
+      ansible.builtin.copy:
+        dest: "/etc/systemd/network/{{ item.path | basename }}.d/override-block-upstream-dns.conf"
+        content: |
+          # Ansible Managed: Block Upstream DNS
+          # 仅屏蔽 DNS 获取，不影响 Netplan 的 IP/路由配置
+
+          [Network]
+          # 确保优先使用全局 resolved.conf 的 DNS
+          DNSDefaultRoute=true
+
+          [IPv6AcceptRA]
+          UseDNS=false
+          UseDomains=false
+
+          [DHCPv4]
+          UseDNS=false
+
+          [DHCPv6]
+          UseDNS=false
+        mode: '0644'
+      loop: "{{ target_interfaces.files }}"
+      loop_control:
+        label: "{{ item.path | basename }}"
+      notify: Reload systemd-networkd
