@@ -53,33 +53,24 @@ data:
             # github
             "github.com" 1;
             "raw.githubusercontent.com" 1;
-            "objects.githubusercontent.com" 1;
-            "codeload.github.com" 1;
             # nix
             "cache.nixos.org" 1;
             "mirrors.ustc.edu.cn" 1;
         }
 
-        # no_cache: 1=skip cache, 0=use cache
-        map $target_host $no_cache {
-            default 1;
-            # github - no cache
-            "github.com" 1;
-            "raw.githubusercontent.com" 1;
-            "objects.githubusercontent.com" 1;
-            "codeload.github.com" 1;
-            # nix - cache enabled
-            "cache.nixos.org" 0;
-            "mirrors.ustc.edu.cn" 0;
-        }
-
-        # cache_ttl: local cache duration in seconds (used via X-Accel-Expires)
+        # cache_ttl: cache duration in seconds, 0=no cache
         # 3600=1h, 86400=1d, 604800=7d
         map $target_host $cache_ttl {
-            default 3600;
+            default 0;
             # nix - 7 days (immutable content)
             "cache.nixos.org" 604800;
             "mirrors.ustc.edu.cn" 604800;
+        }
+
+        # no_cache: derived from cache_ttl (0 -> 1, >0 -> 0)
+        map $cache_ttl $no_cache {
+            0 1;
+            default 0;
         }
 
         server {
@@ -150,15 +141,15 @@ data:
                 header_filter_by_lua_block {
                     local uri = ngx.var.target_path or ""
                     local ttl = tonumber(ngx.var.cache_ttl) or 3600
-                    
+
                     -- immutable files: cache 30 days
                     -- .nar, .nar.xz, .nar.zst, .narinfo (nix packages)
                     if uri:match("%.nar$") or uri:match("%.nar%.") or uri:match("%.narinfo$") then
                         ttl = 2592000  -- 30 days
                     end
-                    
+
                     ngx.header["X-Accel-Expires"] = ttl
-                    
+
                     local location = ngx.header["Location"]
                     if location then
                         -- rewrite https://domain.com/path to /domain.com/path
