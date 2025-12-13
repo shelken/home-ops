@@ -49,7 +49,7 @@ spec:
 apiVersion: monitoring.coreos.com/v1alpha1
 kind: ScrapeConfig
 metadata:
-  name: &name oepnwrt-mine
+  name: &name openwrt-mine
 spec:
   staticConfigs:
     - targets:
@@ -63,7 +63,7 @@ spec:
 apiVersion: monitoring.coreos.com/v1alpha1
 kind: ScrapeConfig
 metadata:
-  name: &name oepnwrt-home
+  name: &name openwrt-home
 spec:
   staticConfigs:
     - targets:

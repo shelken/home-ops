@@ -1,0 +1,19 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: openwrt-rules
+spec:
+  groups:
+    - name: openwrt.rules
+      rules:
+        - alert: OpenWrtNetworkSpeedLow
+          expr: |
+            node_network_speed_bytes{job="oepnwrt-mine", device=~"lan.*"} < 120000000
+          for: 5m
+          annotations:
+            summary: >-
+               局域网 {{ $labels.instance }} - {{ $labels.device }} 口速度低于1000M
+          labels:
+            severity: critical
