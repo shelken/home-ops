@@ -8,3 +8,4 @@ resources:
   - ./helmrelease.yaml
   - ./scrapeconfig.yaml
   - ./grafanadashboard.yaml
+  - ./prometheusrule.yaml
