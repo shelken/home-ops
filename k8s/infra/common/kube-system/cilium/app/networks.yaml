@@ -78,8 +78,3 @@ spec:
           peerAddress: 192.168.6.1
           peerConfigRef:
             name: l3-bgp-peer-config
-        - name: router-mine-zt
-          peerASN: 64513
-          peerAddress: 192.168.191.12
-          peerConfigRef:
-            name: l3-bgp-peer-config
