@@ -1,0 +1,42 @@
+---
+- name: 配置 Intel GPU 驱动
+  block:
+    - name: 安装 intel gpu 所需包
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+        install_recommends: no
+        force_apt_get: yes
+        allow_unauthenticated: no
+      loop:
+        - linux-modules-extra-{{ ansible_kernel }}
+        - linux-firmware
+        # - fonts-noto-cjk # jellyfin 3.11.1已经内置
+
+    - name: 检查 i915 模块是否已加载
+      shell: lsmod | grep -q i915
+      register: i915_loaded
+      changed_when: false
+      failed_when: false
+
+    - name: 加载 i915 内核模块
+      community.general.modprobe:
+        name: i915
+        state: present
+      when: i915_loaded.rc != 0
+
+    - name: 设置 i915 模块开机自动加载
+      lineinfile:
+        path: /etc/modules
+        line: i915
+        create: yes
+        state: present
+      register: modules_changed
+
+    - name: 更新 initramfs
+      command: update-initramfs -u
+      when: modules_changed.changed
+      register: initramfs_result
+      changed_when: "'done.' in initramfs_result.stdout"
+  when:
+    - (intel_gpu | default(false)) | bool

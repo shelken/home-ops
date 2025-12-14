@@ -9,8 +9,8 @@
 ```shell
 git clone https://github.com/lima-vm/socket_vmnet
 cd socket_vmnet
-# Change "v1.2.1" to the actual latest release in https://github.com/lima-vm/socket_vmnet/releases
-git checkout v1.2.1
+# Change "v1.2.2" to the actual latest release in https://github.com/lima-vm/socket_vmnet/releases
+git checkout v1.2.2
 make
 sudo make PREFIX=/opt/socket_vmnet install.bin
 # Set up the sudoers file for launching socket_vmnet from Lima
@@ -29,7 +29,7 @@ networks:
   macAddress: "52:55:55:37:34:56"
 ```
 
-第一次进入之后记下macAddress, 或者自定义一个，然后固定。使用路由器给MAC地址分配固定ip
+第一次进入之后记下macAddress, 或者自定义一个，然后固定。~~使用路由器给MAC地址分配固定ip~~(使用lima配置文件固定ip)
 
 ## 添加硬盘
 
