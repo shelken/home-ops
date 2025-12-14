@@ -3,7 +3,7 @@
 
 # 在所有节点都在同一个l2网段时可以启用
 # https://docs.cilium.io/en/stable/network/concepts/routing/
-autoDirectNodeRoutes: true
+autoDirectNodeRoutes: false
 
 pmtuDiscovery:
   enabled: true
@@ -51,7 +51,7 @@ enableIPv4BIGTCP: false # Linux 5.19+
 # enableIPv6Masquerade: true
 # ipv6NativeRoutingCIDR: "fd80:dead:42::/56"
 
-ipv4NativeRoutingCIDR: "10.42.0.0/16"
+# ipv4NativeRoutingCIDR: "10.42.0.0/16"
 ipv6:
   enabled: false
 
@@ -77,6 +77,9 @@ loadBalancer:
 localRedirectPolicies:
   enabled: true
 
+# MTU for Tunnel mode (VXLAN overhead)
+mtu: 1280
+
 operator:
   replicas: 1
   rollOutPods: true
@@ -95,7 +98,8 @@ prometheus:
 
 rollOutCiliumPods: true
 
-routingMode: native
+routingMode: tunnel
+tunnelProtocol: vxlan
 
 # !!!不要随便加下面，问题多
 # securityContext:
