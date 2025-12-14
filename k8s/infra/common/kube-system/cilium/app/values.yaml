@@ -1,7 +1,7 @@
 # 配置：https://docs.cilium.io/en/latest/helm-reference
 # ref：https://github.com/cilium/cilium/blob/v1.18.3/install/kubernetes/cilium/values.yaml
 
-# 在所有节点都在同一个l2网段时可以启用
+# ~~在所有节点都在同一个l2网段时可以启用~~（开启bgp）
 # https://docs.cilium.io/en/stable/network/concepts/routing/
 autoDirectNodeRoutes: true
 
