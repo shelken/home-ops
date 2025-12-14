@@ -1,22 +1,4 @@
 ---
-# apiVersion: cilium.io/v2
-# kind: CiliumL2AnnouncementPolicy
-# metadata:
-#   name: l2-policy
-#   namespace: kube-system
-# spec:
-#   # serviceSelector:
-#   #   matchLabels:
-#   #     cilium.io/ingress: "true"
-
-#   # IMPORTANT: if externalIPss is desired, externalIPs.enabled=true must be set in values.yaml
-#   # externalIPs: true
-#   loadBalancerIPs: true
-#   nodeSelector:
-#     matchLabels:
-#       kubernetes.io/os: linux
-
----
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumloadbalancerippool_v2.json
 apiVersion: cilium.io/v2
 kind: CiliumLoadBalancerIPPool
@@ -45,6 +27,7 @@ spec:
       selector:
         matchExpressions:
           - {key: somekey, operator: NotIn, values: ["never-used-value"]}
+    - advertisementType: PodCIDR
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumbgppeerconfig_v2.json
 apiVersion: cilium.io/v2
@@ -64,11 +47,13 @@ spec:
 apiVersion: cilium.io/v2
 kind: CiliumBGPClusterConfig
 metadata:
-  name: l3-bgp-cluster-config
+  name: bgp-local
 spec:
   nodeSelector:
-    matchLabels:
-      kubernetes.io/os: linux
+    matchExpressions:
+      - key: node-type
+        operator: NotIn
+        values: ["remote"]
   bgpInstances:
     - name: cilium
       localASN: 64514
@@ -76,5 +61,23 @@ spec:
         - name: router-mine
           peerASN: 64513
           peerAddress: 192.168.6.1
+          peerConfigRef:
+            name: l3-bgp-peer-config
+---
+apiVersion: cilium.io/v2
+kind: CiliumBGPClusterConfig
+metadata:
+  name: bgp-remote
+spec:
+  nodeSelector:
+    matchLabels:
+      node-type: remote
+  bgpInstances:
+    - name: cilium
+      localASN: 64514
+      peers:
+        - name: router-home
+          peerASN: 64515
+          peerAddress: 192.168.0.1
           peerConfigRef:
             name: l3-bgp-peer-config
