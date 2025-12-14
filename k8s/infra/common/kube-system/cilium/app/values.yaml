@@ -38,6 +38,8 @@ dashboards:
 
 devices: eth+
 
+directRoutingSkipUnreachable: true
+
 endpointRoutes:
   enabled: true
 
