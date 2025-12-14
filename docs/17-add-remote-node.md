@@ -1,47 +1,125 @@
-# 跨网段（异地）节点加入集群的网络配置指南
+# 跨地域节点互联架构 (BGP 全互联方案)
 
-本文档记录了将异地节点（如通过 ZeroTier/Tailscale 连接的远程节点）加入本地 K3s 集群时，解决 CNI (Cilium) 互通与监控 (`kubectl top node`) 问题的完整排查过程与最终方案。
+本文档记录了将异地节点（`yuuko-k8s`）接入本地 K3s 集群并实现 **Native Routing (原生路由)** 的最终架构方案。
 
-## 背景与问题
+此方案通过在两端路由器上运行 BGP 协议，打通了跨地域的 Pod 网络，实现了无需手动维护静态路由、无需 Overlay 封装的高性能三层互通。
 
-**场景**：
-- **主集群**：位于本地局域网 `192.168.6.x`。
-- **远程节点**：`yuuko-k8s` (`192.168.0.81`)，通过 ZeroTier 连接到主集群所在的路由器。
-- **连接方式**：路由器作为网关，运行 ZeroTier (`192.168.191.x`) 并运行 BIRD (BGP) 进行路由分发。
-- **CNI**：Cilium 使用 Native Routing (BGP) 模式。
+## 1. 网络拓扑
 
-**症状**：
-1. `kubectl top node` 无法获取远程节点数据（Metrics Server 无法连接 Kubelet）。
-2. 远程节点上的 Pod 无法与主集群 Pod 互通。
-3. Router 上的 BGP 会话一直处于 `Active (Socket: Connection refused)` 或 `Connect` 状态。
+### 架构概览
 
-## 根因分析
+*   **本地网络 (Mine)**: `192.168.6.0/24`
+*   **远程网络 (Home)**: `192.168.0.0/24`
+*   **互联链路 (VPN)**: ZeroTier `192.168.191.0/24`
+*   **Pod 网络**: `10.42.0.0/16` (Native Routing)
 
-1. **路由模式不匹配**：
-   - 初始 Cilium 配置开启了 `autoDirectNodeRoutes: true`，这要求所有节点在同一 L2 网段。跨网段节点无法通过此机制学习路由。
-   - **解决**：改用 BGP 动态路由交换。
+### BGP 拓扑图
 
-2. **BGP 连接被拒绝 (Connection Refused)**：
-   - Cilium 默认配置 **不监听 179 端口**，只作为客户端主动连接。
-   - 路由器尝试主动连接远程节点时，因 Cilium 未监听端口而被拒绝 (RST)。
+```mermaid
+graph TD
+    subgraph "Remote Site (Home)"
+        Yuuko[Node: yuuko-k8s<br>IP: 192.168.0.81<br>AS: 64514]
+        R_Home[Router: Home<br>LAN: 192.168.0.1<br>ZT: 192.168.191.10<br>AS: 64515]
+    end
 
-3. **源地址不匹配 (Source IP Mismatch)**：
-   - **NAT 干扰**：路由器通过 ZeroTier 接口发包时，防火墙的 Masquerade 规则将源 IP 修改为 ZeroTier IP (`192.168.191.12`)，而 Cilium 期待的 Peer 是 LAN IP (`192.168.6.1`)，导致握手失败或被拒绝。
-   - **自动选路行为**：远程节点 Cilium 主动连接路由器时，操作系统自动选择 ZeroTier 接口 IP (`192.168.191.10`) 作为源 IP。路由器的 BIRD 配置仅指定了 neighbor 为 `192.168.0.81`，因此拒绝了来自“未知 IP” `192.168.191.10` 的连接。
+    subgraph "Local Site (Mine)"
+        R_Mine[Router: Mine<br>LAN: 192.168.6.1<br>ZT: 192.168.191.12<br>AS: 64513]
+        Sakamoto[Node: sakamoto<br>IP: 192.168.6.80<br>AS: 64514]
+        OtherNodes[Other Nodes...]
+    end
 
-## 解决方案
+    %% Connections
+    Yuuko -- "eBGP (LAN)" --> R_Home
+    R_Home -- "eBGP (ZeroTier)" --> R_Mine
+    R_Mine -- "iBGP (LAN)" --> Sakamoto
+    R_Mine -- "iBGP (LAN)" --> OtherNodes
 
-### 1. Cilium 配置 (`networks.yaml`)
+    %% Routing Flow
+    Yuuko -.-> |"Advertise 10.42.3.0/24"| R_Home
+    R_Home -.-> |"Forward 10.42.3.0/24"| R_Mine
+    R_Mine -.-> |"Learn 10.42.3.0/24"| Sakamoto
+```
 
-修改 `CiliumBGPClusterConfig`，采用 **双 Peer 策略** 以兼容本地和远程节点。
+## 2. 关键配置
 
-- **Peer 1**: `192.168.6.1` (原有，供本地节点使用)。
-- **Peer 2**: `192.168.191.12` (路由器的 ZeroTier IP，供远程节点使用)。
+### 2.1 路由器配置 (BIRD)
 
-这样，远程节点可以通过最优路径（ZeroTier 直连）连接路由器，避免了 NAT 对源 IP 的干扰。
+两端路由器均需安装 `bird2`。
+
+#### Remote Router (Router-Home)
+*   **角色**: 中继网关。负责连接本地的 Yuuko 节点，并将路由通过 VPN 传给 Router-Mine。
+*   **配置要点**:
+    *   ASN: `64515` (与 Mine 组成 eBGP，配置更简单)。
+    *   监听接口: `br-lan` (LAN), `zt*` (ZeroTier)。
+
+```bird
+# /etc/bird.conf
+router id 192.168.191.10;
+define LOCAL_ASN = 64515;
+define K8S_ASN = 64514; # Cilium ASN
+
+# ... (device/kernel/direct protocols omitted) ...
+
+# 连接本地节点 (Yuuko)
+protocol bgp yuuko from k8s_peer {
+    neighbor 192.168.0.81 as K8S_ASN;
+}
+
+# 连接异地路由器 (Router-Mine)
+protocol bgp router_mine from router_peer {
+    neighbor 192.168.191.12 as 64513; # Router-Mine ASN
+}
+```
+
+#### Local Router (Router-Mine)
+*   **角色**: 核心网关。负责连接本地集群所有节点，并与远程路由器交换路由。
+*   **配置要点**:
+    *   ASN: `64513`。
+    *   通过 ZeroTier IP 连接 Router-Home。
+
+```bird
+# /etc/bird.conf
+router id 192.168.6.1;
+define LOCAL_ASN = 64513;
+
+# ...
+
+# 连接本地节点 (Sakamoto 等)
+protocol bgp sakamoto_k8s from k8s {
+    neighbor 192.168.6.80 as 64514;
+}
+
+# 连接异地路由器 (Router-Home)
+protocol bgp router_home {
+    local as LOCAL_ASN;
+    neighbor 192.168.191.10 as 64515; # Router-Home ASN
+    
+    ipv4 {
+        import all;
+        export all;
+        next hop self;
+    };
+}
+```
+
+### 2.2 Cilium 配置 (BGP)
+
+为了适配不同的网络环境，使用 `CiliumBGPClusterConfig` 的 `nodeSelector` 功能，将本地节点和远程节点指向各自的**本地网关**。
+
+**文件**: `k8s/infra/common/kube-system/cilium/app/networks.yaml`
 
 ```yaml
+# 本地节点配置：连接 192.168.6.1
+apiVersion: cilium.io/v2
+kind: CiliumBGPClusterConfig
+metadata:
+  name: bgp-local
 spec:
+  nodeSelector:
+    matchExpressions:
+      - key: node-type
+        operator: NotIn
+        values: ["remote"]
   bgpInstances:
     - name: cilium
       localASN: 64514
@@ -51,56 +129,47 @@ spec:
           peerAddress: 192.168.6.1
           peerConfigRef:
             name: l3-bgp-peer-config
-        - name: router-mine-zt
-          peerASN: 64513
-          peerAddress: 192.168.191.12 # 路由器的 ZeroTier IP
+
+---
+# 远程节点配置：连接 192.168.0.1
+apiVersion: cilium.io/v2
+kind: CiliumBGPClusterConfig
+metadata:
+  name: bgp-remote
+spec:
+  nodeSelector:
+    matchLabels:
+      node-type: remote # Yuuko 需打上此标签
+  bgpInstances:
+    - name: cilium
+      localASN: 64514
+      peers:
+        - name: router-home
+          peerASN: 64515
+          peerAddress: 192.168.0.1
           peerConfigRef:
             name: l3-bgp-peer-config
 ```
 
-同时，确保 Cilium 开启了 PodCIDR 通告（修复了之前配置遗漏的问题），以便路由器能学习到 Pod 网段路由。
+### 2.3 防火墙与路由
 
-### 2. 路由器 BIRD 配置 (`/etc/bird.conf`)
+*   **OpenWrt 防火墙**: 依靠标准的 Zone Forwarding (`lan <-> zt`)。无需针对 Pod 网段添加特殊的 NAT 或 Rule，因为路由表已经指明了去向。
+*   **静态路由**: **不需要**。BGP 会自动维护所有 Pod CIDR 的路由。
 
-修改远程节点的协议配置，直接使用其 **ZeroTier IP** 建立邻居关系，并**移除源地址绑定**。
+## 3. 验证方法
 
-```bird
-protocol bgp yuuko_k8s from k8s {
-    # 使用远程节点的 ZeroTier IP，而不是物理/LAN IP
-    neighbor 192.168.191.10 as K8S_ASN;
-    
-    # 跨网段必须开启 Multihop
-    multihop 2;
-    
-    # 移除 source address 限制，允许 BIRD 自动选择最佳接口 IP (即 ZeroTier IP)
-    # source address 192.168.6.1; <--- 注释掉或删除
-}
-```
+1.  **检查路由表**:
+    *   在 `router-mine` 上 `ip route | grep 10.42`，应看到远程 Pod 网段 `via 192.168.191.10`。
+    *   在 `router-home` 上 `ip route | grep 10.42`，应看到本地 Pod 网段 `via 192.168.191.12`。
 
-### 3. 路由器防火墙 (必须)
+2.  **Pod 互通**:
+    *   从本地 Pod Ping 远程 Pod IP (`10.42.3.x`)，应无丢包。
 
-OpenWrt 的区域转发规则通常仅覆盖接口定义的网段。由于 Pod 网段 (`10.42.0.0/16`) 不属于任何物理接口，必须显式添加规则允许其在 LAN 和 VPN 区域间转发。
+3.  **节点监控**:
+    *   `kubectl top node yuuko-k8s` 应正常显示数据。
 
-```config
-# /etc/config/firewall
+## 4. 优势总结
 
-# 允许本地 Pod 访问远程 Pod/节点
-config rule
-    option name 'Allow-K8s-Pod-Lan-to-Zt'
-    option src 'lan'
-    option dest 'zt'
-    list dest_ip '10.42.0.0/16'
-    option target 'ACCEPT'
-
-# 允许远程 Pod 访问本地 Pod/节点
-config rule
-    option name 'Allow-K8s-Pod-Zt-to-Lan'
-    option src 'zt'
-    option dest 'lan'
-    list dest_ip '10.42.0.0/16'
-    option target 'ACCEPT'
-```
-
-## 总结
-
-对于跨网段/VPN 连接的 K8s 节点，**最佳实践是直接使用 VPN 网络的 IP (Overlay IP) 建立 BGP 会话**。这避免了复杂的 NAT 穿透问题、源地址校验问题以及 MTU 问题，是能够“一次打通”的最稳健方案。
+1.  **架构解耦**: K8s 配置与底层物理网络拓扑解耦，节点只需知道自己的网关。
+2.  **自动收敛**: 新增节点或 Pod 网段变化时，路由自动更新，无需维护静态路由表。
+3.  **高性能**: 全程 Native Routing，无 Overlay 封装开销，MTU 利用率最大化。

@@ -28,6 +28,41 @@
 
 homelab
 
+## 网络拓扑
+
+```mermaid
+graph TD
+    subgraph Backbone ["ZeroTier VPN"]
+        ZT_Link["192.168.191.0/24"]
+    end
+
+    subgraph Local_Site ["Site: Mine (Local)"]
+        RM_IP["Router-Mine LAN: 192.168.6.1"]
+        RM_ZT["Router-Mine ZT: 192.168.191.12"]
+        Sakamoto["sakamoto-k8s<br/>(Control Plane)"]
+        Homelab1(homelab-1)
+        Tvbox(tvbox)
+    end
+
+    subgraph Remote_Site ["Site: Home (Remote)"]
+        RH_IP["Router-Home LAN: 192.168.0.1"]
+        RH_ZT["Router-Home ZT: 192.168.191.10"]
+        Yuuko["yuuko-k8s<br/>(Remote Worker)"]
+    end
+
+    RM_IP --- Sakamoto
+    RM_IP --- Homelab1
+    RM_IP --- Tvbox
+
+    RH_IP --- Yuuko
+
+    RM_ZT <== "BGP (Native Routing)" ==> ZT_Link
+    RH_ZT <== "BGP (Native Routing)" ==> ZT_Link
+
+    RM_IP --- RM_ZT
+    RH_IP --- RH_ZT
+```
+
 ## 设备网络
 
 > lb ip range: 192.168.69.0/24
