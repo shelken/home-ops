@@ -45,7 +45,6 @@ spec:
       selector:
         matchExpressions:
           - {key: somekey, operator: NotIn, values: ["never-used-value"]}
-    - advertisementType: PodCIDR
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumbgppeerconfig_v2.json
 apiVersion: cilium.io/v2
