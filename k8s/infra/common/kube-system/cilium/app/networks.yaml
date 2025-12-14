@@ -45,6 +45,7 @@ spec:
       selector:
         matchExpressions:
           - {key: somekey, operator: NotIn, values: ["never-used-value"]}
+    - advertisementType: PodCIDR
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumbgppeerconfig_v2.json
 apiVersion: cilium.io/v2
@@ -52,6 +53,7 @@ kind: CiliumBGPPeerConfig
 metadata:
   name: l3-bgp-peer-config
 spec:
+  ebgpMultihop: 10
   families:
     - afi: ipv4
       safi: unicast
@@ -75,5 +77,10 @@ spec:
         - name: router-mine
           peerASN: 64513
           peerAddress: 192.168.6.1
+          peerConfigRef:
+            name: l3-bgp-peer-config
+        - name: router-mine-zt
+          peerASN: 64513
+          peerAddress: 192.168.191.12
           peerConfigRef:
             name: l3-bgp-peer-config
