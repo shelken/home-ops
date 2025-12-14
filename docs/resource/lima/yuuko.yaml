@@ -1,0 +1,80 @@
+#ref: https://github.com/lima-vm/lima/blob/master/templates/default.yaml
+# Remote node at 192.168.0.x network, connected via ZeroTier VPN
+
+env:
+  http_proxy: ""
+  https_proxy: ""
+  no_proxy: ""
+
+cpus: 6
+memory: 14G
+disk: 20G
+
+# No additional disks available on yuuko
+# additionalDisks:
+#   - "longhorn"
+
+ssh:
+  localPort: 60123
+
+hostResolver:
+  enabled: false
+
+# https://lima-vm.io/docs/config/network/vmnet/
+# Requires socket_vmnet to be installed on the host
+# Install: brew install socket_vmnet && sudo brew services start socket_vmnet
+networks:
+  - lima: bridged
+    interface: eth1
+    macAddress: "52:55:55:37:34:57"
+    metric: 100
+
+portForwards:
+  - ignore: true
+    proto: any
+    guestPort: 443
+    guestIP: 0.0.0.0
+  - ignore: true
+    proto: any
+    guestPort: 80
+    guestIP: 0.0.0.0
+
+images:
+  - location: "https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-amd64.img"
+    arch: "x86_64"
+  - location: "https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-arm64.img"
+    arch: "aarch64"
+
+# containerd is managed by k3s, not by Lima
+containerd:
+  system: false
+  user: false
+
+provision:
+  - mode: system
+    script: |
+      #!/bin/bash
+      # Configure static IP for eth1 (192.168.0.x network)
+      rm -f /etc/netplan/99-eth1.yaml
+      cat > /etc/netplan/90-eth1.yaml << 'EOF'
+      network:
+        version: 2
+        ethernets:
+          eth1:
+            dhcp4: false
+            addresses:
+              - 192.168.0.81/24
+            routes:
+              - to: default
+                via: 192.168.0.1
+                metric: 100
+            nameservers:
+              addresses:
+                - 192.168.0.1
+                - 192.168.6.1
+      EOF
+      chmod 600 /etc/netplan/90-eth1.yaml
+      netplan apply || true
+
+probes: []
+copyToHost: []

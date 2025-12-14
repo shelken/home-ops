@@ -6,6 +6,7 @@
   tasks:
     - name: 重设dns
       ansible.builtin.include_tasks: tasks/dns-patch.yaml
+      when: (setup_dns | default(true)) | bool
   handlers:
     - name: Reload systemd-networkd
       ansible.builtin.service:
