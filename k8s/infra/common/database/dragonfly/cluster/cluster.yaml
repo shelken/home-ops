@@ -19,13 +19,13 @@ spec:
     - --cluster_mode=emulated
     - --lock_on_hashtags
     - --default_lua_flags=allow-undeclared-keys # immich
-  topologySpreadConstraints:
-    - maxSkew: 1
-      topologyKey: kubernetes.io/hostname
-      whenUnsatisfiable: DoNotSchedule
-      labelSelector:
-        matchLabels:
-          app.kubernetes.io/part-of: dragonfly
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: dragonfly
+          topologyKey: kubernetes.io/hostname
   resources:
     requests:
       memory: 50Mi
