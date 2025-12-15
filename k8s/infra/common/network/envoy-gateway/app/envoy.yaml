@@ -12,7 +12,9 @@ spec:
     type: Kubernetes
     kubernetes:
       envoyDeployment:
-        replicas: 2
+        strategy:
+          rollingUpdate:
+            maxUnavailable: 50%
         pod:
           affinity:
             podAntiAffinity:
@@ -21,6 +23,7 @@ spec:
                     matchLabels:
                       gateway.networking.k8s.io/gateway-name: envoy-internal
                   topologyKey: kubernetes.io/hostname
+        replicas: 2
         container:
           image: mirror.gcr.io/envoyproxy/envoy:v1.36.4
           resources:
@@ -51,6 +54,9 @@ spec:
     type: Kubernetes
     kubernetes:
       envoyDeployment:
+        strategy:
+          rollingUpdate:
+            maxUnavailable: 50%
         pod:
           affinity:
             podAntiAffinity:
