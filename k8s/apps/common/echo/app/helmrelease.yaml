@@ -50,13 +50,20 @@ spec:
               limits:
                 memory: 100Mi
     defaultPodOptions:
-      # tolerations:
-      #   - key: "dedicated"
-      #     operator: "Equal"
-      #     value: "lightweight"
-      #     effect: "NoSchedule"
-      # nodeSelector:
-      #   node-type: lightweight
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: node-type
+                    operator: In
+                    values: ["remote"]
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "remote"
+          effect: "NoSchedule"
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
