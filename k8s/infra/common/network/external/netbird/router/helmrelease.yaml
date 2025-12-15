@@ -61,23 +61,13 @@ spec:
             "ips": ["192.168.6.44/24"],
             "mac": "02:A8:04:C8:E9:BC"
           }]
-      topologySpreadConstraints:
-        - maxSkew: 1
-          topologyKey: kubernetes.io/hostname
-          whenUnsatisfiable: DoNotSchedule
-          labelSelector:
-            matchLabels:
-              app.kubernetes.io/name: *app
-      # affinity:
-      #   nodeAffinity:
-      #     requiredDuringSchedulingIgnoredDuringExecution:
-      #       nodeSelectorTerms:
-      #         - matchExpressions:
-      #             - key: kubernetes.io/hostname
-      #               operator: In
-      #               values:
-      #                 # - homelab-1
-      #                 - sakamoto-k8s
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: *app
+              topologyKey: kubernetes.io/hostname
       # securityContext:
       #   runAsNonRoot: false
       #   # runAsUser: 65534

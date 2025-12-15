@@ -14,13 +14,13 @@ spec:
       envoyDeployment:
         replicas: 2
         pod:
-          topologySpreadConstraints:
-            - maxSkew: 1
-              topologyKey: kubernetes.io/hostname
-              whenUnsatisfiable: DoNotSchedule
-              labelSelector:
-                matchLabels:
-                  gateway.networking.k8s.io/gateway-name: envoy-internal
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchLabels:
+                      gateway.networking.k8s.io/gateway-name: envoy-internal
+                  topologyKey: kubernetes.io/hostname
         container:
           image: mirror.gcr.io/envoyproxy/envoy:v1.36.4
           resources:
@@ -52,13 +52,13 @@ spec:
     kubernetes:
       envoyDeployment:
         pod:
-          topologySpreadConstraints:
-            - maxSkew: 1
-              topologyKey: kubernetes.io/hostname
-              whenUnsatisfiable: DoNotSchedule
-              labelSelector:
-                matchLabels:
-                  gateway.networking.k8s.io/gateway-name: envoy-external
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchLabels:
+                      gateway.networking.k8s.io/gateway-name: envoy-external
+                  topologyKey: kubernetes.io/hostname
           volumes:
             - name: geoip-storage
               hostPath:
