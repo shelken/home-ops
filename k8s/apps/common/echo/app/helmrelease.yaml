@@ -50,13 +50,13 @@ spec:
               limits:
                 memory: 100Mi
     defaultPodOptions:
-      tolerations:
-        - key: "dedicated"
-          operator: "Equal"
-          value: "lightweight"
-          effect: "NoSchedule"
-      nodeSelector:
-        node-type: lightweight
+      # tolerations:
+      #   - key: "dedicated"
+      #     operator: "Equal"
+      #     value: "lightweight"
+      #     effect: "NoSchedule"
+      # nodeSelector:
+      #   node-type: lightweight
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
