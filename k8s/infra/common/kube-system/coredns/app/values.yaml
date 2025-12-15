@@ -46,14 +46,14 @@ servers:
       - name: log
         configBlock: |-
           class error
-affinity:
-  nodeAffinity:
-    preferredDuringSchedulingIgnoredDuringExecution:
-      - weight: 1
-        preference:
-          matchExpressions:
-            - key: node-role.kubernetes.io/control-plane
-              operator: Exists
+# affinity:
+#   nodeAffinity:
+#     preferredDuringSchedulingIgnoredDuringExecution:
+#       - weight: 1
+#         preference:
+#           matchExpressions:
+#             - key: node-role.kubernetes.io/control-plane
+#               operator: Exists
 topologySpreadConstraints:
   - maxSkew: 1
     topologyKey: "kubernetes.io/hostname"
