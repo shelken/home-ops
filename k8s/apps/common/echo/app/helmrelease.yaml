@@ -58,7 +58,7 @@ spec:
                 matchExpressions:
                   - key: node-type
                     operator: In
-                    values: ["remote", "lightweight"]
+                    values: ["remote"]
       tolerations:
         - key: "dedicated"
           operator: "Equal"
