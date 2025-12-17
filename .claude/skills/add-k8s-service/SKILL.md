@@ -178,20 +178,6 @@ spec:
 - **安全**: 遵循最小权限原则，设置 securityContext
 - **资源**: 始终设置 resources requests/limits
 
-## 可用组件 (k8s/components/)
-
-- `common/alerts` - 告警配置
-- `common/sops` - SOPS 加密支持
-- `authelia` - Authelia OIDC 认证
-- `envoy-gateway-oidc` - Envoy Gateway OIDC
-- `volsync` - 数据备份
-
-## 网络配置
-
-- **外部访问**: 使用 `envoy-external` (192.168.69.45)
-- **内部访问**: 使用 `envoy-internal` (192.168.69.46)
-- **域名**: 使用 `${MAIN_DOMAIN}` 或 `${SECOND_DOMAIN}` 变量
-
 ## 验证
 
 1. 检查文件语法: `kubectl kustomize k8s/apps/common/<app-name>/app`
