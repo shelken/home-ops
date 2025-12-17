@@ -6,6 +6,7 @@ components:
 resources:
   - affine/ks.yaml
   - caches/ks.yaml
+  - cli-proxy-api/ks.yaml
   # - dozzle/ks.yaml
   - echo/ks.yaml
   - frigate/ks.yaml
