@@ -1,3 +1,7 @@
 ---
+# ref: https://github.com/controlplaneio-fluxcd/charts/blob/main/charts/flux-operator/values.yaml
 serviceMonitor:
   create: true
+web:
+  networkPolicy:
+    create: false

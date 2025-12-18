@@ -40,7 +40,8 @@ spec:
             env:
               TZ: ${TIMEZONE}
               IMMICH_WORKERS_INCLUDE: api
-              IMMICH_METRICS_INCLUDE: all
+              IMMICH_TELEMETRY_INCLUDE: api
+              IMMICH_API_METRICS_PORT: &metricsPort 8081
               IMMICH_CONFIG_FILE: &config /config/immich.yaml
             envFrom:
               - configMapRef:
@@ -95,7 +96,11 @@ spec:
           http:
             port: *port
           metrics:
-            port: 8081
+            port: *metricsPort
+    serviceMonitor:
+      app:
+        endpoints:
+          - port: metrics
     route:
       app:
         annotations:

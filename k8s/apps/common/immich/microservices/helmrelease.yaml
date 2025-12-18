@@ -30,6 +30,8 @@ spec:
             env:
               TZ: ${TIMEZONE}
               IMMICH_WORKERS_EXCLUDE: api
+              IMMICH_TELEMETRY_INCLUDE: job
+              IMMICH_MICROSERVICES_METRICS_PORT: &metricsPort 8081
               IMMICH_CONFIG_FILE: &config /config/immich.yaml
             envFrom:
               - configMapRef:
@@ -58,6 +60,15 @@ spec:
         supplementalGroups:
           - 44 # video
           - 992 # render(24.04)
+    service:
+      app:
+        ports:
+          metrics:
+            port: *metricsPort
+    serviceMonitor:
+      app:
+        endpoints:
+          - port: metrics
     persistence:
       config-file:
         type: secret
