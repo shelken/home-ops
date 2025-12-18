@@ -45,6 +45,45 @@ spec:
         share_custom: true
         console_management: true
         share_context: false
+      # HTTP notification to send threat intelligence to VictoriaLogs
+      # ref: https://docs.crowdsec.net/docs/next/notification_plugins/http
+      notifications:
+        http.yaml: |
+          type: http
+          name: http_victorialogs
+          log_level: info
+          format: |
+            {{- range $Alert := . -}}
+            {{- range .Decisions }}
+            {"_msg":{{printf "CrowdSec Decision: %s" .Scenario | toJson}},"_time":"{{now | date "2006-01-02T15:04:05Z"}}","instance":"k8s","country":{{$Alert.Source.Cn | toJson}},"asname":{{$Alert.Source.AsName | toJson}},"asnumber":"{{$Alert.Source.AsNumber}}","latitude":"{{$Alert.Source.Latitude}}","longitude":"{{$Alert.Source.Longitude}}","iprange":{{$Alert.Source.Range | toJson}},"scenario":{{.Scenario | toJson}},"type":{{.Type | toJson}},"duration":{{.Duration | toJson}},"scope":{{.Scope | toJson}},"ip":{{.Value | toJson}}}
+            {{- end }}
+            {{- end -}}
+          url: http://victoria-logs.observability.svc.cluster.local:9428/insert/jsonline?_stream_fields=instance,scenario
+          method: POST
+          headers:
+            Content-Type: application/stream+json
+      # Profiles configuration to enable notifications
+      # ref: https://docs.crowdsec.net/docs/next/profiles/format
+      profiles.yaml: |
+        name: default_ip_remediation
+        filters:
+          - Alert.Remediation == true && Alert.GetScope() == "Ip"
+        decisions:
+          - type: ban
+            duration: 4h
+        notifications:
+          - http_victorialogs
+        on_success: break
+        ---
+        name: default_range_remediation
+        filters:
+          - Alert.Remediation == true && Alert.GetScope() == "Range"
+        decisions:
+          - type: ban
+            duration: 4h
+        notifications:
+          - http_victorialogs
+        on_success: break
 
     lapi:
       podAnnotations: {}
@@ -59,7 +98,7 @@ spec:
       env:
         # For an internal test, disable the Online API
         - name: DISABLE_ONLINE_API
-          value: "false"
+          value: "true"
         - name: ENROLL_INSTANCE_NAME
           value: k8s
         - name: TZ
