@@ -47,7 +47,7 @@ alerting:
       {
         "msgtype": "markdown",
         "markdown": {
-          "content": "## [ALERT_TRIGGERED_OR_RESOLVED]\n> **服务**: [ENDPOINT_GROUP] - [ENDPOINT_NAME]\n> **状态**: [RESULT_CONDITIONS]"
+          "content": "## [ALERT_TRIGGERED_OR_RESOLVED] 「[ENDPOINT_NAME]」\n> **服务**: [ENDPOINT_GROUP] - [ENDPOINT_NAME]\n> **状态**: [RESULT_CONDITIONS]"
         }
       }
     default-alert: *default-alert
