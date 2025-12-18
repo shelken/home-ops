@@ -98,7 +98,7 @@ spec:
       env:
         # For an internal test, disable the Online API
         - name: DISABLE_ONLINE_API
-          value: "true"
+          value: "false"
         - name: ENROLL_INSTANCE_NAME
           value: k8s
         - name: TZ
