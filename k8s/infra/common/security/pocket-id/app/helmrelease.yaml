@@ -39,6 +39,7 @@ spec:
               tag: v1.16.0@sha256:f8cde808e8e840acda25683fc2168e0206e3f3fb1a48cca89d211aafd87eaeef
             command: ["/app/pocket-id"]
             env:
+              UI_CONFIG_DISABLED: "true"
               # ref: https://pocket-id.org/docs/configuration/environment-variables
               ANALYTICS_DISABLED: "true"
               APP_URL: https://oidc.${MAIN_DOMAIN}
