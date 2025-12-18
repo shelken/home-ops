@@ -24,17 +24,15 @@ connectivity:
 alerting:
   slack:
     webhook-url: ${WEBHOOK_URL}
-    default-alert:
-      description: "health check failed"
+    default-alert: &default-alert
+      # description: "health check failed"
       send-on-resolved: true
-      failure-threshold: 5
+      failure-threshold: 3
       success-threshold: 2
   telegram:
     token: ${TELEGRAM_BOT_TOKEN}
     id: ${TELEGRAM_USER_ID}
-    default-alert:
-      send-on-resolved: true
-      failure-threshold: 5
+    default-alert: *default-alert
   # WeCom 企业微信
   custom:
     url: "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=${WECOM_BOT_TOKEN}"
@@ -52,9 +50,7 @@ alerting:
           "content": "## [ALERT_TRIGGERED_OR_RESOLVED]\n> **服务**: [ENDPOINT_GROUP] - [ENDPOINT_NAME]\n> **状态**: [RESULT_CONDITIONS]"
         }
       }
-    default-alert:
-      send-on-resolved: true
-      failure-threshold: 5
+    default-alert: *default-alert
 # security:
 #   oidc:
 #     issuer-url: "https://auth.${MAIN_DOMAIN}"
