@@ -52,27 +52,18 @@ spec:
           type: http
           name: http_victorialogs
           log_level: info
-          format: |-
-                {{- range $Alert := . -}}
-                {{- range .Decisions }}
-                {
-                  "_msg": "CrowdSec Decision: {{ .Scenario }}",
-                  "_time": "{{ now | unixEpoch }}000",
-                  "instance": "k8s",
-                  "country": {{ $Alert.Source.Cn | toJson }},
-                  "asname": {{ $Alert.Source.AsName | toJson }},
-                  "asnumber": "{{ $Alert.Source.AsNumber }}",
-                  "latitude": "{{ $Alert.Source.Latitude }}",
-                  "longitude": "{{ $Alert.Source.Longitude }}",
-                  "iprange": {{ $Alert.Source.Range | toJson }},
-                  "scenario": {{ .Scenario | toJson }},
-                  "type": {{ .Type | toJson }},
-                  "duration": {{ .Duration | toJson }},
-                  "scope": {{ .Scope | toJson }},
-                  "ip": {{ .Value | toJson }}
-                }
-                {{- end }}
-                {{- end -}}
+          # JSON Lines 格式要求每条记录必须是单行
+          # 字段说明:
+          #   _msg: 消息内容, _time: 时间戳(毫秒), instance: 实例名
+          #   country: 国家, asname: AS名称, asnumber: AS号
+          #   latitude/longitude: 经纬度, iprange: IP范围
+          #   scenario: 场景, type: 类型, duration: 时长, scope: 范围, ip: IP地址
+          format: |
+            {{- range $Alert := . -}}
+            {{- range .Decisions }}
+            {"_msg":"CrowdSec Decision: {{.Scenario}}","_time":"{{now | unixEpoch}}000","instance":"k8s","country":{{$Alert.Source.Cn | toJson}},"asname":{{$Alert.Source.AsName | toJson}},"asnumber":"{{$Alert.Source.AsNumber}}","latitude":"{{$Alert.Source.Latitude}}","longitude":"{{$Alert.Source.Longitude}}","iprange":{{$Alert.Source.Range | toJson}},"scenario":{{.Scenario | toJson}},"type":{{.Type | toJson}},"duration":{{.Duration | toJson}},"scope":{{.Scope | toJson}},"ip":{{.Value | toJson}}}
+            {{- end }}
+            {{- end -}}
           url: http://victoria-logs-server.observability.svc.cluster.local:9428/insert/jsonline?_stream_fields=instance,scenario
           method: POST
           headers:
