@@ -52,16 +52,52 @@ spec:
           type: http
           name: http_victorialogs
           log_level: info
-          format: |
-            {{- range $Alert := . -}}
-            {{- range .Decisions }}
-            {"_msg":"CrowdSec Decision: {{.Scenario}}","_time":"{{now | unixEpoch}}000","instance":"k8s","country":{{$Alert.Source.Cn | toJson}},"asname":{{$Alert.Source.AsName | toJson}},"asnumber":"{{$Alert.Source.AsNumber}}","latitude":"{{$Alert.Source.Latitude}}","longitude":"{{$Alert.Source.Longitude}}","iprange":{{$Alert.Source.Range | toJson}},"scenario":{{.Scenario | toJson}},"type":{{.Type | toJson}},"duration":{{.Duration | toJson}},"scope":{{.Scope | toJson}},"ip":{{.Value | toJson}}}
-            {{- end }}
-            {{- end -}}
+          format: |-
+                {{- range $Alert := . -}}
+                {{- range .Decisions }}
+                {
+                  "_msg": "CrowdSec Decision: {{ .Scenario }}",
+                  "_time": "{{ now | unixEpoch }}000",
+                  "instance": "k8s",
+                  "country": {{ $Alert.Source.Cn | toJson }},
+                  "asname": {{ $Alert.Source.AsName | toJson }},
+                  "asnumber": "{{ $Alert.Source.AsNumber }}",
+                  "latitude": "{{ $Alert.Source.Latitude }}",
+                  "longitude": "{{ $Alert.Source.Longitude }}",
+                  "iprange": {{ $Alert.Source.Range | toJson }},
+                  "scenario": {{ .Scenario | toJson }},
+                  "type": {{ .Type | toJson }},
+                  "duration": {{ .Duration | toJson }},
+                  "scope": {{ .Scope | toJson }},
+                  "ip": {{ .Value | toJson }}
+                }
+                {{- end }}
+                {{- end -}}
           url: http://victoria-logs-server.observability.svc.cluster.local:9428/insert/jsonline?_stream_fields=instance,scenario
           method: POST
           headers:
             Content-Type: application/stream+json
+        # WeCom 企业微信通知
+        # ref: https://developer.work.weixin.qq.com/document/path/91770
+        wecom.yaml: |
+          type: http
+          name: http_wecom
+          log_level: info
+          format: |
+            {{- range $Alert := . -}}
+            {{- range .Decisions }}
+            {
+              "msgtype": "markdown",
+              "markdown": {
+                "content": "🚨 **CrowdSec 安全告警**\n> **场景**: {{ .Scenario }}\n> **IP**: {{ .Value }}\n> **国家**: {{ $Alert.Source.Cn }}\n> **ASN**: {{ $Alert.Source.AsName }} ({{ $Alert.Source.AsNumber }})\n> **封禁时长**: {{ .Duration }}\n> **类型**: {{ .Type }}"
+              }
+            }
+            {{- end }}
+            {{- end -}}
+          url: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=$${WECOM_BOT_TOKEN}
+          method: POST
+          headers:
+            Content-Type: application/json
       # Profiles configuration to enable notifications
       # ref: https://docs.crowdsec.net/docs/next/profiles/format
       profiles.yaml: |
@@ -73,6 +109,7 @@ spec:
             duration: 4h
         notifications:
           - http_victorialogs
+          - http_wecom
         on_success: break
         ---
         name: default_range_remediation
@@ -83,6 +120,7 @@ spec:
             duration: 4h
         notifications:
           - http_victorialogs
+          - http_wecom
         on_success: break
 
     lapi:
