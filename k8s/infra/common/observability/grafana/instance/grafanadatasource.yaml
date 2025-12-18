@@ -44,6 +44,6 @@ spec:
       grafana.internal/instance: grafana
   datasource:
     type: victoriametrics-logs-datasource
-    name: VictoriaLogs
+    name: victorialogs
     access: proxy
     url: http://victoria-logs-server.observability.svc.cluster.local:9428
