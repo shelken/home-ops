@@ -55,7 +55,7 @@ spec:
           format: |
             {{- range $Alert := . -}}
             {{- range .Decisions }}
-            {"_msg":{{printf "CrowdSec Decision: %s" .Scenario | toJson}},"_time":"{{now | date "2006-01-02T15:04:05Z"}}","instance":"k8s","country":{{$Alert.Source.Cn | toJson}},"asname":{{$Alert.Source.AsName | toJson}},"asnumber":"{{$Alert.Source.AsNumber}}","latitude":"{{$Alert.Source.Latitude}}","longitude":"{{$Alert.Source.Longitude}}","iprange":{{$Alert.Source.Range | toJson}},"scenario":{{.Scenario | toJson}},"type":{{.Type | toJson}},"duration":{{.Duration | toJson}},"scope":{{.Scope | toJson}},"ip":{{.Value | toJson}}}
+            {"_msg":"CrowdSec Decision: {{.Scenario}}","_time":"{{now | date "2006-01-02T15:04:05Z"}}","instance":"k8s","country":{{$Alert.Source.Cn | toJson}},"asname":{{$Alert.Source.AsName | toJson}},"asnumber":"{{$Alert.Source.AsNumber}}","latitude":"{{$Alert.Source.Latitude}}","longitude":"{{$Alert.Source.Longitude}}","iprange":{{$Alert.Source.Range | toJson}},"scenario":{{.Scenario | toJson}},"type":{{.Type | toJson}},"duration":{{.Duration | toJson}},"scope":{{.Scope | toJson}},"ip":{{.Value | toJson}}}
             {{- end }}
             {{- end -}}
           url: http://victoria-logs-server.observability.svc.cluster.local:9428/insert/jsonline?_stream_fields=instance,scenario
