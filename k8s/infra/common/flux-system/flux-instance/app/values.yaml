@@ -2,6 +2,7 @@
 # ref: https://artifacthub.io/packages/helm/flux-instance/flux-instance?modal=values
 instance:
   distribution:
+    # renovate: datasource=docker depName=ghcr.io/controlplaneio-fluxcd/flux-operator-manifests
     artifact: oci://ghcr.io/controlplaneio-fluxcd/flux-operator-manifests:v0.35.0
     version: 2.x
   cluster:
