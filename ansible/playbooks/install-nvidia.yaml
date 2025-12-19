@@ -40,7 +40,7 @@
           loop:
             - nvidia-container-runtime # 容器运行时
             - build-essential
-            - "linux-headers-{{ ansible_kernel }}"
+            - "linux-headers-{{ ansible_facts['kernel'] }}"
             - pkg-config # nvidia-driver 依赖
             - libglvnd-dev # nvidia-driver 依赖
 
