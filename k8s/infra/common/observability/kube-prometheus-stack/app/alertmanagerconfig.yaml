@@ -4,7 +4,7 @@ apiVersion: monitoring.coreos.com/v1alpha1
 kind: AlertmanagerConfig
 metadata:
   name: alertmanager
-spec:    
+spec:
   route:
     groupBy: ["alertname", "job"]
     groupInterval: 10m
@@ -43,14 +43,11 @@ spec:
   receivers:
     - name: "null"
     - name: heartbeat
-      # slackConfigs:
-      #   - sendResolved: true
-      #     apiURL:
-      #       key: ALERTMANAGER_HEARTBEAT_URL
-      #       name: &secret alertmanager-secret
       webhookConfigs:
-        - sendResolved: true
-          url: http://localhost:8081/push
+        - sendResolved: false
+          urlSecret:
+            key: HEALTHCHECKS_PING_URL
+            name: alertmanager-secret
     - name: &name alert
       slackConfigs:
         - sendResolved: false
@@ -58,5 +55,3 @@ spec:
             key: ALERTMANAGER_ALERT_URL
             name: alertmanager-secret
           username: *name
-
-
