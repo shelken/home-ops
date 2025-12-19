@@ -26,6 +26,27 @@
 - `bootstrap/` - 集群引导
 - `.taskfile/` - Task 子任务
 
+## 集群节点信息
+
+| 节点名 | 角色 | 宿主机 | CPU | 内存 | 架构 | IP | 系统盘 | Longhorn 存储 |
+|--------|------|--------|-----|------|------|-----|--------|---------------|
+| sakamoto-k8s | control-plane, etcd | Mac Mini M4 (4P+6E 核, Lima VM, vz) | 8 vCPU | 14GB | arm64 | 192.168.6.80 | 80GB | 1TB SSD |
+| homelab-1 | worker | 笔记本 PVE (Intel i5-7300HQ 4核) VM | 4 核 | 14GB | amd64 | 192.168.6.110 | 321GB | 共用系统盘 |
+| tvbox | worker | S905x3 电视盒子 (Armbian) | 4 核 | 4GB | arm64 | 192.168.6.141 | 28GB eMMC | 无 |
+| yuuko-k8s | worker | Mac Mini M1 (4P+4E 核, Lima VM, vz) | 6 vCPU | 14GB | arm64 | 192.168.0.81 | 40GB | 无 |
+
+### 节点说明
+
+- **sakamoto-k8s**: 唯一的控制平面节点，承载 etcd 和主要工作负载，Longhorn 主存储节点
+- **homelab-1**: 七代 Intel CPU 的 PVE 虚拟机，Longhorn 副本节点
+- **tvbox**: 低功耗 ARM 电视盒子，运行轻量级工作负载，无持久存储
+- **yuuko-k8s**: 远程节点（192.168.0.x 网段），通过 ZeroTier VPN 连接，不参与 Longhorn 存储
+
+### Lima VM 配置文件
+
+- `docs/resource/lima/sakamoto.yaml` - sakamoto-k8s 配置
+- `docs/resource/lima/yuuko.yaml` - yuuko-k8s 配置
+
 ## 开发环境
 
 使用 Nix Flake 管理，详见 `flake.nix`。
