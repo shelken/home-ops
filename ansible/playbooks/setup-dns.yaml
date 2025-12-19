@@ -19,3 +19,9 @@
       ansible.builtin.service:
         name: systemd-resolved
         state: restarted
+
+    - name: Reload NetworkManager
+      ansible.builtin.service:
+        name: NetworkManager
+        state: reloaded
+      notify: Restart systemd-resolved

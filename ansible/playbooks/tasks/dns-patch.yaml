@@ -15,22 +15,65 @@
       notify: Restart systemd-resolved
 
     # -------------------------------------------------------
-    # 第二步：自动化屏蔽所有网卡的上游 DNS (IPv6 RA / DHCP)
+    # 第二步：检测网络管理器类型
+    # -------------------------------------------------------
+    - name: 检查 NetworkManager 是否在运行
+      ansible.builtin.command: systemctl is-active NetworkManager
+      register: nm_status
+      changed_when: false
+      failed_when: false
+
+    - name: 检查 systemd-networkd 是否在运行
+      ansible.builtin.command: systemctl is-active systemd-networkd
+      register: networkd_status
+      changed_when: false
+      failed_when: false
+
+    # -------------------------------------------------------
+    # 第三步 (A)：NetworkManager 环境 - 配置忽略 DHCP DNS
+    # -------------------------------------------------------
+    - name: 创建 NetworkManager DNS 配置目录
+      ansible.builtin.file:
+        path: /etc/NetworkManager/conf.d
+        state: directory
+        mode: '0755'
+      when: nm_status.rc == 0
+
+    - name: 配置 NetworkManager 使用 systemd-resolved 并忽略 DHCP DNS
+      ansible.builtin.copy:
+        dest: /etc/NetworkManager/conf.d/90-dns-systemd-resolved.conf
+        content: |
+          # Ansible Managed: 使用 systemd-resolved 作为 DNS 后端
+          # 忽略 DHCP 提供的 DNS，使用全局配置
+          [main]
+          dns=systemd-resolved
+
+          [connection]
+          ipv4.ignore-auto-dns=true
+          ipv6.ignore-auto-dns=true
+        mode: '0644'
+      when: nm_status.rc == 0
+      notify: Reload NetworkManager
+
+    # -------------------------------------------------------
+    # 第三步 (B)：systemd-networkd 环境 - 屏蔽 Netplan 上游 DNS
     # -------------------------------------------------------
     - name: 发现所有 Netplan 生成的网卡配置
       ansible.builtin.find:
         paths: /run/systemd/network
         patterns: "*netplan*.network" # 自动匹配所有 Netplan 网卡，无需人工指定
       register: target_interfaces
+      when: networkd_status.rc == 0
 
     - name: 为所有网卡创建补丁目录
       ansible.builtin.file:
         path: "/etc/systemd/network/{{ item.path | basename }}.d"
         state: directory
         mode: '0755'
-      loop: "{{ target_interfaces.files }}"
+      loop: "{{ target_interfaces.files | default([]) }}"
       loop_control:
         label: "{{ item.path | basename }}"
+      when: networkd_status.rc == 0 and target_interfaces.files | default([]) | length > 0
 
     - name: 下发屏蔽策略 (禁止接收上游 DNS)
       ansible.builtin.copy:
@@ -53,7 +96,8 @@
           [DHCPv6]
           UseDNS=false
         mode: '0644'
-      loop: "{{ target_interfaces.files }}"
+      loop: "{{ target_interfaces.files | default([]) }}"
       loop_control:
         label: "{{ item.path | basename }}"
+      when: networkd_status.rc == 0 and target_interfaces.files | default([]) | length > 0
       notify: Reload systemd-networkd
