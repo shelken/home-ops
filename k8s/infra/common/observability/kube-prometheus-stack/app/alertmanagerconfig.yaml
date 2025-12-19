@@ -51,7 +51,7 @@ spec:
     - name: &name alert
       webhookConfigs:
         - url: "http://localhost:8060/webhook"
-          sendResolved: true
+          sendResolved: false
       slackConfigs:
         - sendResolved: false
           apiURL:
