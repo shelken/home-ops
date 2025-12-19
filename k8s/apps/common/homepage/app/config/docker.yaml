@@ -2,10 +2,6 @@
 # For configuration options and examples, please see:
 # https://gethomepage.dev/configs/docker/
 
-box-docker:
-  host: tvbox.lan
-  port: 2575
-
 vps-docker:
   host: ts-node-vps.network.svc
   port: 2575
