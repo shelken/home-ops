@@ -31,8 +31,7 @@
     managerFilePatterns: ["/(^|/)bootstrap/(helmfile|crds).*\\.ya?ml(?:\\.j2)?$/"],
   },
   kubernetes: {
-    managerFile
-Patterns: ["/(^|/)k8s/.+\\.ya?ml(?:\\.j2)?$/"],
+    managerFilePatterns: ["/(^|/)k8s/.+\\.ya?ml(?:\\.j2)?$/"],
   },
   kustomize: {
     managerFilePatterns: ["/^kustomization\\.ya?ml(?:\\.j2)?$/"],
