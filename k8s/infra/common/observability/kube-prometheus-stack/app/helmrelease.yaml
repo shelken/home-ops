@@ -60,6 +60,24 @@ spec:
           global:
             resolveTimeout: 5m
         externalUrl: https://alertmanager.${MAIN_DOMAIN}
+        containers:
+          - name: wechatrobot
+            image: ghcr.io/shelken/alertmanager-wechatrobot:0.1.0
+            ports:
+              - containerPort: 8080
+            env:
+              - name: WECHAT_WEBHOOK_URL
+                valueFrom:
+                  secretKeyRef:
+                    name: alertmanager-secret
+                    key: WECHAT_WEBHOOK_URL
+            resources:
+              limits:
+                cpu: 100m
+                memory: 64Mi
+              requests:
+                cpu: 10m
+                memory: 32Mi
         storage:
           volumeClaimTemplate:
             spec:

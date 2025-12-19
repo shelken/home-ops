@@ -49,6 +49,9 @@ spec:
             key: HEALTHCHECKS_PING_URL
             name: alertmanager-secret
     - name: &name alert
+      webhookConfigs:
+        - url: "http://localhost:8080/webhook"
+          sendResolved: true
       slackConfigs:
         - sendResolved: false
           apiURL:
