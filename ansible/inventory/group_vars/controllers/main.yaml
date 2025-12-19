@@ -17,15 +17,22 @@ k3s_server:
   disable-network-policy: true
   docker: false
   embedded-registry: false
+  etcd-arg:
+    - "election-timeout=5000"
+    - "heartbeat-interval=500"
   etcd-disable-snapshots: true
   etcd-expose-metrics: true
   flannel-backend: "none" # quote
   kube-apiserver-arg:
     - "--feature-gates=ImageVolume=true,MutatingAdmissionPolicy=true,ResourceHealthStatus=true"
     - "--runtime-config=admissionregistration.k8s.io/v1beta1=true"
-  kube-controller-manager-arg:
-    ["bind-address=0.0.0.0", "feature-gates=ImageVolume=true"]
-  kube-scheduler-arg: ["bind-address=0.0.0.0", "feature-gates=ImageVolume=true"]
+  kube-controller-manager-arg: &manager-args
+    - "bind-address=0.0.0.0"
+    - "feature-gates=ImageVolume=true"
+    - "leader-elect-lease-duration=60s"
+    - "leader-elect-renew-deadline=40s"
+    - "leader-elect-retry-period=10s"
+  kube-scheduler-arg: *manager-args
   kubelet-arg: [
       "image-gc-low-threshold=50",
       "image-gc-high-threshold=55",
