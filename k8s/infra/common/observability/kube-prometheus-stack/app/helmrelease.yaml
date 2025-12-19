@@ -64,8 +64,10 @@ spec:
           - name: wechatrobot
             image: ghcr.io/shelken/alertmanager-wechatrobot:0.1.0
             ports:
-              - containerPort: 8080
+              - containerPort: 8060
             env:
+              - name: PORT
+                value: "8060"
               - name: WECHAT_WEBHOOK_URL
                 valueFrom:
                   secretKeyRef:
