@@ -85,18 +85,3 @@ spec:
       labels:
         job: *name
   metricsPath: /metrics
-
----
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/scrapeconfig_v1alpha1.json
-apiVersion: monitoring.coreos.com/v1alpha1
-kind: ScrapeConfig
-metadata:
-  name: &name mosdns
-spec:
-  staticConfigs:
-    - targets:
-        - tvbox.lan:8338
-      labels:
-        job: *name
-  metricsPath: /metrics
-  scrapeInterval: 10s
