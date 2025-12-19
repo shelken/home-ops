@@ -46,8 +46,13 @@
     //===============PR信息补充============
     {
       description: "CLIProxyAPI sourceUrl 补充",
-      matchPackageNames: ["eceasy/cli-proxy-api"],
+      matchPackageNames: ["/cli-proxy-api/"],
       sourceUrl: "https://github.com/router-for-me/CLIProxyAPI"
+    },
+    {
+      description: "Ollama sourceUrl 补充",
+      matchPackageNames: ["/ollama/ollama/"],
+      sourceUrl: "https://github.com/ollama/ollama"
     },
     {
       description: "seafile changelog 补充",
