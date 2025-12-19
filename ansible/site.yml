@@ -30,9 +30,9 @@
         - ansible_facts.virtualization_role == "guest"
 
   handlers:
-    - name: restart systemd-timesyncd
+    - name: restart chrony
       ansible.builtin.service:
-        name: systemd-timesyncd
+        name: chrony
         state: restarted
 
 # - import_playbook: playbooks/install-nvidia.yaml

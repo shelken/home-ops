@@ -1,28 +1,41 @@
 ---
-- name: Populate service facts
-  ansible.builtin.service_facts:
+- name: Check if chrony is installed
+  ansible.builtin.shell: dpkg -l chrony 2>/dev/null | grep -q "^ii"
+  register: chrony_installed
+  changed_when: false
+  failed_when: false
 
-- name: Configure chrony
+- name: Install chrony
+  ansible.builtin.apt:
+    name: chrony
+    state: present
+  when: chrony_installed.rc != 0
+
+- name: Configure chrony with Aliyun NTP servers
   ansible.builtin.blockinfile:
     path: /etc/chrony/chrony.conf
     marker: "# {mark} ANSIBLE MANAGED BLOCK: ALIYUN NTP"
     block: |
       server ntp.aliyun.com iburst
       server ntp1.aliyun.com iburst
-  when: "'chrony.service' in ansible_facts.services and ansible_facts.services['chrony.service'].state == 'running'"
-  register: chrony_config_updated
+    backup: yes
+  notify: restart chrony
 
-- name: Restart chrony if config changed
+- name: Ensure chrony is enabled and started
   ansible.builtin.service:
     name: chrony
-    state: restarted
-  when: chrony_config_updated.changed
+    state: started
+    enabled: yes
 
-- name: Configure systemd-timesyncd
-  ansible.builtin.lineinfile:
-    path: /etc/systemd/timesyncd.conf
-    regexp: '^#?NTP='
-    line: 'NTP=ntp.aliyun.com ntp1.aliyun.com'
-    state: present
-  when: "'systemd-timesyncd.service' in ansible_facts.services and ansible_facts.services['systemd-timesyncd.service'].state == 'running'"
-  notify: restart systemd-timesyncd
+- name: Check if systemd-timesyncd exists
+  ansible.builtin.shell: systemctl list-unit-files | grep -q systemd-timesyncd
+  register: timesyncd_exists
+  changed_when: false
+  failed_when: false
+
+- name: Disable and stop systemd-timesyncd
+  ansible.builtin.service:
+    name: systemd-timesyncd
+    state: stopped
+    enabled: no
+  when: timesyncd_exists.rc == 0
