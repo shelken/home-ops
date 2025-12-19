@@ -64,6 +64,18 @@ tasks:
       # renovate: datasource=github-releases depName=prometheus-operator/prometheus-operator
       kubectl apply -f https://github.com/prometheus-operator/prometheus-operator/releases/download/v0.87.1/stripped-down-crds.yaml --server-side
 
+  add-dragonfly-crd:
+    desc: "添加dragonfly-operator的CRD"
+    cmd: |
+      # renovate: datasource=github-releases depName=dragonflydb/dragonfly-operator
+      kubectl apply -f https://raw.githubusercontent.com/dragonflydb/dragonfly-operator/v1.3.1/manifests/crd.yaml --server-side
+
+  add-barman-cloud-crd:
+    desc: "添加barman-cloud的CRD"
+    cmd: |
+      # renovate: datasource=github-releases depName=cloudnative-pg/plugin-barman-cloud
+      kubectl apply -f https://raw.githubusercontent.com/cloudnative-pg/plugin-barman-cloud/refs/tags/v0.9.0/config/crd/bases/barmancloud.cnpg.io_objectstores.yaml --server-side
+
   show-route:
     desc: "显示gateway和对应的服务"
     silent: true
