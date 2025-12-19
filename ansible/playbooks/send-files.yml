@@ -10,7 +10,6 @@
   tasks:
     - name: k3s registry 配置
       ansible.builtin.include_tasks: tasks/k3s-registry.yaml
-      when: not (remote_node | default(false)) | bool
 
     # optimize-machine（优化节点配置）
     - name: sysctl 配置
