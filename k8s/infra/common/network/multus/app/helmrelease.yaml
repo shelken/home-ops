@@ -20,7 +20,16 @@ spec:
           memory: 128Mi
         limits:
           memory: 512Mi
-    tolerations:
-      - effect: NoSchedule
-        key: dedicated
-        operator: Exists
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: DaemonSet
+              name: multus
+            patch: |
+              - op: add
+                path: /spec/template/spec/tolerations/-
+                value:
+                  key: dedicated
+                  operator: Exists
+                  effect: NoSchedule
