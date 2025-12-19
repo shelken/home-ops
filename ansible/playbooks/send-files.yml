@@ -17,3 +17,9 @@
 
     - name: 处理 longhorn multipath 可能的问题
       ansible.builtin.include_tasks: tasks/config-multipath.yaml
+
+  handlers:
+    - name: restart k3s
+      ansible.builtin.service:
+        name: k3s
+        state: restarted
