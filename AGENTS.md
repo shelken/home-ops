@@ -48,6 +48,18 @@
 - `docs/resource/lima/sakamoto.yaml` - sakamoto-k8s 配置
 - `docs/resource/lima/yuuko.yaml` - yuuko-k8s 配置
 
+### 节点特殊配置 (Taints & Labels)
+
+- **tvbox**
+  - Taint: `dedicated=lightweight:NoSchedule`
+  - Label: `node-type=lightweight`
+  - 说明: 仅允许容忍了 `dedicated=lightweight` 的轻量级应用调度。
+
+- **yuuko-k8s**
+  - Taint: `dedicated=remote:NoSchedule`
+  - Label: `node-type=remote`
+  - 说明: 远程节点，仅允许容忍了 `dedicated=remote` 的应用调度。
+
 ## 开发环境
 
 使用 Nix Flake 管理，详见 `flake.nix`。
