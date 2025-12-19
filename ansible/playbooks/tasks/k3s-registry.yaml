@@ -19,3 +19,4 @@
     group: root
     mode: "0600"
     force: true
+  notify: restart k3s
