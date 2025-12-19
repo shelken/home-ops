@@ -117,6 +117,27 @@ spec:
           registry: docker.io
           repository: prompp/prompp
           tag: 0.7.2
+        initContainers:
+          - name: wal-converter
+            image: docker.io/prompp/prompp:0.7.2
+            command:
+              - /bin/prompptool
+              - walvanilla
+              - --working-dir=/prometheus
+            volumeMounts:
+              - name: prometheus-kube-prometheus-stack-db
+                mountPath: /prometheus
+                subPath: prometheus-db
+            securityContext:
+              runAsNonRoot: true
+              runAsUser: 64535
+              runAsGroup: 64535
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              limits:
+                memory: 2Gi
         securityContext:
           runAsNonRoot: true
           runAsUser: 64535
@@ -132,9 +153,9 @@ spec:
         resources:
           requests:
             cpu: 300m
-            memory: 1Gi
+            memory: 2Gi
           limits:
-            memory: 2000Mi
+            memory: 4Gi
         storageSpec:
           volumeClaimTemplate:
             spec:
