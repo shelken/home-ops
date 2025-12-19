@@ -52,9 +52,9 @@ spec:
       webhookConfigs:
         - url: "http://localhost:8060/webhook"
           sendResolved: false
-      slackConfigs:
-        - sendResolved: false
-          apiURL:
-            key: ALERTMANAGER_ALERT_URL
-            name: alertmanager-secret
-          username: *name
+      # slackConfigs:
+      #   - sendResolved: false
+      #     apiURL:
+      #       key: ALERTMANAGER_ALERT_URL
+      #       name: alertmanager-secret
+      #     username: *name
