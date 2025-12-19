@@ -1,0 +1,14 @@
+---
+- name: 设置时间
+  hosts: all
+  become: true
+  gather_facts: true
+  tasks:
+    - name: 设置NTP
+      ansible.builtin.include_tasks: tasks/ntp.yaml
+
+  handlers:
+    - name: restart chrony
+      ansible.builtin.service:
+        name: chrony
+        state: restarted

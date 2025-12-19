@@ -150,6 +150,18 @@ tasks:
       - kubectl exec -it {{.pod}} -- /bin/sh
       - defer: kubectl delete pod {{.pod}} --ignore-not-found=true
 
+  check-time:
+    desc: "查看所有节点时间同步状态"
+    dir: "{{.ROOT_DIR}}/ansible"
+    silent: true
+    cmd: |
+      ansible all -b -m shell -a '
+        IP=$(chronyc sources | grep "^\^\*" | awk "{print \$2}") &&
+        NAME=$(chronyc sourcename $IP) &&
+        echo "时间: $(date)" &&
+        echo "同步源: $NAME ($IP)"
+      '
+
   browse-pvc:
     requires:
       vars: ["namespace", "claim"]
