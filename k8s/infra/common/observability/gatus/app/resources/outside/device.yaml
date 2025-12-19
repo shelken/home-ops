@@ -12,3 +12,32 @@ endpoints:
       - "[STATUS] == 200"
     alerts:
       - type: custom
+  - &common-ping
+    name: tvbox
+    url: "icmp://tvbox.lan"
+    group: device
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[CONNECTED] == true"
+    alerts:
+      - type: custom
+  - <<: *common-ping
+    name: router-mine
+    url: "icmp://router-mine.lan"
+  - <<: *common-ping
+    name: router-home
+    url: "icmp://router-home.lan"
+  - <<: *common-ping
+    name: PVE
+    url: "icmp://pve.lan"
+  - <<: *common-ping
+    name: sakamoto
+    url: "icmp://sakamoto.lan"
+  - <<: *common-ping
+    name: yuuko
+    url: "icmp://192.168.0.226"
+  - <<: *common-ping
+    name: vps
+    url: "icmp://ts-node-vps.network.svc"
