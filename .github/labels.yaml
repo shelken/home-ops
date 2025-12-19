@@ -1,0 +1,47 @@
+---
+# Areas
+- name: area/apps
+  color: "a6e3a1"
+  description: "Pull requests that update applications"
+- name: area/github
+  color: "a6e3a1"
+  description: "Pull requests that update GitHub workflows"
+- name: area/k8s
+  color: "a6e3a1"
+  description: "Pull requests that update Kubernetes infrastructure"
+- name: area/renovate
+  color: "a6e3a1"
+  description: "Pull requests that update Renovate configuration"
+
+# Renovate Types
+- name: renovate/container
+  color: "94e2d5"
+  description: "Pull requests that update container images"
+- name: renovate/github-action
+  color: "94e2d5"
+  description: "Pull requests that update GitHub actions"
+- name: renovate/github-release
+  color: "94e2d5"
+  description: "Pull requests that update GitHub releases"
+- name: renovate/helm
+  color: "94e2d5"
+  description: "Pull requests that update Helm charts"
+
+# Semantic Types
+- name: type/digest
+  color: "f9e2af"
+  description: "Pull requests that update image digests"
+- name: type/patch
+  color: "f9e2af"
+  description: "Pull requests that update patch versions"
+- name: type/minor
+  color: "fab387"
+  description: "Pull requests that update minor versions"
+- name: type/major
+  color: "f38ba8"
+  description: "Pull requests that update major versions"
+
+# Uncategorized
+- name: hold
+  color: "ee0701"
+  description: "Pull requests that are on hold"
