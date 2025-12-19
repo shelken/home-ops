@@ -47,14 +47,6 @@
         widget:
           type: gatus
           url: http://gatus.observability.svc.cluster.local:80
-    - UptimeKuma:
-        icon: uptime-kuma.png
-        href: http://tvbox.lan:6300
-        description:
-        widget:
-          type: uptimekuma
-          url: http://tvbox.lan:6300
-          slug: public
     - Prometheus:
         icon: prometheus.png
         href: https://prometheus.${MAIN_DOMAIN}
