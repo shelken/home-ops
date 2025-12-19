@@ -1,0 +1,28 @@
+---
+- name: Populate service facts
+  ansible.builtin.service_facts:
+
+- name: Configure chrony
+  ansible.builtin.blockinfile:
+    path: /etc/chrony/chrony.conf
+    marker: "# {mark} ANSIBLE MANAGED BLOCK: ALIYUN NTP"
+    block: |
+      server ntp.aliyun.com iburst
+      server ntp1.aliyun.com iburst
+  when: "'chrony.service' in ansible_facts.services and ansible_facts.services['chrony.service'].state == 'running'"
+  register: chrony_config_updated
+
+- name: Restart chrony if config changed
+  ansible.builtin.service:
+    name: chrony
+    state: restarted
+  when: chrony_config_updated.changed
+
+- name: Configure systemd-timesyncd
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/timesyncd.conf
+    regexp: '^#?NTP='
+    line: 'NTP=ntp.aliyun.com ntp1.aliyun.com'
+    state: present
+  when: "'systemd-timesyncd.service' in ansible_facts.services and ansible_facts.services['systemd-timesyncd.service'].state == 'running'"
+  notify: restart systemd-timesyncd

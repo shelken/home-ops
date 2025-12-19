@@ -10,6 +10,8 @@
       community.general.timezone:
         name: "{{ system_timezone }}"
 
+    - import_tasks: playbooks/tasks/ntp.yaml
+
     - import_tasks: playbooks/tasks/change-sources.yaml
 
     - name: install system pkgs
@@ -26,6 +28,13 @@
       when:
         - ansible_facts.virtualization_type == "kvm"
         - ansible_facts.virtualization_role == "guest"
+
+  handlers:
+    - name: restart systemd-timesyncd
+      ansible.builtin.service:
+        name: systemd-timesyncd
+        state: restarted
+
 # - import_playbook: playbooks/install-nvidia.yaml
 
 # - name: 配置 sysctl 参数
