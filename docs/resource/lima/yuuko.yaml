@@ -8,7 +8,7 @@ env:
 
 cpus: 6
 memory: 14G
-disk: 20G
+disk: 40G
 
 # No additional disks available on yuuko
 # additionalDisks:
