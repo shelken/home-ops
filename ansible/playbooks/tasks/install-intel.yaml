@@ -9,7 +9,7 @@
         force_apt_get: yes
         allow_unauthenticated: no
       loop:
-        - linux-modules-extra-{{ ansible_kernel }}
+        - linux-modules-extra-{{ ansible_facts['kernel'] }}
         - linux-firmware
         # - fonts-noto-cjk # jellyfin 3.11.1已经内置
 
