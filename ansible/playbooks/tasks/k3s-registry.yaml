@@ -1,4 +1,4 @@
---- 
+---
 - name: 创建 k3s 配置目录
   ansible.builtin.file:
     path: /etc/rancher/k3s
@@ -7,14 +7,15 @@
     group: root
     mode: '0755'
 
-- name: 复制本地文件到远程并强制覆盖
+- name: 设置 registries 文件名
+  ansible.builtin.set_fact:
+    registries_file: "{{ 'registries-remote.yaml' if (remote_node | default(false)) else 'registries.yaml' }}"
+
+- name: 复制 registries 配置到远程节点
   ansible.builtin.copy:
-    src: "{{ playbook_dir }}/resource/{{ item }}"
-    dest: /etc/rancher/k3s/{{ item }}
+    src: "{{ playbook_dir }}/resource/{{ registries_file }}"
+    dest: /etc/rancher/k3s/registries.yaml
     owner: root
     group: root
     mode: "0600"
     force: true
-  loop:
-    # - config.yaml
-    - registries.yaml

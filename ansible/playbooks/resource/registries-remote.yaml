@@ -1,0 +1,25 @@
+# Remote node registries configuration
+# Excludes ooooo.space mirrors (not accessible from remote network)
+mirrors:
+  docker.io:
+    endpoint:
+      - "https://hub.mirrorify.net"
+      - "https://docker.m.daocloud.io"
+  mirror.gcr.io:
+    endpoint:
+      - "https://hub.mirrorify.net"
+      - "https://docker.m.daocloud.io"
+  quay.io:
+    endpoint:
+      - "https://quay.m.daocloud.io"
+      - "https://quay.mirrorify.net"
+  registry.k8s.io:
+    endpoint:
+      - "https://k8s.mirrorify.net"
+      - "https://k8s.m.daocloud.io"
+  ghcr.io:
+    endpoint:
+      - "https://ghcr.mirrorify.net"
+  gcr.io:
+    endpoint:
+      - "https://gcr.mirrorify.net"
