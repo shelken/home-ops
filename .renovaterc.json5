@@ -45,6 +45,11 @@
     },
     //===============PR信息补充============
     {
+      description: "CLIProxyAPI sourceUrl 补充",
+      matchPackageNames: ["eceasy/cli-proxy-api"],
+      sourceUrl: "https://github.com/router-for-me/CLIProxyAPI"
+    },
+    {
       description: "seafile changelog 补充",
       matchPackageNames: [
         "/seafileltd/"
