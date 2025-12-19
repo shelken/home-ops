@@ -1,0 +1,59 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  packageRules: [
+    {
+      description: "Cert-Manager Group",
+      groupName: "Cert-Manager",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/cert-manager/"],
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
+    {
+      description: "CoreDNS Group",
+      groupName: "CoreDNS",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/coredns/"],
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
+    {
+      description: "Flux Operator Group",
+      groupName: "Flux Operator",
+      matchPackageNames: ["/flux-operator/", "/flux-instance/"],
+      matchDatasources: ["docker"],
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
+    {
+      description: "Spegel Group",
+      groupName: "Spegel",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/spegel/"],
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
+    {
+      description: "Immich Group",
+      groupName: "Immich",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/immich-app/"],
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
+    {
+      description: "Dragonfly Group",
+      groupName: "Dragonfly",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/dragonflydb/"],
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
+  ],
+}

@@ -1,0 +1,42 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  packageRules: [
+    {
+      description: "Auto-merge GitHub Actions",
+      matchManagers: ["github-actions"],
+      automerge: true,
+      automergeType: "branch",
+      matchUpdateTypes: ["minor", "patch", "digest"],
+      minimumReleaseAge: "3 days",
+      ignoreTests: true,
+    },
+    {
+      description: "Auto-merge docker image",
+      matchDatasources: ["docker"],
+      automerge: true,
+      automergeType: "pr",
+      matchUpdateTypes: ["minor", "patch"],
+      matchPackageNames: ["/kube-prometheus-stack/", "/api-gateway/", "/grafana/"],
+      ignoreTests: false,
+      rebaseWhen: "behind-base-branch",
+    },
+    {
+      description: "Auto-merge Ansible relate",
+      matchDatasources: ["galaxy-collection"],
+      automerge: true,
+      automergeType: "pr",
+      matchUpdateTypes: ["minor", "patch"],
+      ignoreTests: true,
+      rebaseWhen: "behind-base-branch",
+    },
+    {
+      description: "Auto-merge GitHub Releases",
+      matchDatasources: ["github-releases"],
+      automerge: true,
+      automergeType: "branch",
+      matchUpdateTypes: ["minor", "patch"],
+      matchPackageNames: ["/external-dns/", "/gateway-api/", "/prometheus-operator/"],
+      ignoreTests: true,
+    },
+  ],
+}
