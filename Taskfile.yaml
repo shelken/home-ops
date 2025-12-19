@@ -158,7 +158,7 @@ tasks:
       ansible all -b -m shell -a '
         IP=$(chronyc sources | grep "^\^\*" | awk "{print \$2}") &&
         NAME=$(chronyc sourcename $IP) &&
-        echo "时间: $(date)" &&
+        echo "时间: $(date '+%F %T')" &&
         echo "同步源: $NAME ($IP)"
       '
 
