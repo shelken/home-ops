@@ -13,5 +13,5 @@ system_packages:
 cifs_packages:
   - cifs-utils
 
-# tvbox由network manager管理
-setup_dns: false
+# tvbox 现在使用 systemd-resolved，可以使用统一的 DNS 配置
+setup_dns: true
