@@ -27,7 +27,7 @@ spec:
     alertmanagerAddress: http://alertmanager-operated.observability.svc.cluster.local:9093
     networkPolicy:
       enabled: false
-    #FIXME https://github.com/giantswarm/silence-operator/issues/497
+    #FIXME https://github.com/giantswarm/silence-operator/pull/569
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:

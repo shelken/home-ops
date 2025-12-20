@@ -35,7 +35,7 @@ spec:
       retries: 3
   values:
     # ref: https://artifacthub.io/packages/helm/piraeus-charts/snapshot-controller
-    # ref: https://github.com/blackjid/home-ops/blob/13430e8c4b704bdff1a3bb33f82692147116b632/kubernetes/apps/kube-system/snapshot-controller/app/helmrelease.yaml
+    # ref: https://github.com/blackjid/home-ops/blob/main/kubernetes/apps/kube-system/snapshot-controller/app/helmrelease.yaml
     controller:
       replicaCount: 1
       serviceMonitor:

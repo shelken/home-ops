@@ -39,7 +39,7 @@ spec:
               TZ: ${TIMEZONE}
               MEMOS_PUBLIC: "false"
               # MEMOS_MODE: dev
-              MEMOS_PORT: &port 5230 # https://github.com/usememos/memos/issues/1782
+              MEMOS_PORT: &port 5230
               MEMOS_DRIVER: postgres
               MEMOS_DSN:
                 valueFrom:
