@@ -6,13 +6,9 @@ metadata:
   name: &app tailscale-operator
 spec:
   interval: 1h
-  chart:
-    spec:
-      chart: tailscale-operator
-      version: 1.92.4
-      sourceRef:
-        kind: HelmRepository
-        name: tailscale
+  chartRef:
+    kind: OCIRepository
+    name: tailscale-operator
   values:
     #ref: https://github.com/tailscale/tailscale/blob/main/cmd/k8s-operator/deploy/chart/values.yaml
     operatorConfig:
