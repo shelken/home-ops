@@ -1,0 +1,97 @@
+---
+# 在 K8s 节点上创建 VLAN 子接口
+# 用法: ansible-playbook -i inventory/hosts.ini playbooks/setup-vlan.yaml
+
+- name: Setup VLAN interfaces on K8s nodes
+  hosts: k8s
+  become: true
+  vars:
+    vlan_interfaces:
+      - name: eth1.50
+        vlan_id: 50
+        parent: eth1
+        # 不分配 IP，只创建接口供 Multus 使用
+
+  tasks:
+    - name: Check if parent interface exists
+      ansible.builtin.command: ip link show {{ item.parent }}
+      register: parent_check
+      failed_when: false
+      changed_when: false
+      loop: "{{ vlan_interfaces }}"
+
+    - name: Set fact for valid interfaces
+      ansible.builtin.set_fact:
+        valid_vlans: "{{ parent_check.results | selectattr('rc', 'eq', 0) | map(attribute='item') | list }}"
+
+    - name: Skip hosts without parent interface
+      ansible.builtin.debug:
+        msg: "Skipping - parent interface not found on this host"
+      when: valid_vlans | length == 0
+
+    - name: Check if VLAN interface exists
+      ansible.builtin.command: ip link show {{ item.name }}
+      register: vlan_check
+      failed_when: false
+      changed_when: false
+      loop: "{{ valid_vlans }}"
+      when: valid_vlans | length > 0
+
+    - name: Create VLAN interface
+      ansible.builtin.command: >
+        ip link add link {{ item.item.parent }}
+        name {{ item.item.name }}
+        type vlan id {{ item.item.vlan_id }}
+      when:
+        - valid_vlans | length > 0
+        - item.rc != 0
+      loop: "{{ vlan_check.results | default([]) }}"
+      loop_control:
+        label: "{{ item.item.name | default('N/A') }}"
+
+    - name: Bring up VLAN interface
+      ansible.builtin.command: ip link set {{ item.name }} up
+      loop: "{{ valid_vlans }}"
+      when: valid_vlans | length > 0
+      changed_when: true
+
+    - name: Verify VLAN interface
+      ansible.builtin.command: ip link show {{ item.name }}
+      register: vlan_verify
+      loop: "{{ valid_vlans }}"
+      when: valid_vlans | length > 0
+      changed_when: false
+      failed_when: false
+
+    - name: Show VLAN interface status
+      ansible.builtin.debug:
+        msg: "{{ item.stdout_lines }}"
+      loop: "{{ vlan_verify.results | default([]) }}"
+      loop_control:
+        label: "{{ item.item.name | default('N/A') }}"
+      when:
+        - valid_vlans | length > 0
+        - item.stdout_lines is defined
+
+    # 持久化配置 (Debian/Ubuntu 使用 netplan)
+    - name: Create netplan config for VLAN (Ubuntu)
+      ansible.builtin.copy:
+        dest: /etc/netplan/60-vlan.yaml
+        content: |
+          network:
+            version: 2
+            vlans:
+          {% for vlan in valid_vlans %}
+              {{ vlan.name }}:
+                id: {{ vlan.vlan_id }}
+                link: {{ vlan.parent }}
+          {% endfor %}
+        mode: '0644'
+      when:
+        - valid_vlans | length > 0
+        - ansible_os_family == 'Debian'
+      notify: Apply netplan
+
+  handlers:
+    - name: Apply netplan
+      ansible.builtin.command: netplan apply
