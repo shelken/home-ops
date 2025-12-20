@@ -6,13 +6,9 @@ metadata:
   name: &app crowdsec
 spec:
   interval: 1h
-  chart:
-    spec:
-      chart: crowdsec
-      version: 0.21.1
-      sourceRef:
-        kind: HelmRepository
-        name: crowdsec
+  chartRef:
+    kind: OCIRepository
+    name: crowdsec
   # schema: https://raw.githubusercontent.com/crowdsecurity/helm-charts/refs/heads/main/charts/crowdsec/values.schema.json
   values:
     #ref: https://github.com/crowdsecurity/helm-charts/blob/main/charts/crowdsec/values.yaml
