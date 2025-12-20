@@ -1,0 +1,2 @@
+# 误报：ANUBIS_ED25519_PRIVATE_KEY_HEX 只是变量名，不是真正的密钥
+k8s/infra/common/security/authelia/app/helmrelease.yaml:generic-api-key:84
