@@ -5,5 +5,5 @@ kind: HelmRepository
 metadata:
   name: alidns-webhook
 spec:
-  interval: 30m
+  interval: 12h
   url: https://devmachine-fr.github.io/cert-manager-alidns-webhook
