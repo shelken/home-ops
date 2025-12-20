@@ -13,6 +13,7 @@ spec:
           "type": "macvlan",
           "master": "eth1",
           "mode": "bridge",
+          "vlan": 50,
           "capabilities": { "ips": true, "mac": true },
           "ipam": {
             "type": "static",
