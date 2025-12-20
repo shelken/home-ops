@@ -60,10 +60,10 @@ spec:
                     operator: In
                     values: ["remote"]
       tolerations:
-        - key: "dedicated"
-          operator: "Equal"
-          value: "remote"
-          effect: "NoSchedule"
+        - key: dedicated
+          operator: Equal
+          value: remote
+          effect: NoSchedule
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
