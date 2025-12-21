@@ -22,7 +22,7 @@ opkg install avahi-nodbus-daemon avahi-utils
 
 ```ini
 [server]
-check-response-ttl=yes
+check-response-ttl=no
 use-ipv4=yes
 use-ipv6=no
 allow-interfaces=br-lan.6,br-lan.50
@@ -53,7 +53,7 @@ rlimit-nproc=3
 | `allow-interfaces` | `br-lan.6,br-lan.50` | 只在这两个 VLAN 接口上监听和广播 |
 | `enable-reflector` | `yes` | 启用 mDNS 反射，跨接口转发服务发现 |
 | `reflect-ipv` | `no` | 不修改反射记录的 IP 版本 |
-| `check-response-ttl` | `yes` | 检查响应 TTL，减少跨网段设备名冲突 |
+| `check-response-ttl` | `no` | 必须 no ，否则go2rtc不知道为何无法反射 |
 
 ## 服务管理
 
@@ -124,9 +124,8 @@ dns-sd -G v4 <hostname>.local
 **原因**: 跨网段切换时 mDNS 冲突，设备自动重命名。
 
 **解决**:
-1. 确保 `check-response-ttl=yes` 已配置
-2. 重启 avahi: `/etc/init.d/avahi-daemon restart`
-3. 在设备上重新设置主机名
+1. 重启 avahi: `/etc/init.d/avahi-daemon restart`
+2. 在设备上重新设置主机名
 
 macOS 修复命令：
 ```bash
