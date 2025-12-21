@@ -88,20 +88,21 @@ graph TD
 | mosquitto              | 192.168.69.59 |                           |           |        |
 | vistoria-logs          | 192.168.69.66 | 给其他设备（vps）发送日志 |           |        |
 | crowdsec               | 192.168.69.67 | 其他设备agent/bounce连接  |           |        |
-| netbird                | 192.168.6.44  | 关闭 保留                 |           | 是     |
-| caddy-external         | 192.168.6.47  |                           |           | 是     |
-| home assistant         | 192.168.6.51  |                           |           | 是     |
-| go2rtc                 | 192.168.6.53  |                           |           | 是     |
-| qbittorrent            | 192.168.6.58  |                           |           | 是     |
+| netbird                | 192.168.6.44  | 关闭 保留                 |           | multus-ipv6 |
+| caddy-external         | 192.168.6.47  |                           |           | multus-ipv6 |
+| home assistant         | 192.168.50.51 | mDNS                      |           | multus-iot  |
+| go2rtc                 | 192.168.50.53 | mDNS                      |           | multus-iot  |
+| qbittorrent            | 192.168.6.58  | IPv6 直连                 |           | multus-ipv6 |
+| tailscale-sub-router   | 192.168.6.65  | IPv6 直连                 |           | multus-ipv6 |
+| tailscale-node-vps     | 192.168.6.66  | IPv6 直连                 |           | multus-ipv6 |
 
-## multus
+## multus 网络定义
 
-### tailscale
-
-| 服务                 | ip-range        | 描述 | multus |
-| -------------------- | --------------- | ---- | ------ |
-| tailscale-sub-router | 192.168.6.64/29 |      | 是     |
-| tailscale-node-vps   | 192.168.6.65/29 |      | 是     |
+| 网络名       | Master 接口 | 子网              | 用途           |
+| ------------ | ----------- | ----------------- | -------------- |
+| multus-main  | eth1        | 192.168.6.0/24    | 保留备用 (sbr) |
+| multus-iot   | eth1.50     | 192.168.50.0/24   | mDNS 服务      |
+| multus-ipv6  | eth1        | 192.168.6.0/24    | IPv6 直连      |
 
 ## 服务网络
 
@@ -236,13 +237,21 @@ postRenderers:
 
 - multus 网卡的使用情况
 
-只有两种情况需要用multus。
+只有两种情况需要用multus：
 
-第一 需要ipv6。例如 tailscale/qbit 等需要v6直连的情况（因为当前集群为单栈）
+**multus-ipv6 (eth1, 192.168.6.0/24)** - 需要 IPv6 直连的服务：
+  - tailscale (subnet-router, node-vps)
+  - qbittorrent
+  - caddy-external
+  - netbird-router (暂未使用)
 
-第二 mdns，例如home-assistant/go2rtc
+**multus-iot (eth1.50, 192.168.50.0/24)** - 需要 mDNS 的服务：
+  - home-assistant
+  - go2rtc
 
-除此之外需要单独ip的都应该使用L2宣告，并严格限定端口
+**multus-main (eth1, 192.168.6.0/24)** - 保留备用，使用 sbr
+
+除此之外需要单独 IP 的都应该使用 L2 宣告，并严格限定端口
 
 - 容器频繁重启且有规律（smb）
 

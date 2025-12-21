@@ -5,4 +5,4 @@ kind: Kustomization
 resources:
   - main.yaml
   - iot.yaml
-  - tailscale.yaml
+  - ipv6.yaml

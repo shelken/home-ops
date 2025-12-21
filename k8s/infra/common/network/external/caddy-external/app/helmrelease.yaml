@@ -143,7 +143,7 @@ spec:
       annotations:
         k8s.v1.cni.cncf.io/networks: |
           [{
-            "name": "multus-main",
+            "name": "multus-ipv6",
             "namespace": "network",
             "interface": "eth1",
             "ips": ["192.168.6.47/24"],
