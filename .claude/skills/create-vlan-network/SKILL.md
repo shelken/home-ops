@@ -203,7 +203,21 @@ defaultPodOptions:
 printf '02:%02X:%02X:%02X:%02X:%02X\n' $((RANDOM%256)) $((RANDOM%256)) $((RANDOM%256)) $((RANDOM%256)) $((RANDOM%256))
 ```
 
-### 第六步：更新文档
+### 第六步：批量重启 Multus 服务
+
+为使用 Multus 的 Deployment/StatefulSet 添加 label `app.ooooo.space/multus: "true"`，然后批量重启：
+
+```bash
+# default namespace
+kubectl rollout restart -n default -l app.ooooo.space/multus deployment
+kubectl rollout restart -n default -l app.ooooo.space/multus statefulset
+
+# network namespace
+kubectl rollout restart -n network -l app.ooooo.space/multus deployment
+kubectl rollout restart -n network -l app.ooooo.space/multus statefulset
+```
+
+### 第七步：更新文档
 
 更新以下文档：
 
