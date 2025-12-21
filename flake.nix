@@ -45,6 +45,7 @@
             helmfile
             # talosctl
 
+            gitleaks
           ];
 
           shellHook = ''
