@@ -36,6 +36,8 @@ spec:
               - |
                 ip rule add to 192.168.6.0/24 lookup 100 priority 32764
             securityContext:
+              runAsUser: 0
+              runAsNonRoot: false
               capabilities:
                 add:
                   - NET_ADMIN
