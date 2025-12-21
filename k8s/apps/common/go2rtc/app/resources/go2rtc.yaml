@@ -23,6 +23,7 @@ streams:
   mercury_1_hq:
     - rtsp://admin:${CAMERA_PASSWORD}@mercury-1.lan:554/stream1
     - ffmpeg:mercury_1_hq#audio=opus
+    # - ffmpeg:mercury_1_hq#video=h264#encoder=h264_qsv#audio=aac
   mercury_1_lq:
     - rtsp://admin:${CAMERA_PASSWORD}@mercury-1.lan:554/stream2
 
