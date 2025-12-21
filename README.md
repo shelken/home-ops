@@ -201,6 +201,20 @@ flux resume helmrelease cilium -n kube-system
 
 检查更新策略，不要设置滚动更新
 
+如果有部署自带，通过以下操作去除滚动更新
+
+```
+postRenderers:
+  - kustomize:
+      patches:
+        - target:
+            kind: Deployment
+            name: xxx
+          patch: |-
+            - op: remove
+              path: /spec/strategy/rollingUpdate
+```
+
 - 哪些情形不适合使用滚动更新？
 
 - 设置了multus的容器，会被上一个占用网卡
