@@ -91,7 +91,7 @@ graph TD
 | netbird                | 192.168.6.44  | 关闭 保留                 |           | multus-ipv6 |
 | caddy-external         | 192.168.6.47  |                           |           | multus-ipv6 |
 | home assistant         | 192.168.50.51 | mDNS                      |           | multus-iot  |
-| go2rtc                 | 192.168.50.53 | mDNS                      |           | multus-iot  |
+| go2rtc                 | 192.168.6.53 | mDNS                      |           | multus-main  |
 | qbittorrent            | 192.168.6.58  | IPv6 直连                 |           | multus-ipv6 |
 | tailscale-sub-router   | 192.168.6.65  | IPv6 直连                 |           | multus-ipv6 |
 | tailscale-node-vps     | 192.168.6.66  | IPv6 直连                 |           | multus-ipv6 |

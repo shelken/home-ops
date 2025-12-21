@@ -8,6 +8,7 @@
 
 - 主网设备可以发现 IoT 网段的 Home Assistant
 - Apple 设备可以通过 HomeKit 连接 IoT 网段的智能家居桥接器
+- hass小米可以直接控制设备
 
 ## 安装
 
