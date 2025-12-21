@@ -146,7 +146,7 @@ spec:
             "name": "multus-ipv6",
             "namespace": "network",
             "interface": "eth1",
-            "ips": ["192.168.6.47/32"],
+            "ips": ["192.168.6.47/24"],
             "mac": "02:63:D3:26:B4:39"
           }]
       securityContext:
