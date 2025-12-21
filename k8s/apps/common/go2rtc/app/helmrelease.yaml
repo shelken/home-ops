@@ -25,27 +25,27 @@ spec:
           app.ooooo.space/multus: "true"
         annotations:
           reloader.stakater.com/auto: "true"
-        initContainers:
-          setup-routes:
-            image:
-              repository: busybox
-              tag: latest
-            command:
-              - sh
-              - -c
-              - |
-                # 排除 k8s 节点 IP，让它们走 main 表
-                ip rule add to 192.168.6.80 lookup main priority 32763
-                ip rule add to 192.168.6.110 lookup main priority 32763
-                ip rule add to 192.168.6.141 lookup main priority 32763
-                # 其他 6 网段流量走 table 100 (eth1)
-                ip rule add to 192.168.6.0/24 lookup 100 priority 32764
-            securityContext:
-              runAsUser: 0
-              runAsNonRoot: false
-              capabilities:
-                add:
-                  - NET_ADMIN
+        # initContainers:
+        #   setup-routes:
+        #     image:
+        #       repository: busybox
+        #       tag: latest
+        #     command:
+        #       - sh
+        #       - -c
+        #       - |
+        #         # 排除 k8s 节点 IP，让它们走 main 表
+        #         ip rule add to 192.168.6.80 lookup main priority 32763
+        #         ip rule add to 192.168.6.110 lookup main priority 32763
+        #         ip rule add to 192.168.6.141 lookup main priority 32763
+        #         # 其他 6 网段流量走 table 100 (eth1)
+        #         ip rule add to 192.168.6.0/24 lookup 100 priority 32764
+        #     securityContext:
+        #       runAsUser: 0
+        #       runAsNonRoot: false
+        #       capabilities:
+        #         add:
+        #           - NET_ADMIN
         containers:
           app:
             image:
