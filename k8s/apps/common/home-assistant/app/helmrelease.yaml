@@ -98,16 +98,9 @@ spec:
       annotations:
         k8s.v1.cni.cncf.io/networks: |
           [{
-            "name": "multus-main",
-            "namespace": "network",
-            "interface": "eth1",
-            "ips": ["192.168.6.51/24"],
-            "mac": "02:7f:5c:50:6c:fe"
-          },
-          {
             "name": "multus-iot",
             "namespace": "network",
-            "interface": "eth2",
+            "interface": "eth1",
             "ips": ["192.168.50.51/24"],
             "mac": "02:7f:5c:50:6c:ff"
           }]
