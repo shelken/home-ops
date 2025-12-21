@@ -1,7 +1,7 @@
 ---
 log:
   output: stdout
-  level: info
+  level: debug
 
 api:
   listen: :1984
