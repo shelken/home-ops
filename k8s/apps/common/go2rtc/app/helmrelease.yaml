@@ -25,6 +25,20 @@ spec:
           app.ooooo.space/multus: "true"
         annotations:
           reloader.stakater.com/auto: "true"
+        initContainers:
+          setup-routes:
+            image:
+              repository: busybox
+              tag: latest
+            command:
+              - sh
+              - -c
+              - |
+                ip rule add to 192.168.6.0/24 lookup 100 priority 32764
+            securityContext:
+              capabilities:
+                add:
+                  - NET_ADMIN
         containers:
           app:
             image:
