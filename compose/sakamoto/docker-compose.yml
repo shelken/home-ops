@@ -106,7 +106,7 @@ services:
 
   # ==================== Mirror - GHCR ====================
   mirror-ghcr:
-    image: "registry:2.8.3"
+    image: registry:3.0
     container_name: "mirror-ghcr"
     labels:
       - homepage.group=sakamoto
@@ -122,7 +122,7 @@ services:
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
       - "${MIRROR_DATA_DIR}/ghcr/data:/var/lib/registry"
-      - "./configs/mirror-config.yaml:/etc/docker/registry/config.yml"
+      - "./configs/mirror-config.yaml:/etc/distribution/config.yml"
     ports:
       - "5001:5000"
     deploy:
@@ -130,7 +130,7 @@ services:
 
   # ==================== Mirror - Quay ====================
   mirror-quay:
-    image: "registry:2.8.3"
+    image: registry:3.0
     container_name: "mirror-quay"
     labels:
       - homepage.group=sakamoto
@@ -146,7 +146,7 @@ services:
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
       - "${MIRROR_DATA_DIR}/quay/data:/var/lib/registry"
-      - "./configs/mirror-config.yaml:/etc/docker/registry/config.yml"
+      - "./configs/mirror-config.yaml:/etc/distribution/config.yml"
     ports:
       - "5002:5000"
     deploy:
@@ -154,7 +154,7 @@ services:
 
   # ==================== Mirror - GCR ====================
   mirror-gcr:
-    image: "registry:2.8.3"
+    image: registry:3.0
     container_name: "mirror-gcr"
     labels:
       - homepage.group=sakamoto
@@ -170,7 +170,7 @@ services:
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
       - "${MIRROR_DATA_DIR}/mirror-gcr/data:/var/lib/registry"
-      - "./configs/mirror-config.yaml:/etc/docker/registry/config.yml"
+      - "./configs/mirror-config.yaml:/etc/distribution/config.yml"
     ports:
       - "5003:5000"
     deploy:
@@ -178,7 +178,7 @@ services:
 
   # ==================== Mirror - K8s ====================
   mirror-k8s:
-    image: "registry:2.8.3"
+    image: registry:3.0
     container_name: "mirror-k8s"
     labels:
       - homepage.group=sakamoto
@@ -194,7 +194,7 @@ services:
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
       - "${MIRROR_DATA_DIR}/k8s/data:/var/lib/registry"
-      - "./configs/mirror-config.yaml:/etc/docker/registry/config.yml"
+      - "./configs/mirror-config.yaml:/etc/distribution/config.yml"
     ports:
       - "5005:5000"
     deploy:

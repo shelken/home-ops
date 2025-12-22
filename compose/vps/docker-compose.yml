@@ -114,7 +114,7 @@ services:
       replicas: 1
 
   dhp:
-    image: registry:2.8.3
+    image: registry:3.0
     container_name: dhp
     labels:
       - homepage.group=VPS
@@ -124,14 +124,14 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - "${DATA_BASE_DIR}/dhp/data:/var/lib/registry"
-      - "./configs/mirror-config.yaml:/etc/docker/registry/config.yml"
+      - "./configs/mirror-config.yaml:/etc/distribution/config.yml"
     environment:
       - REGISTRY_PROXY_REMOTEURL=https://registry-1.docker.io
     networks:
       - homelab
     restart: always
     deploy:
-      replicas: 0
+      replicas: 1
 
   dockerproxy:
     image: ghcr.io/tecnativa/docker-socket-proxy:v0.4.2
@@ -255,7 +255,7 @@ services:
   #   ports:
   #     - "${DEPLOY_HOST}:51515:51515"
   #   deploy:
-  #     replicas: 0
+  #     replicas: 1
 
 networks:
   homelab:
