@@ -55,5 +55,14 @@
         commitMessageTopic: "{{{groupName}}} group",
       },
     },
+    {
+      description: "DockerProxy Group",
+      groupName: "DockerProxy",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/tecnativa/docker-socket-proxy/"],
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
   ],
 }
