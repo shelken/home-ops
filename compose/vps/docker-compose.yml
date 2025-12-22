@@ -63,6 +63,7 @@ services:
       - homepage.name=vps-caddy
       - homepage.icon=caddy.svg
       - homepage.description=vps反向代理
+      - homepage.href=https://victoria-logs.${MAIN_DOMAIN}/select/vmui/#/?query=%7Bapp%3D%22caddy-vps-cc%22%7D
       - homepage.widget.type=caddy
       - homepage.widget.url=http://ts-node-vps.network.svc:2019
     environment:
@@ -94,6 +95,7 @@ services:
       - homepage.name=crowdsec
       - homepage.icon=crowdsec.svg
       - homepage.description=安全检测
+      - homepage.href=https://grafana.${MAIN_DOMAIN}/d/crowdsec-threat-intel/crowdsec-threat-intelligence?from=now-24h&to=now
     environment:
       COLLECTIONS: |-
         crowdsecurity/linux
