@@ -1,0 +1,17 @@
+{
+  "(global)": {
+    "retention": {
+      "keepHourly": 24,
+      "keepDaily": 7
+    },
+    "scheduling": {
+      "intervalSeconds": 3600
+    },
+    "compression": {
+      "compressorName": "zstd-fastest"
+    }
+  },
+  "vps@vps:/backup/data": {
+    "scheduling": { "intervalSeconds": 3600 }
+  }
+}

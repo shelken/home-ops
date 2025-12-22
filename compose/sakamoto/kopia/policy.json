@@ -1,0 +1,20 @@
+{
+  "(global)": {
+    "retention": {
+      "keepHourly": 24,
+      "keepDaily": 7
+    },
+    "scheduling": {
+      "intervalSeconds": 3600
+    },
+    "compression": {
+      "compressorName": "zstd-fastest"
+    }
+  },
+  "sakamoto@sakamoto:/backup/minio": {
+    "scheduling": { "intervalSeconds": 3600 }
+  },
+  "sakamoto@sakamoto:/backup/compose": {
+    "scheduling": { "intervalSeconds": 3600 }
+  }
+}

@@ -1,0 +1,268 @@
+services:
+  mosdns:
+    image: ghcr.io/shelken/mosdns:vps-latest
+    container_name: mosdns
+    networks:
+      - homelab
+    restart: always
+    labels:
+      - homepage.group=VPS
+      - homepage.name=mosdns
+      - homepage.icon=azure-dns.svg
+      - homepage.description=dns服务
+    environment:
+      TZ: Asia/Shanghai
+      REMOTE_DNS_SERVER_1: ${REMOTE_DNS_SERVER_1}
+      REMOTE_DNS_SERVER_2: ${REMOTE_DNS_SERVER_2}
+    ports:
+      - "5054:53"
+      - "5054:53/udp"
+    deploy:
+      replicas: 1
+    logging:
+      options:
+        max-size: "80m"
+        max-file: "3"
+
+  node-exporter:
+    container_name: node-exporter
+    command:
+      - "--path.rootfs=/host/root"
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--path.udev.data=/host/root/run/udev/data"
+      - "--web.listen-address=0.0.0.0:9100"
+      - >-
+        --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
+    image: prom/node-exporter:v1.10.2
+    labels:
+      - homepage.group=VPS
+      - homepage.name=node-exporter
+      - homepage.icon=docker-moby.svg
+      - homepage.description=
+    networks:
+      - homelab
+    restart: always
+    ports:
+      - "${DEPLOY_HOST}:9100:9100/tcp"
+    volumes:
+      - /:/host/root:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+    deploy:
+      replicas: 1
+
+  caddy:
+    image: ghcr.io/shelken/caddy:rolling
+    container_name: caddy
+    networks:
+      - homelab
+    restart: always
+    labels:
+      - homepage.group=VPS
+      - homepage.name=vps-caddy
+      - homepage.icon=caddy.svg
+      - homepage.description=vps反向代理
+      - homepage.widget.type=caddy
+      - homepage.widget.url=http://ts-node-vps.network.svc:2019
+    environment:
+      TZ: Asia/Shanghai
+      MAIN_DOMAIN: ${MAIN_DOMAIN}
+      CLOUDFLARE_API_TOKEN: ${CADDY_CLOUDFLARE_API_TOKEN}
+    volumes:
+      - "${DATA_BASE_DIR}/caddy/Caddyfile:/etc/caddy/Caddyfile"
+      - "${DATA_BASE_DIR}/caddy/site:/srv"
+      - "${DATA_BASE_DIR}/caddy/data:/data"
+      - "${DATA_BASE_DIR}/caddy/config:/config"
+      - /var/log/caddy:/var/log/caddy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+      - "${DEPLOY_HOST}:2019:2019/tcp"
+    deploy:
+      replicas: 1
+
+  crowdsec-agent:
+    image: ghcr.io/crowdsecurity/crowdsec:v1.7.4
+    container_name: crowdsec-agent
+    networks:
+      - homelab
+    restart: always
+    labels:
+      - homepage.group=VPS
+      - homepage.name=crowdsec
+      - homepage.icon=crowdsec.svg
+      - homepage.description=安全检测
+    environment:
+      COLLECTIONS: |-
+        crowdsecurity/linux
+        crowdsecurity/caddy
+        crowdsecurity/http-cve
+        crowdsecurity/appsec-virtual-patching
+        crowdsecurity/appsec-generic-rules
+        crowdsecurity/appsec-crs
+      DISABLE_LOCAL_API: "true"
+      LOCAL_API_URL: ${CROWDSEC_LOCAL_API_URL}
+      AGENT_USERNAME: vps-cc
+      AGENT_PASSWORD: ${CROWDSEC_AGENT_PASSWORD}
+      CROWDSEC_BYPASS_DB_VOLUME_CHECK: "true"
+    volumes:
+      - ./configs/crowdsec/acquis.d:/etc/crowdsec/acquis.d:ro
+      - /var/log:/var/log:ro
+    deploy:
+      replicas: 1
+
+  dhp:
+    image: registry:2.8.3
+    container_name: dhp
+    labels:
+      - homepage.group=VPS
+      - homepage.name=dhp
+      - homepage.icon=docker-moby.svg
+      - homepage.description=docker镜像registry
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - "${DATA_BASE_DIR}/dhp/data:/var/lib/registry"
+      - "./configs/mirror-config.yaml:/etc/docker/registry/config.yml"
+    environment:
+      - REGISTRY_PROXY_REMOTEURL=https://registry-1.docker.io
+    networks:
+      - homelab
+    restart: always
+    deploy:
+      replicas: 0
+
+  dockerproxy:
+    image: ghcr.io/tecnativa/docker-socket-proxy:latest@sha256:3400c429c5f9e1b21d62130fb93b16e2e772d4fb7695bd52fc2b743800b9fe9e
+    container_name: dockerproxy
+    restart: always
+    networks:
+      - homelab
+    labels:
+      - homepage.group=VPS
+      - homepage.name=docker-proxy
+      - homepage.icon=docker-moby.svg
+      - homepage.description=
+    environment:
+      - CONTAINERS=1
+      - SERVICES=1
+      - TASKS=1
+      - POST=0
+      - VOLUMES=0
+      - IMAGES=0
+      - INFO=0
+      - NETWORKS=0
+    ports:
+      - "${DOCKER_PROXY_HOST:-127.0.0.1}:2575:2375"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    deploy:
+      replicas: 1
+
+  fluent-bit:
+    image: ghcr.io/fluent/fluent-bit:latest
+    container_name: fluent-bit
+    networks:
+      - homelab
+    restart: always
+    environment:
+      TZ: Asia/Shanghai
+      VICTORIA_LOGS_HOST: ${VICTORIA_LOGS_HOST}
+      VICTORIA_LOGS_PORT: ${VICTORIA_LOGS_PORT:-9428}
+      HOSTNAME: vps-cc
+    volumes:
+      - ./configs/fluent-bit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+      - ./configs/fluent-bit/parsers.conf:/fluent-bit/etc/parsers.conf:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/log/caddy:/var/log/caddy:ro
+      - ${DATA_BASE_DIR}/fluent-bit/db:/fluent-bit/db
+    deploy:
+      replicas: 1
+
+  sub-converter:
+    image: ghcr.io/shelken/subconverter:1.7.0
+    container_name: sub-converter
+    networks:
+      - homelab
+    restart: always
+    labels:
+      - homepage.group=VPS
+      - homepage.name=订阅转换
+      - homepage.icon=docker-moby.svg
+      - homepage.href=https://sub.${MAIN_DOMAIN}/version
+      - homepage.description=订阅转换
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      TZ: Asia/Shanghai
+      MANAGED_PREFIX: https://sub.${MAIN_DOMAIN}
+      API_MODE: false
+      API_TOKEN: password
+    ports:
+      - "127.0.0.1:25500:25500/tcp"
+    deploy:
+      replicas: 1
+
+  derp:
+    image: fredliang/derper:v1.90.9
+    container_name: derp
+    network_mode: host
+    restart: always
+    labels:
+      - homepage.group=VPS
+      - homepage.name=derp服务
+      - homepage.icon=tailscale.svg
+      - homepage.href=https://derp.${MAIN_DOMAIN}
+      - homepage.description=derp服务
+    environment:
+      TZ: Asia/Shanghai
+      DERP_DOMAIN: derp.${MAIN_DOMAIN}
+      DERP_ADDR: ":8666"
+      DERP_STUN_PORT: "3478"
+      DERP_VERIFY_CLIENTS: "false"
+    volumes:
+      - "/var/run/tailscale/tailscaled.sock:/var/run/tailscale/tailscaled.sock"
+    deploy:
+      replicas: 1
+
+  # ==================== Kopia Backup ====================
+  # kopia:
+  #   image: kopia/kopia:latest
+  #   container_name: kopia
+  #   labels:
+  #     - homepage.group=VPS
+  #     - homepage.name=kopia
+  #     - homepage.icon=kopia.svg
+  #     - homepage.description=备份服务
+  #   restart: always
+  #   networks:
+  #     - homelab
+  #   command:
+  #     - server
+  #     - start
+  #     - --address=0.0.0.0:51515
+  #     - --server-username=${KOPIA_SERVER_USERNAME}
+  #     - --server-password=${KOPIA_SERVER_PASSWORD}
+  #   environment:
+  #     TZ: Asia/Shanghai
+  #     KOPIA_PASSWORD: ${KOPIA_REPO_PASSWORD}
+  #   volumes:
+  #     - ./kopia:/app/config:ro
+  #     - ${DATA_BASE_DIR}:/backup/data:ro
+  #   ports:
+  #     - "${DEPLOY_HOST}:51515:51515"
+  #   deploy:
+  #     replicas: 0
+
+networks:
+  homelab:
+    name: homelab
+    driver: bridge
+    enable_ipv6: true
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+        - subnet: fd01:3d76:3407:1::/64

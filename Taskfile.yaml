@@ -12,6 +12,7 @@ includes:
   sops: .taskfile/sops.yaml
   secret: .taskfile/secret.yaml
   flux: .taskfile/flux.yaml
+  compose: .taskfile/compose.yaml
 
 tasks:
   default: task --list

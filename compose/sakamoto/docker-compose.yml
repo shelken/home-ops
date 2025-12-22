@@ -1,0 +1,350 @@
+networks:
+  homelab:
+    external: true
+
+services:
+  # ==================== Caddy ====================
+  caddy:
+    image: ghcr.io/shelken/caddy:2.10.2
+    container_name: caddy
+    labels:
+      - homepage.group=sakamoto
+      - homepage.name=caddy
+      - homepage.icon=caddy.svg
+      - homepage.description=
+      - homepage.widget.type=caddy
+      - homepage.widget.url=http://sakamoto.lan:2019
+    network_mode: host
+    restart: always
+    configs:
+      - source: caddy_config
+        target: /etc/caddy/Caddyfile
+    environment:
+      TZ: Asia/Shanghai
+      MAIN_DOMAIN: ${MAIN_DOMAIN}
+      CLOUDFLARE_API_TOKEN: ${CADDY_CLOUDFLARE_API_TOKEN}
+    volumes:
+      - "${DOCKER_DATA_DIR}/caddy/site:/srv"
+      - "${DOCKER_DATA_DIR}/caddy/data:/data"
+      - "${DOCKER_DATA_DIR}/caddy/config:/config"
+    deploy:
+      replicas: 1
+
+  # ==================== Docker Proxy ====================
+  dockerproxy:
+    image: tecnativa/docker-socket-proxy:latest@sha256:3400c429c5f9e1b21d62130fb93b16e2e772d4fb7695bd52fc2b743800b9fe9e
+    container_name: dockerproxy
+    restart: always
+    labels:
+      - homepage.group=sakamoto
+      - homepage.name=docker-proxy
+      - homepage.icon=docker-moby.svg
+      - homepage.description=
+    networks:
+      - homelab
+    environment:
+      - CONTAINERS=1
+      - SERVICES=1
+      - TASKS=1
+    ports:
+      - "2575:2375"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    deploy:
+      replicas: 1
+
+  # ==================== MinIO ====================
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    container_name: minio
+    labels:
+      - homepage.group=sakamoto
+      - homepage.name=minio
+      - homepage.icon=minio.svg
+      - homepage.description=
+    user: ${UID}:${GID}
+    networks:
+      - homelab
+    command: "server /data --console-address :9001"
+    restart: always
+    environment:
+      TZ: Asia/Shanghai
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - "${MINIO_DATA_DIR}:/data"
+    ports:
+      - "9001:9001"
+      - "9000:9000"
+    deploy:
+      replicas: 1
+
+  # ==================== Nvidia DLS ====================
+  nvidia-dls:
+    image: collinwebdesigns/fastapi-dls:2.0.3
+    container_name: nvidia-dls
+    labels:
+      - homepage.group=sakamoto
+      - homepage.name=nvidia-dls
+      - homepage.icon=docker-moby.svg
+      - homepage.description=
+    networks:
+      - homelab
+    restart: always
+    environment:
+      TZ: Asia/Shanghai
+      DLS_URL: nvidia-dls.${MAIN_DOMAIN}
+      DLS_PORT: 443
+      LEASE_EXPIRE_DAYS: 90
+      DATABASE: sqlite:////app/database/db.sqlite
+      DEBUG: false
+    ports:
+      - "5100:443"
+    volumes:
+      - ${DOCKER_DATA_DIR}/nvidia-dls/cert:/app/cert
+      - ${DOCKER_DATA_DIR}/nvidia-dls/db:/app/database
+
+  # ==================== Mirror - GHCR ====================
+  mirror-ghcr:
+    image: "registry:2.8.3"
+    container_name: "mirror-ghcr"
+    labels:
+      - homepage.group=sakamoto
+      - homepage.name=mirror-ghcr
+      - homepage.icon=docker-moby.svg
+      - homepage.description=
+    restart: always
+    networks:
+      - homelab
+    environment:
+      REGISTRY_LOG_LEVEL: debug
+      REGISTRY_PROXY_REMOTEURL: https://ghcr.io
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "${MIRROR_DATA_DIR}/ghcr/data:/var/lib/registry"
+      - "./configs/mirror-config.yaml:/etc/docker/registry/config.yml"
+    ports:
+      - "5001:5000"
+    deploy:
+      replicas: 1
+
+  # ==================== Mirror - Quay ====================
+  mirror-quay:
+    image: "registry:2.8.3"
+    container_name: "mirror-quay"
+    labels:
+      - homepage.group=sakamoto
+      - homepage.name=mirror-quay
+      - homepage.icon=docker-moby.svg
+      - homepage.description=
+    restart: always
+    networks:
+      - homelab
+    environment:
+      REGISTRY_LOG_LEVEL: debug
+      REGISTRY_PROXY_REMOTEURL: https://quay.io
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "${MIRROR_DATA_DIR}/quay/data:/var/lib/registry"
+      - "./configs/mirror-config.yaml:/etc/docker/registry/config.yml"
+    ports:
+      - "5002:5000"
+    deploy:
+      replicas: 1
+
+  # ==================== Mirror - GCR ====================
+  mirror-gcr:
+    image: "registry:2.8.3"
+    container_name: "mirror-gcr"
+    labels:
+      - homepage.group=sakamoto
+      - homepage.name=mirror-gcr
+      - homepage.icon=docker-moby.svg
+      - homepage.description=
+    restart: always
+    networks:
+      - homelab
+    environment:
+      REGISTRY_LOG_LEVEL: debug
+      REGISTRY_PROXY_REMOTEURL: https://mirror.gcr.io
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "${MIRROR_DATA_DIR}/mirror-gcr/data:/var/lib/registry"
+      - "./configs/mirror-config.yaml:/etc/docker/registry/config.yml"
+    ports:
+      - "5003:5000"
+    deploy:
+      replicas: 1
+
+  # ==================== Mirror - K8s ====================
+  mirror-k8s:
+    image: "registry:2.8.3"
+    container_name: "mirror-k8s"
+    labels:
+      - homepage.group=sakamoto
+      - homepage.name=mirror-k8s
+      - homepage.icon=docker-moby.svg
+      - homepage.description=
+    restart: always
+    networks:
+      - homelab
+    environment:
+      REGISTRY_LOG_LEVEL: debug
+      REGISTRY_PROXY_REMOTEURL: https://registry.k8s.io
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "${MIRROR_DATA_DIR}/k8s/data:/var/lib/registry"
+      - "./configs/mirror-config.yaml:/etc/docker/registry/config.yml"
+    ports:
+      - "5005:5000"
+    deploy:
+      replicas: 1
+
+  # ==================== Kopia Backup ====================
+  # kopia:
+  #   image: kopia/kopia:latest
+  #   container_name: kopia
+  #   labels:
+  #     - homepage.group=sakamoto
+  #     - homepage.name=kopia
+  #     - homepage.icon=kopia.svg
+  #     - homepage.description=备份服务
+  #   restart: always
+  #   networks:
+  #     - homelab
+  #   command:
+  #     - server
+  #     - start
+  #     - --address=0.0.0.0:51515
+  #     - --without-password
+  #   environment:
+  #     TZ: Asia/Shanghai
+  #     KOPIA_PASSWORD: ${KOPIA_REPO_PASSWORD}
+  #   volumes:
+  #     - ./kopia:/app/config:ro
+  #     - ${MINIO_DATA_DIR}:/backup/minio:ro
+  #     - ${DOCKER_DATA_DIR}:/backup/compose:ro
+  #   ports:
+  #     - "51515:51515"
+  #   deploy:
+  #     replicas: 0
+
+configs:
+  caddy_config:
+    content: |
+      {
+        admin 0.0.0.0:2019
+        log {
+          format console
+          level INFO
+        }
+        # 所有服务全局配置块
+        servers {
+          # 此处仅在二级代理时才应该开启，假如这里变成一级代理，不应该相信外部传入的xff
+          trusted_proxies static private_ranges
+          protocols h1 h2 h3
+        }
+      }
+
+      (with-tls) {
+        tls {
+          dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+        }
+      }
+
+      # 通用的代理头部设置
+      (common_to_proxy_headers) {
+        # header_up +X-Real-IP {remote_host}
+        # header_up +X-Forwarded-For {remote_host}
+        flush_interval -1
+      }
+
+      # 0: to
+      # 1: 多种处理，例如 transfer_xff，添加请求头
+      # 2 添加 transport 参数
+      (reverse_template) {
+        reverse_proxy {
+          to {args[0]}
+          import common_to_proxy_headers
+          import {args[1]}
+          transport http {
+            import {args[2]}
+
+            dial_timeout 10s
+            response_header_timeout 30s
+            expect_continue_timeout 15s
+
+            keepalive 300s
+            keepalive_idle_conns 100
+            keepalive_interval 30s
+          }
+        }
+      }
+
+      (common_header) {
+        header {
+          +My-Server "sakamoto"
+          -Server
+          -via
+        }
+      }
+
+      (cors) {
+        header >Access-Control-Allow-Credentials true
+        header >Access-Control-Allow-Origin "{args[0]}"
+        header >Access-Control-Allow-Headers "{args[0]}"
+        header >Access-Control-Allow-Methods "OPTIONS, HEAD, GET, POST, PUT, PATCH, DELETE"
+      }
+
+      (allow-all-origin) {
+        # 处理 OPTIONS 请求
+        @optionsMethod {
+            method OPTIONS
+        }
+        handle @optionsMethod {
+            respond 200
+        }
+        import cors *
+      }
+
+      (empty) {
+      }
+
+      (skip-tls-verify) {
+        tls
+        tls_insecure_skip_verify
+      }
+
+      (internal-access) {
+        @{args[0]} host {args[0]}.{env.MAIN_DOMAIN}
+        handle @{args[0]} {
+          @deny header X-Forwarded-For *
+          handle @deny {
+            respond "Access denied - Internal network only" 403
+          }
+          import reverse_template {args[1]} {args[2]} {args[3]}
+          import common_header
+        }
+      }
+
+      *.{env.MAIN_DOMAIN} {
+        import with-tls
+
+        import internal-access minio-ui     http://127.0.0.1:9001       empty empty
+        import internal-access minio        http://127.0.0.1:9000       empty empty
+        import internal-access nvidia-dls   https://127.0.0.1:5100      empty skip-tls-verify
+        import internal-access pve-mine     https://192.168.6.213:8006  empty skip-tls-verify
+
+        import internal-access ghcr-mirror        http://127.0.0.1:5001  empty empty
+        import internal-access quay-mirror        http://127.0.0.1:5002  empty empty
+        import internal-access mirror-gcr-mirror  http://127.0.0.1:5003  empty empty
+        import internal-access k8s-mirror         http://127.0.0.1:5005  empty empty
+        #import internal-access docker-mirror     http://127.0.0.1:5006  empty empty
+
+        handle {
+          #import to_k8s_external
+          #import common_header
+          abort
+        }
+
+      }

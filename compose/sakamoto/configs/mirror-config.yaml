@@ -1,0 +1,17 @@
+# 本配置仅放置通用的config部分。
+version: 0.1
+storage:
+  filesystem:
+    rootdirectory: /var/lib/registry
+  delete:
+    enabled: true
+  maintenance:
+    uploadpurging:
+      enabled: true
+      age: 720h
+      dryrun: false
+      interval: 24h
+    readonly:
+      enabled: false
+http:
+  addr: 0.0.0.0:5000

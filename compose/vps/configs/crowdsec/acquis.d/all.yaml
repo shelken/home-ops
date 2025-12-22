@@ -1,0 +1,17 @@
+---
+filename: /var/log/caddy/access.log
+labels:
+  type: caddy
+---
+filenames:
+  - /var/log/auth.log
+labels:
+  type: syslog
+---
+appsec_configs:
+  - crowdsecurity/appsec-default
+  - crowdsecurity/crs
+labels:
+  type: appsec
+listen_addr: 0.0.0.0:7422
+source: appsec
