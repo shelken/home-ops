@@ -106,7 +106,7 @@ services:
 
   # ==================== Mirror - GHCR ====================
   mirror-ghcr:
-    image: "registry:2.8.3"
+    image: "registry:3.0.0"
     container_name: "mirror-ghcr"
     labels:
       - homepage.group=sakamoto
@@ -130,7 +130,7 @@ services:
 
   # ==================== Mirror - Quay ====================
   mirror-quay:
-    image: "registry:2.8.3"
+    image: "registry:3.0.0"
     container_name: "mirror-quay"
     labels:
       - homepage.group=sakamoto
@@ -154,7 +154,7 @@ services:
 
   # ==================== Mirror - GCR ====================
   mirror-gcr:
-    image: "registry:2.8.3"
+    image: "registry:3.0.0"
     container_name: "mirror-gcr"
     labels:
       - homepage.group=sakamoto
@@ -178,7 +178,7 @@ services:
 
   # ==================== Mirror - K8s ====================
   mirror-k8s:
-    image: "registry:2.8.3"
+    image: "registry:3.0.0"
     container_name: "mirror-k8s"
     labels:
       - homepage.group=sakamoto
