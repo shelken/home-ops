@@ -7,6 +7,7 @@
 - 使用中文对话
 - 任何资源的删除操作必须询问确认之后才可以执行
 - 执行kubectl前必须带上`KUBECONFIG=./kubeconfig`
+- 执行测试kubectl apply前需要考虑namepsace（因为资源的namespace一般不写，由flux管理）
 
 ## 项目概述
 
