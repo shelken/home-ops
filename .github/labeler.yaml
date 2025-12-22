@@ -17,6 +17,11 @@ area/k8s:
           - k8s/components/**/*
           - bootstrap/**/*
 
+area/compose:
+  - changed-files:
+      - any-glob-to-any-file:
+          - compose/**/*
+
 area/renovate:
   - changed-files:
       - any-glob-to-any-file:
