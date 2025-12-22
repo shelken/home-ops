@@ -3,10 +3,4 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./helmrelease.yaml
-configMapGenerator:
-  - name: cli-proxy-api-configmap
-    files:
-      # example file: https://github.com/router-for-me/CLIProxyAPI/blob/main/config.example.yaml
-      - config.yaml=./config.yaml
-generatorOptions:
-  disableNameSuffixHash: true
+  - ./externalsecret.yaml

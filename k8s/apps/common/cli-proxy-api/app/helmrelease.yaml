@@ -102,8 +102,8 @@ spec:
               - path: /.cli-proxy-api
                 subPath: for-run
       config-file:
-        type: configMap
-        name: cli-proxy-api-configmap
+        type: secret
+        name: cli-proxy-api-secret
         globalMounts:
           - path: /CLIProxyAPI/config.yaml
             subPath: config.yaml
