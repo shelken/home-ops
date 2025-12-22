@@ -63,11 +63,7 @@
 
 ## 开发环境
 
-使用 Nix Flake 管理，详见 `flake.nix`。
-
-关键环境变量：
-- `KUBECONFIG`: `./kubeconfig`
-- `SOPS_AGE_KEY_FILE`: `~/.config/sops/age/keys.txt`
+使用 Nix Flake + direnv 管理。执行需要项目环境的命令时，使用 `direnv exec . <command>` 包装以加载正确的环境。
 
 ## 常用命令
 
