@@ -46,6 +46,9 @@
             # talosctl
 
             gitleaks
+
+            # Home Assistant CLI
+            home-assistant-cli
           ];
 
           shellHook = ''
