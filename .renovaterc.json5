@@ -19,7 +19,6 @@
   ],
   dependencyDashboard: true,
   dependencyDashboardTitle: "Renovate Dashboard 🤖",
-  schedule: ["every weekend"],
   ignorePaths: ["**/*.sops.*"],
   flux: {
     managerFilePatterns: ["/(^|/)k8s/.+\\.ya?ml(?:\\.j2)?$/"],
