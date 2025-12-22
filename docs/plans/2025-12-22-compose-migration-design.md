@@ -139,9 +139,9 @@ rm -f "$LOCAL_DIR/.env" "$LOCAL_DIR/kopia/repository.json"
 # .taskfile/compose.yaml
 vars:
   SAKAMOTO_HOST: "sakamoto.lan"
-  SAKAMOTO_COMPOSE_DIR: "/opt/compose"
-  VPS_HOST: "vps161"
-  VPS_COMPOSE_DIR: "/opt/compose"
+  SAKAMOTO_COMPOSE_DIR: "~/Code/homelab-compose"
+  VPS_HOST: "vps-cc"
+  VPS_COMPOSE_DIR: "~/homelab-compose"
 ```
 
 ---
