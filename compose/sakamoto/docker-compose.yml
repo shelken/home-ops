@@ -201,33 +201,39 @@ services:
       replicas: 1
 
   # ==================== Kopia Backup ====================
-  # kopia:
-  #   image: kopia/kopia:latest
-  #   container_name: kopia
-  #   labels:
-  #     - homepage.group=sakamoto
-  #     - homepage.name=kopia
-  #     - homepage.icon=kopia.svg
-  #     - homepage.description=备份服务
-  #   restart: always
-  #   networks:
-  #     - homelab
-  #   command:
-  #     - server
-  #     - start
-  #     - --address=0.0.0.0:51515
-  #     - --without-password
-  #   environment:
-  #     TZ: Asia/Shanghai
-  #     KOPIA_PASSWORD: ${KOPIA_REPO_PASSWORD}
-  #   volumes:
-  #     - ./kopia:/app/config:ro
-  #     - ${MINIO_DATA_DIR}:/backup/minio:ro
-  #     - ${DOCKER_DATA_DIR}:/backup/compose:ro
-  #   ports:
-  #     - "51515:51515"
-  #   deploy:
-  #     replicas: 0
+  kopia:
+    image: kopia/kopia:0.22.3
+    container_name: kopia
+    hostname: sakamoto
+    networks:
+      - homelab
+    restart: always
+    labels:
+      - homepage.group=sakamoto
+      - homepage.name=kopia
+      - homepage.icon=kopia.svg
+      - homepage.description=备份服务
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        kopia repository connect from-config --file /app/config/repository.config --override-hostname=sakamoto --override-username=shelken || \
+        kopia repository create from-config --file /app/config/repository.config
+        kopia policy import --from-file /app/config/policy.json
+        exec kopia server start --address=0.0.0.0:51515 --without-password
+    environment:
+      TZ: Asia/Shanghai
+      KOPIA_PASSWORD: ${KOPIA_REPO_PASSWORD}
+    volumes:
+      - ./kopia/repository.config:/app/config/repository.config:ro
+      - ./kopia/policy.json:/app/config/policy.json:ro
+      - ${DOCKER_DATA_DIR}/kopia/cache:/app/cache
+      - ${DOCKER_DATA_DIR}/kopia/logs:/app/logs
+      - ${MINIO_DATA_DIR}:/backup/minio:ro
+      - ${DOCKER_DATA_DIR}:/backup/compose:ro
+    ports:
+      - "51515:51515"
+    deploy:
+      replicas: 1
 
 configs:
   caddy_config:

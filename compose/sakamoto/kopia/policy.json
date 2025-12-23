@@ -1,20 +1,29 @@
 {
-  "(global)": {
+  "@sakamoto": {
     "retention": {
       "keepHourly": 24,
       "keepDaily": 7
-    },
-    "scheduling": {
-      "intervalSeconds": 3600
     },
     "compression": {
       "compressorName": "zstd-fastest"
     }
   },
-  "sakamoto@sakamoto:/backup/minio": {
+  "@vps": {
+    "retention": {
+      "keepHourly": 24,
+      "keepDaily": 7
+    },
+    "compression": {
+      "compressorName": "zstd-fastest"
+    }
+  },
+  "shelken@sakamoto:/backup/minio": {
     "scheduling": { "intervalSeconds": 3600 }
   },
-  "sakamoto@sakamoto:/backup/compose": {
+  "shelken@sakamoto:/backup/compose": {
+    "scheduling": { "intervalSeconds": 3600 }
+  },
+  "shelken@vps:/backup/data": {
     "scheduling": { "intervalSeconds": 3600 }
   }
 }

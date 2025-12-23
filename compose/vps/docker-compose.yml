@@ -230,34 +230,65 @@ services:
     deploy:
       replicas: 1
 
+  # ==================== OpenList ====================
+  openlist:
+    image: ghcr.io/openlistteam/openlist-git:v4.1.8
+    container_name: openlist
+    networks:
+      - homelab
+    restart: always
+    labels:
+      - homepage.group=VPS
+      - homepage.name=openlist
+      - homepage.icon=openlist.svg
+      - homepage.description=网盘S3服务
+    environment:
+      TZ: Asia/Shanghai
+      S3_ENABLE: "true"
+      S3_PORT: "5246"
+      HTTP_PORT: "80"
+    volumes:
+      - "${DATA_BASE_DIR}/openlist/data:/opt/openlist/data"
+    ports:
+      - "${DEPLOY_HOST}:5244:80/tcp"
+    deploy:
+      replicas: 1
+
   # ==================== Kopia Backup ====================
-  # kopia:
-  #   image: kopia/kopia:latest
-  #   container_name: kopia
-  #   labels:
-  #     - homepage.group=VPS
-  #     - homepage.name=kopia
-  #     - homepage.icon=kopia.svg
-  #     - homepage.description=备份服务
-  #   restart: always
-  #   networks:
-  #     - homelab
-  #   command:
-  #     - server
-  #     - start
-  #     - --address=0.0.0.0:51515
-  #     - --server-username=${KOPIA_SERVER_USERNAME}
-  #     - --server-password=${KOPIA_SERVER_PASSWORD}
-  #   environment:
-  #     TZ: Asia/Shanghai
-  #     KOPIA_PASSWORD: ${KOPIA_REPO_PASSWORD}
-  #   volumes:
-  #     - ./kopia:/app/config:ro
-  #     - ${DATA_BASE_DIR}:/backup/data:ro
-  #   ports:
-  #     - "${DEPLOY_HOST}:51515:51515"
-  #   deploy:
-  #     replicas: 1
+  kopia:
+    image: kopia/kopia:0.22.3
+    container_name: kopia
+    hostname: vps
+    networks:
+      - homelab
+    restart: always
+    labels:
+      - homepage.group=VPS
+      - homepage.name=kopia
+      - homepage.icon=kopia.svg
+      - homepage.description=备份服务
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        kopia repository connect from-config --file /app/config/repository.config --override-hostname=vps --override-username=shelken || \
+        kopia repository create from-config --file /app/config/repository.config
+        kopia policy import --from-file /app/config/policy.json
+        exec kopia server start --address=0.0.0.0:51515 --server-username=$${KOPIA_SERVER_USERNAME} --server-password=$${KOPIA_SERVER_PASSWORD}
+    environment:
+      TZ: Asia/Shanghai
+      KOPIA_PASSWORD: ${KOPIA_REPO_PASSWORD}
+      KOPIA_SERVER_USERNAME: ${KOPIA_SERVER_USERNAME}
+      KOPIA_SERVER_PASSWORD: ${KOPIA_SERVER_PASSWORD}
+    volumes:
+      - ./kopia/repository.config:/app/config/repository.config:ro
+      - ./kopia/policy.json:/app/config/policy.json:ro
+      - ${DATA_BASE_DIR}/kopia/cache:/app/cache
+      - ${DATA_BASE_DIR}/kopia/logs:/app/logs
+      - ${DATA_BASE_DIR}:/backup/data:ro
+    ports:
+      - "${DEPLOY_HOST}:51515:51515/tcp"
+    deploy:
+      replicas: 1
 
 networks:
   homelab:
