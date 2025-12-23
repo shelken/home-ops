@@ -91,20 +91,16 @@ rsync -avzL --delete ...
 
 ### 6. OpenList 环境变量前缀
 
-**问题**：OpenList 的初始化配置和运行时配置使用不同的环境变量格式
+使用`--no-prefix` 统一不用 `OPENLIST_`前缀
 
-**修正**：
-- 初始化配置（ADMIN_PASSWORD）：使用 `OPENLIST_` 前缀
-- 运行时配置（S3_ENABLE 等）：不使用前缀
 
-```yaml
-environment:
-  # 运行时配置（无前缀）
-  S3_ENABLE: "true"
-  S3_PORT: "5246"
-  # 初始化配置（OPENLIST_ 前缀）
-  OPENLIST_ADMIN_PASSWORD: ${OPENLIST_ADMIN_PASSWORD}
-```
+### 7. Kopia 多客户端同步延迟
+
+**问题**：多个 Kopia 客户端连接同一仓库时，新快照不能立即被其他客户端看到
+
+**原因**：Kopia 使用 Epoch Manager，默认 20 分钟刷新一次索引
+
+**修正**：重启 kopia 容器可强制刷新，或等待 20 分钟自动同步
 
 ## 测试命令
 
