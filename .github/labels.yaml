@@ -3,18 +3,21 @@
 - name: area/apps
   color: "a6e3a1"
   description: "Pull requests that update applications"
+- name: area/compose
+  color: "a6e3a1"
+  description: "Pull requests that update compose"
 - name: area/github
   color: "a6e3a1"
   description: "Pull requests that update GitHub workflows"
+- name: area/infra
+  color: "a6e3a1"
+  description: "Pull requests that update Infrastructure"
 - name: area/k8s
   color: "a6e3a1"
   description: "Pull requests that update Kubernetes"
 - name: area/renovate
   color: "a6e3a1"
   description: "Pull requests that update Renovate configuration"
-- name: area/compose
-  color: "a6e3a1"
-  description: "Pull requests that update compose"
 
 # Renovate Types
 - name: renovate/container

@@ -4,23 +4,27 @@ area/apps:
       - any-glob-to-any-file:
           - k8s/apps/**/*
 
+area/compose:
+  - changed-files:
+      - any-glob-to-any-file:
+          - compose/**/*
+
 area/github:
   - changed-files:
       - any-glob-to-any-file:
           - .github/**/*
 
+area/infra:
+  - changed-files:
+      - any-glob-to-any-file:
+          - k8s/infra/**/*
+
 area/k8s:
   - changed-files:
       - any-glob-to-any-file:
           - k8s/clusters/**/*
-          - k8s/infra/**/*
           - k8s/components/**/*
           - bootstrap/**/*
-
-area/compose:
-  - changed-files:
-      - any-glob-to-any-file:
-          - compose/**/*
 
 area/renovate:
   - changed-files:
