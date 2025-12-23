@@ -47,8 +47,8 @@ tasks:
     cmds:
       - |
         ssh {{.SAKAMOTO_HOST}} "cd {{.SAKAMOTO_COMPOSE_DIR}} && \
-          docker exec kopia kopia repository connect from-config --file /app/config/repository.json || \
-          docker exec kopia kopia repository create from-config --file /app/config/repository.json"
+          docker exec kopia kopia repository connect from-config --file /app/config/repository.config || \
+          docker exec kopia kopia repository create from-config --file /app/config/repository.config"
       - |
         ssh {{.SAKAMOTO_HOST}} "cd {{.SAKAMOTO_COMPOSE_DIR}} && \
           docker exec kopia kopia policy import --from-file /app/config/policy.json"
@@ -85,8 +85,8 @@ tasks:
     cmds:
       - |
         ssh {{.VPS_HOST}} "cd {{.VPS_COMPOSE_DIR}} && \
-          docker exec kopia kopia repository connect from-config --file /app/config/repository.json || \
-          docker exec kopia kopia repository create from-config --file /app/config/repository.json"
+          docker exec kopia kopia repository connect from-config --file /app/config/repository.config || \
+          docker exec kopia kopia repository create from-config --file /app/config/repository.config"
       - |
         ssh {{.VPS_HOST}} "cd {{.VPS_COMPOSE_DIR}} && \
           docker exec kopia kopia policy import --from-file /app/config/policy.json"
@@ -114,16 +114,16 @@ tasks:
       - |
         {{.SCRIPTS_DIR}}/azure-inject.sh "{{.LOCAL_DIR}}/.env.tpl" > "{{.LOCAL_DIR}}/.env"
         chmod 400 "{{.LOCAL_DIR}}/.env"
-      # 2. 渲染 kopia/repository.json.tpl → kopia/repository.json
+      # 2. 渲染 kopia/repository.config.tpl → kopia/repository.config
       - |
-        if [ -f "{{.LOCAL_DIR}}/kopia/repository.json.tpl" ]; then
-          {{.SCRIPTS_DIR}}/azure-inject.sh "{{.LOCAL_DIR}}/kopia/repository.json.tpl" > "{{.LOCAL_DIR}}/kopia/repository.json"
+        if [ -f "{{.LOCAL_DIR}}/kopia/repository.config.tpl" ]; then
+          {{.SCRIPTS_DIR}}/azure-inject.sh "{{.LOCAL_DIR}}/kopia/repository.config.tpl" > "{{.LOCAL_DIR}}/kopia/repository.config"
         fi
       # 3. 同步文件到目标机器（文件自动属于 SSH 登录用户）
       - |
         rsync -avz --delete --no-owner --no-group \
           --exclude '.env.tpl' \
-          --exclude 'repository.json.tpl' \
+          --exclude 'repository.config.tpl' \
           "{{.LOCAL_DIR}}/" "{{.HOST}}:{{.REMOTE_DIR}}/"
       # 4. 清理本地生成的敏感文件
-      - defer: rm -f "{{.LOCAL_DIR}}/.env" "{{.LOCAL_DIR}}/kopia/repository.json"
+      - defer: rm -f "{{.LOCAL_DIR}}/.env" "{{.LOCAL_DIR}}/kopia/repository.config"
