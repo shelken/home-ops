@@ -28,8 +28,7 @@ VICTORIA_LOGS_PORT=9428
 # ==================== Kopia ====================
 # 使用与 sakamoto 相同的仓库密码（共享同一个 kopia 仓库）
 KOPIA_REPO_PASSWORD=azure://shelken-homelab/compose-sakamoto/KOPIA_REPO_PASSWORD
-KOPIA_SERVER_USERNAME=azure://shelken-homelab/compose-vps/KOPIA_SERVER_USERNAME
-KOPIA_SERVER_PASSWORD=azure://shelken-homelab/compose-vps/KOPIA_SERVER_PASSWORD
+KOPIA_WEBHOOK_URL=azure://shelken-homelab/compose-sakamoto/KOPIA_WEBHOOK_URL
 
 # ==================== OpenList ====================
 OPENLIST_ADMIN_USERNAME=azure://shelken-homelab/compose-vps/OPENLIST_ADMIN_USERNAME

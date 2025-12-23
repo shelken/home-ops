@@ -1,0 +1,1 @@
+../../scripts/kopia-entrypoint.sh

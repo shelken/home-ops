@@ -213,20 +213,17 @@ services:
       - homepage.name=kopia
       - homepage.icon=kopia.svg
       - homepage.description=备份服务
-    entrypoint: ["/bin/sh", "-c"]
-    command:
-      - |
-        cp /app/config/repository.config.tpl /app/config/repository.config
-        kopia repository connect from-config --file /app/config/repository.config --override-hostname=sakamoto --override-username=shelken || \
-        kopia repository create from-config --file /app/config/repository.config
-        kopia policy import --from-file /app/config/policy.json
-        exec kopia server start --address=0.0.0.0:51515 --without-password --insecure
+    entrypoint: ["/app/scripts/entrypoint.sh"]
     environment:
       TZ: Asia/Shanghai
       KOPIA_PASSWORD: ${KOPIA_REPO_PASSWORD}
+      KOPIA_WEBHOOK_URL: ${KOPIA_WEBHOOK_URL}
+      # 仅在失败/警告时通知，成功时不通知 (可选值: report, warning, error)
+      KOPIA_MIN_SEVERITY: warning
     volumes:
       - ./kopia/repository.config:/app/config/repository.config.tpl:ro
       - ./kopia/policy.json:/app/config/policy.json:ro
+      - ./scripts/entrypoint.sh:/app/scripts/entrypoint.sh:ro
       - ${DOCKER_DATA_DIR}/kopia/cache:/app/cache
       - ${DOCKER_DATA_DIR}/kopia/logs:/app/logs
       - ${MINIO_DATA_DIR}:/backup/minio:ro

@@ -273,22 +273,17 @@ services:
       - homepage.name=kopia
       - homepage.icon=kopia.svg
       - homepage.description=备份服务
-    entrypoint: ["/bin/sh", "-c"]
-    command:
-      - |
-        cp /app/config/repository.config.tpl /app/config/repository.config
-        kopia repository connect from-config --file /app/config/repository.config --override-hostname=vps --override-username=shelken || \
-        kopia repository create from-config --file /app/config/repository.config
-        kopia policy import --from-file /app/config/policy.json
-        exec kopia server start --insecure --address=0.0.0.0:51515 --server-username=$${KOPIA_SERVER_USERNAME} --server-password=$${KOPIA_SERVER_PASSWORD}
+    entrypoint: ["/app/scripts/entrypoint.sh"]
     environment:
       TZ: Asia/Shanghai
       KOPIA_PASSWORD: ${KOPIA_REPO_PASSWORD}
-      KOPIA_SERVER_USERNAME: ${KOPIA_SERVER_USERNAME}
-      KOPIA_SERVER_PASSWORD: ${KOPIA_SERVER_PASSWORD}
+      KOPIA_WEBHOOK_URL: ${KOPIA_WEBHOOK_URL}
+      # 仅在失败/警告时通知，成功时不通知 (可选值: report, warning, error)
+      KOPIA_MIN_SEVERITY: warning
     volumes:
       - ./kopia/repository.config:/app/config/repository.config.tpl:ro
       - ./kopia/policy.json:/app/config/policy.json:ro
+      - ./scripts/entrypoint.sh:/app/scripts/entrypoint.sh:ro
       - ${DATA_BASE_DIR}/kopia/cache:/app/cache
       - ${DATA_BASE_DIR}/kopia/logs:/app/logs
       - ${DATA_BASE_DIR}:/backup/data:ro

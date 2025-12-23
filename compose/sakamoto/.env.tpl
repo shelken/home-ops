@@ -20,3 +20,4 @@ MIRROR_DATA_DIR=azure://shelken-homelab/compose-sakamoto/MIRROR_DATA_DIR
 
 # ==================== Kopia ====================
 KOPIA_REPO_PASSWORD=azure://shelken-homelab/compose-sakamoto/KOPIA_REPO_PASSWORD
+KOPIA_WEBHOOK_URL=azure://shelken-homelab/compose-sakamoto/KOPIA_WEBHOOK_URL
