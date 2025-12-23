@@ -276,9 +276,9 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
-        cp /app/config/repository.config.tpl /app/repository.config
-        kopia repository connect from-config --file /app/repository.config --override-hostname=vps --override-username=shelken || \
-        kopia repository create from-config --file /app/repository.config
+        cp /app/config/repository.config.tpl /app/config/repository.config
+        kopia repository connect from-config --file /app/config/repository.config --override-hostname=vps --override-username=shelken || \
+        kopia repository create from-config --file /app/config/repository.config
         kopia policy import --from-file /app/config/policy.json
         exec kopia server start --insecure --address=0.0.0.0:51515 --server-username=$${KOPIA_SERVER_USERNAME} --server-password=$${KOPIA_SERVER_PASSWORD}
     environment:
