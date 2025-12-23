@@ -6,6 +6,25 @@
     },
     "compression": {
       "compressorName": "zstd-fastest"
+    },
+    "files": {
+      "ignore": [
+        ".DS_Store",
+        ".DS_Store?",
+        "._*",
+        ".Spotlight-V100",
+        ".Trashes",
+        ".fseventsd",
+        ".TemporaryItems",
+        "Thumbs.db",
+        "*.log",
+        "*.tmp",
+        "*.temp",
+        "cache",
+        "/mirror",
+        "/minio",
+        "/kopia"
+      ]
     }
   },
   "@vps": {
@@ -15,15 +34,32 @@
     },
     "compression": {
       "compressorName": "zstd-fastest"
+    },
+    "files": {
+      "ignore": [
+        ".DS_Store",
+        "*.log",
+        "*.tmp",
+        "*.temp",
+        "cache",
+        "/kopia",
+        "/dhp"
+      ]
+    }
+  },
+  "shelken@sakamoto:/backup/compose": {
+    "scheduling": {
+      "intervalSeconds": 3600
     }
   },
   "shelken@sakamoto:/backup/minio": {
-    "scheduling": { "intervalSeconds": 3600 }
-  },
-  "shelken@sakamoto:/backup/compose": {
-    "scheduling": { "intervalSeconds": 3600 }
+    "scheduling": {
+      "intervalSeconds": 21600
+    }
   },
   "shelken@vps:/backup/data": {
-    "scheduling": { "intervalSeconds": 3600 }
+    "scheduling": {
+      "intervalSeconds": 14400
+    }
   }
 }

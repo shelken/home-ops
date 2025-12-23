@@ -244,9 +244,15 @@ services:
       - homepage.description=网盘S3服务
     environment:
       TZ: Asia/Shanghai
+      # 运行时配置（无前缀）
       S3_ENABLE: "true"
       S3_PORT: "5246"
+      S3_ACCESS_KEY_ID: ${OPENLIST_S3_ACCESS_KEY_ID}
+      S3_SECRET_ACCESS_KEY: ${OPENLIST_S3_SECRET_ACCESS_KEY}
       HTTP_PORT: "80"
+      # 初始化配置（OPENLIST_ 前缀）
+      OPENLIST_ADMIN_USERNAME: ${OPENLIST_ADMIN_USERNAME}
+      OPENLIST_ADMIN_PASSWORD: ${OPENLIST_ADMIN_PASSWORD}
     volumes:
       - "${DATA_BASE_DIR}/openlist/data:/opt/openlist/data"
     ports:
@@ -270,17 +276,18 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
-        kopia repository connect from-config --file /app/config/repository.config --override-hostname=vps --override-username=shelken || \
-        kopia repository create from-config --file /app/config/repository.config
+        cp /app/config/repository.config.tpl /app/repository.config
+        kopia repository connect from-config --file /app/repository.config --override-hostname=vps --override-username=shelken || \
+        kopia repository create from-config --file /app/repository.config
         kopia policy import --from-file /app/config/policy.json
-        exec kopia server start --address=0.0.0.0:51515 --server-username=$${KOPIA_SERVER_USERNAME} --server-password=$${KOPIA_SERVER_PASSWORD}
+        exec kopia server start --insecure --address=0.0.0.0:51515 --server-username=$${KOPIA_SERVER_USERNAME} --server-password=$${KOPIA_SERVER_PASSWORD}
     environment:
       TZ: Asia/Shanghai
       KOPIA_PASSWORD: ${KOPIA_REPO_PASSWORD}
       KOPIA_SERVER_USERNAME: ${KOPIA_SERVER_USERNAME}
       KOPIA_SERVER_PASSWORD: ${KOPIA_SERVER_PASSWORD}
     volumes:
-      - ./kopia/repository.config:/app/config/repository.config:ro
+      - ./kopia/repository.config:/app/config/repository.config.tpl:ro
       - ./kopia/policy.json:/app/config/policy.json:ro
       - ${DATA_BASE_DIR}/kopia/cache:/app/cache
       - ${DATA_BASE_DIR}/kopia/logs:/app/logs

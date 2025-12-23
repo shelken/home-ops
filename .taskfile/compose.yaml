@@ -42,17 +42,6 @@ tasks:
     desc: "查看 sakamoto 服务日志"
     cmd: ssh {{.SAKAMOTO_HOST}} "cd {{.SAKAMOTO_COMPOSE_DIR}} && docker compose logs -f --tail=100"
 
-  kopia-init:sakamoto:
-    desc: "初始化 sakamoto 的 Kopia 仓库和策略"
-    cmds:
-      - |
-        ssh {{.SAKAMOTO_HOST}} "cd {{.SAKAMOTO_COMPOSE_DIR}} && \
-          docker exec kopia kopia repository connect from-config --file /app/config/repository.config || \
-          docker exec kopia kopia repository create from-config --file /app/config/repository.config"
-      - |
-        ssh {{.SAKAMOTO_HOST}} "cd {{.SAKAMOTO_COMPOSE_DIR}} && \
-          docker exec kopia kopia policy import --from-file /app/config/policy.json"
-
   # ==================== VPS ====================
   deploy:vps:
     desc: "部署到 VPS"
@@ -80,17 +69,6 @@ tasks:
     desc: "查看 VPS 服务日志"
     cmd: ssh {{.VPS_HOST}} "cd {{.VPS_COMPOSE_DIR}} && docker compose logs -f --tail=100"
 
-  kopia-init:vps:
-    desc: "初始化 VPS 的 Kopia 仓库和策略"
-    cmds:
-      - |
-        ssh {{.VPS_HOST}} "cd {{.VPS_COMPOSE_DIR}} && \
-          docker exec kopia kopia repository connect from-config --file /app/config/repository.config || \
-          docker exec kopia kopia repository create from-config --file /app/config/repository.config"
-      - |
-        ssh {{.VPS_HOST}} "cd {{.VPS_COMPOSE_DIR}} && \
-          docker exec kopia kopia policy import --from-file /app/config/policy.json"
-
   # ==================== 内部任务 ====================
   _deploy:
     internal: true
@@ -113,15 +91,15 @@ tasks:
       # 1. 渲染 .env.tpl → .env
       - |
         {{.SCRIPTS_DIR}}/azure-inject.sh "{{.LOCAL_DIR}}/.env.tpl" > "{{.LOCAL_DIR}}/.env"
-        chmod 400 "{{.LOCAL_DIR}}/.env"
+        chmod 600 "{{.LOCAL_DIR}}/.env"
       # 2. 渲染 kopia/repository.config.tpl → kopia/repository.config
       - |
         if [ -f "{{.LOCAL_DIR}}/kopia/repository.config.tpl" ]; then
           {{.SCRIPTS_DIR}}/azure-inject.sh "{{.LOCAL_DIR}}/kopia/repository.config.tpl" > "{{.LOCAL_DIR}}/kopia/repository.config"
         fi
-      # 3. 同步文件到目标机器（文件自动属于 SSH 登录用户）
+      # 3. 同步文件到目标机器（文件自动属于 SSH 登录用户，-L 跟随符号链接）
       - |
-        rsync -avz --delete --no-owner --no-group \
+        rsync -avzL --delete --no-owner --no-group \
           --exclude '.env.tpl' \
           --exclude 'repository.config.tpl' \
           "{{.LOCAL_DIR}}/" "{{.HOST}}:{{.REMOTE_DIR}}/"

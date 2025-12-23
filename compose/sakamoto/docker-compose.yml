@@ -216,15 +216,16 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
-        kopia repository connect from-config --file /app/config/repository.config --override-hostname=sakamoto --override-username=shelken || \
-        kopia repository create from-config --file /app/config/repository.config
+        cp /app/config/repository.config.tpl /app/repository.config
+        kopia repository connect from-config --file /app/repository.config --override-hostname=sakamoto --override-username=shelken || \
+        kopia repository create from-config --file /app/repository.config
         kopia policy import --from-file /app/config/policy.json
-        exec kopia server start --address=0.0.0.0:51515 --without-password
+        exec kopia server start --address=0.0.0.0:51515 --without-password --insecure
     environment:
       TZ: Asia/Shanghai
       KOPIA_PASSWORD: ${KOPIA_REPO_PASSWORD}
     volumes:
-      - ./kopia/repository.config:/app/config/repository.config:ro
+      - ./kopia/repository.config:/app/config/repository.config.tpl:ro
       - ./kopia/policy.json:/app/config/policy.json:ro
       - ${DOCKER_DATA_DIR}/kopia/cache:/app/cache
       - ${DOCKER_DATA_DIR}/kopia/logs:/app/logs
