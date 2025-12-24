@@ -49,10 +49,11 @@ spec:
               tag: v5.33.1@sha256:7121b5916c069eac6e266875d4984ec9262d84bd1274963939b358b32476d25b
             env:
               TZ: ${TIMEZONE}
+              MAIN_DOMAIN: ${MAIN_DOMAIN}
+              ROUTER_IP: ${ROUTER_IP}
               GATUS_CONFIG_PATH: /config
               GATUS_DELAY_START_SECONDS: 5
               WEB_PORT: &port 80
-              MAIN_DOMAIN: ${MAIN_DOMAIN}
             envFrom:
               - secretRef:
                   name: gatus-secret

@@ -3,4 +3,5 @@ kind: ConfigMap
 metadata:
   name: cluster-settings
 data:
-  TIMEZONE: "Asia/Shanghai"
+  TIMEZONE: Asia/Shanghai
+  ROUTER_IP: 192.168.6.1

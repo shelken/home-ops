@@ -1,0 +1,13 @@
+---
+endpoints:
+  - name: router-dns
+    group: router
+    url: tcp://${ROUTER_IP}:53
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[CONNECTED] == true"
+    alerts:
+      - type: custom

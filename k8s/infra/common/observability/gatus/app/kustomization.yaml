@@ -14,6 +14,7 @@ configMapGenerator:
   - name: gatus-outside
     files:
       - device.yaml=./resources/outside/device.yaml
+      - router.yaml=./resources/outside/router.yaml
       - sakamoto.yaml=./resources/outside/sakamoto.yaml
       - tvbox.yaml=./resources/outside/tvbox.yaml
       - vps.yaml=./resources/outside/vps.yaml
