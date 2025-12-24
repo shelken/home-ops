@@ -20,12 +20,6 @@ spec:
               {"dst": "192.168.6.192/26", "gw": "192.168.50.1"}
             ]
           }
-        },
-        {
-          "type": "tuning",
-          "sysctl": {
-            "net.ipv4.conf.IFNAME.rp_filter": "0"
-          }
         }
       ]
     }
