@@ -24,7 +24,7 @@ spec:
         {
           "type": "tuning",
           "sysctl": {
-            "net.ipv4.conf.IFNAME.rp_filter": "2"
+            "net.ipv4.conf.IFNAME.rp_filter": "0"
           }
         },
         {
