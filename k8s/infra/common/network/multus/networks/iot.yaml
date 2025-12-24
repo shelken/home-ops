@@ -1,8 +1,8 @@
----
 apiVersion: k8s.cni.cncf.io/v1
 kind: NetworkAttachmentDefinition
 metadata:
   name: multus-iot
+  namespace: network
 spec:
   config: |-
     {
@@ -17,7 +17,7 @@ spec:
           "ipam": {
             "type": "static",
             "routes": [
-              {"dst": "0.0.0.0/0", "gw": "192.168.50.1"}
+              {"dst": "192.168.6.192/26", "gw": "192.168.50.1"}
             ]
           }
         },
@@ -26,9 +26,6 @@ spec:
           "sysctl": {
             "net.ipv4.conf.IFNAME.rp_filter": "0"
           }
-        },
-        {
-          "type": "sbr"
         }
       ]
     }
