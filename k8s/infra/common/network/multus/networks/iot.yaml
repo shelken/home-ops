@@ -22,6 +22,12 @@ spec:
           }
         },
         {
+          "type": "tuning",
+          "sysctl": {
+            "net.ipv4.conf.net1.rp_filter": "2"
+          }
+        },
+        {
           "type": "sbr"
         }
       ]

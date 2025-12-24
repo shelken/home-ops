@@ -31,7 +31,9 @@ printf '02:%02X:%02X:%02X:%02X:%02X\n' $((RANDOM%256)) $((RANDOM%256)) $((RANDOM
 
 适用于需要 mDNS 发现的智能家居服务，连接到 VLAN 50 (IoT 网)：
 - home-assistant (192.168.50.51)
-- go2rtc (192.168.6.53)
+- go2rtc (192.168.50.53)
+
+**注意**: 已添加 tuning 插件设置 `rp_filter=2`，解决 SBR 导致的跨 VLAN 访问问题。
 
 ### multus-main
 
