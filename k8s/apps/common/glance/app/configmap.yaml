@@ -1,0 +1,33 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: glance-config
+data:
+  glance.yml: |
+    pages:
+      - name: Home
+        columns:
+          - size: small
+            widgets:
+              - type: bookmarks
+                groups:
+                  - title: Homelab
+                    links:
+                      - title: Homepage
+                        url: https://homepage.${MAIN_DOMAIN}
+                      - title: Grafana
+                        url: https://grafana.${MAIN_DOMAIN}
+                  - title: Media
+                    links:
+                      - title: Jellyfin
+                        url: https://jellyfin.${MAIN_DOMAIN}
+                      - title: Plex
+                        url: https://plex.${MAIN_DOMAIN}
+          - size: full
+            widgets:
+              - type: clock
+                hour-format: "24h"
+                timezones:
+                  - timezone: Asia/Shanghai
+                    label: Shanghai
