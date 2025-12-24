@@ -6,3 +6,4 @@ resources:
   - main.yaml
   - iot.yaml
   - ipv6.yaml
+  - homekit.yaml

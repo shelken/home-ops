@@ -1,13 +1,16 @@
 apiVersion: k8s.cni.cncf.io/v1
 kind: NetworkAttachmentDefinition
 metadata:
-  name: multus-iot
+  name: multus-homekit
   namespace: network
 spec:
+  # 通常这个网段为我的其他客户端
+  # 不要加入192.168.50.0/24 因为本身主表就会加入分配的ip所在网段
+  # 224组播地址
   config: |-
     {
       "cniVersion": "0.3.1",
-      "name": "multus-iot",
+      "name": "multus-homekit",
       "plugins": [
         {
           "type": "macvlan",
@@ -17,12 +20,10 @@ spec:
           "ipam": {
             "type": "static",
             "routes": [
-              {"dst": "0.0.0.0/0", "gw": "192.168.50.1"}
+              {"dst": "192.168.6.192/26", "gw": "192.168.50.1"},
+              {"dst": "224.0.0.251/32", "gw": "192.168.50.1"}
             ]
           }
-        },
-        {
-          "type": "sbr"
         }
       ]
     }
