@@ -34,6 +34,11 @@
       sourceUrl: "https://github.com/kaaanata/derper-docker"
     },
     {
+      description: "anubis 补充",
+      matchPackageNames: ["/techarohq/anubis/"],
+      sourceUrl: "https://github.com/TecharoHQ/anubis"
+    },
+    {
       description: "seafile changelog 补充",
       matchPackageNames: [
         "/seafileltd/"
