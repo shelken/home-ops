@@ -73,3 +73,9 @@
 ```bash
 task --list              # 查看所有任务
 ```
+
+## Active Technologies
+- YAML (Kubernetes manifests), JSON (CNI config) + Multus CNI, macvlan, tuning, sbr CNI 插件 (001-fix-go2rtc-routing)
+
+## Recent Changes
+- 001-fix-go2rtc-routing: Added YAML (Kubernetes manifests), JSON (CNI config) + Multus CNI, macvlan, tuning, sbr CNI 插件
