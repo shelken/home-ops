@@ -177,7 +177,7 @@ resources:
   - main.yaml
   - iot.yaml
   - ipv6.yaml
-  - <new-network>.yaml  # 新增
+  - <new-network>.yaml # 新增
 ```
 
 ### 第五步：在服务中使用 Multus 网络
@@ -227,11 +227,12 @@ kubectl rollout restart -n network -l app.ooooo.space/multus statefulset
 
 ## 现有网络类型
 
-| 网络名 | Master 接口 | 子网 | 用途 | 使用 sbr |
-|--------|-------------|------|------|----------|
-| multus-main | eth1 | 192.168.6.0/24 | 保留备用 | 是 |
-| multus-iot | eth1.50 | 192.168.50.0/24 | mDNS 智能家居 | 是 |
-| multus-ipv6 | eth1 | 192.168.6.0/24 | IPv6 直连 | 否 |
+| 网络名         | Master 接口 | 子网            | 用途                                                   | 使用 sbr |
+| -------------- | ----------- | --------------- | ------------------------------------------------------ | -------- |
+| multus-main    | eth1        | 192.168.6.0/24  | 保留备用                                               | 是       |
+| multus-iot     | eth1.50     | 192.168.50.0/24 | mDNS 智能家居(不关心视频流udp或者可以指定接口发送mdns) | 是       |
+| multus-homekit | eth1.50     | 192.168.50.0/24 | mDNS 智能家居(无法指定接口udp)                         | 否       |
+| multus-ipv6    | eth1        | 192.168.6.0/24  | IPv6 直连/UDP                                              | 否       |
 
 ## 注意事项
 

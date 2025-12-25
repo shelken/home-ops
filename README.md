@@ -91,18 +91,14 @@ graph TD
 | netbird                | 192.168.6.44  | 关闭 保留                 |           | multus-ipv6 |
 | caddy-external         | 192.168.6.47  |                           |           | multus-ipv6 |
 | home assistant         | 192.168.50.51 | mDNS                      |           | multus-iot  |
-| go2rtc                 | 192.168.6.53 | mDNS                      |           | multus-main  |
+| go2rtc                 | 192.168.6.53 | mDNS                      |           | multus-homekit  |
 | qbittorrent            | 192.168.6.58  | IPv6 直连                 |           | multus-ipv6 |
 | tailscale-sub-router   | 192.168.6.65  | IPv6 直连                 |           | multus-ipv6 |
 | tailscale-node-vps     | 192.168.6.66  | IPv6 直连                 |           | multus-ipv6 |
 
 ## multus 网络定义
 
-| 网络名       | Master 接口 | 子网              | 用途           |
-| ------------ | ----------- | ----------------- | -------------- |
-| multus-main  | eth1        | 192.168.6.0/24    | 保留备用 (sbr) |
-| multus-iot   | eth1.50     | 192.168.50.0/24   | mDNS 服务      |
-| multus-ipv6  | eth1        | 192.168.6.0/24    | IPv6 直连      |
+[参考-网络类型](k8s/infra/common/network/multus/networks/README.md)
 
 ## 服务网络
 
@@ -237,19 +233,21 @@ postRenderers:
 
 - multus 网卡的使用情况
 
-只有两种情况需要用multus：
+只有几种情况需要用multus：
 
-**multus-ipv6 (eth1, 192.168.6.0/24)** - 需要 IPv6 直连的服务：
+**multus-ipv6** - 需要 IPv6/UDP 直连的服务：
   - tailscale (subnet-router, node-vps)
   - qbittorrent
   - caddy-external
   - netbird-router (暂未使用)
 
-**multus-iot (eth1.50, 192.168.50.0/24)** - 需要 mDNS 的服务：
+**multus-iot** ：
   - home-assistant
+
+**multus-homekit** ：
   - go2rtc
 
-**multus-main (eth1, 192.168.6.0/24)** - 保留备用，使用 sbr
+**multus-main (eth1, 192.168.6.0/24)** - 保留备用
 
 除此之外需要单独 IP 的都应该使用 L2 宣告，并严格限定端口
 
