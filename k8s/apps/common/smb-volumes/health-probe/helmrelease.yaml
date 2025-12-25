@@ -13,6 +13,7 @@ spec:
   values:
     controllers:
       smb-health-probe:
+        type: daemonset
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
