@@ -37,8 +37,8 @@ spec:
                       "sakamoto_media:/mnt/sakamoto-media" \
                       "backup_media:/mnt/backup-media"
                     do
-                      name="${mount_info%%:*}"
-                      path="${mount_info#*:}"
+                      name="$${mount_info%%:*}"
+                      path="$${mount_info#*:}"
 
                       if timeout 5 ls "$path" > /dev/null 2>&1; then
                         echo "smb_mount_healthy{name=\"$name\",path=\"$path\"} 1"
@@ -51,10 +51,8 @@ spec:
                   sleep 30
                 done &
 
-                # HTTP 服务器提供指标 (使用 nc)
-                while true; do
-                  { printf "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n"; cat /tmp/metrics.txt; } | nc -l -p 9101 || sleep 1
-                done
+                # HTTP 服务器提供指标 (前台运行 httpd)
+                httpd -f -p 9101 -h /tmp
             env:
               TZ: ${TIMEZONE}
             probes:
