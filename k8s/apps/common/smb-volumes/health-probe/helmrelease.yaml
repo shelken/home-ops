@@ -42,9 +42,9 @@ spec:
                       path="$${mount_info#*:}"
 
                       if timeout 5 ls "$path" > /dev/null 2>&1; then
-                        echo "smb_mount_healthy{name=\"$name\",path=\"$path\"} 1"
+                        echo "smb_mount_healthy{name=\"$name\",path=\"$path\",node=\"$NODE_NAME\"} 1"
                       else
-                        echo "smb_mount_healthy{name=\"$name\",path=\"$path\"} 0"
+                        echo "smb_mount_healthy{name=\"$name\",path=\"$path\",node=\"$NODE_NAME\"} 0"
                       fi
                     done
                   } > /tmp/metrics.txt.new && mv /tmp/metrics.txt.new /tmp/metrics.txt
@@ -56,6 +56,10 @@ spec:
                 httpd -f -p 9101 -h /tmp
             env:
               TZ: ${TIMEZONE}
+              NODE_NAME:
+                valueFrom:
+                  fieldRef:
+                    fieldPath: spec.nodeName
             probes:
               liveness:
                 enabled: true
