@@ -37,7 +37,7 @@ spec:
             "name": "multus-ipv6",
             "namespace": "network",
             "interface": "eth1",
-            "ips": ["192.168.6.65/32"],
+            "ips": ["192.168.70.65/24"],
             "mac": "02:2E:5F:AE:6A:65"
           }]
       affinity:

@@ -232,7 +232,7 @@ kubectl rollout restart -n network -l app.ooooo.space/multus statefulset
 | multus-main    | eth1        | 192.168.6.0/24  | 保留备用                                               | 是       |
 | multus-iot     | eth1.50     | 192.168.50.0/24 | mDNS 智能家居(不关心视频流udp或者可以指定接口发送mdns) | 是       |
 | multus-homekit | eth1.50     | 192.168.50.0/24 | mDNS 智能家居(无法指定接口udp)                         | 否       |
-| multus-ipv6    | eth1        | 192.168.6.0/24  | IPv6 直连/UDP                                              | 否       |
+| multus-ipv6    | eth1        | 192.168.70.0/24  | IPv6 直连/UDP                                              | 否       |
 
 ## 注意事项
 
