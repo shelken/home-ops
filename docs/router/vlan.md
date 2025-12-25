@@ -12,21 +12,22 @@
 | :------ | :------- | :---------- | :---------------- | :----------- | :--------------------------------------------------- |
 | **6**   | lan      | `br-lan.6`  | `192.168.6.0/24`  | 192.168.6.1  | **主内网**：家庭设备、K8s 节点管理口                 |
 | **50**  | viot     | `br-lan.50` | `192.168.50.0/24` | 192.168.50.1 | **IoT 网络**：智能家居设备，通过 Multus CNI 接入 K8s |
+| **70**  | vipv6    | `br-lan.70` | `192.168.70.0/24` | 192.168.70.1 | **IPv6 网络**：需要 IPv6 直连/UDP 的服务             |
 
 ## 物理端口配置
 
 所有 LAN 口均配置为混合模式，同时承载主网和 IoT 网络流量：
 
-| 物理端口 | VLAN 6 (Main)  | VLAN 50 (IoT) | 说明           |
-| :------- | :------------- | :------------ | :------------- |
-| **lan1** | Untagged (u\*) | Tagged (t)    | PVE / K8s 节点 |
-| **lan2** | Untagged (u\*) | Tagged (t)    | PVE / K8s 节点 |
-| **lan3** | Untagged (u\*) | Tagged (t)    | PVE / K8s 节点 |
+| 物理端口 | VLAN 6 (Main)  | VLAN 50 (IoT) | VLAN 70 (IPv6) | 说明           |
+| :------- | :------------- | :------------ | :------------- | :------------- |
+| **lan1** | Untagged (u\*) | Tagged (t)    | Tagged (t)     | PVE / K8s 节点 |
+| **lan2** | Untagged (u\*) | Tagged (t)    | Tagged (t)     | PVE / K8s 节点 |
+| **lan3** | Untagged (u\*) | Tagged (t)    | Tagged (t)     | PVE / K8s 节点 |
 
 ### 标签说明
 
 - **Untagged (u\*)**: 未打标签的帧进入 VLAN 6。普通设备直连网口会自动获取 `192.168.6.x` IP
-- **Tagged (t)**: 只有带 VLAN 50 标签的帧才会被处理。K8s 节点通过 `eth1.50` 子接口接入
+- **Tagged (t)**: 只有带相应 VLAN 标签的帧才会被处理。K8s 节点通过 `eth1.50`/`eth1.70` 子接口接入
 
 ## 配置文件
 
@@ -45,6 +46,12 @@ config interface 'viot'
 	option ipaddr '192.168.50.1'
 	option netmask '255.255.255.0'
 
+# IPv6 接口
+config interface 'vipv6'
+	option device 'br-lan.70'
+	option ipaddr '192.168.70.1'
+	option netmask '255.255.255.0'
+
 # VLAN 6 端口配置
 config bridge-vlan
 	option device 'br-lan'
@@ -57,6 +64,14 @@ config bridge-vlan
 config bridge-vlan
 	option device 'br-lan'
 	option vlan '50'
+	list ports 'lan1:t'
+	list ports 'lan2:t'
+	list ports 'lan3:t'
+
+# VLAN 70 端口配置
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '70'
 	list ports 'lan1:t'
 	list ports 'lan2:t'
 	list ports 'lan3:t'

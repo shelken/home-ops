@@ -12,6 +12,8 @@
 
     - import_tasks: playbooks/tasks/ntp.yaml
 
+    - import_tasks: playbooks/tasks/dns-patch.yaml
+
     - import_tasks: playbooks/tasks/change-sources.yaml
 
     - name: install system pkgs

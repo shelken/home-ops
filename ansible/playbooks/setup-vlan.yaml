@@ -10,7 +10,11 @@
       - name: eth1.50
         vlan_id: 50
         parent: eth1
-        # 不分配 IP，只创建接口供 Multus 使用
+        # 不分配 IP，只创建接口供 Multus 使用 (IoT 网络)
+      - name: eth1.70
+        vlan_id: 70
+        parent: eth1
+        # 不分配 IP，只创建接口供 Multus 使用 (IPv6 网络)
 
   tasks:
     - name: Check if parent interface exists
