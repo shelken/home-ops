@@ -51,8 +51,10 @@ spec:
                   sleep 30
                 done &
 
-                # HTTP 服务器提供指标 (使用 busybox httpd)
-                cd /tmp && httpd -f -p 9101 -h /tmp -c "*.txt:text/plain"
+                # HTTP 服务器提供指标 (使用 nc)
+                while true; do
+                  { printf "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n"; cat /tmp/metrics.txt; } | nc -l -p 9101 || sleep 1
+                done
             env:
               TZ: ${TIMEZONE}
             probes:
