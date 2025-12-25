@@ -1,0 +1,19 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: smb-mount-health
+spec:
+  groups:
+    - name: smb-mount.rules
+      rules:
+        - alert: SMB挂载点不健康
+          expr: |
+            smb_mount_healthy == 0
+          for: 2m
+          annotations:
+            summary: "SMB 挂载点 {{ $labels.name }} 不可访问"
+            description: "挂载路径 {{ $labels.path }} 已经不可访问超过 2 分钟"
+          labels:
+            severity: critical

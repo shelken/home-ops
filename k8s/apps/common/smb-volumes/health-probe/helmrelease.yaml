@@ -1,0 +1,124 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app smb-health-probe
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  values:
+    controllers:
+      smb-health-probe:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: busybox
+              tag: 1.37.0
+            command:
+              - /bin/sh
+              - -c
+              - |
+                # 初始化指标文件
+                touch /tmp/metrics.txt
+
+                # 后台进程：定期更新指标
+                while true; do
+                  {
+                    echo "# HELP smb_mount_healthy SMB 挂载点是否健康 (1=健康, 0=不健康)"
+                    echo "# TYPE smb_mount_healthy gauge"
+
+                    for mount_info in \
+                      "sakamoto_media:/mnt/sakamoto-media" \
+                      "backup_media:/mnt/backup-media"
+                    do
+                      name="${mount_info%%:*}"
+                      path="${mount_info#*:}"
+
+                      if timeout 5 ls "$path" > /dev/null 2>&1; then
+                        echo "smb_mount_healthy{name=\"$name\",path=\"$path\"} 1"
+                      else
+                        echo "smb_mount_healthy{name=\"$name\",path=\"$path\"} 0"
+                      fi
+                    done
+                  } > /tmp/metrics.txt.new && mv /tmp/metrics.txt.new /tmp/metrics.txt
+
+                  sleep 30
+                done &
+
+                # HTTP 服务器提供指标 (使用 busybox httpd)
+                cd /tmp && httpd -f -p 9101 -h /tmp -c "*.txt:text/plain"
+            env:
+              TZ: ${TIMEZONE}
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /metrics.txt
+                    port: &port 9101
+                  initialDelaySeconds: 10
+                  periodSeconds: 30
+                  timeoutSeconds: 10
+                  failureThreshold: 3
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /metrics.txt
+                    port: *port
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 64Mi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        ports:
+          metrics:
+            port: *port
+    serviceMonitor:
+      app:
+        endpoints:
+          - port: metrics
+            path: /metrics.txt
+            interval: 1m
+            scrapeTimeout: 30s
+    persistence:
+      sakamoto-media:
+        existingClaim: smb-sakamoto-media
+        globalMounts:
+          - path: /mnt/sakamoto-media
+            readOnly: true
+      backup-media:
+        existingClaim: smb-backup-media
+        globalMounts:
+          - path: /mnt/backup-media
+            readOnly: true
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
