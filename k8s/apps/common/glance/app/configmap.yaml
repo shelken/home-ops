@@ -6,106 +6,10 @@ metadata:
 data:
   glance.yml: |
     pages:
-      # ==================== 首页: 书签、搜索、工具 ====================
+      # ==================== 首页 ====================
       - name: Home
         columns:
-          # 左栏: 书签、日历
-          - size: small
-            widgets:
-              - type: bookmarks
-                groups:
-                  - title: 基础设施
-                    links:
-                      - title: Grafana
-                        url: https://grafana.${MAIN_DOMAIN}
-                      - title: Longhorn
-                        url: https://longhorn.${MAIN_DOMAIN}
-                      - title: Flux Operator
-                        url: https://flux-operator.${MAIN_DOMAIN}
-                      - title: AlertManager
-                        url: https://alertmanager.${MAIN_DOMAIN}
-                      - title: Authelia
-                        url: https://authelia.${MAIN_DOMAIN}
-                      - title: pocket-id
-                        url: https://pocket-id.${MAIN_DOMAIN}
-                  - title: 媒体
-                    links:
-                      - title: Jellyfin
-                        url: https://jellyfin.${MAIN_DOMAIN}
-                      - title: Plex
-                        url: https://plex.${MAIN_DOMAIN}
-                      - title: Frigate
-                        url: https://frigate.${MAIN_DOMAIN}
-                      - title: go2rtc
-                        url: https://go2rtc.${MAIN_DOMAIN}
-                      - title: metatube
-                        url: https://metatube.${MAIN_DOMAIN}
-                  - title: 工具
-                    links:
-                      - title: VaultWarden
-                        url: https://vaultwarden.${MAIN_DOMAIN}
-                      - title: it-tools
-                        url: https://it-tools.${MAIN_DOMAIN}
-                      - title: librespeed
-                        url: https://librespeed.${MAIN_DOMAIN}
-                      - title: Shlink
-                        url: https://shlink.${MAIN_DOMAIN}
-                      - title: slash
-                        url: https://slash.${MAIN_DOMAIN}
-                      - title: echo
-                        url: https://echo.${MAIN_DOMAIN}
-                      - title: Kromgo
-                        url: https://kromgo.${MAIN_DOMAIN}
-                  - title: 应用
-                    links:
-                      - title: Memos
-                        url: https://memos.${MAIN_DOMAIN}
-                      - title: Affine
-                        url: https://affine.${MAIN_DOMAIN}
-                      - title: n8n
-                        url: https://n8n.${MAIN_DOMAIN}
-                      - title: Karakeep
-                        url: https://karakeep.${MAIN_DOMAIN}
-                      - title: HomeAssistant
-                        url: https://homeassistant.${MAIN_DOMAIN}
-                      - title: Hass Code Server
-                        url: https://hass-code.${MAIN_DOMAIN}
-                  - title: AI
-                    links:
-                      - title: Ollama Web
-                        url: https://ollama.${MAIN_DOMAIN}
-                      - title: new-api
-                        url: https://new-api.${MAIN_DOMAIN}
-                      - title: cli-proxy-api
-                        url: https://cli-proxy-api.${MAIN_DOMAIN}
-                  - title: 存储
-                    links:
-                      - title: Seafile
-                        url: https://seafile.${MAIN_DOMAIN}
-                      - title: OpenList
-                        url: https://openlist.${MAIN_DOMAIN}
-                      - title: icloudpd
-                        url: https://icloudpd.${MAIN_DOMAIN}
-                      - title: kopia
-                        url: https://kopia.${MAIN_DOMAIN}
-                      - title: qbittorrent
-                        url: https://qbittorrent.${MAIN_DOMAIN}
-                      - title: icache
-                        url: https://icache.${MAIN_DOMAIN}
-              - type: calendar
-                first-day-of-week: monday
-
-          # 中栏: 搜索、Hacker News
-          - size: full
-            widgets:
-              - type: search
-                search-engine: google
-                autofocus: true
-              - type: hacker-news
-                limit: 10
-                collapse-after: 5
-
-          # 右栏: 时钟、天气、股票
+          # 左栏: 时钟、天气、股票、日历
           - size: small
             widgets:
               - type: clock
@@ -124,76 +28,63 @@ data:
                     name: Apple
                   - symbol: NVDA
                     name: NVIDIA
-              # TODO: 取消注释并添加项目以启用 GitHub Releases widget
-              # - type: releases
-              #   title: GitHub Releases
-              #   cache: 1d
-              #   repositories:
-              #     - fluxcd/flux2
-              #     - longhorn/longhorn
-              #     - cilium/cilium
+              - type: calendar
+                first-day-of-week: monday
 
-      # ==================== 资讯页: 视频、Reddit、RSS ====================
-      - name: News
-        columns:
-          # 左栏: YouTube 技术频道
-          - size: small
-            widgets:
-              - type: videos
-                title: Tech Videos
-                cache: 1h
-                limit: 15
-                collapse-after: 8
-                channels:
-                  - UCR-DXc1voovS8nhAvccRZhg  # Jeff Geerling
-                  - UCv6J_jJa8GJqFwQNgNrMuww  # ServeTheHome
-                  - UCOk-gHyjcWZNj3Br4oxwh0A  # Techno Tim
-                  - UCsBjURrPoezykLs9EqgamOA  # Fireship
-                  - UCHnyfMqiRRG1u-2MsSQLbXA  # Veritasium
-              # TODO: Bilibili 暂不支持，glance videos widget 仅支持 YouTube
-              # 可考虑使用 RSS widget 订阅 B站 UP主的 RSS (需要 RSSHub)
-              # - type: rss
-              #   title: Bilibili
-              #   feeds:
-              #     - url: https://rsshub.app/bilibili/user/video/xxxxx
-              #       title: UP主名称
-
-          # 中栏: Reddit、Hacker News
+          # 中栏: 搜索、Hacker News
           - size: full
             widgets:
-              - type: group
-                widgets:
-                  - type: hacker-news
-                    sort-by: best
-                    limit: 15
-                    collapse-after: 8
-                  - type: reddit
-                    subreddit: selfhosted
-                    show-thumbnails: true
-                    limit: 15
-                    collapse-after: 8
-                  - type: reddit
-                    subreddit: kubernetes
-                    show-thumbnails: true
-                    limit: 15
-                    collapse-after: 8
+              - type: search
+                search-engine: google
+                autofocus: true
+              - type: hacker-news
+                limit: 15
+                collapse-after: 8
 
-          # 右栏: RSS 订阅
+          # 右栏: RSS 博客订阅
           - size: small
             widgets:
-              # TODO: 取消注释并添加订阅源以启用 RSS widget
-              # - type: rss
-              #   title: RSS 订阅
-              #   limit: 15
-              #   collapse-after: 8
-              #   cache: 3h
-              #   feeds:
-              #     - url: https://ciechanow.ski/atom.xml
-              #     - url: https://www.joshwcomeau.com/rss.xml
-              #       title: Josh Comeau
-              #     - url: https://samwho.dev/rss.xml
-              - type: clock
-                hour-format: "24h"
-                timezones:
-                  - timezone: Asia/Shanghai
-                    label: Shanghai
+              - type: rss
+                title: 博客订阅
+                limit: 20
+                collapse-after: 10
+                cache: 3h
+                feeds:
+                  - url: https://www.breezedeus.com/feed
+                    title: Breezedeus
+                  - url: https://chinalhr.github.io/index.xml
+                    title: LHR
+                  - url: https://til.simonwillison.net/tils/feed.atom
+                    title: Simon Willison TIL
+                  - url: https://nova.moe/feed/
+                    title: Nova Kwok
+                  - url: https://weekly.tw93.fun/rss.xml
+                    title: 潮流周刊
+                  - url: https://tw93.fun/feed.xml
+                    title: Tw93 Blog
+                  - url: https://lisz.me/feed.xml
+                    title: 仲儿的自留地
+                  - url: https://blog.xinshijiededa.men/atom.xml
+                    title: 新世界的大门
+                  - url: https://technotim.live/feed.xml
+                    title: Techno Tim
+                  - url: https://vicfree.com/posts/index.xml
+                    title: Victor
+                  - url: http://feeds.feedburner.com/ruanyifeng
+                    title: 阮一峰的网络日志
+                  - url: https://blog.hidva.com/feed.xml
+                    title: 学习让我快乐
+                  - url: https://diygod.cc/feed
+                    title: DIYgod
+                  - url: https://www.himiku.com/feed/
+                    title: 初之音
+                  - url: https://chenhe.me/feed.xml
+                    title: 晨鹤部落格
+                  - url: https://datavirke.dk/atom.xml
+                    title: Datavirke
+                  - url: https://egoist.dev/rss.xml
+                    title: EGOIST
+                  - url: https://lantian.pub/feed.xml
+                    title: Lan Tian
+                  - url: https://evanhahn.com/blog/index.xml
+                    title: Evan Hahn
