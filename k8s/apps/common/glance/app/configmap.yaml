@@ -37,13 +37,6 @@ data:
               - type: search
                 search-engine: google
                 autofocus: true
-              - type: hacker-news
-                limit: 15
-                collapse-after: 8
-
-          # 右栏: RSS 博客订阅
-          - size: small
-            widgets:
               - type: rss
                 title: 博客订阅
                 limit: 20
@@ -88,3 +81,6 @@ data:
                     title: Lan Tian
                   - url: https://evanhahn.com/blog/index.xml
                     title: Evan Hahn
+              - type: hacker-news
+                limit: 15
+                collapse-after: 8
