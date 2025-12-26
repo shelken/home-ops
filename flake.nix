@@ -47,6 +47,9 @@
 
             gitleaks
 
+            # Linting
+            yamllint
+
             # Home Assistant CLI
             home-assistant-cli
           ];
