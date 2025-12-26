@@ -6,6 +6,7 @@ metadata:
 data:
   glance.yml: |
     pages:
+      # ==================== 首页: 书签、搜索、工具 ====================
       - name: Home
         columns:
           # 左栏: 书签、日历
@@ -94,7 +95,7 @@ data:
               - type: calendar
                 first-day-of-week: monday
 
-          # 中栏: 搜索、Hacker News、RSS(预留)
+          # 中栏: 搜索、Hacker News
           - size: full
             widgets:
               - type: search
@@ -103,16 +104,8 @@ data:
               - type: hacker-news
                 limit: 10
                 collapse-after: 5
-              # TODO: 取消注释并添加订阅源以启用 RSS widget
-              # - type: rss
-              #   title: RSS 订阅
-              #   limit: 10
-              #   collapse-after: 5
-              #   feeds:
-              #     - url: https://example.com/feed.xml
-              #       title: 示例订阅
 
-          # 右栏: 时钟、GitHub Releases(预留)
+          # 右栏: 时钟、天气、股票
           - size: small
             widgets:
               - type: clock
@@ -120,10 +113,87 @@ data:
                 timezones:
                   - timezone: Asia/Shanghai
                     label: Shanghai
+              - type: weather
+                units: metric
+                location: Shenzhen, China
+                hour-format: 24h
+              - type: markets
+                title: 股票
+                markets:
+                  - symbol: AAPL
+                    name: Apple
+                  - symbol: NVDA
+                    name: NVIDIA
               # TODO: 取消注释并添加项目以启用 GitHub Releases widget
               # - type: releases
               #   title: GitHub Releases
+              #   cache: 1d
               #   repositories:
               #     - fluxcd/flux2
               #     - longhorn/longhorn
               #     - cilium/cilium
+
+      # ==================== 资讯页: 视频、Reddit、RSS ====================
+      - name: News
+        columns:
+          # 左栏: YouTube 技术频道
+          - size: small
+            widgets:
+              - type: videos
+                title: Tech Videos
+                cache: 1h
+                limit: 15
+                collapse-after: 8
+                channels:
+                  - UCR-DXc1voovS8nhAvccRZhg  # Jeff Geerling
+                  - UCv6J_jJa8GJqFwQNgNrMuww  # ServeTheHome
+                  - UCOk-gHyjcWZNj3Br4oxwh0A  # Techno Tim
+                  - UCsBjURrPoezykLs9EqgamOA  # Fireship
+                  - UCHnyfMqiRRG1u-2MsSQLbXA  # Veritasium
+              # TODO: Bilibili 暂不支持，glance videos widget 仅支持 YouTube
+              # 可考虑使用 RSS widget 订阅 B站 UP主的 RSS (需要 RSSHub)
+              # - type: rss
+              #   title: Bilibili
+              #   feeds:
+              #     - url: https://rsshub.app/bilibili/user/video/xxxxx
+              #       title: UP主名称
+
+          # 中栏: Reddit、Hacker News
+          - size: full
+            widgets:
+              - type: group
+                widgets:
+                  - type: hacker-news
+                    sort-by: best
+                    limit: 15
+                    collapse-after: 8
+                  - type: reddit
+                    subreddit: selfhosted
+                    show-thumbnails: true
+                    limit: 15
+                    collapse-after: 8
+                  - type: reddit
+                    subreddit: kubernetes
+                    show-thumbnails: true
+                    limit: 15
+                    collapse-after: 8
+
+          # 右栏: RSS 订阅
+          - size: small
+            widgets:
+              # TODO: 取消注释并添加订阅源以启用 RSS widget
+              # - type: rss
+              #   title: RSS 订阅
+              #   limit: 15
+              #   collapse-after: 8
+              #   cache: 3h
+              #   feeds:
+              #     - url: https://ciechanow.ski/atom.xml
+              #     - url: https://www.joshwcomeau.com/rss.xml
+              #       title: Josh Comeau
+              #     - url: https://samwho.dev/rss.xml
+              - type: clock
+                hour-format: "24h"
+                timezones:
+                  - timezone: Asia/Shanghai
+                    label: Shanghai
