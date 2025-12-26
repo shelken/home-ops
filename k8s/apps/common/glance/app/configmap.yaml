@@ -39,6 +39,7 @@ data:
                 autofocus: true
               - type: rss
                 title: 博客订阅
+                style: horizontal-cards
                 limit: 20
                 collapse-after: 10
                 cache: 3h
