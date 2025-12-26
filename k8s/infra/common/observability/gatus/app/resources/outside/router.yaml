@@ -1,13 +1,29 @@
 ---
 endpoints:
+  # - name: router-dns
+  #   group: router
+  #   url: tcp://${ROUTER_IP}:53
+  #   interval: 1m
+  #   ui:
+  #     hide-hostname: true
+  #     hide-url: true
+  #   conditions:
+  #     - "[CONNECTED] == true"
+  #   alerts:
+  #     - type: custom
   - name: router-dns
     group: router
-    url: tcp://${ROUTER_IP}:53
-    interval: 1m
+    # 只能udp
+    url: ${ROUTER_IP}
+    dns:
+      query-name: vps.${MAIN_DOMAIN}
+      query-type: A
     ui:
       hide-hostname: true
       hide-url: true
+      hide-conditions: true
     conditions:
-      - "[CONNECTED] == true"
+      - "[BODY] == ${MAIN_VPS_IP}"
+      - "[DNS_RCODE] == NOERROR"
     alerts:
       - type: custom
