@@ -115,6 +115,31 @@ services:
     deploy:
       replicas: 1
 
+  crowdsec-firewall-bouncer:
+    image: ghcr.io/shgew/cs-firewall-bouncer-docker:v0.0.34
+    container_name: crowdsec-firewall-bouncer
+    network_mode: host
+    restart: always
+    labels:
+      - homepage.group=VPS
+      - homepage.name=firewall-bouncer
+      - homepage.icon=crowdsec.svg
+      - homepage.description=防火墙封禁
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      TZ: Asia/Shanghai
+      CROWDSEC_LOCAL_API_URL: ${CROWDSEC_LOCAL_API_URL}
+      CROWDSEC_FIREWALL_BOUNCER_API_KEY: ${CROWDSEC_FIREWALL_BOUNCER_API_KEY}
+    volumes:
+      - ./configs/crowdsec/crowdsec-firewall-bouncer.yaml:/config/crowdsec-firewall-bouncer.yaml:ro
+      - /etc/localtime:/etc/localtime:ro
+    deploy:
+      replicas: 1
+
   dhp:
     image: registry:3.0
     container_name: dhp

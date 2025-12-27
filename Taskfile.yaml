@@ -175,6 +175,10 @@ tasks:
         echo "同步源: $NAME ($IP)"
       '
 
+  cscli:
+    cmd: |
+      kubectl exec -it -n security deployments/crowdsec-lapi -- cscli {{.CLI_ARGS}}
+
   browse-pvc:
     requires:
       vars: ["namespace", "claim"]

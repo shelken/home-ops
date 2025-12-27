@@ -30,6 +30,7 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 - 执行测试kubectl apply前需要考虑namepsace（因为资源的namespace一般不写，由flux管理）
 - SSH执行命令时优先使用IP地址而非主机名（参考ansible节点信息表中的IP列）
 - 遇到失败的helmrelease，不要reconcile，直接删除，然后reconcile ks
+- 需要容器镜像时，寻找最新镜像固定化镜像版本，配合renovate的更新
 
 ## 项目概述
 

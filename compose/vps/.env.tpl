@@ -16,6 +16,7 @@ CADDY_CLOUDFLARE_API_TOKEN=azure://shelken-homelab/compose-vps/CLOUDFLARE_API_TO
 # ==================== CrowdSec ====================
 CROWDSEC_LOCAL_API_URL=azure://shelken-homelab/compose-vps/CROWDSEC_LOCAL_API_URL
 CROWDSEC_AGENT_PASSWORD=azure://shelken-homelab/compose-vps/CROWDSEC_AGENT_PASSWORD
+CROWDSEC_FIREWALL_BOUNCER_API_KEY=azure://shelken-homelab/compose-vps/CROWDSEC_FIREWALL_BOUNCER_API_KEY
 
 # ==================== MosDNS ====================
 REMOTE_DNS_SERVER_1=azure://shelken-homelab/compose-vps/REMOTE_DNS_SERVER_1
@@ -26,9 +27,8 @@ VICTORIA_LOGS_HOST=azure://shelken-homelab/compose-vps/VICTORIA_LOGS_HOST
 VICTORIA_LOGS_PORT=9428
 
 # ==================== Kopia ====================
-# 使用与 sakamoto 相同的仓库密码（共享同一个 kopia 仓库）
-KOPIA_REPO_PASSWORD=azure://shelken-homelab/compose-sakamoto/KOPIA_REPO_PASSWORD
-KOPIA_WEBHOOK_URL=azure://shelken-homelab/compose-sakamoto/KOPIA_WEBHOOK_URL
+KOPIA_REPO_PASSWORD=azure://shelken-homelab/compose-vps/KOPIA_REPO_PASSWORD
+KOPIA_WEBHOOK_URL=azure://shelken-homelab/compose-vps/KOPIA_WEBHOOK_URL
 
 # ==================== OpenList ====================
 OPENLIST_ADMIN_USERNAME=azure://shelken-homelab/compose-vps/OPENLIST_ADMIN_USERNAME
