@@ -46,7 +46,7 @@ _out/**
 
 # Compose - 渲染后的敏感文件
 compose/**/.env
-compose/**/kopia/repository.json
+compose/**/repository.config
 
 # Auto Claude data directory
 .auto-claude/

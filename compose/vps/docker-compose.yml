@@ -109,8 +109,10 @@ services:
       AGENT_USERNAME: vps-cc
       AGENT_PASSWORD: ${CROWDSEC_AGENT_PASSWORD}
       CROWDSEC_BYPASS_DB_VOLUME_CHECK: "true"
+    configs:
+      - source: crowdsec_acquis_all
+        target: /etc/crowdsec/acquis.d/all.yaml
     volumes:
-      - ./configs/crowdsec/acquis.d:/etc/crowdsec/acquis.d:ro
       - /var/log:/var/log:ro
     deploy:
       replicas: 1
@@ -134,8 +136,10 @@ services:
       TZ: Asia/Shanghai
       CROWDSEC_LOCAL_API_URL: ${CROWDSEC_LOCAL_API_URL}
       CROWDSEC_FIREWALL_BOUNCER_API_KEY: ${CROWDSEC_FIREWALL_BOUNCER_API_KEY}
+    configs:
+      - source: crowdsec_firewall_bouncer_config
+        target: /config/crowdsec-firewall-bouncer.yaml
     volumes:
-      - ./configs/crowdsec/crowdsec-firewall-bouncer.yaml:/config/crowdsec-firewall-bouncer.yaml:ro
       - /etc/localtime:/etc/localtime:ro
     deploy:
       replicas: 1
@@ -151,7 +155,9 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - "${DATA_BASE_DIR}/dhp/data:/var/lib/registry"
-      - "./configs/mirror-config.yaml:/etc/distribution/config.yml"
+    configs:
+      - source: dhp_mirror_config
+        target: /etc/distribution/config.yml
     environment:
       - REGISTRY_PROXY_REMOTEURL=https://registry-1.docker.io
     networks:
@@ -198,9 +204,12 @@ services:
       VICTORIA_LOGS_HOST: ${VICTORIA_LOGS_HOST}
       VICTORIA_LOGS_PORT: ${VICTORIA_LOGS_PORT:-9428}
       HOSTNAME: vps-cc
+    configs:
+      - source: fluent_bit_config
+        target: /fluent-bit/etc/fluent-bit.conf
+      - source: fluent_bit_parsers
+        target: /fluent-bit/etc/parsers.conf
     volumes:
-      - ./configs/fluent-bit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
-      - ./configs/fluent-bit/parsers.conf:/fluent-bit/etc/parsers.conf:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /var/log/caddy:/var/log/caddy:ro
       - ${DATA_BASE_DIR}/fluent-bit/db:/fluent-bit/db
@@ -305,10 +314,14 @@ services:
       KOPIA_WEBHOOK_URL: ${KOPIA_WEBHOOK_URL}
       # 仅在失败/警告时通知，成功时不通知 (可选值: report, warning, error)
       KOPIA_MIN_SEVERITY: warning
+    configs:
+      - source: kopia_repository_config
+        target: /app/config/repository.config
+      - source: kopia_policy
+        target: /app/config/policy.json
+      - source: kopia_entrypoint
+        target: /app/scripts/entrypoint.sh
     volumes:
-      - ./kopia/repository.config:/app/config/repository.config.tpl:ro
-      - ./kopia/policy.json:/app/config/policy.json:ro
-      - ./scripts/entrypoint.sh:/app/scripts/entrypoint.sh:ro
       - ${DATA_BASE_DIR}/kopia/cache:/app/cache
       - ${DATA_BASE_DIR}/kopia/logs:/app/logs
       - ${DATA_BASE_DIR}:/backup/data:ro
@@ -316,6 +329,24 @@ services:
       - "${DEPLOY_HOST}:51515:51515/tcp"
     deploy:
       replicas: 1
+
+configs:
+  crowdsec_acquis_all:
+    file: ./configs/crowdsec/acquis.d/all.yaml
+  crowdsec_firewall_bouncer_config:
+    file: ./configs/crowdsec/crowdsec-firewall-bouncer.yaml
+  dhp_mirror_config:
+    file: ./configs/mirror-config.yaml
+  fluent_bit_config:
+    file: ./configs/fluent-bit/fluent-bit.conf
+  fluent_bit_parsers:
+    file: ./configs/fluent-bit/parsers.conf
+  kopia_repository_config:
+    file: ./configs/kopia/repository.config
+  kopia_policy:
+    file: ./configs/kopia/policy.json
+  kopia_entrypoint:
+    file: ./configs/kopia/entrypoint.sh
 
 networks:
   homelab:

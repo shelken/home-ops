@@ -1,0 +1,55 @@
+{
+  "@sakamoto-local": {
+    "retention": {
+      "keepHourly": 24,
+      "keepDaily": 7
+    },
+    "compression": {
+      "compressorName": "zstd-fastest"
+    },
+    "files": {
+      "ignore": [
+        ".DS_Store",
+        ".DS_Store?",
+        "._*",
+        ".Spotlight-V100",
+        ".Trashes",
+        ".fseventsd",
+        ".TemporaryItems",
+        ".DocumentRevisions-V100",
+        "Thumbs.db",
+        "*.log",
+        "*.tmp",
+        "*.temp",
+        "cache",
+        "/Downloads",
+        "/Software/VM"
+      ]
+    }
+  },
+  "shelken@sakamoto-local:/backup/sakamoto-data/media": {
+    "scheduling": {
+      "intervalSeconds": 43200
+    }
+  },
+  "shelken@sakamoto-local:/backup/sakamoto-data/Work": {
+    "scheduling": {
+      "intervalSeconds": 43200
+    }
+  },
+  "shelken@sakamoto-local:/backup/sakamoto-data/折腾": {
+    "scheduling": {
+      "intervalSeconds": 43200
+    }
+  },
+  "shelken@sakamoto-local:/backup/sakamoto-data/synogy-data": {
+    "scheduling": {
+      "intervalSeconds": 43200
+    }
+  },
+  "shelken@sakamoto-local:/backup/sakamoto-data/k8s/storage": {
+    "scheduling": {
+      "intervalSeconds": 43200
+    }
+  }
+}

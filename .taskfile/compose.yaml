@@ -92,16 +92,22 @@ tasks:
       - |
         {{.SCRIPTS_DIR}}/azure-inject.sh "{{.LOCAL_DIR}}/.env.tpl" > "{{.LOCAL_DIR}}/.env"
         chmod 600 "{{.LOCAL_DIR}}/.env"
-      # 2. 渲染 kopia/repository.config.tpl → kopia/repository.config
+      # 2. 自动渲染所有 .tpl 文件（排除 .env.tpl）
       - |
-        if [ -f "{{.LOCAL_DIR}}/kopia/repository.config.tpl" ]; then
-          {{.SCRIPTS_DIR}}/azure-inject.sh "{{.LOCAL_DIR}}/kopia/repository.config.tpl" > "{{.LOCAL_DIR}}/kopia/repository.config"
-        fi
+        find "{{.LOCAL_DIR}}" -name "*.tpl" ! -name ".env.tpl" | while read tpl; do
+          output="${tpl%.tpl}"
+          echo "渲染: $tpl -> $output"
+          {{.SCRIPTS_DIR}}/azure-inject.sh "$tpl" > "$output"
+        done
       # 3. 同步文件到目标机器（文件自动属于 SSH 登录用户，-L 跟随符号链接）
       - |
         rsync -avzL --delete --no-owner --no-group \
           --exclude '.env.tpl' \
-          --exclude 'repository.config.tpl' \
+          --exclude '*.tpl' \
           "{{.LOCAL_DIR}}/" "{{.HOST}}:{{.REMOTE_DIR}}/"
       # 4. 清理本地生成的敏感文件
-      - defer: rm -f "{{.LOCAL_DIR}}/.env" "{{.LOCAL_DIR}}/kopia/repository.config"
+      - defer: |
+          rm -f "{{.LOCAL_DIR}}/.env"
+          find "{{.LOCAL_DIR}}" -name "*.tpl" ! -name ".env.tpl" | while read tpl; do
+            rm -f "${tpl%.tpl}"
+          done

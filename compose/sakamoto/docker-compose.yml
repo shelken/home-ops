@@ -119,10 +119,12 @@ services:
     environment:
       REGISTRY_LOG_LEVEL: debug
       REGISTRY_PROXY_REMOTEURL: https://ghcr.io
+    configs:
+      - source: mirror_config
+        target: /etc/distribution/config.yml
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
       - "${MIRROR_DATA_DIR}/ghcr/data:/var/lib/registry"
-      - "./configs/mirror-config.yaml:/etc/distribution/config.yml"
     ports:
       - "5001:5000"
     deploy:
@@ -143,10 +145,12 @@ services:
     environment:
       REGISTRY_LOG_LEVEL: debug
       REGISTRY_PROXY_REMOTEURL: https://quay.io
+    configs:
+      - source: mirror_config
+        target: /etc/distribution/config.yml
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
       - "${MIRROR_DATA_DIR}/quay/data:/var/lib/registry"
-      - "./configs/mirror-config.yaml:/etc/distribution/config.yml"
     ports:
       - "5002:5000"
     deploy:
@@ -167,10 +171,12 @@ services:
     environment:
       REGISTRY_LOG_LEVEL: debug
       REGISTRY_PROXY_REMOTEURL: https://mirror.gcr.io
+    configs:
+      - source: mirror_config
+        target: /etc/distribution/config.yml
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
       - "${MIRROR_DATA_DIR}/mirror-gcr/data:/var/lib/registry"
-      - "./configs/mirror-config.yaml:/etc/distribution/config.yml"
     ports:
       - "5003:5000"
     deploy:
@@ -191,16 +197,18 @@ services:
     environment:
       REGISTRY_LOG_LEVEL: debug
       REGISTRY_PROXY_REMOTEURL: https://registry.k8s.io
+    configs:
+      - source: mirror_config
+        target: /etc/distribution/config.yml
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
       - "${MIRROR_DATA_DIR}/k8s/data:/var/lib/registry"
-      - "./configs/mirror-config.yaml:/etc/distribution/config.yml"
     ports:
       - "5005:5000"
     deploy:
       replicas: 1
 
-  # ==================== Kopia Backup ====================
+  # ==================== Kopia Backup (Cloud) ====================
   kopia:
     image: kopia/kopia:0.22.3
     container_name: kopia
@@ -212,7 +220,7 @@ services:
       - homepage.group=sakamoto
       - homepage.name=kopia
       - homepage.icon=kopia.svg
-      - homepage.description=备份服务
+      - homepage.description=云端备份
     entrypoint: ["/app/scripts/entrypoint.sh"]
     environment:
       TZ: Asia/Shanghai
@@ -220,10 +228,14 @@ services:
       KOPIA_WEBHOOK_URL: ${KOPIA_WEBHOOK_URL}
       # 仅在失败/警告时通知，成功时不通知 (可选值: report, warning, error)
       KOPIA_MIN_SEVERITY: warning
+    configs:
+      - source: kopia_repository_config
+        target: /app/config/repository.config
+      - source: kopia_policy
+        target: /app/config/policy.json
+      - source: kopia_entrypoint
+        target: /app/scripts/entrypoint.sh
     volumes:
-      - ./kopia/repository.config:/app/config/repository.config.tpl:ro
-      - ./kopia/policy.json:/app/config/policy.json:ro
-      - ./scripts/entrypoint.sh:/app/scripts/entrypoint.sh:ro
       - ${DOCKER_DATA_DIR}/kopia/cache:/app/cache
       - ${DOCKER_DATA_DIR}/kopia/logs:/app/logs
       - ${MINIO_DATA_DIR}:/backup/minio:ro
@@ -233,7 +245,57 @@ services:
     deploy:
       replicas: 1
 
+  # ==================== Kopia Backup (Local) ====================
+  kopia-local:
+    image: kopia/kopia:0.22.3
+    container_name: kopia-local
+    hostname: sakamoto-local
+    networks:
+      - homelab
+    restart: always
+    labels:
+      - homepage.group=sakamoto
+      - homepage.name=kopia-local
+      - homepage.icon=kopia.svg
+      - homepage.description=本地备份
+    entrypoint: ["/app/scripts/entrypoint.sh"]
+    command: ["--address=0.0.0.0:51516", "--without-password", "--insecure"]
+    environment:
+      TZ: Asia/Shanghai
+      KOPIA_PASSWORD: ${KOPIA_LOCAL_REPO_PASSWORD}
+      KOPIA_WEBHOOK_URL: ${KOPIA_WEBHOOK_URL}
+      KOPIA_MIN_SEVERITY: warning
+    configs:
+      - source: kopia_local_repository_config
+        target: /app/config/repository.config
+      - source: kopia_local_policy
+        target: /app/config/policy.json
+      - source: kopia_entrypoint
+        target: /app/scripts/entrypoint.sh
+    volumes:
+      - ${DOCKER_DATA_DIR}/kopia-local/cache:/app/cache
+      - ${DOCKER_DATA_DIR}/kopia-local/logs:/app/logs
+      - /Volumes/sakamoto-data:/backup/sakamoto-data:ro
+      - /Volumes/BackUp3T/kopia-local-repo:/repo
+    ports:
+      - "51516:51516"
+    deploy:
+      replicas: 1
+
 configs:
+  mirror_config:
+    file: ./configs/mirror-config.yaml
+  kopia_repository_config:
+    file: ./configs/kopia/repository.config
+  kopia_policy:
+    file: ./configs/kopia/policy.json
+  kopia_entrypoint:
+    file: ./configs/kopia/entrypoint.sh
+  kopia_local_repository_config:
+    file: ./configs/kopia/local/repository.config
+  kopia_local_policy:
+    file: ./configs/kopia/local/policy.json
+
   caddy_config:
     content: |
       {

@@ -34,8 +34,8 @@ fi
 # 将整个模板文件读入一个变量
 yaml_content=$(cat "$TEMPLATE_FILE")
 
-# 查找所有 azure:// 占位符
-placeholders=$(echo "$yaml_content" | grep -o 'azure://[a-zA-Z0-9\./_-]\+' | sort | uniq)
+# 查找所有 azure:// 占位符（grep 无匹配时返回 1，需要忽略）
+placeholders=$(echo "$yaml_content" | grep -o 'azure://[a-zA-Z0-9\./_-]\+' | sort | uniq || true)
 
 if [ -z "$placeholders" ]; then
     echo >&2 "未在文件中找到 'azure://' 占位符。将输出原始内容。"

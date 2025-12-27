@@ -23,7 +23,8 @@
         "cache",
         "/mirror",
         "/minio",
-        "/kopia"
+        "/kopia",
+        "/kopia-local"
       ]
     }
   },

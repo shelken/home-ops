@@ -18,6 +18,9 @@ MINIO_ROOT_PASSWORD=azure://shelken-homelab/compose-sakamoto/MINIO_ROOT_PASSWORD
 # ==================== Mirror ====================
 MIRROR_DATA_DIR=azure://shelken-homelab/compose-sakamoto/MIRROR_DATA_DIR
 
-# ==================== Kopia ====================
+# ==================== Kopia (Cloud) ====================
 KOPIA_REPO_PASSWORD=azure://shelken-homelab/compose-sakamoto/KOPIA_REPO_PASSWORD
 KOPIA_WEBHOOK_URL=azure://shelken-homelab/compose-sakamoto/KOPIA_WEBHOOK_URL
+
+# ==================== Kopia Local ====================
+KOPIA_LOCAL_REPO_PASSWORD=azure://shelken-homelab/compose-sakamoto/KOPIA_LOCAL_REPO_PASSWORD

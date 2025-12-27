@@ -1,13 +1,26 @@
 # Kopia 配置说明
 
+## 概述
+
+本目录包含两个 Kopia 备份服务的配置：
+
+| 服务 | 仓库类型 | 备份源 | 目标 | 端口 | 调度 |
+|------|---------|--------|------|------|------|
+| kopia (云端) | S3 (OpenList) | compose, minio | 189 云盘 | 51515 | 1h/6h |
+| kopia-local (本地) | 文件系统 | sakamoto-data 用户数据 | BackUp3T | 51516 | 12h |
+
 ## 文件结构
 
 | 文件 | 说明 |
 |------|------|
-| `repository.config.tpl` | 存储库连接配置模板，使用 azure:// 占位符 |
-| `policy.json` | 备份策略配置（VPS 通过符号链接共享此文件） |
+| `repository.config.tpl` | 云端存储库连接配置模板，使用 azure:// 占位符 |
+| `policy.json` | 云端备份策略配置（VPS 通过符号链接共享此文件） |
+| `local/repository.config.tpl` | 本地存储库连接配置（文件系统类型） |
+| `local/policy.json` | 本地备份策略配置（白名单路径 + 排除规则） |
 
-## policy.json
+## 云端备份 (kopia)
+
+### policy.json 配置结构
 
 Kopia 策略采用层级继承机制：
 
@@ -114,3 +127,44 @@ kopia snapshot create /backup/data
 # 查看所有快照
 kopia snapshot list --all
 ```
+
+## 本地备份 (kopia-local)
+
+### 备份范围
+
+**备份路径**（白名单模式）：
+- `/backup/sakamoto-data/media` - 照片、音乐、视频、电子书等
+- `/backup/sakamoto-data/Work` - 工作文件
+- `/backup/sakamoto-data/折腾` - 个人文件
+- `/backup/sakamoto-data/synogy-data` - 群晖数据
+- `/backup/sakamoto-data/k8s/storage` - K8s 应用数据
+
+**排除规则**：
+- `media/Downloads/qbittorrent` - 下载文件可重新下载
+- `media/Software/VM` - 虚拟机可重建
+- 系统文件（.DS_Store, .Spotlight-V100, .Trashes 等）
+
+### 首次初始化
+
+本地备份使用独立仓库，首次需要手动创建：
+
+```bash
+# 1. 在 Azure Key Vault 中设置 KOPIA_LOCAL_REPO_PASSWORD
+# 2. 创建仓库目录
+ssh sakamoto "mkdir -p /Volumes/BackUp3T/kopia-local-repo"
+
+# 3. 启动容器（会自动创建仓库）
+docker compose up -d kopia-local
+
+# 4. 访问 Web UI
+open http://sakamoto.lan:51516
+```
+
+### 与云端备份的区别
+
+| 特性 | 云端备份 | 本地备份 |
+|------|---------|---------|
+| 仓库密码 | KOPIA_REPO_PASSWORD | KOPIA_LOCAL_REPO_PASSWORD |
+| 备份目标 | 189 云盘（异地） | BackUp3T（本地） |
+| 恢复速度 | 较慢（网络） | 快速（本地磁盘） |
+| 备份内容 | Docker + MinIO | 用户数据 |
