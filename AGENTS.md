@@ -68,7 +68,7 @@
 
 ## 开发环境
 
-使用 Nix Flake + direnv 管理。执行需要项目环境的命令时，必要时使用 `direnv exec . <command>` 包装以加载正确的环境。
+使用 Nix Flake + direnv 管理。找不到命令时尝试使用 `direnv exec . <command>` 包装以加载正确的环境。
 
 ## 常用命令
 
