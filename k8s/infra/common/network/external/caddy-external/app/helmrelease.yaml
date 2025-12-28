@@ -128,7 +128,7 @@ spec:
               PROXIED: "false"
               IP4_PROVIDER: "none"
               UPDATE_CRON: "@every 5m"
-              IP6_PROVIDER: "url:https://6.ipw.cn"
+              IP6_PROVIDER: "url:http://localhost:8888"
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -139,6 +139,51 @@ spec:
                 memory: 16Mi
               limits:
                 memory: 64Mi
+          ip-selector:
+            image:
+              repository: busybox
+              tag: stable
+            env:
+              TZ: ${TIMEZONE}
+              MAIN_VPS_IP_V6: ${MAIN_VPS_IP_V6}
+            command: ["/bin/sh", "-c"]
+            args:
+              - |
+                # 初始化：先执行一次 IP 检测
+                CURRENT_IP=$(wget -qO- https://6.ipw.cn 2>/dev/null)
+                if echo "$CURRENT_IP" | grep -q "^2408:"; then
+                  echo "$CURRENT_IP" > /tmp/current-ip
+                else
+                  echo "$MAIN_VPS_IP_V6" > /tmp/current-ip
+                fi
+                echo "[ip-selector] Initial IP: $(cat /tmp/current-ip)"
+
+                # 后台定时更新 IP
+                while true; do
+                  sleep 300
+                  CURRENT_IP=$(wget -qO- https://6.ipw.cn 2>/dev/null)
+                  if echo "$CURRENT_IP" | grep -q "^2408:"; then
+                    echo "$CURRENT_IP" > /tmp/current-ip
+                  else
+                    echo "$MAIN_VPS_IP_V6" > /tmp/current-ip
+                  fi
+                  echo "[ip-selector] Updated IP: $(cat /tmp/current-ip)"
+                done &
+
+                # HTTP 服务：返回当前选择的 IP
+                while true; do
+                  { echo -e "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n$(cat /tmp/current-ip)"; } | nc -l -p 8888
+                done
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 5m
+                memory: 8Mi
+              limits:
+                memory: 32Mi
     defaultPodOptions:
       annotations:
         k8s.v1.cni.cncf.io/networks: |
