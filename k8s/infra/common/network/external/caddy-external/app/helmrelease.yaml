@@ -113,6 +113,54 @@ spec:
                 memory: 16Mi
               limits:
                 memory: 256Mi
+          ip-selector:
+            image:
+              repository: busybox
+              tag: stable
+            env:
+              TZ: ${TIMEZONE}
+              MAIN_VPS_IP_V6: ${MAIN_VPS_IP_V6}
+            command: ["/bin/sh", "-c"]
+            args:
+              - |
+                update_ip() {
+                  local ip=$(wget -qO- https://6.ipw.cn 2>/dev/null)
+                  if [ -z "$ip" ]; then
+                    echo "[ip-selector] Failed to detect IP, keeping previous"
+                    return 1
+                  elif echo "$ip" | grep -q "^2408:"; then
+                    echo "$ip" > /tmp/current-ip
+                    echo "[ip-selector] Using unicom IP: $ip"
+                  else
+                    echo "$MAIN_VPS_IP_V6" > /tmp/current-ip
+                    echo "[ip-selector] Using VPS IP (non-2408 detected: $ip)"
+                  fi
+                }
+
+                # 初始化（带重试）
+                for i in 1 2 3 4 5; do
+                  update_ip && break
+                  echo "[ip-selector] Retry $i/5..."
+                  sleep 5
+                done
+
+                # 后台定时更新
+                while true; do sleep 270; update_ip; done &
+
+                # HTTP 服务
+                while true; do
+                  { echo -e "HTTP/1.1 200 OK\r\n\r\n$(cat /tmp/current-ip 2>/dev/null)"; } | nc -l -p 8888 >/dev/null
+                done
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 5m
+                memory: 8Mi
+              limits:
+                memory: 32Mi
           ddns:
             image:
               repository: mirror.gcr.io/favonia/cloudflare-ddns
@@ -127,7 +175,9 @@ spec:
               DOMAINS: homelab-dynamic.${MAIN_DOMAIN}
               PROXIED: "false"
               IP4_PROVIDER: "none"
-              UPDATE_CRON: "@every 5m"
+              UPDATE_CRON: "@every 15s"
+              UPDATE_ON_START: true
+              QUIET: true
               IP6_PROVIDER: "url:http://localhost:8888"
             securityContext:
               allowPrivilegeEscalation: false
@@ -139,51 +189,6 @@ spec:
                 memory: 16Mi
               limits:
                 memory: 64Mi
-          ip-selector:
-            image:
-              repository: busybox
-              tag: stable
-            env:
-              TZ: ${TIMEZONE}
-              MAIN_VPS_IP_V6: ${MAIN_VPS_IP_V6}
-            command: ["/bin/sh", "-c"]
-            args:
-              - |
-                # 初始化：先执行一次 IP 检测
-                CURRENT_IP=$(wget -qO- https://6.ipw.cn 2>/dev/null)
-                if echo "$CURRENT_IP" | grep -q "^2408:"; then
-                  echo "$CURRENT_IP" > /tmp/current-ip
-                else
-                  echo "$MAIN_VPS_IP_V6" > /tmp/current-ip
-                fi
-                echo "[ip-selector] Initial IP: $(cat /tmp/current-ip)"
-
-                # 后台定时更新 IP
-                while true; do
-                  sleep 300
-                  CURRENT_IP=$(wget -qO- https://6.ipw.cn 2>/dev/null)
-                  if echo "$CURRENT_IP" | grep -q "^2408:"; then
-                    echo "$CURRENT_IP" > /tmp/current-ip
-                  else
-                    echo "$MAIN_VPS_IP_V6" > /tmp/current-ip
-                  fi
-                  echo "[ip-selector] Updated IP: $(cat /tmp/current-ip)"
-                done &
-
-                # HTTP 服务：返回当前选择的 IP
-                while true; do
-                  { echo -e "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n$(cat /tmp/current-ip)"; } | nc -l -p 8888
-                done
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
-            resources:
-              requests:
-                cpu: 5m
-                memory: 8Mi
-              limits:
-                memory: 32Mi
     defaultPodOptions:
       annotations:
         k8s.v1.cni.cncf.io/networks: |
