@@ -2,7 +2,7 @@
   description = "Base development template";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/25.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     utils = {
       url = "github:numtide/flake-utils";
     };
