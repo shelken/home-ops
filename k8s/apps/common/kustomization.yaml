@@ -36,6 +36,7 @@ resources:
   - slash/ks.yaml
   - smb-volumes/ks.yaml
   # - vaultwarden/ks.yaml
+  - zte-mifi-exporter/ks.yaml
 
 patches:
   - target:

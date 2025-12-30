@@ -1,0 +1,18 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app zte-mifi-exporter
+  namespace: &namespace default
+spec:
+  targetNamespace: *namespace
+  interval: 1h
+  path: ./k8s/apps/common/zte-mifi-exporter/app
+  prune: true
+  retryInterval: 2m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  timeout: 5m
+  wait: false
