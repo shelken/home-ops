@@ -306,6 +306,7 @@ services:
       - homepage.group=VPS
       - homepage.name=kopia
       - homepage.icon=kopia.svg
+      - homepage.href=http://${DEPLOY_HOST}:51515/tasks
       - homepage.description=备份服务
     entrypoint: ["/app/scripts/entrypoint.sh"]
     environment:

@@ -220,6 +220,7 @@ services:
       - homepage.group=sakamoto
       - homepage.name=kopia
       - homepage.icon=kopia.svg
+      - homepage.href=http://sakamoto.lan:51515/tasks
       - homepage.description=云端备份
     entrypoint: ["/app/scripts/entrypoint.sh"]
     environment:
@@ -257,6 +258,7 @@ services:
       - homepage.group=sakamoto
       - homepage.name=kopia-local
       - homepage.icon=kopia.svg
+      - homepage.href=http://sakamoto.lan:51516/tasks
       - homepage.description=本地备份
     entrypoint: ["/app/scripts/entrypoint.sh"]
     command: ["--address=0.0.0.0:51516", "--without-password", "--insecure"]
