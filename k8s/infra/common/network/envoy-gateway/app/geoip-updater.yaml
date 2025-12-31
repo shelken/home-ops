@@ -1,0 +1,40 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/batch/cronjob_v1.json
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: geoip-updater
+spec:
+  schedule: "0 3 * * 0" # 每周日凌晨 3 点
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 86400
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: updater
+              image: curlimages/curl:latest
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  set -e
+                  for db in GeoLite2-City.mmdb GeoLite2-ASN.mmdb; do
+                    echo "Updating $db..."
+                    curl -sSL --connect-timeout 10 --max-time 300 \
+                      -z "/geoip/$db" -o "/geoip/$db" \
+                      "https://github.com/P3TERX/GeoLite.mmdb/raw/download/$db" || true
+                  done
+                  echo "Done."
+                  ls -lh /geoip/
+              volumeMounts:
+                - name: geoip-storage
+                  mountPath: /geoip
+          volumes:
+            - name: geoip-storage
+              hostPath:
+                path: /data/envoy-geoip
+                type: DirectoryOrCreate
