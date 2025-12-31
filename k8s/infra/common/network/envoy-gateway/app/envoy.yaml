@@ -150,12 +150,12 @@ spec:
 
                 # 执行任务
                 update_db \
-                  "https://v6.gh-proxy.org/https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-City.mmdb" \
+                  "https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-City.mmdb" \
                   "GeoLite2-City.mmdb" \
                   10000000
 
                 update_db \
-                  "https://v6.gh-proxy.org/https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-ASN.mmdb" \
+                  "https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-ASN.mmdb" \
                   "GeoLite2-ASN.mmdb" \
                   3000000
 
