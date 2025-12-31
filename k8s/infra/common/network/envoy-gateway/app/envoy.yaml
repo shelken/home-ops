@@ -130,7 +130,7 @@ spec:
                     # 4. 只有指纹不同时，才开始下载
                     echo "🔄 Update found! Downloading..."
 
-                    curl -L --fail --retry 3 -o "$TEMP_FILE" "$URL"
+                    curl -L --fail --retry 3 --connect-timeout 10 --max-time 300 -o "$TEMP_FILE" "$URL"
 
                     # 5. 下载后检查文件大小 (防空文件/防报错页)
                     local FILE_SIZE=$(stat -c%s "$TEMP_FILE" 2>/dev/null || stat -f%z "$TEMP_FILE")
