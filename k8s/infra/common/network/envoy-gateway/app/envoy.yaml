@@ -34,7 +34,7 @@ spec:
       envoyService:
         externalTrafficPolicy: Local
   shutdown:
-    drainTimeout: 180s
+    drainTimeout: 60s
   telemetry:
     metrics:
       prometheus:
@@ -85,7 +85,7 @@ spec:
       envoyService:
         externalTrafficPolicy: Local
   shutdown:
-    drainTimeout: 180s
+    drainTimeout: 60s
   telemetry:
     metrics:
       prometheus:
