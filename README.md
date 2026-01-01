@@ -20,6 +20,10 @@
 [![Memory-Usage](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fcluster_memory_usage&labelColor=363a4f&style=for-the-badge&label=Memory)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
 [![Alerts](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fcluster_alert_count&logo=prometheus&labelColor=363a4f&style=for-the-badge&label=Alerts)](https://prometheus.ooooo.space/alerts)
 
+[![MiFi-Network](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fmifi_network_type&logo=wifi&labelColor=363a4f&style=for-the-badge&label=Network)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
+[![MiFi-Provider](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fmifi_provider&logo=simpleicons&labelColor=363a4f&style=for-the-badge&label=Provider)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
+[![MiFi-Monthly](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fmifi_monthly_total&logo=chart-bar&labelColor=363a4f&style=for-the-badge&label=Monthly)](https://github.com/kashalls/kromgo)
+
 </div>
 
 &nbsp;

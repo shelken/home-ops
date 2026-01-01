@@ -64,3 +64,27 @@ metrics:
       - { color: "A6DA95", min: 0, max: 0 }
       - { color: "ED8796", min: 1, max: 9999 }
     title: Alerts
+
+  # ZTE MiFi Metrics
+  - name: mifi_network_type
+    query: zte_mifi_signal_bar
+    label: network_type
+    colors:
+      - { color: "8AADF4", min: 0, max: 9999 }
+    title: Network
+
+  - name: mifi_provider
+    query: zte_mifi_signal_bar
+    label: provider
+    colors:
+      - { color: "C6A0F6", min: 0, max: 9999 }
+    title: Provider
+
+  - name: mifi_monthly_total
+    query: round(zte_mifi_monthly_bytes_total / 1073741824, 0.1)
+    suffix: " GB"
+    colors:
+      - { color: "A6DA95", min: 0, max: 250 }
+      - { color: "F5A97F", min: 251, max: 450 }
+      - { color: "ED8796", min: 451, max: 9999 }
+    title: Monthly
