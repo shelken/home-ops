@@ -327,15 +327,11 @@ services:
       - source: kopia_entrypoint
         target: /app/scripts/entrypoint.sh
     volumes:
-      - ${DATA_BASE_DIR}/kopia/cache:/app/cache
+      - kopia_cache:/app/cache
       - ${DATA_BASE_DIR}/kopia/logs:/app/logs
       - ${DATA_BASE_DIR}:/backup/data:ro
     ports:
       - "${DEPLOY_HOST}:51515:51515/tcp"
-    ulimits:
-      nofile:
-        soft: 65536
-        hard: 65536
     deploy:
       replicas: 1
 
@@ -356,6 +352,9 @@ configs:
     file: ./configs/kopia/policy.json
   kopia_entrypoint:
     file: ./configs/kopia/entrypoint.sh
+
+volumes:
+  kopia_cache:
 
 networks:
   homelab:

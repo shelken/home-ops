@@ -50,17 +50,17 @@
   },
   "shelken@sakamoto:/backup/compose": {
     "scheduling": {
-      "intervalSeconds": 3600
+      "cron": ["30 * * * *"]
     }
   },
   "shelken@sakamoto:/backup/minio": {
     "scheduling": {
-      "intervalSeconds": 21600
+      "cron": ["30 */6 * * *"]
     }
   },
   "shelken@vps:/backup/data": {
     "scheduling": {
-      "intervalSeconds": 14400
+      "cron": ["47 */4 * * *"]
     }
   }
 }

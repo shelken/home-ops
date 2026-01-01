@@ -29,27 +29,27 @@
   },
   "shelken@sakamoto-local:/backup/sakamoto-data/media": {
     "scheduling": {
-      "intervalSeconds": 43200
+      "cron": ["15 * * * *"]
     }
   },
   "shelken@sakamoto-local:/backup/sakamoto-data/Work": {
     "scheduling": {
-      "intervalSeconds": 43200
+      "cron": ["15 * * * *"]
     }
   },
   "shelken@sakamoto-local:/backup/sakamoto-data/折腾": {
     "scheduling": {
-      "intervalSeconds": 43200
+      "cron": ["15 * * * *"]
     }
   },
   "shelken@sakamoto-local:/backup/sakamoto-data/synogy-data": {
     "scheduling": {
-      "intervalSeconds": 43200
+      "cron": ["15 * * * *"]
     }
   },
   "shelken@sakamoto-local:/backup/sakamoto-data/k8s/storage": {
     "scheduling": {
-      "intervalSeconds": 43200
+      "cron": ["15 * * * *"]
     }
   }
 }

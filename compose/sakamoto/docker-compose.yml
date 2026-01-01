@@ -2,6 +2,10 @@ networks:
   homelab:
     external: true
 
+volumes:
+  kopia_cache:
+  kopia_local_cache:
+
 services:
   # ==================== Caddy ====================
   caddy:
@@ -27,10 +31,6 @@ services:
       - "${DOCKER_DATA_DIR}/caddy/site:/srv"
       - "${DOCKER_DATA_DIR}/caddy/data:/data"
       - "${DOCKER_DATA_DIR}/caddy/config:/config"
-    ulimits:
-      nofile:
-        soft: 65536
-        hard: 65536
     deploy:
       replicas: 1
 
@@ -220,10 +220,6 @@ services:
     networks:
       - homelab
     restart: always
-    ulimits:
-      nofile:
-        soft: 65536
-        hard: 65536
     labels:
       - homepage.group=sakamoto
       - homepage.name=kopia
@@ -245,7 +241,7 @@ services:
       - source: kopia_entrypoint
         target: /app/scripts/entrypoint.sh
     volumes:
-      - ${DOCKER_DATA_DIR}/kopia/cache:/app/cache
+      - kopia_cache:/app/cache
       - ${DOCKER_DATA_DIR}/kopia/logs:/app/logs
       - ${MINIO_DATA_DIR}:/backup/minio:ro
       - ${DOCKER_DATA_DIR}:/backup/compose:ro
@@ -262,10 +258,6 @@ services:
     networks:
       - homelab
     restart: always
-    ulimits:
-      nofile:
-        soft: 65536
-        hard: 65536
     labels:
       - homepage.group=sakamoto
       - homepage.name=kopia-local
@@ -287,7 +279,7 @@ services:
       - source: kopia_entrypoint
         target: /app/scripts/entrypoint.sh
     volumes:
-      - ${DOCKER_DATA_DIR}/kopia-local/cache:/app/cache
+      - kopia_local_cache:/app/cache
       - ${DOCKER_DATA_DIR}/kopia-local/logs:/app/logs
       - /Volumes/sakamoto-data:/backup/sakamoto-data:ro
       - /Volumes/BackUp3T/kopia-local-repo:/repo
