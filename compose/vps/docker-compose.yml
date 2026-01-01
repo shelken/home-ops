@@ -81,6 +81,10 @@ services:
       - "443:443"
       - "443:443/udp"
       - "${DEPLOY_HOST}:2019:2019/tcp"
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
     deploy:
       replicas: 1
 
@@ -328,6 +332,10 @@ services:
       - ${DATA_BASE_DIR}:/backup/data:ro
     ports:
       - "${DEPLOY_HOST}:51515:51515/tcp"
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
     deploy:
       replicas: 1
 
