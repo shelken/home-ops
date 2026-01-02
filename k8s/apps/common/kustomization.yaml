@@ -30,6 +30,7 @@ resources:
   # - ollama/ks.yaml
   - openlist/ks.yaml
   - qbittorrent/ks.yaml
+  - qui/ks.yaml
   - plex/ks.yaml
   - seafile/ks.yaml
   - shlink/ks.yaml
