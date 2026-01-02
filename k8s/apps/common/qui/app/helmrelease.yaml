@@ -32,6 +32,12 @@ spec:
               QUI__PORT: &port 80
               QUI__LOG_LEVEL: INFO
               TZ: ${TIMEZONE}
+              # OIDC
+              QUI__OIDC_ENABLED: "true"
+              QUI__OIDC_ISSUER: https://auth.${MAIN_DOMAIN}
+              QUI__OIDC_CLIENT_ID: qui
+              QUI__OIDC_REDIRECT_URL: https://qui.${MAIN_DOMAIN}/api/auth/oidc/callback
+              QUI__OIDC_DISABLE_BUILT_IN_LOGIN: "false"
             envFrom:
               - secretRef:
                   name: qui-secret
