@@ -139,10 +139,5 @@ spec:
         globalMounts:
           - path: /backup-media/Downloads/qbittorrent
             subPath: Downloads/qbittorrent
-      qbrr:
-        type: image
-        image: ghcr.io/buroa/qbrr:0.1.2
-        globalMounts:
-          - readOnly: true
       tmp:
         type: emptyDir
