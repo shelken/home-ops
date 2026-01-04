@@ -4,16 +4,13 @@ kind: StorageClass
 reclaimPolicy: Delete
 provisioner: driver.longhorn.io
 parameters:
-  # used for volsync to copy from.
-  # we set this to 1 replica for faster restores from the snapclass
-  # dataLocality: strict-local
+  dataLocality: best-effort
   numberOfReplicas: "1"
-  # replicaAutoBalance: best-effort
   staleReplicaTimeout: "30"
   fsType: ext4
   dataEngine: v1
 allowVolumeExpansion: true
-volumeBindingMode: WaitForFirstConsumer
+volumeBindingMode: Immediate
 metadata:
   name: longhorn-snapshot
 ---
@@ -22,14 +19,12 @@ kind: StorageClass
 reclaimPolicy: Delete
 provisioner: driver.longhorn.io
 parameters:
-  # we set this to 2 replica for less copies of the cache, which can be blown away safely.
-  # dataLocality: best-effort
+  dataLocality: best-effort
   numberOfReplicas: "2"
-  # replicaAutoBalance: best-effort
   staleReplicaTimeout: "30"
   fsType: ext4
   dataEngine: v1
 allowVolumeExpansion: true
-volumeBindingMode: WaitForFirstConsumer
+volumeBindingMode: Immediate
 metadata:
   name: longhorn-cache

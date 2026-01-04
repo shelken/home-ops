@@ -11,6 +11,6 @@ parameters:
   fsType: ext4
   dataEngine: v1
 allowVolumeExpansion: true
-volumeBindingMode: WaitForFirstConsumer
+volumeBindingMode: Immediate
 metadata:
   name: longhorn-log

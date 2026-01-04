@@ -15,7 +15,7 @@ parameters:
   csi.storage.k8s.io/provisioner-secret-namespace: storage
   csi.storage.k8s.io/node-stage-secret-name: smb-secret
   csi.storage.k8s.io/node-stage-secret-namespace: storage
-volumeBindingMode: WaitForFirstConsumer
+volumeBindingMode: Immediate
 reclaimPolicy: Retain
 allowVolumeExpansion: true
 mountOptions:
