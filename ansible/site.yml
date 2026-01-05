@@ -10,10 +10,6 @@
       community.general.timezone:
         name: "{{ system_timezone }}"
 
-    - import_tasks: playbooks/tasks/ntp.yaml
-
-    - import_tasks: playbooks/tasks/dns-patch.yaml
-
     - import_tasks: playbooks/tasks/change-sources.yaml
 
     - name: install system pkgs
@@ -31,11 +27,9 @@
         - ansible_facts.virtualization_type == "kvm"
         - ansible_facts.virtualization_role == "guest"
 
-  handlers:
-    - name: restart chrony
-      ansible.builtin.service:
-        name: chrony
-        state: restarted
+- import_playbook: playbooks/setup-time.yaml
+- import_playbook: playbooks/setup-dns.yaml
+- import_playbook: playbooks/setup-vlan.yaml
 
 # - import_playbook: playbooks/install-nvidia.yaml
 

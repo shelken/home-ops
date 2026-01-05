@@ -90,10 +90,10 @@
                 id: {{ vlan.vlan_id }}
                 link: {{ vlan.parent }}
           {% endfor %}
-        mode: '0644'
+        mode: '0600'
       when:
         - valid_vlans | length > 0
-        - ansible_os_family == 'Debian'
+        - ansible_facts['os_family'] == 'Debian'
       notify: Apply netplan
 
   handlers:
