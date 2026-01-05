@@ -73,5 +73,14 @@
         commitMessageTopic: "{{{groupName}}} group",
       },
     },
+    {
+      description: "Volsync Group",
+      groupName: " Volsync",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/perfectra1n/"],
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
   ],
 }
