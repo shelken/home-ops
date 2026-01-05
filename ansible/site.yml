@@ -28,6 +28,7 @@
         - ansible_facts.virtualization_role == "guest"
 
 - import_playbook: playbooks/setup-time.yaml
+- import_playbook: playbooks/setup-sysctl.yaml
 - import_playbook: playbooks/setup-dns.yaml
 - import_playbook: playbooks/setup-vlan.yaml
 

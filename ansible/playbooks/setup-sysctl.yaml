@@ -1,0 +1,8 @@
+---
+- name: sysctl
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: 设置sysctl
+      ansible.builtin.include_tasks: tasks/sysctl.yaml

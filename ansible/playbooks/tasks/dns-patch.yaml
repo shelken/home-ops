@@ -85,6 +85,8 @@
           [Network]
           # 确保优先使用全局 resolved.conf 的 DNS
           DNSDefaultRoute=true
+          # 覆盖硬编码的 DNS，使用全局配置
+          DNS=
 
           [IPv6AcceptRA]
           UseDNS=false
