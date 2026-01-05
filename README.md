@@ -80,25 +80,25 @@ graph TD
 
 > lb ip range: 192.168.69.0/24
 
-| 服务                   | ip            | 描述                      | domain    | multus |
-| ---------------------- | ------------- | ------------------------- | --------- | ------ |
-| k8s-gateway            | 192.168.69.41 | 开放给外部 dns            |           |        |
-| envoy external gateway | 192.168.69.45 |                           |           |        |
-| envoy internal gateway | 192.168.69.46 |                           |           |        |
-| postgres-lb            | 192.168.69.52 | 开放postgres              | postgres. |        |
-| plex                   | 192.168.69.54 |                           |           |        |
-| immich-db              | 192.168.69.56 |                           |           |        |
-| seafile-db             | 192.168.69.57 |                           |           |        |
-| mosquitto              | 192.168.69.59 |                           |           |        |
-| vistoria-logs          | 192.168.69.66 | 给其他设备（vps）发送日志 |           |        |
-| crowdsec               | 192.168.69.67 | 其他设备agent/bounce连接  |           |        |
-| netbird                | 192.168.70.44  | 关闭 保留                 |           | multus-ipv6 |
-| caddy-external         | 192.168.70.47  |                           |           | multus-ipv6 |
-| home assistant         | 192.168.50.51 | mDNS                      |           | multus-iot  |
-| go2rtc                 | 192.168.6.53 | mDNS                      |           | multus-homekit  |
-| qbittorrent            | 192.168.70.58  | IPv6 直连                 |           | multus-ipv6 |
-| tailscale-sub-router   | 192.168.70.65  | IPv6 直连                 |           | multus-ipv6 |
-| tailscale-node-vps     | 192.168.70.66  | IPv6 直连                 |           | multus-ipv6 |
+| 服务                   | ip            | 描述                      | domain    | multus         |
+| ---------------------- | ------------- | ------------------------- | --------- | -------------- |
+| k8s-gateway            | 192.168.69.41 | 开放给外部 dns            |           |                |
+| envoy external gateway | 192.168.69.45 |                           |           |                |
+| envoy internal gateway | 192.168.69.46 |                           |           |                |
+| postgres-lb            | 192.168.69.52 | 开放postgres              | postgres. |                |
+| plex                   | 192.168.69.54 |                           |           |                |
+| immich-db              | 192.168.69.56 |                           |           |                |
+| seafile-db             | 192.168.69.57 |                           |           |                |
+| mosquitto              | 192.168.69.59 |                           |           |                |
+| vistoria-logs          | 192.168.69.66 | 给其他设备（vps）发送日志 |           |                |
+| crowdsec               | 192.168.69.67 | 其他设备agent/bounce连接  |           |                |
+| netbird                | 192.168.6.44  | 关闭 保留                 |           | multus-ipv6    |
+| caddy-external         | 192.168.6.47  |                           |           | multus-ipv6    |
+| home assistant         | 192.168.50.51 | mDNS                      |           | multus-iot     |
+| go2rtc                 | 192.168.6.53  | mDNS                      |           | multus-homekit |
+| qbittorrent            | 192.168.6.58  | IPv6 直连                 |           | multus-ipv6    |
+| tailscale-sub-router   | 192.168.6.65  | IPv6 直连                 |           | multus-ipv6    |
+| tailscale-node-vps     | 192.168.6.66  | IPv6 直连                 |           | multus-ipv6    |
 
 ## multus 网络定义
 
@@ -240,16 +240,19 @@ postRenderers:
 只有几种情况需要用multus：
 
 **multus-ipv6** - 需要 IPv6/UDP 直连的服务：
-  - tailscale (subnet-router, node-vps)
-  - qbittorrent
-  - caddy-external
-  - netbird-router (暂未使用)
+
+- tailscale (subnet-router, node-vps)
+- qbittorrent
+- caddy-external
+- netbird-router (暂未使用)
 
 **multus-iot** ：
-  - home-assistant
+
+- home-assistant
 
 **multus-homekit** ：
-  - go2rtc
+
+- go2rtc
 
 **multus-main (eth1, 192.168.6.0/24)** - 保留备用
 

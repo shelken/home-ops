@@ -37,14 +37,14 @@ spec:
             "name": "multus-ipv6",
             "namespace": "network",
             "interface": "eth1",
-            "ips": ["192.168.70.65/24"],
+            "ips": ["192.168.6.65/24"],
             "mac": "02:2E:5F:AE:6A:65"
           }]
       affinity:
         nodeAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100  # 必须指定权重 (1-100)
-              preference:  # 必须包含 preference 字段
+            - weight: 100 # 必须指定权重 (1-100)
+              preference: # 必须包含 preference 字段
                 matchExpressions:
                   - key: kubernetes.io/hostname
                     operator: NotIn
