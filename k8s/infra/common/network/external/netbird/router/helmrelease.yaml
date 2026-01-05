@@ -62,12 +62,15 @@ spec:
             "mac": "02:A8:04:C8:E9:BC"
           }]
       affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchLabels:
-                  app.kubernetes.io/name: *app
-              topologyKey: kubernetes.io/hostname
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: NotIn
+                    values:
+                      - sakamoto-k8s
       # securityContext:
       #   runAsNonRoot: false
       #   # runAsUser: 65534
