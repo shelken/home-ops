@@ -12,11 +12,13 @@ DATA_BASE_DIR=azure://shelken-homelab/compose-vps/DATA_BASE_DIR
 
 # ==================== Caddy ====================
 CADDY_CLOUDFLARE_API_TOKEN=azure://shelken-homelab/compose-vps/CLOUDFLARE_API_TOKEN
+ENVOY_EXTERNAL_IP=azure://shelken-homelab/compose-vps/ENVOY_EXTERNAL_IP
 
 # ==================== CrowdSec ====================
 CROWDSEC_LOCAL_API_URL=azure://shelken-homelab/compose-vps/CROWDSEC_LOCAL_API_URL
 CROWDSEC_AGENT_PASSWORD=azure://shelken-homelab/compose-vps/CROWDSEC_AGENT_PASSWORD
 CROWDSEC_FIREWALL_BOUNCER_API_KEY=azure://shelken-homelab/compose-vps/CROWDSEC_FIREWALL_BOUNCER_API_KEY
+CROWDSEC_CADDY_BOUNCER_API_KEY=azure://shelken-homelab/compose-vps/CROWDSEC_CADDY_BOUNCER_API_KEY
 
 # ==================== MosDNS ====================
 REMOTE_DNS_SERVER_1=azure://shelken-homelab/compose-vps/REMOTE_DNS_SERVER_1

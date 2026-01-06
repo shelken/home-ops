@@ -17,13 +17,14 @@ vars:
 tasks:
   # ==================== sakamoto ====================
   deploy:sakamoto:
-    desc: "部署到 sakamoto"
+    desc: "部署到 sakamoto (可选参数: -- --force-recreate)"
     cmds:
       - task: :compose:_deploy
         vars:
           HOST: "{{.SAKAMOTO_HOST}}"
           REMOTE_DIR: "{{.SAKAMOTO_COMPOSE_DIR}}"
           LOCAL_DIR: "{{.COMPOSE_DIR}}/sakamoto"
+          EXTRA_ARGS: "{{.CLI_ARGS}}"
 
   sync:sakamoto:
     desc: "仅同步配置到 sakamoto（不重启服务）"
@@ -44,13 +45,14 @@ tasks:
 
   # ==================== VPS ====================
   deploy:vps:
-    desc: "部署到 VPS"
+    desc: "部署到 VPS (可选参数: -- --force-recreate)"
     cmds:
       - task: :compose:_deploy
         vars:
           HOST: "{{.VPS_HOST}}"
           REMOTE_DIR: "{{.VPS_COMPOSE_DIR}}"
           LOCAL_DIR: "{{.COMPOSE_DIR}}/vps"
+          EXTRA_ARGS: "{{.CLI_ARGS}}"
 
   sync:vps:
     desc: "仅同步配置到 VPS（不重启服务）"
@@ -81,7 +83,7 @@ tasks:
           REMOTE_DIR: "{{.REMOTE_DIR}}"
           LOCAL_DIR: "{{.LOCAL_DIR}}"
       - |
-        ssh {{.HOST}} "cd {{.REMOTE_DIR}} && docker compose pull && docker compose up -d --remove-orphans"
+        ssh {{.HOST}} "cd {{.REMOTE_DIR}} && docker compose pull && docker compose up -d --remove-orphans {{.EXTRA_ARGS}}"
 
   _sync:
     internal: true

@@ -70,8 +70,13 @@ services:
       TZ: Asia/Shanghai
       MAIN_DOMAIN: ${MAIN_DOMAIN}
       CLOUDFLARE_API_TOKEN: ${CADDY_CLOUDFLARE_API_TOKEN}
+      CROWDSEC_LOCAL_API_URL: ${CROWDSEC_LOCAL_API_URL}
+      CROWDSEC_CADDY_BOUNCER_API_KEY: ${CROWDSEC_CADDY_BOUNCER_API_KEY}
+      ENVOY_EXTERNAL_IP: ${ENVOY_EXTERNAL_IP}
+    configs:
+      - source: caddy_config
+        target: /etc/caddy/Caddyfile
     volumes:
-      - "${DATA_BASE_DIR}/caddy/Caddyfile:/etc/caddy/Caddyfile"
       - "${DATA_BASE_DIR}/caddy/site:/srv"
       - "${DATA_BASE_DIR}/caddy/data:/data"
       - "${DATA_BASE_DIR}/caddy/config:/config"
@@ -279,6 +284,7 @@ services:
       - homepage.group=VPS
       - homepage.name=openlist
       - homepage.icon=openlist.svg
+      - homepage.href=http://${DEPLOY_HOST}:5244
       - homepage.description=网盘S3服务
     command: ./openlist server --no-prefix
     environment:
@@ -291,6 +297,12 @@ services:
       HTTP_PORT: "80"
       ADMIN_USERNAME: ${OPENLIST_ADMIN_USERNAME}
       ADMIN_PASSWORD: ${OPENLIST_ADMIN_PASSWORD}
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:80/api/public/settings"]
+      interval: 10s
+      timeout: 1s
+      retries: 10
+      start_period: 30s
     volumes:
       - "${DATA_BASE_DIR}/openlist/data:/opt/openlist/data"
     ports:
@@ -306,6 +318,9 @@ services:
     networks:
       - homelab
     restart: always
+    depends_on:
+      openlist:
+        condition: service_healthy
     labels:
       - homepage.group=VPS
       - homepage.name=kopia
@@ -336,6 +351,8 @@ services:
       replicas: 1
 
 configs:
+  caddy_config:
+    file: ./configs/caddy/Caddyfile
   crowdsec_acquis_all:
     file: ./configs/crowdsec/acquis.d/all.yaml
   crowdsec_firewall_bouncer_config:
