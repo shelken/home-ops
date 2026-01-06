@@ -82,7 +82,7 @@ spec:
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: 常用
           gethomepage.dev/name: Qui
-          gethomepage.dev/icon: qbittorrent.svg
+          gethomepage.dev/icon: qui.svg
           gethomepage.dev/description: "qBittorrent WebUI"
         hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
         parentRefs:
