@@ -62,8 +62,8 @@ spec:
             port: &port 8317
           # gemini:
             # port: 8085
-          # codex:
-            # port: 1455
+          codex:
+            port: 1455
           # anthropic:
             # port: 54545
           ## ./CLIProxyAPI --antigravity-login --no-browser
