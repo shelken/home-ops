@@ -21,8 +21,8 @@ spec:
 
   # Ollama runtime parameters
   extraEnv:
-    - name: OLLAMA_KEEP_ALIVE
-      value: "24h"
+    # - name: OLLAMA_KEEP_ALIVE
+    #   value: "24h"
     - name: OLLAMA_LOAD_TIMEOUT
       value: "600"
     - name: OLLAMA_NUM_CTX

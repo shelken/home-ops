@@ -8,4 +8,5 @@ spec:
   interval: 1h
   url: https://github.com/nekomeowww/ollama-operator
   ref:
-    tag: v0.10.10
+    # tag: v0.10.10
+    branch: main
