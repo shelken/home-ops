@@ -1,58 +1,103 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app ollama
+  name: &app ollama-operator
   namespace: &namespace default
 spec:
   targetNamespace: *namespace
-  components:
-    - ../../../../components/volsync
-  postBuild:
-    substitute:
-      APP: *app
   dependsOn:
-    - name: longhorn
-      namespace: longhorn-system
-  path: ./k8s/apps/common/ollama/app
+    - name: openebs
+      namespace: openebs-system
+  path: ./k8s/apps/common/ollama/operator
   prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  wait: false
+  wait: true
   interval: 1h
   retryInterval: 2m
   timeout: 5m
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: &app ollama-web
-  namespace: &namespace default
-spec:
-  targetNamespace: *namespace
-  commonMetadata:
-    labels:
-      app.ooooo.space/need-main-pg: "true"
-  components:
-    - ../../../../components/volsync
-  postBuild:
-    substitute:
-      APP: *app
-  dependsOn:
-    - name: ollama
-    - name: cloudnative-pg-cluster
-      namespace: database
-    - name: dragonfly-cluster
-      namespace: database
-  path: ./k8s/apps/common/ollama/web
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-    namespace: flux-system
-  wait: false
-  interval: 1h
-  retryInterval: 2m
-  timeout: 5m
+# --- ollama-models 暂时禁用，等模型推送完成后再启用 ---
+# ---
+# # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+# apiVersion: kustomize.toolkit.fluxcd.io/v1
+# kind: Kustomization
+# metadata:
+#   name: &app ollama-models
+#   namespace: &namespace default
+# spec:
+#   targetNamespace: *namespace
+#   dependsOn:
+#     - name: ollama-operator
+#   path: ./k8s/apps/common/ollama/models
+#   prune: true
+#   sourceRef:
+#     kind: GitRepository
+#     name: flux-system
+#     namespace: flux-system
+#   wait: true
+#   interval: 1h
+#   retryInterval: 2m
+#   timeout: 10m
+# --- 以下暂时禁用 ---
+# ---
+# apiVersion: kustomize.toolkit.fluxcd.io/v1
+# kind: Kustomization
+# metadata:
+#   name: &app ollama
+#   namespace: &namespace default
+# spec:
+#   targetNamespace: *namespace
+#   components:
+#     - ../../../../components/volsync
+#   postBuild:
+#     substitute:
+#       APP: *app
+#   dependsOn:
+#     - name: longhorn
+#       namespace: longhorn-system
+#   path: ./k8s/apps/common/ollama/app
+#   prune: true
+#   sourceRef:
+#     kind: GitRepository
+#     name: flux-system
+#     namespace: flux-system
+#   wait: false
+#   interval: 1h
+#   retryInterval: 2m
+#   timeout: 5m
+# ---
+# apiVersion: kustomize.toolkit.fluxcd.io/v1
+# kind: Kustomization
+# metadata:
+#   name: &app ollama-web
+#   namespace: &namespace default
+# spec:
+#   targetNamespace: *namespace
+#   commonMetadata:
+#     labels:
+#       app.ooooo.space/need-main-pg: "true"
+#   components:
+#     - ../../../../components/volsync
+#   postBuild:
+#     substitute:
+#       APP: *app
+#   dependsOn:
+#     - name: ollama
+#     - name: cloudnative-pg-cluster
+#       namespace: database
+#     - name: dragonfly-cluster
+#       namespace: database
+#   path: ./k8s/apps/common/ollama/web
+#   prune: true
+#   sourceRef:
+#     kind: GitRepository
+#     name: flux-system
+#     namespace: flux-system
+#   wait: false
+#   interval: 1h
+#   retryInterval: 2m
+#   timeout: 5m
