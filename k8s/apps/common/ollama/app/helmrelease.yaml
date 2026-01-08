@@ -87,11 +87,12 @@ spec:
     persistence:
       models:
         enabled: true
-        existingClaim: ollama-models
+        existingClaim: ollama-models-store-pvc
         advancedMounts:
           ollama:
             app:
               - path: *modelPath
+                subPath: models
       config:
         enabled: true
         existingClaim: *app
