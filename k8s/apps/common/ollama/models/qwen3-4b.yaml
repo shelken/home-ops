@@ -10,13 +10,6 @@ spec:
   # GPU scheduling
   runtimeClassName: nvidia
 
-  # Storage configuration - use pre-created PVC with fixed path
-  persistentVolumeClaim:
-    claimName: ollama-models-store-pvc
-    readOnly: false
-  persistentVolume:
-    accessMode: ReadWriteOnce
-
   # Resource limits - strict to force GPU memory usage
   resources:
     limits:
@@ -27,7 +20,7 @@ spec:
       memory: 512Mi
 
   # Ollama runtime parameters
-  env:
+  extraEnv:
     - name: OLLAMA_KEEP_ALIVE
       value: "24h"
     - name: OLLAMA_LOAD_TIMEOUT
