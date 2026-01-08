@@ -19,8 +19,8 @@ spec:
     cacheStorageClassName: ${VOLSYNC_CACHE_SNAPSHOTCLASS:=longhorn-cache}
     capacity: ${VOLSYNC_CAPACITY:=2Gi}
     #FIXME issue: https://github.com/backube/volsync/issues/1504
-    cleanupCachePVC: false
-    cleanupTempPVC: false
+    cleanupCachePVC: true
+    cleanupTempPVC: true
     copyMethod: Snapshot
     enableFileDeletion: true
     moverAffinity:
