@@ -10,8 +10,12 @@ spec:
   # GPU scheduling
   runtimeClassName: nvidia
 
-  # Storage configuration
-  storageClassName: openebs-hostpath
+  # Storage configuration - use pre-created PVC with fixed path
+  persistentVolumeClaim:
+    claimName: ollama-models-store-pvc
+    readOnly: false
+  persistentVolume:
+    accessMode: ReadWriteOnce
 
   # Resource limits - strict to force GPU memory usage
   resources:

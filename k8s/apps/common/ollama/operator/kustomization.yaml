@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - gitrepository.yaml
   - ks-operator.yaml
+  - pvc.yaml
