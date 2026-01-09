@@ -13,6 +13,8 @@ includes:
   secret: .taskfile/secret.yaml
   flux: .taskfile/flux.yaml
   compose: .taskfile/compose.yaml
+  lms: .taskfile/lms.yaml
+  lima: .taskfile/lima.yaml
 
 tasks:
   default: task --list

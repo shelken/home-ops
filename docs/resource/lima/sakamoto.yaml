@@ -6,7 +6,7 @@ env:
   no_proxy: ""
 
 cpus: 8
-memory: 14G
+memory: 11G
 disk: 80G
 
 # 映射到vm中的目录为`/mnt/lima-longhorn`

@@ -1,0 +1,226 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+# LM Studio 管理任务
+# 用于在 sakamoto 上声明化配置和启动 LM Studio
+
+vars:
+  # sakamoto 主机配置
+  SAKAMOTO_HOST: "sakamoto"
+  # LM Studio 模型存储路径 (软链接目标)
+  LMS_MODELS_PATH: "/Volumes/sakamoto-data/Devlopment/llm-model/lmstudio"
+  # lms CLI 路径
+  LMS_CLI: "~/.lmstudio/bin/lms"
+  # 默认模型配置
+  DEFAULT_MODEL: "mlx-community/Qwen3-4B-4bit" # think
+  # DEFAULT_MODEL: "lmstudio-community/Qwen3-4B-Instruct-2507-MLX-4bit" # nothink(翻译的性能感觉比上面的差)
+  DEFAULT_IDENTIFIER: "qwen3-4b"
+  DEFAULT_CONTEXT_LENGTH: "8192"
+  # 本地模型源 (mio)
+  LOCAL_MODELS_PATH: "~/.lmstudio/models"
+
+tasks:
+  # ==================== 安装任务 ====================
+
+  install:
+    desc: "在 sakamoto 上安装 LM Studio"
+    silent: true
+    cmds:
+      - task: install:app
+      - task: install:link-models
+
+  install:app:
+    desc: "在 sakamoto 上安装 LM Studio 应用"
+    silent: true
+    cmd: |
+      ssh {{.SAKAMOTO_HOST}} "
+        if [ -d '/Applications/LM Studio.app' ]; then
+          echo '✓ LM Studio 已安装'
+        else
+          echo '正在安装 LM Studio...'
+          brew install --cask lm-studio
+        fi
+      "
+
+  install:link-models:
+    desc: "创建 models 目录软链接到 sakamoto-data"
+    silent: true
+    cmd: |
+      ssh {{.SAKAMOTO_HOST}} "
+        # 创建目标目录
+        mkdir -p {{.LMS_MODELS_PATH}}
+
+        # 检查是否已经是软链接
+        if [ -L ~/.lmstudio/models ]; then
+          echo '✓ models 目录已是软链接'
+        elif [ -d ~/.lmstudio/models ]; then
+          # 如果是普通目录，移动内容并创建软链接
+          echo '移动现有模型到 sakamoto-data...'
+          mv ~/.lmstudio/models/* {{.LMS_MODELS_PATH}}/ 2>/dev/null || true
+          rmdir ~/.lmstudio/models
+          ln -s {{.LMS_MODELS_PATH}} ~/.lmstudio/models
+          echo '✓ 软链接创建完成'
+        else
+          # 目录不存在，直接创建软链接
+          mkdir -p ~/.lmstudio
+          ln -s {{.LMS_MODELS_PATH}} ~/.lmstudio/models
+          echo '✓ 软链接创建完成'
+        fi
+      "
+
+  # ==================== 模型同步任务 ====================
+
+  sync-models:
+    desc: "从本机 (mio) 同步模型到 sakamoto (一次性操作)"
+    cmd: |
+      echo "正在同步模型到 sakamoto..."
+      rsync -avz --progress \
+        {{.LOCAL_MODELS_PATH}}/ \
+        {{.SAKAMOTO_HOST}}:{{.LMS_MODELS_PATH}}/
+      echo "✓ 模型同步完成"
+
+  # ==================== 服务管理任务 ====================
+
+  start:
+    desc: "启动 LM Studio 服务并加载默认模型"
+    silent: true
+    cmds:
+      - task: start:server
+      - task: load
+
+  start:server:
+    desc: "启动 LM Studio 服务器 (监听 0.0.0.0:1234)"
+    silent: true
+    cmd: |
+      ssh {{.SAKAMOTO_HOST}} "
+        {{.LMS_CLI}} server start --port 1234 --bind 0.0.0.0 --cors
+      "
+
+  stop:
+    desc: "停止 LM Studio 服务并卸载模型"
+    silent: true
+    cmd: |
+      ssh {{.SAKAMOTO_HOST}} "
+        {{.LMS_CLI}} unload --all 2>/dev/null || true
+        {{.LMS_CLI}} server stop 2>/dev/null || true
+        echo '✓ 服务已停止'
+      "
+
+  status:
+    desc: "查看 LM Studio 服务状态"
+    silent: true
+    cmd: |
+      ssh {{.SAKAMOTO_HOST}} "
+        echo '=== LM Studio 状态 ==='
+        {{.LMS_CLI}} status
+        echo ''
+        echo '=== 服务器状态 ==='
+        {{.LMS_CLI}} server status
+        echo ''
+        echo '=== 已加载模型 ==='
+        {{.LMS_CLI}} ps
+      "
+
+  # ==================== 模型管理任务 ====================
+
+  load:
+    desc: "加载默认模型 (qwen3-4b)"
+    silent: true
+    cmd: |
+      ssh {{.SAKAMOTO_HOST}} "
+        {{.LMS_CLI}} load {{.DEFAULT_MODEL}} \
+          --identifier {{.DEFAULT_IDENTIFIER}} \
+          --context-length {{.DEFAULT_CONTEXT_LENGTH}} \
+          --gpu max \
+          --yes \
+          --verbose
+      "
+
+  load:model:
+    desc: "加载指定模型 (用法: task lms:load:model MODEL=xxx)"
+    silent: true
+    cmd: |
+      ssh {{.SAKAMOTO_HOST}} "
+        {{.LMS_CLI}} load {{.MODEL}} \
+          --context-length {{.CONTEXT_LENGTH | default 8192}} \
+          --gpu max \
+          --yes \
+          --verbose
+      "
+
+  unload:
+    desc: "卸载所有模型"
+    silent: true
+    cmd: |
+      ssh {{.SAKAMOTO_HOST}} "
+        {{.LMS_CLI}} unload --all
+        echo '✓ 所有模型已卸载'
+      "
+
+  ls:
+    desc: "列出 sakamoto 上已下载的模型"
+    silent: true
+    cmd: ssh {{.SAKAMOTO_HOST}} "{{.LMS_CLI}} ls"
+
+  ps:
+    desc: "列出已加载的模型"
+    silent: true
+    cmd: ssh {{.SAKAMOTO_HOST}} "{{.LMS_CLI}} ps"
+
+  mem:
+    desc: "查看 LM Studio 内存占用情况"
+    silent: true
+    cmd: |
+      ssh {{.SAKAMOTO_HOST}} '
+        echo "=== 已加载模型 ==="
+        ~/.lmstudio/bin/lms ps 2>/dev/null
+        echo ""
+        echo "=== GPU 统一内存 (Metal) ==="
+        gpu_stats=$(ioreg -r -c IOAccelerator 2>/dev/null | grep -o "PerformanceStatistics.*" | head -1)
+        alloc_mem=$(echo "$gpu_stats" | grep -o "Alloc system memory\"=[0-9]*" | grep -o "[0-9]*")
+        in_use_mem=$(echo "$gpu_stats" | grep -o "In use system memory\"=[0-9]*" | grep -o "[0-9]*")
+        if [ -n "$alloc_mem" ]; then
+          alloc_gb=$(echo "scale=2; $alloc_mem / 1024 / 1024 / 1024" | bc)
+          in_use_gb=$(echo "scale=2; $in_use_mem / 1024 / 1024 / 1024" | bc)
+          echo "已分配: ${alloc_gb} GB"
+          echo "使用中: ${in_use_gb} GB"
+        else
+          echo "无法获取 GPU 内存信息"
+        fi
+        echo ""
+        echo "=== LM Studio 进程 ==="
+        printf "%-8s  %-10s  %s\n" "PID" "MEM" "NAME"
+        echo "----------------------------------------------"
+        top -l 1 -stats pid,mem,command 2>/dev/null | grep -i "LM Studio" | while read pid mem name; do
+          printf "%-8s  %-10s  %s\n" "$pid" "$mem" "$name"
+        done
+      '
+
+  estimate:
+    desc: "预估模型加载所需内存 (用法: task lms:estimate MODEL=xxx)"
+    silent: true
+    cmd: |
+      ssh {{.SAKAMOTO_HOST}} "{{.LMS_CLI}} load {{.MODEL | default .DEFAULT_MODEL}} --estimate-only --yes"
+
+  # ==================== 快捷任务 ====================
+
+  setup:
+    desc: "完整安装配置流程 (安装 + 启动服务)"
+    cmds:
+      - task: install
+      - task: start
+      - cmd: |
+          echo ""
+          echo "========================================="
+          echo "✓ LM Studio 配置完成!"
+          echo "API 地址: http://sakamoto.lan:1234"
+          echo "========================================="
+
+  restart:
+    desc: "重启服务并重新加载模型"
+    silent: true
+    cmds:
+      - task: stop
+      - task: start
+      - cmd: echo "✓ 服务已重启"

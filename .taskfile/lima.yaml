@@ -1,0 +1,59 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+# Lima VM 管理任务
+
+vars:
+  SAKAMOTO_HOST: "sakamoto"
+  SAKAMOTO_VM: "sakamoto-k8s"
+  SAKAMOTO_CONFIG: "docs/resource/lima/sakamoto.yaml"
+
+tasks:
+  sync:
+    desc: "同步 Lima 配置到 sakamoto 并重启 VM"
+    cmds:
+      - task: sync:config
+      - task: restart
+
+  sync:config:
+    desc: "同步 Lima 配置文件到 sakamoto"
+    silent: true
+    cmd: |
+      echo "同步配置到 {{.SAKAMOTO_HOST}}..."
+      scp {{.SAKAMOTO_CONFIG}} {{.SAKAMOTO_HOST}}:~/.lima/{{.SAKAMOTO_VM}}/lima.yaml
+      echo "✓ 配置同步完成"
+
+  restart:
+    desc: "重启 sakamoto-k8s VM"
+    silent: true
+    cmd: |
+      echo "正在重启 {{.SAKAMOTO_VM}}..."
+      ssh {{.SAKAMOTO_HOST}} "limactl stop {{.SAKAMOTO_VM}} && limactl disk unlock longhorn && limactl start {{.SAKAMOTO_VM}}"
+      echo "✓ VM 已重启"
+
+  stop:
+    desc: "停止 sakamoto-k8s VM"
+    silent: true
+    cmd: |
+      ssh {{.SAKAMOTO_HOST}} "limactl stop {{.SAKAMOTO_VM}}"
+      echo "✓ VM 已停止"
+
+  start:
+    desc: "启动 sakamoto-k8s VM"
+    silent: true
+    cmd: |
+      ssh {{.SAKAMOTO_HOST}} "limactl start {{.SAKAMOTO_VM}}"
+      echo "✓ VM 已启动"
+
+  status:
+    desc: "查看 sakamoto-k8s VM 状态"
+    silent: true
+    cmd: ssh {{.SAKAMOTO_HOST}} "limactl list"
+
+  diff:
+    desc: "对比仓库配置与 sakamoto 实际配置的差异"
+    silent: true
+    cmd: |
+      ssh {{.SAKAMOTO_HOST}} "cat ~/.lima/{{.SAKAMOTO_VM}}/lima.yaml" > /tmp/sakamoto-lima.yaml
+      delta {{.SAKAMOTO_CONFIG}} /tmp/sakamoto-lima.yaml || true
