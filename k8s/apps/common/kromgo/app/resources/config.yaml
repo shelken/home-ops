@@ -75,7 +75,7 @@ metrics:
 
   - name: mifi_operator
     query: zte_mifi_signal_bar
-    label: operator
+    label: provider
     colors:
       - { color: "C6A0F6", min: 0, max: 9999 }
     title: Operator
