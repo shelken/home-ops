@@ -52,117 +52,12 @@ opkg install bird2
 
 ### router-mine (本地路由器)
 
-**路径**: `/etc/bird.conf`
-
-```bird
-router id 192.168.6.1;
-
-define LOCAL_ASN = 64513;
-define K8S_ASN = 64514;
-
-protocol device {
-    scan time 10;
-}
-
-protocol kernel {
-    ipv4 {
-        import none;
-        export all;
-    };
-}
-
-protocol direct {
-    ipv4;
-    interface "br-lan*", "zt*";
-}
-
-# K8s 节点模板
-template bgp k8s {
-    local as LOCAL_ASN;
-    ipv4 {
-        import all;
-        export all;
-        next hop self;
-    };
-}
-
-# 路由器互联模板
-template bgp router_peer {
-    local as LOCAL_ASN;
-    ipv4 {
-        import all;
-        export all;
-        next hop self;
-    };
-}
-
-# 连接本地节点 (Sakamoto)
-protocol bgp sakamoto_k8s from k8s {
-    neighbor 192.168.6.80 as K8S_ASN;
-}
-
-# 连接远程路由器 (Router-Home) via ZeroTier
-protocol bgp router_home from router_peer {
-    neighbor 192.168.191.10 as 64515;
-}
-```
+[/etc/bird.conf](./resource/mine.conf)
 
 ### router-home (远程路由器)
 
-**路径**: `/etc/bird.conf`
+[/etc/bird.conf](./resource/home.conf)
 
-```bird
-router id 192.168.191.10;
-
-define LOCAL_ASN = 64515;
-define K8S_ASN = 64514;
-
-protocol device {
-    scan time 10;
-}
-
-protocol kernel {
-    ipv4 {
-        import none;
-        export all;
-    };
-}
-
-protocol direct {
-    ipv4;
-    interface "br-lan*", "zt*";
-}
-
-# K8s 节点模板
-template bgp k8s_peer {
-    local as LOCAL_ASN;
-    ipv4 {
-        import all;
-        export all;
-        next hop self;
-    };
-}
-
-# 路由器互联模板
-template bgp router_peer {
-    local as LOCAL_ASN;
-    ipv4 {
-        import all;
-        export all;
-        next hop self;
-    };
-}
-
-# 连接本地节点 (Yuuko)
-protocol bgp yuuko from k8s_peer {
-    neighbor 192.168.0.81 as K8S_ASN;
-}
-
-# 连接本地路由器 (Router-Mine) via ZeroTier
-protocol bgp router_mine from router_peer {
-    neighbor 192.168.191.12 as 64513;
-}
-```
 
 ## 服务管理
 
