@@ -44,6 +44,10 @@ access_control:
     - domain: "homepage.${MAIN_DOMAIN}"
       resources: ["^/api/healthcheck$"]
       policy: "bypass"
+    ## qBittorrent API bypass (for external clients like homepage widget)
+    - domain: "qbittorrent.${MAIN_DOMAIN}"
+      resources: ["^/api/.*$"]
+      policy: "bypass"
     ## - domain: ["navidrome.${MAIN_DOMAIN}"]
     ##   resources: ["^/ping.*$", "^/rest.*$"]
     ##   policy: bypass
