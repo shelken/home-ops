@@ -8,6 +8,7 @@ spec:
   targetNamespace: *namespace
   components:
     - ../../../../components/volsync
+    - ../../../../components/authelia
   dependsOn:
     - name: azure-store
       namespace: external-secrets
@@ -19,6 +20,7 @@ spec:
     substitute:
       APP: *app
       VOLSYNC_CAPACITY: 2Gi
+      AUTHELIA_ROUTE: home-assistant-code-server
   interval: 1h
   path: ./k8s/apps/common/home-assistant/app
   prune: true

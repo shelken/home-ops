@@ -9,6 +9,8 @@ spec:
   postBuild:
     substitute:
       APP: *app
+  components:
+    - ../../../../components/authelia
   interval: 1h
   path: ./k8s/apps/common/go2rtc/app
   prune: true
