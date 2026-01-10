@@ -19,6 +19,9 @@ webrtc:
         - stun:stun.miwifi.com:3478 # 小米 STUN
         - stun:stun1.l.google.com:19302 # Google STUN
 
+xiaomi:
+  626144510: ${GO2RTC_XIAOMI_TOKEN}
+
 streams:
   mercury_1_hq:
     - rtsp://admin:${CAMERA_PASSWORD}@mercury-1.lan:554/stream1
@@ -26,6 +29,15 @@ streams:
     # - ffmpeg:mercury_1_hq#video=h264#encoder=h264_qsv#audio=aac
   mercury_1_lq:
     - rtsp://admin:${CAMERA_PASSWORD}@mercury-1.lan:554/stream2
+  # Xiaomi cameras
+  xiaomi_kitchen_hd:
+    - xiaomi://626144510:cn@192.168.0.159?did=1105758690&model=chuangmi.camera.039c01&subtype=hd
+  xiaomi_kitchen_sd:
+    - xiaomi://626144510:cn@192.168.0.159?did=1105758690&model=chuangmi.camera.039c01&subtype=sd
+  xiaomi_door_hd:
+    - xiaomi://626144510:cn@192.168.0.85?did=1105716996&model=chuangmi.camera.039c01&subtype=hd
+  xiaomi_door_sd:
+    - xiaomi://626144510:cn@192.168.0.85?did=1105716996&model=chuangmi.camera.039c01&subtype=sd
 
 # ref: https://github.com/adampetrovic/home-ops/blob/main/kubernetes/apps/automation/go2rtc/app/resources/go2rtc.yaml
 homekit:
