@@ -18,7 +18,7 @@ spec:
           app:
             image:
               repository: eceasy/cli-proxy-api
-              tag: v6.6.98@sha256:541db1286d6c6440318edc0837c366760d9f23833c9f463737b53efc666234e0
+              tag: v6.6.99@sha256:d93ebe4d20b8ce224195c69298699e762b37907a9d49f2cb79194315effede43
             env:
               TZ: ${TIMEZONE}
             # probes:
