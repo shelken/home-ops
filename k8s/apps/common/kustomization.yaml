@@ -4,18 +4,18 @@ namespace: default
 components:
   - ../../components/common
 resources:
-  - affine/ks.yaml
+  # - affine/ks.yaml
   - caches/ks.yaml
   - cli-proxy-api/ks.yaml
   # - dozzle/ks.yaml
   - echo/ks.yaml
   - frigate/ks.yaml
-  - glance/ks.yaml
+  # - glance/ks.yaml
   - go2rtc/ks.yaml
   - home-assistant/ks.yaml
   - homepage/ks.yaml
   - icloudpd/ks.yaml
-  - immich/ks.yaml
+  # - immich/ks.yaml
   - it-tools/ks.yaml
   - jellyfin/ks.yaml
   # - kite/ks.yaml
@@ -32,9 +32,9 @@ resources:
   - qbittorrent/ks.yaml
   - qui/ks.yaml
   - plex/ks.yaml
-  - seafile/ks.yaml
+  # - seafile/ks.yaml
   - shlink/ks.yaml
-  - slash/ks.yaml
+  # - slash/ks.yaml
   - smb-volumes/ks.yaml
   # - vaultwarden/ks.yaml
   - zte-mifi-exporter/ks.yaml
