@@ -60,8 +60,8 @@ spec:
         ports:
           api:
             port: &port 8317
-          # gemini:
-            # port: 8085
+          gemini:
+            port: 8085
           codex:
             port: 1455
           # anthropic:
