@@ -21,6 +21,7 @@ spec:
               tag: v6.6.104@sha256:53f6d82f558c424f9acb89d1d6eea298057ce1c50a716a106d7b62cd17cd212e
             env:
               TZ: ${TIMEZONE}
+              MANAGEMENT_STATIC_PATH: &management /CLIProxyAPI/management
             # probes:
             #   liveness: &probes
             #     enabled: true
@@ -36,7 +37,7 @@ spec:
             #   readiness: *probes
             securityContext:
               allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
+              readOnlyRootFilesystem: false
               capabilities: { drop: ["ALL"] }
             resources:
               requests:
@@ -113,3 +114,5 @@ spec:
         globalMounts:
           - path: /CLIProxyAPI/logs
             subPath: logs
+          - path: *management
+            subPath: management
