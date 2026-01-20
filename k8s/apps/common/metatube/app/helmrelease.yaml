@@ -20,6 +20,16 @@ spec:
   values:
     controllers:
       metatube:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          init-db:
+            image:
+              repository: ghcr.io/home-operations/postgres-init
+              tag: 18@sha256:3c54d39f19fdb82ed5b3f286450e4071133cc6025bd0e25856bc2c522f8fc030
+            envFrom:
+              - secretRef:
+                  name: metatube-init-db-secret
         containers:
           app:
             image:
@@ -27,10 +37,13 @@ spec:
               tag: 1.3.2
             env:
               PORT: &port 8080
-              DSN: "/config/library.db"
+              # DB_AUTO_MIGRATE 会在首次启动时自动创建表结构
               DB_AUTO_MIGRATE: "true"
               # HTTPS_PROXY: http://sakamoto.lan:7890
               # MT_MOVIE_PROVIDER_AVBASE__PRIORITY: 0
+            envFrom:
+              - secretRef:
+                  name: metatube-secret
             # probes:
             #   liveness: &probes
             #     enabled: true

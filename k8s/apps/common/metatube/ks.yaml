@@ -10,6 +10,10 @@ spec:
   components:
     - ../../../../components/volsync
   dependsOn:
+    - name: azure-store
+      namespace: external-secrets
+    - name: cloudnative-pg-cluster
+      namespace: database
     - name: volsync
       namespace: volsync-system
   postBuild:
