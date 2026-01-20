@@ -45,7 +45,6 @@ graph TD
         RM_ZT["Router-Mine ZT: 192.168.191.12"]
         Sakamoto["sakamoto-k8s<br/>(Control Plane)"]
         Homelab1(homelab-1)
-        Tvbox(tvbox)
     end
 
     subgraph Remote_Site ["Site: Home (Remote)"]
@@ -56,7 +55,6 @@ graph TD
 
     RM_IP --- Sakamoto
     RM_IP --- Homelab1
-    RM_IP --- Tvbox
 
     RH_IP --- Yuuko
 
@@ -73,7 +71,6 @@ graph TD
 | ------------ | ------------------- | ----------------------------------- | ------ | ---- | ----- | ------------- | --------- | ------------- |
 | sakamoto-k8s | control-plane, etcd | Mac Mini M4 (4P+6E 核, Lima VM, vz) | 8 vCPU | 14GB | arm64 | 192.168.6.80  | 80GB      | 1TB SSD       |
 | homelab-1    | worker              | 笔记本 PVE (Intel i5-7300HQ 4核) VM | 4 核   | 14GB | amd64 | 192.168.6.110 | 321GB     | 共用系统盘    |
-| tvbox        | worker              | S905x3 电视盒子 (Armbian)           | 4 核   | 4GB  | arm64 | 192.168.6.141 | 28GB eMMC | 无            |
 | yuuko-k8s    | worker              | Mac Mini M1 (4P+4E 核, Lima VM, vz) | 6 vCPU | 14GB | arm64 | 192.168.0.81  | 40GB      | 无            |
 
 ## 设备网络

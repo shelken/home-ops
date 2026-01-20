@@ -13,8 +13,8 @@ endpoints:
     alerts:
       - type: custom
   - &common-ping
-    name: tvbox
-    url: "icmp://tvbox.lan"
+    name: router-mine
+    url: "icmp://router-mine.lan"
     group: device
     ui:
       hide-hostname: true
@@ -23,9 +23,6 @@ endpoints:
       - "[CONNECTED] == true"
     alerts:
       - type: custom
-  - <<: *common-ping
-    name: router-mine
-    url: "icmp://router-mine.lan"
   - <<: *common-ping
     name: router-home
     url: "icmp://router-home.lan"

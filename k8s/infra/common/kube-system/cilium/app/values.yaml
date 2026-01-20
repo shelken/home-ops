@@ -18,7 +18,7 @@ bgpControlPlane:
 bpf:
   masquerade: true
   # 6.7+
-  # datapathMode: netkit # tvbox 内核没有编译这个，暂时不使用netkit
+  datapathMode: netkit
   # hostLegacyRouting: true
   # tproxy: true
 

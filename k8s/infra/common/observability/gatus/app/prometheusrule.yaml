@@ -38,16 +38,6 @@ spec:
           labels:
             severity: critical
 
-        - alert: Gatus|tvbox 服务
-          expr: |
-            gatus_results_endpoint_success{group=~"tvbox"} == 0
-          for: 5m
-          annotations:
-            summary: >-
-              盒子 {{ $labels.name }} 连接({{ $labels.type }})失败
-          labels:
-            severity: critical
-
         - alert: Gatus|设备检测
           expr: |
             gatus_results_endpoint_success{group=~"device"} == 0
