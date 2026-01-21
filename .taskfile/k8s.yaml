@@ -1,0 +1,196 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+tasks:
+  restart-network-problem-pods:
+    desc: "查询并重启有网络问题(no route to host)的 Pod"
+    vars:
+      VL_ENDPOINT: "192.168.69.66:9428"
+    cmds:
+      - |
+        echo "=== 查询 victoria-logs 中 'no route to host' 错误 ==="
+        PODS=$(curl -s "http://{{.VL_ENDPOINT}}/select/logsql/query?query=no+route+to+host&limit=500" 2>/dev/null | \
+          jq -r '[.k_namespace_name, .k_pod_name] | @tsv' 2>/dev/null | \
+          sort | uniq -c | sort -rn | head -20)
+
+        if [ -z "$PODS" ]; then
+          echo "没有发现网络问题的 Pod"
+          exit 0
+        fi
+
+        echo "发现以下 Pod 有网络问题:"
+        echo "$PODS"
+        echo ""
+        echo "按 Enter 继续重启，或 Ctrl+C 取消..."
+        read -r
+
+        # 提取 namespace/pod 列表并去重获取 deployment/daemonset
+        echo "$PODS" | while read -r count ns pod; do
+          if [ -z "$ns" ] || [ -z "$pod" ]; then continue; fi
+
+          # 获取 Pod 的 owner
+          OWNER=$(kubectl get pod -n "$ns" "$pod" -o jsonpath='{.metadata.ownerReferences[0].kind}/{.metadata.ownerReferences[0].name}' 2>/dev/null)
+          if [ -z "$OWNER" ]; then continue; fi
+
+          KIND=$(echo "$OWNER" | cut -d/ -f1)
+          NAME=$(echo "$OWNER" | cut -d/ -f2)
+
+          case "$KIND" in
+            ReplicaSet)
+              # 获取 Deployment 名称
+              DEPLOY=$(kubectl get rs -n "$ns" "$NAME" -o jsonpath='{.metadata.ownerReferences[0].name}' 2>/dev/null)
+              if [ -n "$DEPLOY" ]; then
+                echo "重启 Deployment: $ns/$DEPLOY"
+                kubectl rollout restart deploy -n "$ns" "$DEPLOY" 2>/dev/null || true
+              fi
+              ;;
+            DaemonSet)
+              echo "重启 DaemonSet: $ns/$NAME"
+              kubectl rollout restart ds -n "$ns" "$NAME" 2>/dev/null || true
+              ;;
+            StatefulSet)
+              echo "重启 StatefulSet: $ns/$NAME"
+              kubectl rollout restart sts -n "$ns" "$NAME" 2>/dev/null || true
+              ;;
+          esac
+        done | sort -u
+
+        echo ""
+        echo "=== 重启完成 ==="
+
+  restart-all-old-pods:
+    desc: "重启所有比 Cilium 更早启动的 Pod（用于 datapathMode 切换后）"
+    cmds:
+      - |
+        CILIUM_START=$(kubectl get pods -n kube-system -l k8s-app=cilium -o jsonpath='{.items[0].status.startTime}')
+        echo "Cilium 启动时间: $CILIUM_START"
+        echo ""
+
+        echo "比 Cilium 更早的 Pod:"
+        kubectl get pods -A -o json | jq -r --arg cilium_time "$CILIUM_START" '
+          .items[] |
+          select(.status.startTime < $cilium_time and .status.phase == "Running") |
+          "\(.metadata.namespace)/\(.metadata.name)"
+        ' | head -30
+
+        echo ""
+        echo "确认要重启所有 Deployment/StatefulSet/DaemonSet 吗? (y/N)"
+        read -r confirm
+        if [ "$confirm" != "y" ]; then
+          echo "取消"
+          exit 0
+        fi
+
+        for ns in $(kubectl get ns -o jsonpath='{.items[*].metadata.name}'); do
+          kubectl rollout restart deploy -n "$ns" 2>/dev/null || true
+          kubectl rollout restart sts -n "$ns" 2>/dev/null || true
+        done
+
+        # DaemonSet 除了 Cilium
+        for ns in $(kubectl get ns -o jsonpath='{.items[*].metadata.name}'); do
+          for ds in $(kubectl get ds -n "$ns" -o jsonpath='{.items[*].metadata.name}' 2>/dev/null); do
+            if [ "$ds" != "cilium" ]; then
+              kubectl rollout restart ds -n "$ns" "$ds" 2>/dev/null || true
+            fi
+          done
+        done
+
+        echo "=== 重启完成 ==="
+
+  restart-old-controllers:
+    desc: "重启比 Cilium 更早启动的 Controller/Operator 类 Pod（用于 datapathMode 切换后）"
+    cmds:
+      - |
+        CILIUM_START=$(kubectl get pods -n kube-system -l k8s-app=cilium -o jsonpath='{.items[0].status.startTime}')
+        echo "Cilium 启动时间: $CILIUM_START"
+        echo ""
+
+        # 定义 Controller/Operator 类的匹配模式
+        PATTERN="operator|controller|provisioner|webhook|manager|scheduler|cainjector|csi-"
+
+        echo "=== 比 Cilium 更早的 Controller/Operator 类 Pod ==="
+        OLD_PODS=$(kubectl get pods -A -o json | jq -r --arg cilium_time "$CILIUM_START" --arg pattern "$PATTERN" '
+          .items[] |
+          select(.status.startTime < $cilium_time and .status.phase == "Running") |
+          select(.metadata.name | test($pattern)) |
+          "\(.metadata.namespace)/\(.metadata.name)"
+        ' | sort)
+
+        if [ -z "$OLD_PODS" ]; then
+          echo "没有需要重启的 Controller/Operator 类 Pod"
+          exit 0
+        fi
+
+        echo "$OLD_PODS"
+        echo ""
+        echo "共 $(echo "$OLD_PODS" | wc -l | tr -d ' ') 个 Pod"
+        echo ""
+        echo "按 Enter 继续重启，或 Ctrl+C 取消..."
+        read -r
+
+        # 收集需要重启的资源
+        DEPLOYMENTS=""
+        DAEMONSETS=""
+        STATEFULSETS=""
+
+        for item in $OLD_PODS; do
+          ns=$(echo "$item" | cut -d/ -f1)
+          pod=$(echo "$item" | cut -d/ -f2)
+
+          # 跳过 cilium 相关
+          if echo "$pod" | grep -q "^cilium"; then continue; fi
+
+          # 获取 Pod 的 owner
+          OWNER=$(kubectl get pod -n "$ns" "$pod" -o jsonpath='{.metadata.ownerReferences[0].kind}/{.metadata.ownerReferences[0].name}' 2>/dev/null)
+          if [ -z "$OWNER" ]; then continue; fi
+
+          KIND=$(echo "$OWNER" | cut -d/ -f1)
+          NAME=$(echo "$OWNER" | cut -d/ -f2)
+
+          case "$KIND" in
+            ReplicaSet)
+              DEPLOY=$(kubectl get rs -n "$ns" "$NAME" -o jsonpath='{.metadata.ownerReferences[0].name}' 2>/dev/null)
+              if [ -n "$DEPLOY" ]; then
+                DEPLOYMENTS="$DEPLOYMENTS $ns/$DEPLOY"
+              fi
+              ;;
+            DaemonSet)
+              DAEMONSETS="$DAEMONSETS $ns/$NAME"
+              ;;
+            StatefulSet)
+              STATEFULSETS="$STATEFULSETS $ns/$NAME"
+              ;;
+          esac
+        done
+
+        # 去重并重启
+        for item in $(echo "$DEPLOYMENTS" | tr ' ' '\n' | sort -u); do
+          if [ -n "$item" ]; then
+            ns=$(echo "$item" | cut -d/ -f1)
+            name=$(echo "$item" | cut -d/ -f2)
+            echo "重启 Deployment: $ns/$name"
+            kubectl rollout restart deploy -n "$ns" "$name" 2>/dev/null || true
+          fi
+        done
+
+        for item in $(echo "$DAEMONSETS" | tr ' ' '\n' | sort -u); do
+          if [ -n "$item" ]; then
+            ns=$(echo "$item" | cut -d/ -f1)
+            name=$(echo "$item" | cut -d/ -f2)
+            echo "重启 DaemonSet: $ns/$name"
+            kubectl rollout restart ds -n "$ns" "$name" 2>/dev/null || true
+          fi
+        done
+
+        for item in $(echo "$STATEFULSETS" | tr ' ' '\n' | sort -u); do
+          if [ -n "$item" ]; then
+            ns=$(echo "$item" | cut -d/ -f1)
+            name=$(echo "$item" | cut -d/ -f2)
+            echo "重启 StatefulSet: $ns/$name"
+            kubectl rollout restart sts -n "$ns" "$name" 2>/dev/null || true
+          fi
+        done
+
+        echo ""
+        echo "=== 重启完成 ==="

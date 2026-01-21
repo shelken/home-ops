@@ -15,6 +15,7 @@ includes:
   compose: .taskfile/compose.yaml
   lms: .taskfile/lms.yaml
   lima: .taskfile/lima.yaml
+  k8s: .taskfile/k8s.yaml
 
 tasks:
   default: task --list
