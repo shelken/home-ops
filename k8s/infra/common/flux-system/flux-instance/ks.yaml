@@ -12,7 +12,7 @@ spec:
   postBuild:
     substitute:
       # renovate: datasource=docker depName=ghcr.io/controlplaneio-fluxcd/flux-operator-manifests
-      FLUX_OPERATOR_MANIFESTS_VERSION: v0.39.0
+      FLUX_OPERATOR_MANIFESTS_VERSION: v0.40.0
   interval: 1h
   path: ./k8s/infra/common/flux-system/flux-instance/app
   prune: true
