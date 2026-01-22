@@ -1,0 +1,45 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: zte-mifi-rules
+spec:
+  groups:
+    - name: zte-mifi.rules
+      rules:
+        - alert: ZteMifiMonthlyUsageHalf
+          expr: |
+            zte_mifi_monthly_bytes_total >= 240 * 1024 * 1024 * 1024
+            and zte_mifi_monthly_bytes_total offset 1h < 240 * 1024 * 1024 * 1024
+          annotations:
+            summary: ZTE MiFi 月度流量达到 50%
+            description: >-
+              月度流量在最近一小时内首次超过 240 GiB
+              (当前值: {{ $value | humanize1024 }}).
+          labels:
+            severity: critical
+
+        - alert: ZteMifiMonthlyUsageEighty
+          expr: |
+            zte_mifi_monthly_bytes_total >= 384 * 1024 * 1024 * 1024
+            and zte_mifi_monthly_bytes_total offset 1h < 384 * 1024 * 1024 * 1024
+          annotations:
+            summary: ZTE MiFi 月度流量达到 80%
+            description: >-
+              月度流量在最近一小时内首次超过 384 GiB
+              (当前值: {{ $value | humanize1024 }}).
+          labels:
+            severity: critical
+
+        - alert: ZteMifiMonthlyUsageNinetyFive
+          expr: |
+            zte_mifi_monthly_bytes_total >= 456 * 1024 * 1024 * 1024
+            and zte_mifi_monthly_bytes_total offset 1h < 456 * 1024 * 1024 * 1024
+          annotations:
+            summary: ZTE MiFi 月度流量达到 95%
+            description: >-
+              月度流量在最近一小时内首次超过 456 GiB
+              (当前值: {{ $value | humanize1024 }}).
+          labels:
+            severity: critical
