@@ -94,7 +94,7 @@ services:
       replicas: 1
 
   crowdsec-agent:
-    image: ghcr.io/crowdsecurity/crowdsec:v1.7.4
+    image: ghcr.io/crowdsecurity/crowdsec:v1.7.6
     container_name: crowdsec-agent
     networks:
       - homelab
