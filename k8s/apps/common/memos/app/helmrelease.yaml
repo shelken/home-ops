@@ -99,6 +99,7 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /tmp
+          - path: /var/opt/memos/.thumbnail_cache
     # route:
     #   app:
     #     annotations:
