@@ -33,48 +33,48 @@ spec:
           port: 5230
           weight: 1
 
----
-apiVersion: gateway.networking.k8s.io/v1
-kind: GRPCRoute
-metadata:
-  name: memos-grpc
-  namespace: memos
-spec:
-  hostnames:
-    - memos.${MAIN_DOMAIN}
-  parentRefs:
-    - name: envoy-external
-      namespace: network
-  rules:
-    - matches:
-        - method:
-            service: memos.api.v1.ActivityService
-        - method:
-            service: memos.api.v1.AuthService
-        - method:
-            service: memos.api.v1.IdentityProviderService
-        - method:
-            service: memos.api.v1.InboxService
-        - method:
-            service: memos.api.v1.MarkdownService
-        - method:
-            service: memos.api.v1.MemoService
-        - method:
-            service: memos.api.v1.ResourceService
-        - method:
-            service: memos.api.v1.UserService
-        - method:
-            service: memos.api.v1.WebhookService
-        - method:
-            service: memos.api.v1.WorkspaceService
-        - method:
-            service: memos.api.v1.WorkspaceSettingService
-        - method:
-            service: memos.api.v1.InstanceService
-        - method:
-            service: memos.api.v1.ShortcutService
-        - method:
-            service: memos.api.v1.AttachmentService
-      backendRefs:
-        - name: memos-grpc
-          port: 5231
+# ---
+# apiVersion: gateway.networking.k8s.io/v1
+# kind: GRPCRoute
+# metadata:
+#   name: memos-grpc
+#   namespace: memos
+# spec:
+#   hostnames:
+#     - memos.${MAIN_DOMAIN}
+#   parentRefs:
+#     - name: envoy-external
+#       namespace: network
+#   rules:
+#     - matches:
+#         - method:
+#             service: memos.api.v1.ActivityService
+#         - method:
+#             service: memos.api.v1.AuthService
+#         - method:
+#             service: memos.api.v1.IdentityProviderService
+#         - method:
+#             service: memos.api.v1.InboxService
+#         - method:
+#             service: memos.api.v1.MarkdownService
+#         - method:
+#             service: memos.api.v1.MemoService
+#         - method:
+#             service: memos.api.v1.ResourceService
+#         - method:
+#             service: memos.api.v1.UserService
+#         - method:
+#             service: memos.api.v1.WebhookService
+#         - method:
+#             service: memos.api.v1.WorkspaceService
+#         - method:
+#             service: memos.api.v1.WorkspaceSettingService
+#         - method:
+#             service: memos.api.v1.InstanceService
+#         - method:
+#             service: memos.api.v1.ShortcutService
+#         - method:
+#             service: memos.api.v1.AttachmentService
+#       backendRefs:
+#         - name: memos-grpc
+#           port: 5231
