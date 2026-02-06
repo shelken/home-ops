@@ -1,0 +1,53 @@
+---
+- name: 设置目标用户信息
+  ansible.builtin.set_fact:
+    target_user: "{{ ansible_facts['env']['USER'] | default(ansible_facts['user_id']) | default('root') }}"
+    user_home: "{{ ansible_facts['env']['HOME'] | default('/root' if (ansible_facts['user_id'] | default('root')) == 'root' else '/home/' ~ (ansible_facts['user_id'] | default('root'))) }}"
+
+- name: 检查是否需要安装 Oh My Zsh
+  ansible.builtin.set_fact:
+    should_install_ohmyzsh: "{{ enable_install_ohmyzsh | default(false) | bool }}"
+
+- name: 检查 Oh My Zsh 是否已安装
+  ansible.builtin.stat:
+    path: "{{ user_home }}/.oh-my-zsh"
+  register: ohmyzsh_check
+  when: should_install_ohmyzsh
+
+- name: 安装 Oh My Zsh (使用官方脚本)
+  ansible.builtin.shell: |
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+  become_user: "{{ target_user }}"
+  when:
+    - should_install_ohmyzsh
+    - not ohmyzsh_check.stat.exists
+
+- name: 安装 zsh-autosuggestions 插件
+  ansible.builtin.git:
+    repo: https://github.com/zsh-users/zsh-autosuggestions
+    dest: "{{ user_home }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+    version: master
+  become_user: "{{ target_user }}"
+  when: should_install_ohmyzsh
+
+- name: 安装 zsh-syntax-highlighting 插件
+  ansible.builtin.git:
+    repo: https://github.com/zsh-users/zsh-syntax-highlighting
+    dest: "{{ user_home }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+    version: master
+  become_user: "{{ target_user }}"
+  when: should_install_ohmyzsh
+
+- name: 更新 .zshrc 启用插件
+  ansible.builtin.lineinfile:
+    path: "{{ user_home }}/.zshrc"
+    regexp: '^plugins='
+    line: 'plugins=(git z zsh-autosuggestions zsh-syntax-highlighting)'
+  become_user: "{{ target_user }}"
+  when: should_install_ohmyzsh
+
+- name: 更改默认 shell 为 zsh
+  ansible.builtin.user:
+    name: "{{ target_user }}"
+    shell: /bin/zsh
+  when: should_install_ohmyzsh

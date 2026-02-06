@@ -1,0 +1,30 @@
+system_packages:
+  - curl
+  - wget
+  - vim
+  - htop
+  - git
+  - zsh
+
+# 换源设置
+change_mirror: false
+
+# 安装 Docker
+enable_install_docker: true
+
+# 安装 Tailscale
+enable_install_tailscale: true
+
+# 安装 Oh My Zsh
+enable_install_ohmyzsh: true
+
+# UFW
+ufw_allowed_rules:
+  - 22/tcp
+  - 443/tcp
+  - 443/udp
+  - 10357/udp
+  - 10357/tcp
+  - 8666/tcp
+  - 3478/udp
+  - 5443/tcp

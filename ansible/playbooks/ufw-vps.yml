@@ -1,0 +1,24 @@
+---
+- name: 配置 UFW 规则
+  hosts: vps-cc
+  become: true
+  tasks:
+    - name: 安装 UFW
+      ansible.builtin.apt:
+        name: ufw
+        state: present
+        update_cache: true
+      when: (ufw_allowed_rules | default([])) | length > 0
+
+    - name: 允许端口规则
+      community.general.ufw:
+        rule: allow
+        port: "{{ item.split('/')[0] }}"
+        proto: "{{ item.split('/')[1] }}"
+      loop: "{{ ufw_allowed_rules | default([]) }}"
+      when: (ufw_allowed_rules | default([])) | length > 0
+
+    - name: 启用 UFW
+      community.general.ufw:
+        state: enabled
+      when: (ufw_allowed_rules | default([])) | length > 0

@@ -1,0 +1,29 @@
+---
+- name: 准备 Kubernetes 节点
+  hosts: all
+  become: true
+  tasks:
+    - name: 设置主机名为 "{{ inventory_hostname }}"
+      ansible.builtin.hostname:
+        name: "{{ inventory_hostname }}"
+
+    - name: 设置时区
+      community.general.timezone:
+        name: "{{ system_timezone }}"
+
+    - import_tasks: playbooks/tasks/change-sources.yaml
+
+    - name: install system pkgs
+      ansible.builtin.apt:
+        name: "{{ system_packages }}"
+        state: present
+
+    - import_tasks: playbooks/tasks/install-docker.yaml
+
+    - import_tasks: playbooks/tasks/install-tailscale.yaml
+
+    - import_tasks: playbooks/tasks/install-ohmyzsh.yaml
+
+- import_playbook: playbooks/setup-sysctl.yaml
+
+- import_playbook: playbooks/ufw-vps.yml
