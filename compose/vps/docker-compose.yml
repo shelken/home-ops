@@ -273,8 +273,27 @@ services:
     deploy:
       replicas: 1
 
+  hysteria2:
+    image: tobyxdd/hysteria:v2.7.0
+    container_name: hysteria2
+    network_mode: host
+    restart: always
+    labels:
+      - homepage.group=VPS
+      - homepage.name=hysteria2
+      - homepage.icon=shield.svg
+      - homepage.description=hysteria2
+    configs:
+      - source: hysteria2_config
+        target: /etc/hysteria/config.yaml
+    volumes:
+      - ${DATA_BASE_DIR}/caddy/data/caddy/certificates/acme-v02.api.letsencrypt.org-directory/wildcard_.${MAIN_DOMAIN}:/data/hysteria2/tls:ro
+    command: ["server", "-c", "/etc/hysteria/config.yaml"]
+    deploy:
+      replicas: 1
+
   xray:
-    image: ghcr.io/xtls/xray-core:latest
+    image: ghcr.io/xtls/xray-core:26.2.4
     container_name: xray
     network_mode: host
     restart: always
@@ -386,6 +405,8 @@ configs:
     file: ./configs/kopia/policy.json
   kopia_entrypoint:
     file: ./configs/kopia/entrypoint.sh
+  hysteria2_config:
+    file: ./configs/hysteria2/config.yaml
   xray_config:
     file: ./configs/xray/config.json
 
