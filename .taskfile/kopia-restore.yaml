@@ -1,0 +1,90 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+vars:
+  SOURCE_HOST: sakamoto.lan
+  SOURCE_KOPIA_CONTAINER: kopia
+  TARGET_HOST: vps-cc
+  TARGET_DATA_DIR: /data/docker
+  KOPIA_BACKUP_SOURCE: shelken@vps:/backup/data
+  STAGING_DIR: /tmp/kopia-restore-vps
+  STAGING_MARKER: "{{.STAGING_DIR}}/.snapshot_id"
+  STAGING_ARCHIVE: "{{.STAGING_DIR}}/snapshot.tar"
+
+tasks:
+  list:
+    desc: "List available snapshots"
+    cmds:
+      - echo "Snapshots for {{.KOPIA_BACKUP_SOURCE}}:"
+      - ssh {{.SOURCE_HOST}} "docker exec {{.SOURCE_KOPIA_CONTAINER}} kopia snapshot list --all '{{.KOPIA_BACKUP_SOURCE}}'"
+
+  pull:
+    desc: "Pull snapshot from source to local (usage: SNAPSHOT_ID=xxx [FORCE=1] task kopia-restore:pull)"
+    cmds:
+      - |
+        if [ -f "{{.STAGING_MARKER}}" ] && [ -z "$FORCE" ]; then
+          existing_id=$(cat "{{.STAGING_MARKER}}")
+          echo "本地已有数据 (Snapshot ID: $existing_id)"
+          echo "如需重新下载，请设置 FORCE=1"
+          echo "如需直接推送，运行: task kopia-restore:push"
+          exit 0
+        fi
+        if [ -z "$SNAPSHOT_ID" ]; then
+          echo "错误: SNAPSHOT_ID 不能为空"
+          exit 1
+        fi
+        mkdir -p "{{.STAGING_DIR}}"
+        echo "Restoring snapshot $SNAPSHOT_ID to container..."
+        ssh {{.SOURCE_HOST}} "docker exec {{.SOURCE_KOPIA_CONTAINER}} kopia snapshot restore \"$SNAPSHOT_ID\" /tmp/kopia-tmp"
+        echo "Streaming archive from container to local..."
+        ssh {{.SOURCE_HOST}} "docker exec {{.SOURCE_KOPIA_CONTAINER}} tar --numeric-owner -cpf - -C /tmp/kopia-tmp ." > "{{.STAGING_ARCHIVE}}"
+        echo "$SNAPSHOT_ID" > "{{.STAGING_MARKER}}"
+        echo "Archive saved to {{.STAGING_ARCHIVE}}"
+
+  push:
+    desc: "Push local staging data to target"
+    cmds:
+      - |
+        if [ ! -f "{{.STAGING_ARCHIVE}}" ]; then
+          echo "错误: 本地没有数据"
+          echo "请先运行: SNAPSHOT_ID=xxx task kopia-restore:pull"
+          exit 1
+        fi
+      - |
+        if [ -f "{{.STAGING_MARKER}}" ]; then
+          echo "正在推送 Snapshot ID: $(cat \"{{.STAGING_MARKER}}\")"
+        fi
+      - echo "Pushing archive to target..."
+      - rsync -avz --progress "{{.STAGING_ARCHIVE}}" {{.TARGET_HOST}}:/tmp/kopia-restore.tar
+      - echo "Extracting archive on target..."
+      - ssh {{.TARGET_HOST}} "mkdir -p \"{{.TARGET_DATA_DIR}}\""
+      - ssh {{.TARGET_HOST}} "tar --numeric-owner -xpf /tmp/kopia-restore.tar -C \"{{.TARGET_DATA_DIR}}\""
+      - echo "Done"
+
+  clean:
+    desc: "Clean local staging data"
+    cmds:
+      - |
+        if [ -d "{{.STAGING_DIR}}" ]; then
+          echo "清理本地数据: {{.STAGING_DIR}}"
+          rm -rf "{{.STAGING_DIR}}"
+          echo "完成"
+        else
+          echo "没有需要清理的数据"
+        fi
+
+  full:
+    desc: "Full restore workflow (usage: SNAPSHOT_ID=xxx [FORCE=1] task kopia-restore:full)"
+    cmds:
+      - |
+        if [ -f "{{.STAGING_MARKER}}" ] && [ -z "$FORCE" ] && [ -z "$SNAPSHOT_ID" ]; then
+          echo "检测到本地已有数据，跳过下载，直接推送..."
+          echo "如需重新下载，请设置 SNAPSHOT_ID=xxx FORCE=1"
+        elif [ -n "$SNAPSHOT_ID" ]; then
+          task kopia-restore:pull
+        else
+          echo "错误: 本地没有数据，请设置 SNAPSHOT_ID"
+          exit 1
+        fi
+      - task: push

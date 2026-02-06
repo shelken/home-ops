@@ -13,6 +13,7 @@ includes:
   secret: .taskfile/secret.yaml
   flux: .taskfile/flux.yaml
   compose: .taskfile/compose.yaml
+  kopia-restore: .taskfile/kopia-restore.yaml
   lms: .taskfile/lms.yaml
   lima: .taskfile/lima.yaml
   k8s: .taskfile/k8s.yaml
