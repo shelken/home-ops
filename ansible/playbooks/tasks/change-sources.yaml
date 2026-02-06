@@ -1,10 +1,16 @@
 ---
+- name: 跳过换源 (change_mirror 设置为 false)
+  ansible.builtin.debug:
+    msg: "跳过换源，change_mirror 设置为 false"
+  when: change_mirror | default(true) | bool == false
+
 - name: 检查是否已配置USTC镜像
   ansible.builtin.shell: |
     grep -q "mirrors.ustc.edu.cn" /etc/apt/sources.list /etc/apt/sources.list.d/ubuntu.sources 2>/dev/null
   register: check_ustc_mirror
   failed_when: check_ustc_mirror.rc > 1
   changed_when: false
+  when: change_mirror | default(true) | bool
 
 - name: 下载换源脚本
   ansible.builtin.get_url:
@@ -12,7 +18,9 @@
     url: https://v6.gh-proxy.org/https://raw.githubusercontent.com/SuperManito/LinuxMirrors/refs/heads/main/ChangeMirrors.sh
     dest: /tmp/linuxmirrors.sh
     mode: "0755"
-  when: check_ustc_mirror.rc != 0
+  when:
+    - change_mirror | default(true) | bool
+    - check_ustc_mirror.rc != 0
 
 - name: 换源
   ansible.builtin.command: |
@@ -25,4 +33,6 @@
       --clean-cache false \
       --ignore-backup-tips \
       --pure-mode
-  when: check_ustc_mirror.rc != 0
+  when:
+    - change_mirror | default(true) | bool
+    - check_ustc_mirror.rc != 0
