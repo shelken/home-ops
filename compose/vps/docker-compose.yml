@@ -273,6 +273,23 @@ services:
     deploy:
       replicas: 1
 
+  xray:
+    image: ghcr.io/xtls/xray-core:latest
+    container_name: xray
+    network_mode: host
+    restart: always
+    labels:
+      - homepage.group=VPS
+      - homepage.name=vless-reality
+      - homepage.icon=cloudflare-zero-trust.svg
+      - homepage.description=VLESS Reality
+    configs:
+      - source: xray_config
+        target: /etc/xray/config.json
+    command: ["run", "-config", "/etc/xray/config.json"]
+    deploy:
+      replicas: 1
+
   # ==================== OpenList ====================
   openlist:
     image: ghcr.io/openlistteam/openlist-git:v4.1.10
@@ -344,7 +361,7 @@ services:
     volumes:
       - kopia_cache:/app/cache
       - ${DATA_BASE_DIR}/kopia/logs:/app/logs
-      - ${DATA_BASE_DIR}:/backup/data:ro
+      - /data:/backup/data:ro
     ports:
       - "${DEPLOY_HOST}:51515:51515/tcp"
     deploy:
@@ -369,6 +386,8 @@ configs:
     file: ./configs/kopia/policy.json
   kopia_entrypoint:
     file: ./configs/kopia/entrypoint.sh
+  xray_config:
+    file: ./configs/xray/config.json
 
 volumes:
   kopia_cache:
