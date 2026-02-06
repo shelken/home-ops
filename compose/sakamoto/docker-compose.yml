@@ -229,20 +229,23 @@ services:
     entrypoint: ["/app/scripts/entrypoint.sh"]
     environment:
       TZ: Asia/Shanghai
+      KOPIA_CONFIG_PATH: /config/repository.config
+      KOPIA_CACHE_DIRECTORY: /config/cache
+      KOPIA_LOG_DIR: /config/logs
       KOPIA_PASSWORD: ${KOPIA_REPO_PASSWORD}
       KOPIA_WEBHOOK_URL: ${KOPIA_WEBHOOK_URL}
       # 仅在失败/警告时通知，成功时不通知 (可选值: report, warning, error)
       KOPIA_MIN_SEVERITY: warning
     configs:
       - source: kopia_repository_config
-        target: /app/config/repository.config
+        target: /config/repository.config
       - source: kopia_policy
-        target: /app/config/policy.json
+        target: /config/policy.json
       - source: kopia_entrypoint
         target: /app/scripts/entrypoint.sh
     volumes:
-      - kopia_cache:/app/cache
-      - ${DOCKER_DATA_DIR}/kopia/logs:/app/logs
+      - kopia_cache:/config/cache
+      - ${DOCKER_DATA_DIR}/kopia/logs:/config/logs
       - ${MINIO_DATA_DIR}:/backup/minio:ro
       - ${DOCKER_DATA_DIR}:/backup/compose:ro
     ports:
@@ -268,19 +271,22 @@ services:
     command: ["--address=0.0.0.0:51516", "--without-password", "--insecure"]
     environment:
       TZ: Asia/Shanghai
+      KOPIA_CONFIG_PATH: /config/repository.config
+      KOPIA_CACHE_DIRECTORY: /config/cache
+      KOPIA_LOG_DIR: /config/logs
       KOPIA_PASSWORD: ${KOPIA_LOCAL_REPO_PASSWORD}
       KOPIA_WEBHOOK_URL: ${KOPIA_WEBHOOK_URL}
       KOPIA_MIN_SEVERITY: warning
     configs:
       - source: kopia_local_repository_config
-        target: /app/config/repository.config
+        target: /config/repository.config
       - source: kopia_local_policy
-        target: /app/config/policy.json
+        target: /config/policy.json
       - source: kopia_entrypoint
         target: /app/scripts/entrypoint.sh
     volumes:
-      - kopia_local_cache:/app/cache
-      - ${DOCKER_DATA_DIR}/kopia-local/logs:/app/logs
+      - kopia_local_cache:/config/cache
+      - ${DOCKER_DATA_DIR}/kopia-local/logs:/config/logs
       - /Volumes/sakamoto-data:/backup/sakamoto-data:ro
       - /Volumes/BackUp3T/kopia-local-repo:/repo
     ports:

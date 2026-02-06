@@ -281,7 +281,7 @@ services:
     labels:
       - homepage.group=VPS
       - homepage.name=hysteria2
-      - homepage.icon=shield.svg
+      - homepage.icon=https://cdn.jsdelivr.net/gh/apernet/hysteria-website@master/docs/assets/logo.svg
       - homepage.description=hysteria2
     configs:
       - source: hysteria2_config
@@ -300,7 +300,7 @@ services:
     labels:
       - homepage.group=VPS
       - homepage.name=vless-reality
-      - homepage.icon=cloudflare-zero-trust.svg
+      - homepage.icon=https://avatars.githubusercontent.com/u/71564206
       - homepage.description=VLESS Reality
     configs:
       - source: xray_config
@@ -366,20 +366,23 @@ services:
     entrypoint: ["/app/scripts/entrypoint.sh"]
     environment:
       TZ: Asia/Shanghai
+      KOPIA_CONFIG_PATH: /config/repository.config
+      KOPIA_CACHE_DIRECTORY: /config/cache
+      KOPIA_LOG_DIR: /config/logs
       KOPIA_PASSWORD: ${KOPIA_REPO_PASSWORD}
       KOPIA_WEBHOOK_URL: ${KOPIA_WEBHOOK_URL}
       # 仅在失败/警告时通知，成功时不通知 (可选值: report, warning, error)
       KOPIA_MIN_SEVERITY: warning
     configs:
       - source: kopia_repository_config
-        target: /app/config/repository.config
+        target: /config/repository.config
       - source: kopia_policy
-        target: /app/config/policy.json
+        target: /config/policy.json
       - source: kopia_entrypoint
         target: /app/scripts/entrypoint.sh
     volumes:
-      - kopia_cache:/app/cache
-      - ${DATA_BASE_DIR}/kopia/logs:/app/logs
+      - kopia_cache:/config/cache
+      - ${DATA_BASE_DIR}/kopia/logs:/config/logs
       - /data:/backup/data:ro
     ports:
       - "${DEPLOY_HOST}:51515:51515/tcp"
