@@ -16,7 +16,6 @@ spec:
     substitute:
       APP: *app
       VOLSYNC_CAPACITY: 1Gi
-      VOLSYNC_CACHE_CAPACITY: 1Gi
   interval: 1h
   path: ./k8s/apps/common/qui/app
   prune: true
