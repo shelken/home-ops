@@ -20,7 +20,7 @@ spec:
     capacity: ${VOLSYNC_CAPACITY:=2Gi}
     #FIXME issue: https://github.com/backube/volsync/issues/1504
     cleanupCachePVC: true
-    cleanupTempPVC: true
+    cleanupTempPVC: false
     copyMethod: Snapshot
     enableFileDeletion: true
     # moverAffinity:
