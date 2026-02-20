@@ -16,7 +16,7 @@ spec:
       persistentVolume:
         enabled: true
         storageClassName: longhorn
-        size: 20Gi
+        size: 40Gi
       podLabels: {}
       retentionPeriod: 14d
       route:
