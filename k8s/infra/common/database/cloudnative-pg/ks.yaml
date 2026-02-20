@@ -64,7 +64,7 @@ spec:
   postBuild:
     substitute:
       # renovate: datasource=docker depName=ghcr.io/cloudnative-pg/postgresql
-      POSTGRESQL_VERSION: 18.1-standard-trixie
+      POSTGRESQL_VERSION: 18.2-standard-trixie
   dependsOn:
     - name: cloudnative-pg
       namespace: *namespace
