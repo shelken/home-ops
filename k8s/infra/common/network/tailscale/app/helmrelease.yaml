@@ -22,3 +22,13 @@ spec:
       defaultProxyClass: "tun-access"
     apiServerProxyConfig:
       mode: "false"
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: operator
+            patch: |
+              - op: replace
+                path: /metadata/name
+                value: tailscale-operator
