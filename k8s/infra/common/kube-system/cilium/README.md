@@ -3,7 +3,6 @@
 ```mermaid
 graph TD
     subgraph "Remote Site (Home)"
-        Yuuko[Node: yuuko-k8s<br/>IP: 192.168.0.81<br/>AS: 64514]
         R_Home[Router: Home<br/>LAN: 192.168.0.1<br/>ZT: 192.168.191.10<br/>AS: 64515]
     end
 

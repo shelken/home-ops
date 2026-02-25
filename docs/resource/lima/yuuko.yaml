@@ -7,7 +7,7 @@ env:
   no_proxy: ""
 
 cpus: 6
-memory: 14G
+memory: 8G
 disk: 40G
 
 # No additional disks available on yuuko
@@ -54,7 +54,7 @@ provision:
   - mode: system
     script: |
       #!/bin/bash
-      # Configure static IP for eth1 (192.168.0.x network)
+      # Configure static IP for eth1
       rm -f /etc/netplan/99-eth1.yaml
       cat > /etc/netplan/90-eth1.yaml << 'EOF'
       network:
@@ -63,15 +63,11 @@ provision:
           eth1:
             dhcp4: false
             addresses:
-              - 192.168.0.81/24
+              - 192.168.6.81/24
             routes:
               - to: default
-                via: 192.168.0.1
+                via: 192.168.6.1
                 metric: 100
-            nameservers:
-              addresses:
-                - 192.168.0.1
-                - 192.168.6.1
       EOF
       chmod 600 /etc/netplan/90-eth1.yaml
       netplan apply || true

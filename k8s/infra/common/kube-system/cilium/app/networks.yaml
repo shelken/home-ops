@@ -63,21 +63,21 @@ spec:
           peerAddress: 192.168.6.1
           peerConfigRef:
             name: l3-bgp-peer-config
----
-apiVersion: cilium.io/v2
-kind: CiliumBGPClusterConfig
-metadata:
-  name: bgp-remote
-spec:
-  nodeSelector:
-    matchLabels:
-      node-type: remote
-  bgpInstances:
-    - name: cilium
-      localASN: 64514
-      peers:
-        - name: router-home
-          peerASN: 64515
-          peerAddress: 192.168.0.1
-          peerConfigRef:
-            name: l3-bgp-peer-config
+# ---
+# apiVersion: cilium.io/v2
+# kind: CiliumBGPClusterConfig
+# metadata:
+#   name: bgp-remote
+# spec:
+#   nodeSelector:
+#     matchLabels:
+#       node-type: remote
+#   bgpInstances:
+#     - name: cilium
+#       localASN: 64514
+#       peers:
+#         - name: router-home
+#           peerASN: 64515
+#           peerAddress: 192.168.0.1
+#           peerConfigRef:
+#             name: l3-bgp-peer-config

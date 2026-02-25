@@ -23,9 +23,9 @@ endpoints:
       - "[CONNECTED] == true"
     alerts:
       - type: custom
-  - <<: *common-ping
-    name: router-home
-    url: "icmp://router-home.lan"
+  # - <<: *common-ping
+  #   name: router-home
+  #   url: "icmp://router-home.lan"
   - <<: *common-ping
     name: PVE
     url: "icmp://pve.lan"
@@ -34,7 +34,7 @@ endpoints:
     url: "icmp://sakamoto.lan"
   - <<: *common-ping
     name: yuuko
-    url: "icmp://192.168.0.226"
+    url: "icmp://192.168.6.10"
   - <<: *common-ping
     name: vps
     url: "icmp://ts-node-vps.network.svc"

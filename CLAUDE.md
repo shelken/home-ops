@@ -54,7 +54,7 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 |--------|------|--------|-----|------|------|-----|--------|---------------|
 | sakamoto-k8s | control-plane, etcd | Mac Mini M4 (4P+6E 核, Lima VM, vz) | 8 vCPU | 14GB | arm64 | 192.168.6.80 | 80GB | 1TB SSD |
 | homelab-1 | worker | 笔记本 PVE (Intel i5-7300HQ 4核) VM | 4 核 | 14GB | amd64 | 192.168.6.110 | 321GB | 共用系统盘 |
-| yuuko-k8s | worker | Mac Mini M1 (4P+4E 核, Lima VM, vz) | 6 vCPU | 14GB | arm64 | 192.168.0.81 | 40GB | 无 |
+| yuuko-k8s | worker | Mac Mini M1 (4P+4E 核, Lima VM, vz) | 6 vCPU | 8GB | arm64 | 192.168.6.81 | 40GB | 无 |
 
 ### 节点说明
 

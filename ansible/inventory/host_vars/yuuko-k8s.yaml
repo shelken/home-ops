@@ -1,10 +1,9 @@
 # Remote node at 192.168.0.x network (connected via ZeroTier VPN)
 # Lima VM on M1 Mac Mini (yuuko)
 
-remote_node: true
+remote_node: false
 
 # 远程节点，不和主集群dns一致。
 setup_dns: true
 dns_servers:
-  - 192.168.0.1
   - 192.168.6.1
