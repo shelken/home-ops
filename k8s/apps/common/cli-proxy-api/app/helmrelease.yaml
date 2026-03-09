@@ -89,17 +89,12 @@ spec:
                 port: *port
     persistence:
       auths:
-        forceRename: cli-proxy-api-auths
-        type: persistentVolumeClaim
-        storageClass: longhorn
-        accessMode: ReadWriteOnce
-        size: 100Mi
+        existingClaim: cli-proxy-api
         advancedMounts:
           cli-proxy-api:
             app:
               - path: /root/.cli-proxy-api
                 subPath: auths
-              ## 非root用户的实际auths路径
               - path: /.cli-proxy-api
                 subPath: for-run
       config-file:

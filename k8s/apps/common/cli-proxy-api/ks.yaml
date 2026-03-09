@@ -6,9 +6,20 @@ metadata:
   namespace: &namespace default
 spec:
   targetNamespace: *namespace
+  components:
+    - ../../../../components/volsync
   dependsOn:
     - name: cilium
       namespace: kube-system
+    - name: azure-store
+      namespace: external-secrets
+    - name: volsync
+      namespace: volsync-system
+  postBuild:
+    substitute:
+      APP: *app
+      VOLSYNC_CAPACITY: 1Gi
+      VOLSYNC_CACHE_CAPACITY: 1Gi
   interval: 1h
   path: ./k8s/apps/common/cli-proxy-api/app
   prune: true
