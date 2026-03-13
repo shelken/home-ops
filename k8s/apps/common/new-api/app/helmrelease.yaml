@@ -26,7 +26,7 @@ spec:
           app:
             image:
               repository: mirror.gcr.io/calciumion/new-api
-              tag: v0.9.10@sha256:ad5518bc1caa49f32cc32d81eb9c264957d4ba8c806b80b283a15714c2602bfd
+              tag: v0.11.4@sha256:a11e607829ef070b78ebfffc185d3c1af8f4fe3d7f59157f3ae80ece89686e3e
             args:
               - --log-dir
               - /app/logs
