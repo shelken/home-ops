@@ -53,7 +53,7 @@ services:
       replicas: 1
 
   caddy:
-    image: ghcr.io/shelken/caddy:rolling
+    image: ghcr.io/shelken/caddy:2.11.1
     container_name: caddy
     networks:
       - homelab
