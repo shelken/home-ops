@@ -54,6 +54,7 @@ spec:
                 handle {
                   reverse_proxy {
                     to https://envoy-external.network.svc.cluster.local:443
+                    header_up Host {http.request.host}
                     transport http {
                       tls
                       tls_server_name {http.request.host}
