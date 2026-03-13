@@ -54,6 +54,7 @@
     to {args[0]}
     import common_to_proxy_headers
     import {args[1]}
+    header_up Host {http.request.host}
     transport http {
       import {args[2]}
     }
@@ -62,7 +63,7 @@
 
 (tls_common) {
   tls
-  tls_server_name homelab-external.{$MAIN_DOMAIN}
+  tls_server_name {http.request.host}
 }
 
 (to_external) {
