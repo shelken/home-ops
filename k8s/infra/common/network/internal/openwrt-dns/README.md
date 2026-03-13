@@ -12,5 +12,5 @@ PS.
 openwrt.ai 构建所需
 
 ```
--luci-app-wizard -luci-app-fan luci-app-zerotier luci-app-mwan3 luci-app-watchcat netbird luci-mod-rpc
+-luci-app-wizard -luci-app-fan luci-app-zerotier luci-app-mwan3 luci-app-watchcat bird2c luci-mod-rpc luci-app-advanced-reboot
 ```
