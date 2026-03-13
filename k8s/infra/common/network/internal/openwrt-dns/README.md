@@ -12,5 +12,9 @@ PS.
 openwrt.ai 构建所需
 
 ```
--luci-app-wizard -luci-app-fan luci-app-zerotier luci-app-mwan3 luci-app-watchcat bird2c luci-mod-rpc luci-app-advanced-reboot
+# 必装
+luci-app-zerotier luci-app-watchcat
+# 后装（减少固件问题）
+# sing-box为自建所需
+bird2c luci-mod-rpc luci-app-mwan3 sing-box
 ```
