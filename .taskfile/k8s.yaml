@@ -3,6 +3,58 @@
 version: "3"
 
 tasks:
+  copy-json-to-cli-proxy-api:
+    desc: "将目录下一级 JSON 文件或单个 JSON 文件复制到 cli-proxy-api 的 /.cli-proxy-api/"
+    vars:
+      NAMESPACE: '{{ .NAMESPACE | default "default" }}'
+    preconditions:
+      - sh: '[ -n "{{ .DIR }}" ] || [ -n "{{ .FILE }}" ]'
+        msg: "必须传 DIR 或 FILE"
+      - sh: '! { [ -n "{{ .DIR }}" ] && [ -n "{{ .FILE }}" ]; }'
+        msg: "DIR 和 FILE 只能二选一"
+      - sh: '[ -z "{{ .DIR }}" ] || test -d "{{ .DIR }}"'
+        msg: "DIR 不存在或不是目录"
+      - sh: '[ -z "{{ .DIR }}" ] || find "{{ .DIR }}" -maxdepth 1 -type f -name "*.json" | grep -q .'
+        msg: "DIR 下没有可复制的 JSON 文件"
+      - sh: '[ -z "{{ .FILE }}" ] || test -f "{{ .FILE }}"'
+        msg: "FILE 不存在或不是文件"
+      - sh: '[ -z "{{ .FILE }}" ] || case "{{ .FILE }}" in *.json) exit 0 ;; *) exit 1 ;; esac'
+        msg: "FILE 必须是 .json 文件"
+    cmds:
+      - |
+        set -eu
+
+        # kubectl cp 只能对 Pod 操作，先解析当前 cli-proxy-api 的真实 Pod 名。
+        POD="$(
+          KUBECONFIG=./kubeconfig kubectl -n "{{ .NAMESPACE }}" get pod -o json \
+            | jq -r '.items[] | select(.metadata.name | startswith("cli-proxy-api-")) | .metadata.name' \
+            | head -n 1
+        )"
+
+        if [ -z "$POD" ]; then
+          echo "未找到 {{ .NAMESPACE }} namespace 下的 cli-proxy-api Pod"
+          exit 1
+        fi
+
+        echo "目标 Pod: $POD"
+        echo "目标目录: /.cli-proxy-api"
+        if [ -n "{{ .FILE }}" ]; then
+          name="$(basename "{{ .FILE }}")"
+          echo "源文件: {{ .FILE }}"
+          echo "复制 $name"
+          KUBECONFIG=./kubeconfig kubectl -n "{{ .NAMESPACE }}" cp -c app "{{ .FILE }}" "$POD:/.cli-proxy-api/$name"
+          exit 0
+        fi
+
+        echo "源目录: {{ .DIR }}"
+        STAGING_DIR="$(mktemp -d)"
+        trap 'rm -rf "$STAGING_DIR"' EXIT
+
+        find "{{ .DIR }}" -maxdepth 1 -type f -name "*.json" -exec cp -f {} "$STAGING_DIR"/ \;
+
+        echo "批量复制目录中的 JSON 文件"
+        KUBECONFIG=./kubeconfig kubectl -n "{{ .NAMESPACE }}" cp -c app "$STAGING_DIR/." "$POD:/.cli-proxy-api/"
+
   restart-network-problem-pods:
     desc: "查询并重启有网络问题(no route to host)的 Pod"
     vars:
