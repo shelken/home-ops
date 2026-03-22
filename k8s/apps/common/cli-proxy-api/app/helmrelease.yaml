@@ -18,7 +18,7 @@ spec:
           app:
             image:
               repository: eceasy/cli-proxy-api
-              tag: v6.8.55@sha256:0c9f06069aa757334e7e22a18a379276586d28f2f58e2fc87cb26d1326d3ef4f
+              tag: v6.9.0@sha256:d354eaaa38b9897ba1bcef96b07323eedc5638db255b8d5a8de089cd261e28d4
             env:
               TZ: ${TIMEZONE}
               MANAGEMENT_STATIC_PATH: &management /CLIProxyAPI/management
