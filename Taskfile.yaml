@@ -73,7 +73,7 @@ tasks:
     desc: "添加dragonfly-operator的CRD"
     cmd: |
       # renovate: datasource=github-releases depName=dragonflydb/dragonfly-operator
-      kubectl apply -f https://raw.githubusercontent.com/dragonflydb/dragonfly-operator/v1.4.0/manifests/crd.yaml --server-side
+      kubectl apply -f https://raw.githubusercontent.com/dragonflydb/dragonfly-operator/v1.5.0/manifests/crd.yaml --server-side
 
   add-barman-cloud-crd:
     desc: "添加barman-cloud的CRD"
