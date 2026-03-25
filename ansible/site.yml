@@ -12,6 +12,8 @@
 
     - import_tasks: playbooks/tasks/change-sources.yaml
 
+    - import_tasks: playbooks/tasks/disable-kernel-auto-upgrades.yaml
+
     - name: install system pkgs
       ansible.builtin.apt:
         name: "{{ system_packages }}"

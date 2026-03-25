@@ -1,0 +1,12 @@
+---
+- name: 仅禁用内核包自动升级
+  when: disable_kernel_auto_upgrades | default(true) | bool
+  ansible.builtin.copy:
+    dest: "{{ kernel_auto_upgrade_blacklist_conf }}"
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      Unattended-Upgrade::Package-Blacklist {
+        "{{ kernel_auto_upgrade_blacklist_regex }}";
+      };

@@ -5,6 +5,9 @@
 #   https_proxy: "http://192.168.6.248:7890"
 
 system_timezone: "Asia/Shanghai"
+disable_kernel_auto_upgrades: true # true=仅禁用内核相关包自动升级
+kernel_auto_upgrade_blacklist_conf: /etc/apt/apt.conf.d/52unattended-upgrades-kernel-blacklist
+kernel_auto_upgrade_blacklist_regex: linux-(image|headers|modules)-.*
 system_packages:
   - curl
   - wget
