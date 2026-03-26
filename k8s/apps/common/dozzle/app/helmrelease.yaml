@@ -28,7 +28,7 @@ spec:
           app:
             image:
               repository: ghcr.io/amir20/dozzle
-              tag: v10.0.4@sha256:626e30d0df54ea1a5d1ecfbe01337d93813af2789e823c17a69afcd7fcce0c3a
+              tag: v10.2.1@sha256:6bdfca41441987648ea2af525f61cdde316df6c433aab6ffdfc64cdd72bfe279
             env:
               TZ: ${TIMEZONE}
               DOZZLE_MODE: k8s
