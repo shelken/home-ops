@@ -83,7 +83,7 @@ spec:
         parentRefs:
           - name: envoy-internal
             namespace: network
-        rules: &rules
+        rules:
           - backendRefs:
               - identifier: app
                 port: *port
@@ -97,7 +97,14 @@ spec:
         parentRefs:
           - name: envoy-external
             namespace: network
-        rules: *rules
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /v1
+            backendRefs:
+              - identifier: app
+                port: *port
     persistence:
       auths:
         existingClaim: cli-proxy-api
