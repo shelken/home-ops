@@ -77,16 +77,27 @@ spec:
         annotations:
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: internal
-          gethomepage.dev/name: cli-proxy-api
+          gethomepage.dev/name: *app
           gethomepage.dev/icon: kubernetes-dashboard.svg
         hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
         parentRefs:
           - name: envoy-internal
             namespace: network
-        rules:
+        rules: &rules
           - backendRefs:
               - identifier: app
                 port: *port
+      app-external:
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: external
+          gethomepage.dev/name: *app
+          gethomepage.dev/icon: kubernetes-dashboard.svg
+        hostnames: ["cpa.${MAIN_DOMAIN}"]
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+        rules: *rules
     persistence:
       auths:
         existingClaim: cli-proxy-api
