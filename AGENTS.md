@@ -14,7 +14,7 @@
 - SSH执行命令时优先使用IP地址而非主机名（参考ansible节点信息表中的IP列）
 - 遇到失败的helmrelease，不要reconcile，直接删除，然后reconcile ks
 - 需要容器镜像时，寻找最新镜像固定化镜像版本，配合renovate的更新
-- 优先使用`Conventional Commits`格式提交git commit，title中文，body中文，如果有`git-commit`，`git-commit`优先
+- 优先使用`Conventional Commits`格式提交git commit，title**y英文**，body**中文**，如果有`git-commit`，读取`git-commit`作为补充
 
 ## 项目概述
 
