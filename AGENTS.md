@@ -14,6 +14,9 @@
 - SSH执行命令时优先使用IP地址而非主机名（参考ansible节点信息表中的IP列）
 - 遇到失败的helmrelease，不要reconcile，直接删除，然后reconcile ks
 - 需要容器镜像时，寻找最新镜像固定化镜像版本，配合renovate的更新
+- 在 `k8s/apps/common/` 中关闭某个应用时，需要同步检查 `.renovate/packageRules.json5` 的 `Disabled Packages`，把该应用相关的镜像/包一并加入，避免继续产生 Renovate PR；重新开启该应用时，也要同步从 `Disabled Packages` 中移除对应项
+- `.renovate/packageRules.json5` 中 `Disabled Packages.matchPackageNames` 统一不写镜像 registry/domain，只保留 `owner/repo` 或更短的可识别片段，例如 `ghcr.io/dani-garcia/vaultwarden` 应写为 `dani-garcia/vaultwarden`
+- `matchPackageNames` 写法约定：精确匹配使用不带首尾斜杠的字符串，例如 `dani-garcia/vaultwarden`；需要按组织、仓库片段或一组相关包做模式匹配时，使用首尾斜杠包裹的正则字符串，例如 `/n8n-io/`、`/seafileltd/`、`/ollama/ollama/`
 - 优先使用`Conventional Commits`格式提交git commit，title**y英文**，body**中文**，如果有`git-commit`，读取`git-commit`作为补充
 
 ## 项目概述

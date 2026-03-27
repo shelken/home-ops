@@ -3,13 +3,31 @@
   packageRules: [
     {
       description: "Disabled Packages",
+      // 统一使用 /owner/repo/ 正则写法：
+      // - 带首尾斜杠：Renovate 按正则匹配 packageName，适合忽略 registry/domain 前缀差异
+      // - 不带斜杠：Renovate 按完整 packageName 精确匹配，仅在必须精确命中时使用
       matchPackageNames: [
-        "linuxserver/mariadb", // seafile-db
         "/rook/",
         "/homarr-labs/",
-        "/n8n-io/",
         "/netbirdio/",
-        "open-webui/open-webui",
+
+        "/toeverything/affine/", // affine
+        "/amir20/dozzle/", // dozzle
+        "/glanceapp/glance/", // glance
+        "/immich-app/", // immich
+        "/zxh326/kite/", // kite
+        "/karakeep-app/karakeep/", // karakeep
+        "/getmeili/meilisearch/", // karakeep
+        "/zenika/alpine-chrome/", // karakeep
+        "/librespeed/speedtest-rust/", // librespeed
+        "/n8n-io/", // n8n
+        "/calciumion/new-api/", // new-api
+        "/ollama/ollama/", // ollama
+        "/open-webui/open-webui/", // ollama-web
+        "/linuxserver/mariadb/", // seafile-db
+        "/seafileltd/", // seafile
+        "/yourselfhosted/slash/", // slash
+        "/dani-garcia/vaultwarden/", // vaultwarden
       ],
       enabled: false
     },
