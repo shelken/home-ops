@@ -274,7 +274,7 @@ services:
       replicas: 1
 
   hysteria2:
-    image: tobyxdd/hysteria:v2.7.1
+    image: tobyxdd/hysteria:v2.8.1
     container_name: hysteria2
     network_mode: host
     restart: always
