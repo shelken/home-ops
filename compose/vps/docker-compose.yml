@@ -293,7 +293,7 @@ services:
       replicas: 1
 
   xray:
-    image: ghcr.io/xtls/xray-core:26.3.23
+    image: ghcr.io/xtls/xray-core:26.3.27
     container_name: xray
     network_mode: host
     restart: always
