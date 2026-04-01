@@ -19,7 +19,7 @@ spec:
           app:
             image:
               repository: openresty/openresty
-              tag: 1.29.2.2-alpine
+              tag: 1.29.2.3-alpine
             probes:
               liveness: &probes
                 enabled: true
