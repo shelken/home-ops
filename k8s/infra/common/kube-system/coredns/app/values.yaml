@@ -26,8 +26,8 @@ servers:
         configBlock: |-
           pods verified
           fallthrough in-addr.arpa ip6.arpa
-      - name: autopath
-        parameters: "@kubernetes"
+      # - name: autopath
+      #   parameters: "@kubernetes"
       - name: forward
         parameters: ooooo.space 192.168.6.1
       - name: forward
