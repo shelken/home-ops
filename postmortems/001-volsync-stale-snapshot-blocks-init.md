@@ -13,8 +13,8 @@
 最小复现命令：
 
 ```bash
-KUBECONFIG=./kubeconfig kubectl describe pod -n default volsync-src-cli-proxy-api-c7rmh
-KUBECONFIG=./kubeconfig kubectl -n longhorn-system logs daemonset/longhorn-manager --since=6h | rg 'pvc-a98f4594-1a31-4751-8c99-1ccf2a0f16ed|snapshot-77dbec3d-986a-4800-9fb2-dc29f1399b18'
+kubectl describe pod -n default volsync-src-cli-proxy-api-c7rmh
+kubectl -n longhorn-system logs daemonset/longhorn-manager --since=6h | rg 'pvc-a98f4594-1a31-4751-8c99-1ccf2a0f16ed|snapshot-77dbec3d-986a-4800-9fb2-dc29f1399b18'
 ```
 
 关键报错：
@@ -47,7 +47,7 @@ cannot find snapshot snapshot-77dbec3d-986a-4800-9fb2-dc29f1399b18 in the source
 当时恢复方法：
 
 ```bash
-KUBECONFIG=./kubeconfig kubectl delete replicationsource.volsync.backube -n default cli-proxy-api
+kubectl delete replicationsource.volsync.backube -n default cli-proxy-api
 direnv exec . flux reconcile kustomization cli-proxy-api -n default --with-source
 ```
 

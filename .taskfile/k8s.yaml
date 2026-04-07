@@ -26,7 +26,7 @@ tasks:
 
         # kubectl cp 只能对 Pod 操作，先解析当前 cli-proxy-api 的真实 Pod 名。
         POD="$(
-          KUBECONFIG=./kubeconfig kubectl -n "{{ .NAMESPACE }}" get pod -o json \
+          kubectl -n "{{ .NAMESPACE }}" get pod -o json \
             | jq -r '.items[] | select(.metadata.name | startswith("cli-proxy-api-")) | .metadata.name' \
             | head -n 1
         )"
@@ -42,7 +42,7 @@ tasks:
           name="$(basename "{{ .FILE }}")"
           echo "源文件: {{ .FILE }}"
           echo "复制 $name"
-          KUBECONFIG=./kubeconfig kubectl -n "{{ .NAMESPACE }}" cp -c app "{{ .FILE }}" "$POD:/.cli-proxy-api/$name"
+          kubectl -n "{{ .NAMESPACE }}" cp -c app "{{ .FILE }}" "$POD:/.cli-proxy-api/$name"
           exit 0
         fi
 
@@ -53,7 +53,7 @@ tasks:
         find "{{ .DIR }}" -maxdepth 1 -type f -name "*.json" -exec cp -f {} "$STAGING_DIR"/ \;
 
         echo "批量复制目录中的 JSON 文件"
-        KUBECONFIG=./kubeconfig kubectl -n "{{ .NAMESPACE }}" cp -c app "$STAGING_DIR/." "$POD:/.cli-proxy-api/"
+        kubectl -n "{{ .NAMESPACE }}" cp -c app "$STAGING_DIR/." "$POD:/.cli-proxy-api/"
 
   restart-network-problem-pods:
     desc: "查询并重启有网络问题(no route to host)的 Pod"
