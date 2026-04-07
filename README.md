@@ -47,31 +47,13 @@ graph TD
         Homelab1(homelab-1)
     end
 
-    subgraph Remote_Site ["Site: Home (Remote)"]
-        RH_IP["Router-Home LAN: 192.168.0.1"]
-        RH_ZT["Router-Home ZT: 192.168.191.10"]
-        Yuuko["yuuko-k8s<br/>(Remote Worker)"]
-    end
-
     RM_IP --- Sakamoto
     RM_IP --- Homelab1
 
-    RH_IP --- Yuuko
-
     RM_ZT <== "BGP (Native Routing)" ==> ZT_Link
-    RH_ZT <== "BGP (Native Routing)" ==> ZT_Link
 
     RM_IP --- RM_ZT
-    RH_IP --- RH_ZT
 ```
-
-## 集群节点
-
-| 节点名       | 角色                | 宿主机                              | CPU    | 内存 | 架构  | IP            | 系统盘    | Longhorn 存储 |
-| ------------ | ------------------- | ----------------------------------- | ------ | ---- | ----- | ------------- | --------- | ------------- |
-| sakamoto-k8s | control-plane, etcd | Mac Mini M4 (4P+6E 核, Lima VM, vz) | 8 vCPU | 14GB | arm64 | 192.168.6.80  | 80GB      | 1TB SSD       |
-| homelab-1    | worker              | 笔记本 PVE (Intel i5-7300HQ 4核) VM | 4 核   | 14GB | amd64 | 192.168.6.110 | 321GB     | 共用系统盘    |
-| yuuko-k8s    | worker              | Mac Mini M1 (4P+4E 核, Lima VM, vz) | 6 vCPU | 8GB | arm64 | 192.168.6.81  | 40GB      | 无            |
 
 ## 设备网络
 
@@ -115,11 +97,9 @@ graph TD
 - [cilium](https://github.com/cilium/cilium): eBPF-based networking for my workloads.
 - [external-dns](https://github.com/kubernetes-sigs/external-dns): Automatically syncs ingress DNS records to a DNS provider.
 - [k8s-gateway](https://github.com/k8s-gateway/k8s_gateway): https://github.com/k8s-gateway/k8s_gateway
-  <!-- - [external-secrets](https://github.com/external-secrets/external-secrets): Managed Kubernetes secrets using [1Password Connect](https://github.com/1Password/connect). -->
-  <!-- - [rook](https://github.com/rook/rook): Distributed block storage for peristent storage. -->
+- [external-secrets](https://github.com/external-secrets/external-secrets): Managed Kubernetes secrets using Azure KeyVault
 - [sops](https://github.com/getsops/sops): Managed secrets for Kubernetes and Terraform which are commited to Git.
-  <!-- - [spegel](https://github.com/spegel-org/spegel): Stateless cluster local OCI registry mirror. -->
-  <!-- - [volsync](https://github.com/backube/volsync): Backup and recovery of persistent volume claims. -->
+- [volsync](https://github.com/backube/volsync): Backup and recovery of persistent volume claims. 
 
 ## 初始化所需Secret
 
