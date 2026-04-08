@@ -2,40 +2,35 @@
 
 > For agentic workers: execute this plan conservatively, keep the current effective behavior unchanged, and do not enable any new second-domain routes or DNS records while migrating.
 
-**Goal:** Move `second-domain-tls` management from Aliyun to Cloudflare while preserving the current effective runtime behavior and removing stale Aliyun-specific configuration.
+**Goal:** Move `${SECOND_DOMAIN}` certificate management and external DNS ownership to Cloudflare while preserving the current effective runtime behavior and removing stale Aliyun-specific configuration.
 
-**Scope Lock:** Only migrate certificate management and remove obsolete Aliyun resources. Do not enable any `${SECOND_DOMAIN}` business DNS records, HTTPRoutes, or other new entrypoints during this work.
+**Scope Lock:** Migrate both certificate management and Cloudflare external-dns ownership for `${SECOND_DOMAIN}`. Do not enable any `${SECOND_DOMAIN}` business DNS records, HTTPRoutes, or other new entrypoints during this work.
 
 **Current Confirmed State**
 
 - `${SECOND_DOMAIN}` is now managed in Cloudflare.
 - The Cloudflare API token in use can see the required zone.
-- The migration target is `second-domain-tls` management, not adding or enabling any `${SECOND_DOMAIN}` application exposure.
+- The migration target is both `second-domain-tls` management and Cloudflare external-dns ownership for `${SECOND_DOMAIN}`, not adding or enabling any `${SECOND_DOMAIN}` application exposure.
 - `echo` is deployed, but its `${SECOND_DOMAIN}` resources are not active because these files are commented out from `k8s/apps/common/echo/app/kustomization.yaml`:
   - `./dnsendpoint.yaml`
   - `./httproute.yaml`
 
 **Files In Scope**
 
-- Modify:
+- Already migrated in this branch:
   - `k8s/infra/common/cert-manager/cert-manager/tls/clusterissuer.yaml`
   - `k8s/infra/common/cert-manager/cert-manager/tls/clusterissuer-staging.yaml`
   - `k8s/infra/common/cert-manager/cert-manager/ks.yaml`
-- Delete:
-  - `k8s/infra/common/cert-manager/cert-manager/alidns-webhook/kustomization.yaml`
-  - `k8s/infra/common/cert-manager/cert-manager/alidns-webhook/helmrelease.yaml`
-  - `k8s/infra/common/cert-manager/cert-manager/alidns-webhook/helmrepository.yaml`
-  - `k8s/infra/common/cert-manager/cert-manager/alidns-webhook/externalsecret.yaml`
-  - `k8s/infra/common/network/external/ali-dns/ks.yaml`
-  - `k8s/infra/common/network/external/ali-dns/app/helmrelease.yaml`
-  - `k8s/infra/common/network/external/ali-dns/app/externalsecret.yaml`
-  - `k8s/infra/common/network/external/ali-dns/app/kustomization.yaml`
+  - `k8s/infra/common/cert-manager/cert-manager/alidns-webhook/*`
+  - `k8s/infra/common/network/external/ali-dns/*`
+- Modify in this follow-up:
+  - `k8s/infra/common/network/external/cloudflare-dns/app/helmrelease.yaml`
 - Keep unchanged:
   - `k8s/infra/common/network/certificates/export/certificate.yaml`
   - `k8s/infra/common/network/certificates/export/pushsecret.yaml`
   - `k8s/infra/common/network/certificates/import/externalsecret.yaml`
   - `k8s/infra/common/network/envoy-gateway/app/envoy.yaml`
-  - `k8s/infra/common/network/external/cloudflare-dns/app/helmrelease.yaml`
+  - `k8s/infra/common/network/internal/openwrt-dns/app/helmrelease.yaml`
   - `k8s/apps/common/echo/app/kustomization.yaml`
 
 **Why Cloudflare Is Sufficient**
@@ -90,19 +85,17 @@ Expected result:
 - Flux no longer deploys or depends on the Aliyun cert-manager webhook.
 - The repository keeps only the Cloudflare-based ACME path.
 
-### 3. Remove stale Aliyun external DNS resources
+### 3. Hand off `${SECOND_DOMAIN}` external DNS ownership to Cloudflare
 
-This migration does not require enabling `${SECOND_DOMAIN}` business DNS records in Cloudflare. The goal is cleanup only.
+This follow-up still does not require enabling `${SECOND_DOMAIN}` business DNS records in Cloudflare. The goal is to make Cloudflare own the domain so existing disabled resources can be enabled later without another provider migration.
 
-- Delete:
-  - `k8s/infra/common/network/external/ali-dns/ks.yaml`
-  - `k8s/infra/common/network/external/ali-dns/app/helmrelease.yaml`
-  - `k8s/infra/common/network/external/ali-dns/app/externalsecret.yaml`
-  - `k8s/infra/common/network/external/ali-dns/app/kustomization.yaml`
+- In `k8s/infra/common/network/external/cloudflare-dns/app/helmrelease.yaml`:
+  - Add `${SECOND_DOMAIN}` to `domainFilters`.
+  - Keep `sources`, `policy`, `txtOwnerId`, and `txtPrefix` unchanged.
 
 Expected result:
 
-- The repository no longer carries stale Aliyun external-dns definitions.
+- Cloudflare external-dns watches both `${MAIN_DOMAIN}` and `${SECOND_DOMAIN}`.
 - No `${SECOND_DOMAIN}` routes or records become active because nothing new is enabled in `cloudflare-dns` or app kustomizations.
 
 ### 4. Keep runtime behavior unchanged
@@ -129,9 +122,11 @@ Expected:
 - No remaining active `${SECOND_DOMAIN}` cert-manager Aliyun solver references.
 - No remaining `network/external/ali-dns` resources.
 
-2. Confirm `${SECOND_DOMAIN}` issuer config now points to Cloudflare in both issuer files.
+2. Confirm Cloudflare external-dns now watches both `${MAIN_DOMAIN}` and `${SECOND_DOMAIN}` in `k8s/infra/common/network/external/cloudflare-dns/app/helmrelease.yaml`.
 
-3. Confirm no application exposure was enabled accidentally:
+3. Confirm `${SECOND_DOMAIN}` issuer config still points to Cloudflare in both issuer files.
+
+4. Confirm no application exposure was enabled accidentally:
 
 ```bash
 rg -n "dnsendpoint.yaml|httproute.yaml" k8s/apps/common/echo/app/kustomization.yaml
@@ -141,7 +136,7 @@ Expected:
 
 - `./dnsendpoint.yaml` and `./httproute.yaml` remain commented out.
 
-4. Confirm `second-domain-tls` references are unchanged where they should stay stable:
+5. Confirm `second-domain-tls` references are unchanged where they should stay stable:
 
 ```bash
 rg -n "second-domain-tls" k8s/infra/common/network
@@ -153,9 +148,9 @@ Expected:
 
 **Non-Goals**
 
-- Do not enable `${SECOND_DOMAIN}` records in `cloudflare-dns`.
-- Do not add `${SECOND_DOMAIN}` to `domainFilters`.
+- Do not enable `${SECOND_DOMAIN}` business records beyond provider ownership.
 - Do not uncomment `echo` second-domain DNS or route resources.
+- Do not add new `${SECOND_DOMAIN}` DNSEndpoint, HTTPRoute, or Ingress resources in this change.
 - Do not rename `second-domain-tls` or alter wildcard coverage.
 - Do not delete any resource outside the Aliyun-specific migration scope.
 
