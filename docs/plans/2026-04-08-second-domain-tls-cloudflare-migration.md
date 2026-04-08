@@ -11,9 +11,8 @@
 - `${SECOND_DOMAIN}` is now managed in Cloudflare.
 - The Cloudflare API token in use can see the required zone.
 - The migration target is both `second-domain-tls` management and Cloudflare external-dns ownership for `${SECOND_DOMAIN}`, not adding or enabling any `${SECOND_DOMAIN}` application exposure.
-- `echo` is deployed, but its `${SECOND_DOMAIN}` resources are not active because these files are commented out from `k8s/apps/common/echo/app/kustomization.yaml`:
-  - `./dnsendpoint.yaml`
-  - `./httproute.yaml`
+- `echo` is deployed, and its active external route currently comes from `k8s/apps/common/echo/app/helmrelease.yaml`.
+- 合并到 `main` 后做 `${SECOND_DOMAIN}` 联通测试时，应临时调整 HelmRelease 内的 `route.app`，测试结束后再撤回，不使用独立的 `dnsendpoint.yaml` / `httproute.yaml` 文件。
 
 **Files In Scope**
 
@@ -31,7 +30,7 @@
   - `k8s/infra/common/network/certificates/import/externalsecret.yaml`
   - `k8s/infra/common/network/envoy-gateway/app/envoy.yaml`
   - `k8s/infra/common/network/internal/openwrt-dns/app/helmrelease.yaml`
-  - `k8s/apps/common/echo/app/kustomization.yaml`
+  - `k8s/apps/common/echo/app/helmrelease.yaml`
 
 **Why Cloudflare Is Sufficient**
 
@@ -105,7 +104,7 @@ Do not modify the following behaviors:
 - `second-domain-tls` secret naming and wildcard coverage stay unchanged.
 - Secret export/import flow through Azure stays unchanged.
 - Envoy Gateway continues to reference `second-domain-tls` exactly as before.
-- `echo.${SECOND_DOMAIN}` remains inactive because its `DNSEndpoint` and `HTTPRoute` stay commented out from the app kustomization.
+- `echo.${SECOND_DOMAIN}` remains inactive in normal state; the post-merge validation path is to add a temporary second-domain hostname to `k8s/apps/common/echo/app/helmrelease.yaml`, then remove it after testing.
 
 **Verification Checklist**
 
@@ -126,17 +125,15 @@ Expected:
 
 3. Confirm `${SECOND_DOMAIN}` issuer config still points to Cloudflare in both issuer files.
 
-4. Confirm no application exposure was enabled accidentally:
+4. Confirm the default `echo` configuration still only exposes the main-domain route in `k8s/apps/common/echo/app/helmrelease.yaml`.
 
-```bash
-rg -n "dnsendpoint.yaml|httproute.yaml" k8s/apps/common/echo/app/kustomization.yaml
-```
+5. After this branch is merged to `main`, run a post-merge validation:
+   - temporarily add `echo.${SECOND_DOMAIN}` to `route.app.hostnames` in `k8s/apps/common/echo/app/helmrelease.yaml`
+   - reconcile `kustomization/echo`
+   - verify `https://echo.${SECOND_DOMAIN}` is reachable
+   - remove the temporary hostname and reconcile again
 
-Expected:
-
-- `./dnsendpoint.yaml` and `./httproute.yaml` remain commented out.
-
-5. Confirm `second-domain-tls` references are unchanged where they should stay stable:
+6. Confirm `second-domain-tls` references are unchanged where they should stay stable:
 
 ```bash
 rg -n "second-domain-tls" k8s/infra/common/network
@@ -149,8 +146,8 @@ Expected:
 **Non-Goals**
 
 - Do not enable `${SECOND_DOMAIN}` business records beyond provider ownership.
-- Do not uncomment `echo` second-domain DNS or route resources.
-- Do not add new `${SECOND_DOMAIN}` DNSEndpoint, HTTPRoute, or Ingress resources in this change.
+- Do not enable second-domain exposure in the normal committed state.
+- Do not add new `${SECOND_DOMAIN}` DNSEndpoint, HTTPRoute, or Ingress resources in this change; the test path is a temporary HelmRelease route change after merge.
 - Do not rename `second-domain-tls` or alter wildcard coverage.
 - Do not delete any resource outside the Aliyun-specific migration scope.
 
