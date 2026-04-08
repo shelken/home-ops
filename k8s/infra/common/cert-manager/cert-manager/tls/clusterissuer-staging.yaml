@@ -18,16 +18,9 @@ spec:
         selector:
           dnsZones: ["${MAIN_DOMAIN}"]
       - dns01:
-          webhook:
-            config:
-              accessTokenSecretRef:
-                key: access-token
-                name: alidns-webhook-secret
-              regionId: cn-shenzhen
-              secretKeySecretRef:
-                key: secret-key
-                name: alidns-webhook-secret
-            groupName: acme.${MAIN_DOMAIN}
-            solverName: alidns-solver
+          cloudflare:
+            apiTokenSecretRef:
+              name: cert-manager-secret
+              key: API_TOKEN
         selector:
           dnsZones: ["${SECOND_DOMAIN}"]
