@@ -34,7 +34,7 @@ services:
       - "--web.listen-address=0.0.0.0:9100"
       - >-
         --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
-    image: prom/node-exporter:v1.11.0
+    image: prom/node-exporter:v1.11.1
     labels:
       - homepage.group=VPS
       - homepage.name=node-exporter
