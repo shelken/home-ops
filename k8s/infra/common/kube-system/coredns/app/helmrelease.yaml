@@ -34,5 +34,5 @@ spec:
   valuesFrom:
     - kind: ConfigMap
       name: coredns-values
-  values: 
+  values:
     replicaCount: 2

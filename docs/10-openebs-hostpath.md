@@ -2,7 +2,7 @@
 ## 挂载到特定机器
 
 ```yaml
-spec:  
+spec:
   values:
     localpv-provisioner:
       localpv:
@@ -14,7 +14,7 @@ spec:
         name: openebs-hostpath
         isDefaultClass: false
         basePath: *hostPath
-        nodeAffinityLabels: 
+        nodeAffinityLabels:
           - "openebs.io/node-sakamoto"
 ```
 

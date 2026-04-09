@@ -21,4 +21,3 @@ qm clone 1003 116 --name talos-2
 
 talosctl apply-config --insecure --nodes $WORKER_IP --file _out/worker.yaml
 ```
-

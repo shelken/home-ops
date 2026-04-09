@@ -99,7 +99,7 @@ graph TD
 - [k8s-gateway](https://github.com/k8s-gateway/k8s_gateway): https://github.com/k8s-gateway/k8s_gateway
 - [external-secrets](https://github.com/external-secrets/external-secrets): Managed Kubernetes secrets using Azure KeyVault
 - [sops](https://github.com/getsops/sops): Managed secrets for Kubernetes and Terraform which are commited to Git.
-- [volsync](https://github.com/backube/volsync): Backup and recovery of persistent volume claims. 
+- [volsync](https://github.com/backube/volsync): Backup and recovery of persistent volume claims.
 
 ## 初始化所需Secret
 

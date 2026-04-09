@@ -38,4 +38,3 @@ nmcli connection up "Armbian ethernet"
 #查看默认的ipv6,前缀为路由的 ula地址 ，后缀为 eui64
 ansible all -m setup -a 'filter=ansible_default_ipv6'
 ```
-

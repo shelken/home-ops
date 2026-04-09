@@ -73,12 +73,12 @@ machine:
     kubePrism:
       enabled: true
       port: 7445
-  
+
   kubelet:
     nodeIP:
       validSubnets:
         - 192.168.42.0/24
-  
+
   sysctls:
     fs.inotify.max_user_instances: "8192"
     fs.inotify.max_user_watches: "1048576"
@@ -289,13 +289,13 @@ Talos 和 k3s 不能混合在同一集群中，只能运行两个独立集群。
 
 1. **性能 vs 特性**: 是否愿意接受 10-15% 性能损失换取 Talos 的不可变/安全特性？
 
-2. **tvbox 的去留**: 
+2. **tvbox 的去留**:
    - 移除出集群？
    - 保留运行独立 k3s？
    - 迁移轻量工作负载到其他节点？
 
 3. **存储方案**:
-   
+
 回答：使用longhorn，Rook-Ceph需要资源更多
 
 4. **迁移范围**:

@@ -74,7 +74,7 @@ spec:
         useAllNodes: true
         useAllDevices: false
         deviceFilter: sda
-        nodes: 
+        nodes:
           - name: sakamoto-k8s
             devicePathFilter: ^/dev/disk/by-label/.*ceph
         config:

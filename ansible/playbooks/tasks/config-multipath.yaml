@@ -21,7 +21,7 @@
   ansible.builtin.service:
     name: "{{ item }}"
     state: restarted
-  loop: 
+  loop:
     - "multipathd"
   failed_when: false
   ignore_errors: true

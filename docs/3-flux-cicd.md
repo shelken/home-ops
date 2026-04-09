@@ -25,7 +25,7 @@ flux bootstrap github \
 --branch=main \
 --path=k8s/clusters/staging \
 --personal \
---token-auth \ 
+--token-auth \
 
 # 如果使用ssh，可以带上--private-key-file=~/.ssh/id_ed25519参数，去掉token-auth
 # --private 如果是私有仓库的话加上
@@ -47,4 +47,4 @@ task deploy-secret
 ### 为flux的控制器加上代理
 
 > 参考 [code](https://github.com/shelken/home-ops/commit/2af8e80051bf0ad8f265bc2667ea9ab8464cfa91)
-> 
+>

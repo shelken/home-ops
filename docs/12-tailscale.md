@@ -1,7 +1,7 @@
 ## 使用tailscale连接VPS和家庭网
 
 > 目前限制：目前集群单栈ipv4 无法direct（通过ipv6）
-> 
+>
 > 可尝试使用proxyclass来定义创建的资源，为class加上multus
 
 - [文档](https://github.com/tailscale/tailscale/tree/main/docs/k8s)

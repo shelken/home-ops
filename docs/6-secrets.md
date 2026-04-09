@@ -71,7 +71,7 @@ az role assignment create --role "Key Vault Secrets Officer" --assignee-object-i
 # 查询sp的clientid（即appid）
 # az ad sp show --id $appid --query appId -o tsv
 
-# 生成一个client secret 
+# 生成一个client secret
 # NOTE: 如果使用create-for-rbac，那不需要重新生成。
 # 无论是sp还是app生成的client secret，都可以使用。建议直接用app命令
 az ad app credential reset \
@@ -100,7 +100,7 @@ az ad app delete --id [appid]
 
 ```shell
 # k8s 创建一个secret name=[azure-creds]
-kubectl create secret -n external-secrets generic azure-creds \                                        
+kubectl create secret -n external-secrets generic azure-creds \
 --from-literal=ClientID=XXXXX \
 --from-literal=ClientSecret=XXXXX --dry-run=client -o yaml \
 | kubectl apply -f -

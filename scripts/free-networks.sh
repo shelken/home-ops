@@ -42,7 +42,7 @@ CMD="set -e
 for FILE in /etc/systemd/system/k3s-agent.service.env /etc/systemd/system/k3s.service.env; do
   if [ -f \"\$FILE\" ]; then
     echo \"[\$FILE] 存在，正在处理配置...\"
-    
+
     # 删除现有的代理配置（使用单行sed命令）
     sudo sed -i -e '/^CONTAINERD_HTTP_PROXY=/d' -e '/^CONTAINERD_HTTPS_PROXY=/d' -e '/^CONTAINERD_NO_PROXY=/d' -e '/^HTTP_PROXY=/d' -e '/^HTTPS_PROXY=/d' -e '/^NO_PROXY=/d' \"\$FILE\""
 

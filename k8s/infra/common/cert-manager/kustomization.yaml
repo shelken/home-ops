@@ -3,5 +3,5 @@ kind: Kustomization
 namespace: cert-manager
 components:
   - ../../../components/common
-resources: 
+resources:
   - cert-manager/ks.yaml

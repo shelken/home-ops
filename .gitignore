@@ -53,3 +53,5 @@ compose/**/config.yaml
 # Auto Claude data directory
 .auto-claude/
 .alma-snapshots
+
+.pre-commit-config.yaml
