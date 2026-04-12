@@ -1,12 +1,14 @@
 ## 最高原则
 
 - 如无必要，勿增实体，使用中文对话
-- `direnv exec .` 仅在 无法连接集群和找不到命令时需要用一次，不要每条命令都使用
+- `direnv exec . xxx` 仅在 **无法连接集群和找不到命令时** 需要用一次，不要每条命令都使用
 - 使用最少权限原则来写任何配置，任何提高权限的配置/任何组件的新的配置的变更 必须给出十足的理由，理由必须来自官方 配置/文档/发布日志 里的说明，附上链接
-- GitOps原则，Flux管理，只有调试时才可以使用`kubectl apply`，调试完成后恢复原来的，然后提交git，并使用`flux reconcile`
+- GitOps原则，Flux管理，不准执行`kubectl apply`，不准直接对集群进行操作
 - 任何资源的删除操作必须询问确认之后才可以执行
 - 执行kubectl前确保使用direnv里面自带的环境变量（引用当前目录下的kubeconfig）
-- 优先使用`Conventional Commits`格式提交git commit，title**y英文**，body**中文**，如果有`git-commit`，读取`git-commit`作为补充
+- 提交格式 读取`git-commit`skill
+- 仓库不使用jj
+- 新的skill必须描述全部中文描述
 
 ## 项目概述
 
