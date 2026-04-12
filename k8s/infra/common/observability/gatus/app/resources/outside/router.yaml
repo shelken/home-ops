@@ -27,3 +27,21 @@ endpoints:
       - "[DNS_RCODE] == NOERROR"
     alerts:
       - type: custom
+  - name: router-dns-proxy
+    group: router
+    # 这里专门监控代理 DNS 链路，15353 掉线时会先表现为解析超时
+    url: ${ROUTER_IP}
+    dns:
+      query-name: openai.com
+      query-type: A
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+      hide-conditions: true
+    conditions:
+      - "[CONNECTED] == true"
+      - "[DNS_RCODE] == NOERROR"
+      - "[RESPONSE_TIME] < 1000"
+    alerts:
+      - type: custom
