@@ -25,6 +25,22 @@ spec:
           - name: alertname
             value: Watchdog
             matchType: =
+      - receiver: passwall-recover
+        groupInterval: 30m
+        groupWait: 30s
+        repeatInterval: 30m
+        matchers:
+          - name: autoheal
+            value: passwall-restart
+            matchType: =
+      - receiver: f50-network-recover
+        groupInterval: 30m
+        groupWait: 30s
+        repeatInterval: 30m
+        matchers:
+          - name: autoheal
+            value: f50-network
+            matchType: =
       - receiver: alert
         matchers:
           - name: severity
@@ -48,6 +64,18 @@ spec:
           urlSecret:
             key: HEALTHCHECKS_PING_URL
             name: alertmanager-secret
+    - name: passwall-recover
+      webhookConfigs:
+        - url: "http://passwall-healer.network.svc.cluster.local:9588/cgi-bin/restart-passwall"
+          sendResolved: false
+        - url: "http://localhost:8060/webhook"
+          sendResolved: false
+    - name: f50-network-recover
+      webhookConfigs:
+        - url: "http://zte-mifi-healer.network.svc.cluster.local:9587/cgi-bin/reconnect"
+          sendResolved: false
+        - url: "http://localhost:8060/webhook"
+          sendResolved: false
     - name: &name alert
       webhookConfigs:
         - url: "http://localhost:8060/webhook"

@@ -45,3 +45,19 @@ endpoints:
       - "[RESPONSE_TIME] < 1000"
     alerts:
       - type: custom
+  - name: router-generate-204
+    group: router
+    # 这里专门监控外网连通性，请求超时时用于触发 F50 重连
+    url: https://www.gstatic.com/generate_204
+    method: GET
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+      hide-conditions: true
+    conditions:
+      - "[CONNECTED] == true"
+      - "[STATUS] == 204"
+      - "[RESPONSE_TIME] < 3000"
+    alerts:
+      - type: custom
