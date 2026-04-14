@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+vars:
+  VAULT_NAME: shelken-homelab
+  ZTE_SECRET_KEY: zte-mifi-exporter
+  ZTE_CLI: k8s/infra/common/network/internal/zte-mifi-healer/app/resources/f50-cli.sh
+
+tasks:
+  run:
+    internal: true
+    silent: true
+    requires:
+      vars: ["zte_cmd"]
+    cmd: |
+      raw=$(az keyvault secret show --vault-name {{ .VAULT_NAME }} --name {{ .ZTE_SECRET_KEY }} --query value -otsv)
+      export ZTE_HOST=$(printf '%s' "$raw" | jq -r '.ZTE_HOST')
+      export ZTE_PASSWORD=$(printf '%s' "$raw" | jq -r '.ZTE_PASSWORD')
+      sh {{ .ZTE_CLI }} {{ .zte_cmd }}
+
+  reconnect:
+    desc: 触发 ZTE MiFi 断线重连（从 KeyVault 取凭据）
+    cmds:
+      - task: run
+        vars:
+          zte_cmd: reconnect
+
+  status:
+    desc: 查看 ZTE MiFi 当前状态（从 KeyVault 取凭据）
+    cmds:
+      - task: run
+        vars:
+          zte_cmd: status

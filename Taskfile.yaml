@@ -17,6 +17,7 @@ includes:
   lms: .taskfile/lms.yaml
   lima: .taskfile/lima.yaml
   k8s: .taskfile/k8s.yaml
+  zte: .taskfile/zte.yaml
 
 tasks:
   default: task --list

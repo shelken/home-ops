@@ -1,0 +1,19 @@
+#!/bin/sh
+set -eu
+
+# 兼容 Alertmanager 压缩和格式化两种 JSON，入口只负责路由与过滤。
+printf 'Status: 200 OK\r\n'
+printf 'Content-Type: text/plain; charset=utf-8\r\n\r\n'
+
+[ "${REQUEST_METHOD:-}" = "POST" ] || {
+	printf 'method not allowed\n'
+	exit 0
+}
+
+payload="$(cat)"
+printf '%s' "$payload" | grep -Eq '"autoheal"[[:space:]]*:[[:space:]]*"f50-network"' || {
+	printf 'ignored\n'
+	exit 0
+}
+
+exec /opt/zte-mifi-healer/f50-cli.sh reconnect

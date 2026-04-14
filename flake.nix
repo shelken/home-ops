@@ -81,6 +81,7 @@
 
             sops
             go-task
+            gum
 
             helmfile
             # talosctl

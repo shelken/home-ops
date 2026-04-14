@@ -1,0 +1,21 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: zte-mifi-healer-rules
+spec:
+  groups:
+    - name: zte-mifi-healer.rules
+      rules:
+        - alert: Gatus|路由器代理连接超时
+          expr: |
+            gatus_results_endpoint_success{group="router",name="router-generate-204"} == 0
+          for: 2m
+          annotations:
+            summary: 路由器代理连接超时，F50 网络重连
+            description: >-
+              router-generate-204 连续 2 分钟探测失败，执行一次 F50 断网重连。
+          labels:
+            severity: critical
+            autoheal: f50-network

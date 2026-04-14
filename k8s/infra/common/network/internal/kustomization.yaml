@@ -5,3 +5,4 @@ kind: Kustomization
 resources:
   - k8s-gateway/ks.yaml
   - openwrt-dns/ks.yaml
+  - zte-mifi-healer/ks.yaml
