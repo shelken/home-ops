@@ -163,25 +163,49 @@ while [ $# -gt 0 ]; do case "$1" in
     esac done
 [ -n "$ZTE_HOST" ] && [ -n "$ZTE_PASSWORD" ] || die "missing ZTE_HOST or ZTE_PASSWORD"
 
-cookie_file="$(mktemp /tmp/zte-cookies.XXXXXX)"
+header_file="$(mktemp /tmp/zte-headers.XXXXXX)"
 resp_file="/tmp/zte-resp.$$"
+cookie_header=""
 lock_held=0
 if [ "$CMD" != "status" ]; then
     mkdir "$LOCK_DIR" 2>/dev/null || {
         log "ignored: reconnect already running"
-        rm -f "$cookie_file"
+        rm -f "$header_file"
         exit 0
     }
     lock_held=1
 fi
-trap '[ "$lock_held" = "1" ] && rmdir "$LOCK_DIR"; rm -f "$cookie_file" "$resp_file"' EXIT INT TERM
+trap '[ "$lock_held" = "1" ] && rmdir "$LOCK_DIR"; rm -f "$header_file" "$resp_file"' EXIT INT TERM
 base="http://${ZTE_HOST}"
 get_api="${base}/goform/goform_get_cmd_process"
 set_api="${base}/goform/goform_set_cmd_process"
-hget() { curl -fsS --connect-timeout "$HTTP_TIMEOUT" "$1" -H "Referer: ${base}/index.html" -H 'X-Requested-With: XMLHttpRequest' -H 'User-Agent: Mozilla/5.0' | tr -d '\n'; }
+wget_json() {
+    wget -q -S -T "$HTTP_TIMEOUT" -O "$resp_file" \
+        -U 'Mozilla/5.0' \
+        --header "Referer: ${base}/index.html" \
+        --header 'X-Requested-With: XMLHttpRequest' \
+        "$@" 2>"$header_file" || return 1
+    tr -d '\n' <"$resp_file"
+}
+hget() { wget_json "$1"; }
 get_json() { hget "${get_api}?isTest=false&cmd=$1&multi_data=1&_=$(($(date +%s) * 1000))"; }
 post_json() {
-    code="$(curl -sS --connect-timeout "$HTTP_TIMEOUT" -o "$resp_file" -w '%{http_code}' -c "$cookie_file" -b "$cookie_file" "$set_api" -H 'Accept: application/json, text/javascript, */*; q=0.01' -H 'Accept-Language: zh' -H 'Cache-Control: no-cache' -H 'Connection: keep-alive' -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' -H "Origin: ${base}" -H 'Pragma: no-cache' -H "Referer: ${base}/index.html" -H 'User-Agent: Mozilla/5.0' -H 'X-Requested-With: XMLHttpRequest' -H 'dnt: 1' -H 'sec-gpc: 1' --data-raw "$1")" || return 1
+    set -- \
+        --post-data "$1" \
+        --header 'Accept: application/json, text/javascript, */*; q=0.01' \
+        --header 'Accept-Language: zh' \
+        --header 'Cache-Control: no-cache' \
+        --header 'Connection: keep-alive' \
+        --header 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
+        --header "Origin: ${base}" \
+        --header 'Pragma: no-cache' \
+        --header 'dnt: 1' \
+        --header 'sec-gpc: 1'
+    [ -n "$cookie_header" ] && set -- "$@" --header "Cookie: ${cookie_header}"
+    wget_json "$@" "$set_api" || return 1
+    code="$(sed -n 's/^  HTTP\/[0-9.]* \([0-9][0-9][0-9]\).*/\1/p' "$header_file" | tail -n 1)"
+    new_cookie="$(sed -n 's/^  Set-Cookie: \([^;]*\).*/\1/p' "$header_file" | paste -sd ';' -)"
+    [ -n "$new_cookie" ] && cookie_header="$new_cookie"
     resp="$(cat "$resp_file")"
     [ "$code" = "200" ] || {
         log "http=${code} body=${resp:-empty}"
