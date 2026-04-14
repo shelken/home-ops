@@ -1,20 +1,22 @@
 ## 最高原则
 
-- 如无必要，勿增实体，使用中文对话
-- `direnv exec . xxx` 仅在 **无法连接集群和找不到命令时** 需要用一次，不要每条命令都使用
-- 使用最少权限原则来写任何配置，任何提高权限的配置/任何组件的新的配置的变更 必须给出十足的理由，理由必须来自官方 配置/文档/发布日志 里的说明，附上链接
+- 所有配置默认遵循最小权限原则;任何权限提升或新增的安全敏感配置变更，必须引用官方文档、配置参考或发布日志作为依据，并附上来源链接
 - GitOps原则，Flux管理，不准执行`kubectl apply`，不准直接对集群进行操作
-- 任何资源的删除操作必须询问确认之后才可以执行
-- 执行kubectl前确保使用direnv里面自带的环境变量（引用当前目录下的kubeconfig）
-- 提交格式 读取`git-commit`skill
-- 仓库不使用jj
-- 新的skill必须描述全部中文描述
+- 任何资源的删除操作必须确认之后才可以执行
+- 区分哪些文件是集群的状态，哪些是当前的工作区状态要区分，不要认为本地未提交或未推送的代码就等于集群
 
-## 项目概述
+## 开发/重构/优化 Workflow 规范
 
-此仓库 `home-ops` 用于管理个人 homelab Kubernetes 集群
+- 功能开发、重构、性能优化统一遵循本节
+- 读相关代码、注释、计划文档，同步记录不明确项，读完后一次性确认，确认完毕再继续
+- 写 interface/type 定义，不写实现
+- 列出实现步骤 + 所有检查点，写入 PLAN.md（清空旧内容）；检查点必须为单独一节，放在文件最开头，只能按顺序往下增加
+- 按步骤逐一实现，每步完成后：在 PLAN.md 检查点节标记进度并记录结论/偏差，执行 `pre-commit run`，通过后提交
+- 主代理使用子代理做完整审阅；审查代码必须用独立子代理；给足目标、变更范围、风险点、已踩坑、审查焦点
+- 子代理报问题后先复核再修；修完后由**同一个**子代理复审；若发现设计级问题，回到步骤列表重新规划
+- 确认 PLAN.md 所有项已完成且无遗留，执行最终 `pre-commit run` 兜底，确认无误
 
-### 架构
+## 架构
 
 - **容器编排**: Kubernetes (k3s)
 - **GitOps**: Flux CD v2
@@ -23,7 +25,7 @@
 - **存储**: Longhorn, CloudNative-PG, SMB
 - **备份**: Volsync, Minio
 
-### 关键目录
+## 关键目录
 
 - `k8s/apps/common/` - 应用部署
 - `k8s/infra/common/` - 基础设施
@@ -48,17 +50,18 @@
 
 ## 重要笔记
 
-- 目前使用 Nix Flake + direnv 管理。找不到命令时尝试使用 `direnv exec . <command>` 包装以加载正确的环境。
-- 在 `k8s/apps/common/` 中关闭某个应用时，需要同步检查 `.renovate/packageRules.json5` 的 `Disabled Packages`，把该应用相关的镜像/包一并加入，避免继续产生 Renovate PR；重新开启该应用时，也要同步从 `Disabled Packages` 中移除对应项
-- 需要容器镜像时，寻找最新镜像固定化镜像版本，配合renovate的更新
-- 遇到失败的helmrelease，不要reconcile，直接删除，然后reconcile ks
+- repo 目录下的命令默认继承 direnv 环境（含 kubeconfig 等环境变量）。仅在命令找不到或无法连接集群时，用 `direnv exec . <cmd>` 包装一次。不要对每条命令都使用
+- 提交格式 使用`git-commit`skill；仓库不使用jj
+- 新的skill描述全部中文描述
+- 在 `k8s/apps/common/` 启用/禁用某个应用时，同步更新 `.renovate/packageRules.json5` 的 `Disabled Packages`：禁用时添加该应用相关的镜像/包；启用时移除。
+- 需要容器镜像时，寻找最新镜像固定化镜像版本（semver@digest），配合renovate的更新
+- 遇到失败的helmrelease，不要reconcile，直接删除hr，然后`flux reconcile ks`
 - SSH执行命令时优先使用IP地址而非主机名（参考[ansible节点信息](ansible/inventory/hosts.ini)）
-- 执行测试`kubectl apply`前需要考虑namepsace（因为资源的namespace一般不写，由flux管理）
 
 ## 常用命令/脚本
 
 参考 `Taskfile.yaml` 和 `.taskfile/` 目录。
 
 ```bash
-task --list              # 查看所有任务
+task --list # 查看命令
 ```
