@@ -18,7 +18,11 @@ json_escape() {
 }
 
 is_luci_exec_success() {
-	printf '%s' "$1" | grep -Eq '"result"[[:space:]]*:[[:space:]]*(\[[[:space:]]*0[[:space:]]*\]|"0"|0)'
+	printf '%s' "$1" | grep -Eq '"result"[[:space:]]*:[[:space:]]*(\[[[:space:]]*0[[:space:]]*\]|"0"|0|"")'
+}
+
+is_luci_error_null() {
+	printf '%s' "$1" | grep -Eq '"error"[[:space:]]*:[[:space:]]*null'
 }
 
 if [ "${REQUEST_METHOD:-}" != "POST" ]; then
@@ -95,7 +99,7 @@ if ! exec_resp="$(
 	exit 1
 fi
 
-if echo "$exec_resp" | grep -q '"error"'; then
+if ! is_luci_error_null "$exec_resp"; then
 	respond_err "failed: luci exec error ${exec_resp}"
 	exit 1
 fi

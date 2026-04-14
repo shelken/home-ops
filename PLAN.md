@@ -12,6 +12,10 @@
 - 状态: 已完成
 - 结论: 已通过 `sh -n k8s/infra/common/network/internal/passwall-healer/app/resources/restart-passwall.sh` 和 `pre-commit run --files k8s/infra/common/network/internal/passwall-healer/app/resources/restart-passwall.sh PLAN.md`。
 
+## 4. 联调修正
+- 状态: 进行中
+- 结论: 真实 CGI 联调发现 LuCI 成功返回为 `{"id":1,"result":"","error":null}`；脚本已改为仅在 `error != null` 时判错，并接受空字符串结果。
+
 # 实现步骤
 
 1. 检查现有脚本、告警触发配置、既往尸检，确认冷却约束落点。
