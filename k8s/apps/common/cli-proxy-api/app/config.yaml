@@ -251,7 +251,7 @@ oauth-model-alias:
 
 # Optional payload configuration
 payload:
-  default:
+  override:
     - models:
         - name: gpt-*
       params:
