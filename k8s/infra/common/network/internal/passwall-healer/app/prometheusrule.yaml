@@ -1,0 +1,21 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: passwall-healer-rules
+spec:
+  groups:
+    - name: passwall-healer.rules
+      rules:
+        - alert: Gatus|路由DNS代理异常
+          expr: |
+            gatus_results_endpoint_success{group="router",name="router-dns-proxy"} == 0
+          for: 2m
+          annotations:
+            summary: 路由 DNS 代理异常，触发 passwall 重启
+            description: >-
+              router-dns-proxy 连续 2 分钟探测失败，执行一次 passwall 重启。
+          labels:
+            severity: critical
+            autoheal: passwall-restart
