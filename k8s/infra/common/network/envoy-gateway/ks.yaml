@@ -22,6 +22,28 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
+  name: &policy gateway-policy
+  namespace: &namespace network
+spec:
+  targetNamespace: *namespace
+  dependsOn:
+    - name: envoy-gateway
+  interval: 1h
+  path: ./k8s/infra/common/network/envoy-gateway/policy
+  prune: true
+  retryInterval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  timeout: 1m
+  wait: false
+
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
   name: &app gateway-filter
   namespace: &namespace network
 spec:

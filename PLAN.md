@@ -1,23 +1,22 @@
 # 检查点
 
-## 1. 已完成上下文检查
-- 状态: 已完成
-- 结论: 已确认告警通过 Alertmanager webhook 触发 `restart-passwall.sh`，现有 `groupWait` 为 30s，脚本内需要自行兜底 90s 冷却；相关尸检强调重启前必须清理 `/tmp/lock/passwall_monitor.lock`。
+## 1. 策略迁移到 envoy-gateway/policy
 
-## 2. 调整 passwall 重启触发脚本
-- 状态: 已完成
-- 结论: LuCI 执行改为后台触发 `passwall restart` 并写日志到 `/tmp/passwall-healer-restart.log`，HTTP 请求超时降为 15s；新增 `/tmp/passwall-restart.last` 冷却文件，重触发间隔要求大于 90s。
+- 状态：已完成
+- 验证：`ClientTrafficPolicy` 已迁移到 `k8s/infra/common/network/envoy-gateway/policy/`，并在 `k8s/infra/common/network/envoy-gateway/ks.yaml` 新增独立 Flux `Kustomization` 以 `network` 命名空间下发。
 
-## 3. 执行验证
-- 状态: 已完成
-- 结论: 已通过 `sh -n k8s/infra/common/network/internal/passwall-healer/app/resources/restart-passwall.sh` 和 `pre-commit run --files k8s/infra/common/network/internal/passwall-healer/app/resources/restart-passwall.sh PLAN.md`。
+## 2. 删除应用侧错误归属
 
-## 4. 联调修正
-- 状态: 进行中
-- 结论: 真实 CGI 联调发现 LuCI 成功返回为 `{"id":1,"result":"","error":null}`；脚本已改为仅在 `error != null` 时判错，并接受空字符串结果。
+- 状态：已完成
+- 验证：`k8s/apps/common/cli-proxy-api/app/clienttrafficpolicy.yaml` 已删除，`k8s/apps/common/cli-proxy-api/app/kustomization.yaml` 不再引用该策略。
+
+## 3. 校验
+
+- 状态：已完成
+- 验证：`kustomize build k8s/apps/common/cli-proxy-api/app`、`kustomize build k8s/infra/common/network/envoy-gateway/policy` 成功；`ruby` 解析 `k8s/infra/common/network/envoy-gateway/ks.yaml` 成功；`pre-commit run --files ...` 全通过。
 
 # 实现步骤
 
-1. 检查现有脚本、告警触发配置、既往尸检，确认冷却约束落点。
-2. 修改 `restart-passwall.sh`，让重启请求快速返回，并在脚本内强制 90s 以上冷却。
-3. 运行针对性验证，确认脚本语法和配置一致性。
+1. 新建 `k8s/infra/common/network/envoy-gateway/policy/`，放置 `ClientTrafficPolicy` 与 `kustomization.yaml`，并在 `ks.yaml` 接入
+2. 删除 `k8s/apps/common/cli-proxy-api/app/` 下的策略文件与引用
+3. 执行构建校验并回写检查点结果
