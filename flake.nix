@@ -51,9 +51,8 @@
             gitleaks = {
               enable = true;
               name = "gitleaks";
-              entry = "gitleaks protect --staged --config gitleaks.toml --redact -v";
+              entry = "${pkgs.lib.getExe pkgs.gitleaks} protect --staged --config gitleaks.toml --redact -v";
               pass_filenames = false;
-              language = "system";
             };
           };
         };
@@ -93,6 +92,7 @@
 
             # Home Assistant CLI
             home-assistant-cli
+            gitleaks
           ];
 
           shellHook = ''

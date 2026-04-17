@@ -155,7 +155,8 @@ spec:
     #   allowedRoutes:
     #     namespaces:
     #       from: All
-    - name: https
+    - &https
+      name: https
       protocol: HTTPS
       port: 443
       allowedRoutes:
@@ -167,6 +168,9 @@ spec:
             name: ooooo-space-tls
           - kind: Secret
             name: second-domain-tls
+    - <<: *https
+      name: https-cpa
+      hostname: "cpa.${MAIN_DOMAIN}"
 
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/gateway.networking.k8s.io/gateway_v1.json
