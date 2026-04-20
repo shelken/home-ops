@@ -18,8 +18,8 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/shelken/cli-proxy-api
-              tag: 6.9.28-fillfirst.1@sha256:532f0dd48a3e1b10e68f04b52f3c1a9a417632b471870b65bd4b72f2d44ead31
+              repository: eceasy/cli-proxy-api
+              tag: v6.9.29@sha256:3e667f6be9c32733604f563d7c4672d4f51d6570dfdb6524c01573e2a8c47f4a
             env:
               TZ: ${TIMEZONE}
               MANAGEMENT_STATIC_PATH: &management /CLIProxyAPI/management
