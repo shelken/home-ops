@@ -151,15 +151,15 @@ openai-compatibility:
       - api-key: {{ .OPENROUTER_API_KEY_5 }}
     models:
       - name: "google/gemma-4-26b-a4b-it:free"
-        alias: "google/gemma-4-26b-a4b-it"
+        alias: "google/gemma-4-26b-a4b-it:free"
       - name: "google/gemma-4-31b-it:free"
-        alias: "google/gemma-4-31b-it"
+        alias: "google/gemma-4-31b-it:free"
       - name: "openai/gpt-oss-120b:free"
-        alias: "openai/gpt-oss-120b"
+        alias: "openai/gpt-oss-120b:free"
       - name: "openai/gpt-oss-20b:free"
-        alias: "openai/gpt-oss-20b"
+        alias: "openai/gpt-oss-20b:free"
       - name: "minimax/minimax-m2.5:free"
-        alias: "minimax/minimax-m2.5"
+        alias: "minimax/minimax-m2.5:free"
   # - name: "lm-studio"
   #   base-url: "http://sakamoto.lan:1234/v1"
   #   models:
