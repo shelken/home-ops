@@ -149,6 +149,9 @@ openai-compatibility:
       - api-key: {{ .OPENROUTER_API_KEY_3 }}
       - api-key: {{ .OPENROUTER_API_KEY_4 }}
       - api-key: {{ .OPENROUTER_API_KEY_5 }}
+      - api-key: {{ .OPENROUTER_API_KEY_6 }}
+      - api-key: {{ .OPENROUTER_API_KEY_7 }}
+      - api-key: {{ .OPENROUTER_API_KEY_8 }}
     models:
       - name: "google/gemma-4-26b-a4b-it:free"
         alias: "google/gemma-4-26b-a4b-it:free"
