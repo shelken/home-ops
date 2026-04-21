@@ -141,6 +141,25 @@ openai-compatibility:
         alias: "deepseek-chat" # The alias used in the API.
       - name: "deepseek-reasoner" # The actual model name.
         alias: "deepseek-reasoner" # The alias used in the API.
+  - name: "openrouter"
+    base-url: "https://openrouter.ai/api/v1"
+    api-key-entries:
+      - api-key: {{ .OPENROUTER_API_KEY_1 }}
+      - api-key: {{ .OPENROUTER_API_KEY_2 }}
+      - api-key: {{ .OPENROUTER_API_KEY_3 }}
+      - api-key: {{ .OPENROUTER_API_KEY_4 }}
+      - api-key: {{ .OPENROUTER_API_KEY_5 }}
+    models:
+      - name: "google/gemma-4-26b-a4b-it:free"
+        alias: "google/gemma-4-26b-a4b-it"
+      - name: "google/gemma-4-31b-it:free"
+        alias: "google/gemma-4-31b-it"
+      - name: "openai/gpt-oss-120b:free"
+        alias: "openai/gpt-oss-120b"
+      - name: "openai/gpt-oss-20b:free"
+        alias: "openai/gpt-oss-20b"
+      - name: "minimax/minimax-m2.5:free"
+        alias: "minimax/minimax-m2.5"
   # - name: "lm-studio"
   #   base-url: "http://sakamoto.lan:1234/v1"
   #   models:
