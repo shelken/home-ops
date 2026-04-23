@@ -43,6 +43,34 @@ spec:
             (with-tls) {
               tls /etc/caddy/tls/tls.crt /etc/caddy/tls/tls.key
             }
+            (to_external_default) {
+              reverse_proxy {
+                to https://envoy-external.network.svc.cluster.local:443
+                header_up Host {http.request.host}
+                transport http {
+                  tls
+                  # 固定默认SNI，避免连接复用把请求误送到 cpa 专用 listener
+                  tls_server_name homelab-external.{$MAIN_DOMAIN}
+                }
+              }
+            }
+            (to_external_cpa) {
+              reverse_proxy {
+                to https://envoy-external.network.svc.cluster.local:443
+                header_up Host {http.request.host}
+                transport http {
+                  tls
+                  tls_server_name cpa.{$MAIN_DOMAIN}
+                }
+              }
+            }
+            (common_header) {
+              header {
+                +My-Server "caddy-external"
+                -Server
+                -via
+              }
+            }
             *.{$MAIN_DOMAIN} {
               import with-tls
 
@@ -50,21 +78,16 @@ spec:
 
                 crowdsec
 
-                # 转发所有流量到 external gateway
+                @cpa host cpa.{$MAIN_DOMAIN}
+                handle @cpa {
+                  import to_external_cpa
+                  import common_header
+                }
+
+                # 默认流量固定走默认 https listener
                 handle {
-                  reverse_proxy {
-                    to https://envoy-external.network.svc.cluster.local:443
-                    header_up Host {http.request.host}
-                    transport http {
-                      tls
-                      tls_server_name {http.request.host}
-                    }
-                  }
-                  header {
-                    +My-Server "caddy-external"
-                    -Server
-                    -via
-                  }
+                  import to_external_default
+                  import common_header
                 }
               }
             }

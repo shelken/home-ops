@@ -61,13 +61,23 @@
   }
 }
 
-(tls_common) {
+(tls_default_external) {
   tls
-  tls_server_name {http.request.host}
+  # 固定默认SNI，避免连接复用把请求误送到 cpa 专用 listener
+  tls_server_name homelab-external.{$MAIN_DOMAIN}
 }
 
-(to_external) {
-  import reverse_template https://{$ENVOY_EXTERNAL_IP}:443 empty tls_common
+(tls_cpa_external) {
+  tls
+  tls_server_name cpa.{$MAIN_DOMAIN}
+}
+
+(to_external_default) {
+  import reverse_template https://{$ENVOY_EXTERNAL_IP}:443 empty tls_default_external
+}
+
+(to_external_cpa) {
+  import reverse_template https://{$ENVOY_EXTERNAL_IP}:443 empty tls_cpa_external
 }
 
 (to_host) {
@@ -127,8 +137,14 @@
     import service_docker dhp       dhp           5000 robots_ban
     import service_docker vdns      mosdns        9053 robots_ban
 
+    @cpa host cpa.{$MAIN_DOMAIN}
+    handle @cpa {
+      import to_external_cpa
+      import common_header
+    }
+
     handle {
-      import to_external
+      import to_external_default
       import common_header
     }
   }
