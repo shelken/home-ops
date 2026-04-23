@@ -7,8 +7,9 @@ update_ip() {
   detected_ip="$(wget -qO- https://6.ipw.cn 2>/dev/null || true)"
 
   if [ -z "$detected_ip" ]; then
-    echo "[ip-selector] Failed to detect IP, keeping previous"
-    return 1
+    echo "$MAIN_VPS_IP_V6" >/tmp/current-ip
+    echo "[ip-selector] Using VPS IP (detection failed)"
+    return 0
   fi
 
   case "$detected_ip" in

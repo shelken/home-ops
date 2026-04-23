@@ -9,7 +9,7 @@
 
 ## 2. HelmRelease 恢复原有双容器结构
 - [x] 恢复 `ip-selector` + `ddns`
-- [x] 保持逻辑为：只要不是 `2408:` 就写入 VPS IPv6
+- [x] 保持逻辑为：只要不是 `2408:` 就写入 VPS IPv6，探测失败也写入 VPS IPv6
 - [x] 不再做 AAAA 清理逻辑
 
 ## 3. 验证
@@ -20,7 +20,7 @@
 
 # Plan
 
-1. 新建 `ip-selector.sh`，仅保留原来的地址选择逻辑：探测失败时保持旧值，`2408:` 用家宽 IPv6，其余情况统一写入 `${MAIN_VPS_IP_V6}`。
+1. 新建 `ip-selector.sh`，仅保留地址选择逻辑：`2408:` 用家宽 IPv6，其余情况统一写入 `${MAIN_VPS_IP_V6}`，探测失败也写入 `${MAIN_VPS_IP_V6}`。
 2. 在 `app/kustomization.yaml` 里改为生成 `ip-selector.sh` 的 ConfigMap。
 3. 在 `app/helmrelease.yaml` 里恢复 `ip-selector` 与 `ddns` 两个容器，并让 `ip-selector` 通过挂载脚本启动。
 4. 保留 `/tmp` emptyDir 与本地 8888 HTTP 提供给 `ddns` 读取，不做清理逻辑。
