@@ -22,7 +22,7 @@ spec:
         containers:
           app:
             image:
-              repository: mirror.gcr.io/netbirdio/netbird
+              repository: docker.io/netbirdio/netbird
               tag: 0.60.0
             env:
               # NB_ENABLE_ROSENPASS: true

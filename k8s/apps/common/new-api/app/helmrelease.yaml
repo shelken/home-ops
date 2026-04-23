@@ -25,7 +25,7 @@ spec:
         containers:
           app:
             image:
-              repository: mirror.gcr.io/calciumion/new-api
+              repository: docker.io/calciumion/new-api
               tag: v0.11.6@sha256:357bf070f321d1940f4a0962f6a2f7056937e022133f58985cb43744fc4b66dd
             args:
               - --log-dir

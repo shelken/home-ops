@@ -25,7 +25,7 @@ spec:
         containers:
           app:
             image:
-              repository: mirror.gcr.io/icloudpd/icloudpd
+              repository: docker.io/icloudpd/icloudpd
               tag: 1.31.0
             env:
               TZ: ${TIMEZONE}

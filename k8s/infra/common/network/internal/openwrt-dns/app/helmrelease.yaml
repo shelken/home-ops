@@ -38,7 +38,7 @@ spec:
       name: webhook
       webhook:
         image:
-          repository: mirror.gcr.io/renanqts/external-dns-openwrt-webhook
+          repository: docker.io/renanqts/external-dns-openwrt-webhook
           tag: v0.1.0
         env:
           - name: ROUTER_PORT

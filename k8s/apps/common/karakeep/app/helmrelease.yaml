@@ -102,7 +102,7 @@ spec:
         containers:
           app:
             image:
-              repository: mirror.gcr.io/zenika/alpine-chrome
+              repository: docker.io/zenika/alpine-chrome
               tag: 124
             command:
               - chromium-browser
@@ -147,7 +147,7 @@ spec:
         containers:
           app:
             image:
-              repository: mirror.gcr.io/getmeili/meilisearch
+              repository: docker.io/getmeili/meilisearch
               tag: v1.36.0@sha256:203a0854738be101bfdada825ac3cbf95e5681bc849757b6bc199e4cfae98faa
             args:
               - /bin/meilisearch
