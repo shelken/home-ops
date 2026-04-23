@@ -9,7 +9,7 @@ volumes:
 services:
   # ==================== Caddy ====================
   caddy:
-    image: ghcr.io/shelken/caddy:2.11.1
+    image: ghcr.io/shelken/caddy:2.11.2
     container_name: caddy
     labels:
       - homepage.group=sakamoto
