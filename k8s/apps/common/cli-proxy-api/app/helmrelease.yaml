@@ -80,6 +80,7 @@ spec:
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: internal
           gethomepage.dev/name: *app
+          gethomepage.dev/app: *app
           gethomepage.dev/icon: kubernetes-dashboard.svg
         hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
         parentRefs:
@@ -95,6 +96,7 @@ spec:
           gethomepage.dev/group: external
           gethomepage.dev/name: *app
           gethomepage.dev/icon: kubernetes-dashboard.svg
+          gethomepage.dev/app: *app
           gatus.home-operations.com/endpoint: |-
             conditions:
               - "[STATUS] == 404"
