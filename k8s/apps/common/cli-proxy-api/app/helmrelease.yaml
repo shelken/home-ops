@@ -19,23 +19,23 @@ spec:
           app:
             image:
               repository: eceasy/cli-proxy-api
-              tag: v6.9.30@sha256:21a2bca674125c091662708378176c28beaa923b66891e29fa5ad9e9b07334e8
+              tag: v6.9.34@sha256:c56e76540037c7cd110df66cacc34f97c6606131a595599002879497694e8b0e
             env:
               TZ: ${TIMEZONE}
               MANAGEMENT_STATIC_PATH: &management /CLIProxyAPI/management
-            # probes:
-            #   liveness: &probes
-            #     enabled: true
-            #     custom: true
-            #     spec:
-            #       httpGet:
-            #         path: /health
-            #         port: &port 8317
-            #       initialDelaySeconds: 0
-            #       periodSeconds: 10
-            #       timeoutSeconds: 1
-            #       failureThreshold: 10
-            #   readiness: *probes
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: &port 8317
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 10
+              readiness: *probes
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false
@@ -61,7 +61,7 @@ spec:
         externalTrafficPolicy: Local
         ports:
           api:
-            port: &port 8317
+            port: *port
           gemini:
             port: 8085
           codex:
