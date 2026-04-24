@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+vars:
+  ROUTER_SSH: root@192.168.6.1
+
+tasks:
+  run:
+    internal: true
+    silent: true
+    requires:
+      vars: ["router_cmd"]
+    cmd: |
+      ssh -n \
+        -o BatchMode=yes \
+        -o ConnectTimeout=5 \
+        -o ServerAliveInterval=2 \
+        -o ServerAliveCountMax=3 \
+        {{ .ROUTER_SSH }} '{{ .router_cmd }}'
+
+  restart-passwall:
+    desc: 重启路由器 passwall（命令发出即返回）
+    cmds:
+      - task: run
+        vars:
+          router_cmd: >-
+            rm -f /tmp/lock/passwall_monitor.lock;
+            /etc/init.d/passwall restart >/tmp/passwall-restart.log 2>&1 </dev/null &
+
+  restart-firewall:
+    desc: 重启路由器 firewall（避免阻塞调用方）
+    cmds:
+      - task: run
+        vars:
+          router_cmd: >-
+            /etc/init.d/firewall restart >/tmp/firewall-restart.log 2>&1 </dev/null &
