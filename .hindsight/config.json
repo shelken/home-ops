@@ -3,5 +3,8 @@
     "pi": {
       "enabled": true
     }
-  }
+  },
+  "bankId": "project-home-ops",
+  "bank_id": "project-home-ops",
+  "bankStrategy": "manual"
 }
