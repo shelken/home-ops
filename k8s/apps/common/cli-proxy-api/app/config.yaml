@@ -114,17 +114,24 @@ claude-api-key:
   - api-key:  {{ .DEEPSEEK_API_KEY_1 }}
     base-url: "https://api.deepseek.com/anthropic"
     experimental-cch-signing: false
+    priority: 80
     models:
       - name: "deepseek-v4-flash"
         alias: "deepseek-v4-flash"
       - name: "deepseek-v4-pro"
         alias: "deepseek-v4-pro"
+      - name: "deepseek-v4-flash"
+        alias: "hindsight-retain"
+      - name: "deepseek-v4-flash"
+        alias: "hindsight-reflect"
+      - name: "deepseek-v4-flash"
+        alias: "hindsight-consolidation"
 
 # OpenAI compatibility providers
 # priority 越大越优先
 openai-compatibility:
   - name: "openrouter"
-    priority: 80
+    priority: 100
     base-url: "https://openrouter.ai/api/v1"
     api-key-entries:
       - api-key: {{ .OPENROUTER_API_KEY_1 }}
@@ -146,6 +153,12 @@ openai-compatibility:
         alias: "openai/gpt-oss-20b:free"
       - name: "minimax/minimax-m2.5:free"
         alias: "minimax/minimax-m2.5:free"
+      - name: "openai/gpt-oss-20b:free"
+        alias: "hindsight-retain"
+      - name: "openai/gpt-oss-120b:free"
+        alias: "hindsight-reflect"
+      - name: "openai/gpt-oss-20b:free"
+        alias: "hindsight-consolidation"
   # - name: "groq"
   #   priority: 100
   #   base-url: "https://api.groq.com/openai/v1"
