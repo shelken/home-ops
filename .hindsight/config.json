@@ -1,7 +1,9 @@
 {
   "host": {
     "pi": {
-      "enabled": true
+      "enabled": true,
+      "retainMode": "response",
+      "recallMode": "hybrid"
     }
   },
   "bankId": "project-home-ops",
