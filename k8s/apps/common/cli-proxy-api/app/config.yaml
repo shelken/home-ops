@@ -159,22 +159,22 @@ openai-compatibility:
         alias: "hindsight-reflect"
       - name: "openai/gpt-oss-20b:free"
         alias: "hindsight-consolidation"
-  # - name: "groq"
-  #   priority: 100
-  #   base-url: "https://api.groq.com/openai/v1"
-  #   api-key-entries:
-  #     - api-key: {{ .GROQ_API_KEY_1 }}
-  #     - api-key: {{ .GROQ_API_KEY_2 }}
-  #     - api-key: {{ .GROQ_API_KEY_3 }}
-  #     - api-key: {{ .GROQ_API_KEY_4 }}
-  #     - api-key: {{ .GROQ_API_KEY_5 }}
-  #     - api-key: {{ .GROQ_API_KEY_6 }}
-  #     - api-key: {{ .GROQ_API_KEY_7 }}
-  #   models:
-  #     - name: "openai/gpt-oss-120b"
-  #       alias: "openai/gpt-oss-120b:free"
-  #     - name: "openai/gpt-oss-20b"
-  #       alias: "openai/gpt-oss-20b:free"
+  - name: "groq"
+    priority: 100
+    base-url: "https://api.groq.com/openai/v1"
+    api-key-entries:
+      - api-key: {{ .GROQ_API_KEY_1 }}
+    models:
+      - name: "openai/gpt-oss-120b"
+        alias: "openai/gpt-oss-120b:free"
+      - name: "openai/gpt-oss-20b"
+        alias: "openai/gpt-oss-20b:free"
+      - name: "openai/gpt-oss-20b"
+        alias: "hindsight-retain"
+      - name: "openai/gpt-oss-120b"
+        alias: "hindsight-reflect"
+      - name: "openai/gpt-oss-20b"
+        alias: "hindsight-consolidation"
   # - name: "lm-studio"
   #   base-url: "http://sakamoto.lan:1234/v1"
   #   models:
