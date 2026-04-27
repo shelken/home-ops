@@ -1,27 +1,23 @@
 # Checkpoints
 
-# Checkpoints
+## 1. 定位 Renovate 自动合并规则
+- [x] 已确认 `cli-proxy-api` 自动合并来自 `.renovate/automerge.json5`
+- [x] 已确认当前目标是移除该服务的自动合并白名单
+- [x] 已确认现有开放 PR：`#1090`
 
-## 1. 抽离 ip-selector 脚本
-- [x] 新增 `k8s/infra/common/network/external/caddy-external/app/resources/ip-selector.sh`
-- [x] 更新 `k8s/infra/common/network/external/caddy-external/app/kustomization.yaml` 生成脚本 ConfigMap
-- [x] 确认脚本里的命令在 `busybox:stable` 中可用：`/bin/sh`、`wget`、`sleep`、`cat`、`nc`
+## 2. 调整配置
+- [x] 从 `.renovate/automerge.json5` 的 docker 自动合并规则里移除 `eceasy/cli-proxy-api`
+- [x] 保持其它镜像自动合并规则不变
 
-## 2. HelmRelease 恢复原有双容器结构
-- [x] 恢复 `ip-selector` + `ddns`
-- [x] 保持逻辑为：只要不是 `2408:` 就写入 VPS IPv6，探测失败也写入 VPS IPv6
-- [x] 不再做 AAAA 清理逻辑
-
-## 3. 验证
-- [x] 运行格式/校验：`sh -n`、`shellcheck`、`kustomize build` 已通过
-- [x] 运行 `pre-commit run --files` 覆盖本次变更文件
-- [x] 修正 `set -e` 下后台刷新循环在首次探测失败后提前退出的问题
-- [x] 审阅最终 diff 仅包含目标改动
+## 3. 验证与审阅
+- [x] 已用 `git diff --check -- .renovate/automerge.json5 PLAN.md` 确认无空白与格式问题
+- [x] 已用 Node 求值 `.renovate/automerge.json5`，确认 JSON5 语法有效，docker 自动合并规则现仅保留 `kube-prometheus-stack`、`api-gateway`、`grafana`
+- [x] 已完成独立审阅，确认本次 diff 只移除 `cli-proxy-api` 自动合并匹配项，未影响其它规则
+- [x] 提交并推送
 
 # Plan
 
-1. 新建 `ip-selector.sh`，仅保留地址选择逻辑：`2408:` 用家宽 IPv6，其余情况统一写入 `${MAIN_VPS_IP_V6}`，探测失败也写入 `${MAIN_VPS_IP_V6}`。
-2. 在 `app/kustomization.yaml` 里改为生成 `ip-selector.sh` 的 ConfigMap。
-3. 在 `app/helmrelease.yaml` 里恢复 `ip-selector` 与 `ddns` 两个容器，并让 `ip-selector` 通过挂载脚本启动。
-4. 保留 `/tmp` emptyDir 与本地 8888 HTTP 提供给 `ddns` 读取，不做清理逻辑。
-5. 运行 YAML/脚本相关校验与 `pre-commit`，检查 diff 范围。
+1. 仅修改 `.renovate/automerge.json5`，移除 `cli-proxy-api` 自动合并匹配项。
+2. 运行校验，确认 diff 只包含目标改动与本次 `PLAN.md`。
+3. 使用独立审阅代理检查规则影响范围。
+4. 提交并推送到 `main`。
