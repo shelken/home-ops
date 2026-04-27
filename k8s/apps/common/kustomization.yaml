@@ -21,6 +21,7 @@ resources:
   # - kite/ks.yaml
   # - karakeep/ks.yaml
   - kromgo/ks.yaml
+  - litellm/ks.yaml
   # - librespeed/ks.yaml
   - memos/ks.yaml
   - metatube/ks.yaml
