@@ -5,17 +5,6 @@
 - 任何资源的删除操作必须确认之后才可以执行
 - 区分哪些文件是集群的状态，哪些是当前的工作区状态要区分，不要认为本地未提交或未推送的代码就等于集群
 
-## 开发/重构/优化 Workflow 规范
-
-- 功能开发、重构、性能优化统一遵循本节
-- 读相关代码、注释、计划文档，同步记录不明确项，读完后一次性确认，确认完毕再继续
-- 写 interface/type 定义，不写实现
-- 列出实现步骤 + 所有检查点，写入 PLAN.md（清空旧内容）；检查点必须为单独一节，放在文件最开头，只能按顺序往下增加
-- 按步骤逐一实现，每步完成后：在 PLAN.md 检查点节标记进度并记录结论/偏差，执行 `pre-commit run`，通过后提交
-- 主代理使用子代理做完整审阅；审查代码必须用独立子代理；给足目标、变更范围、风险点、已踩坑、审查焦点
-- 子代理报问题后先复核再修；修完后由**同一个**子代理复审；若发现设计级问题，回到步骤列表重新规划
-- 确认 PLAN.md 所有项已完成且无遗留，执行最终 `pre-commit run` 兜底，确认无误
-
 ## 架构
 
 - **容器编排**: Kubernetes (k3s)
@@ -48,10 +37,10 @@
 - `docs/resource/lima/sakamoto.yaml` - sakamoto-k8s 配置
 - `docs/resource/lima/yuuko.yaml` - yuuko-k8s 配置
 
-## 重要笔记
+## Notes
 
 - repo 目录下的命令默认继承 direnv 环境（含 kubeconfig 等环境变量）。仅在命令找不到或无法连接集群时，用 `direnv exec . <cmd>` 包装一次。不要对每条命令都使用
-- 提交格式 使用`git-commit`skill；仓库不使用jj
+- 提交格式 使用`git-commit`skill
 - 新的skill描述全部中文描述
 - 在 `k8s/apps/common/` 启用/禁用某个应用时，同步更新 `.renovate/packageRules.json5` 的 `Disabled Packages`：禁用时添加该应用相关的镜像/包；启用时移除。
 - 需要容器镜像时，寻找最新镜像固定化镜像版本（semver@digest），配合renovate的更新
