@@ -1,0 +1,89 @@
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  database_url: os.environ/DATABASE_URL
+  proxy_batch_write_at: 60
+  database_connection_pool_limit: 10
+  use_redis_transaction_buffer: true
+
+router_settings:
+  routing_strategy: simple-shuffle
+  redis_host: os.environ/REDIS_HOST
+
+litellm_settings:
+  proxy_server: true
+  set_verbose: false
+  json_logs: true
+  cache: true
+  cache_params:
+    type: redis
+
+model_list:
+  - model_name: deepseek-v4-flash
+    litellm_params: &deepseek_flash
+      model: anthropic/deepseek-v4-flash
+      api_base: https://api.deepseek.com/anthropic
+      api_key: os.environ/DEEPSEEK_API_KEY_1
+
+  - model_name: deepseek-v4-pro
+    litellm_params:
+      model: anthropic/deepseek-v4-pro
+      api_base: https://api.deepseek.com/anthropic
+      api_key: os.environ/DEEPSEEK_API_KEY_1
+
+  - model_name: google/gemma-4-26b-a4b-it:free
+    litellm_params: &or_gemma_26b_base
+      model: openrouter/google/gemma-4-26b-a4b-it:free
+      api_key: os.environ/OPENROUTER_API_KEY_1
+  - model_name: google/gemma-4-26b-a4b-it:free
+    litellm_params:
+      <<: *or_gemma_26b_base
+      api_key: os.environ/OPENROUTER_API_KEY_2
+
+  - model_name: google/gemma-4-31b-it:free
+    litellm_params: &or_gemma_31b_base
+      model: openrouter/google/gemma-4-31b-it:free
+      api_key: os.environ/OPENROUTER_API_KEY_1
+  - model_name: google/gemma-4-31b-it:free
+    litellm_params:
+      <<: *or_gemma_31b_base
+      api_key: os.environ/OPENROUTER_API_KEY_2
+
+
+  - model_name: openai/gpt-oss-120b:free
+    litellm_params: &or_gpt_oss_120b_base
+      model: openrouter/openai/gpt-oss-120b:free
+      api_key: os.environ/OPENROUTER_API_KEY_1
+  - model_name: openai/gpt-oss-120b:free
+    litellm_params:
+      <<: *or_gpt_oss_120b_base
+      api_key: os.environ/OPENROUTER_API_KEY_2
+
+  - model_name: openai/gpt-oss-20b:free
+    litellm_params: &or_gpt_oss_20b_base
+      model: openrouter/openai/gpt-oss-20b:free
+      api_key: os.environ/OPENROUTER_API_KEY_1
+  - model_name: openai/gpt-oss-20b:free
+    litellm_params:
+      <<: *or_gpt_oss_20b_base
+      api_key: os.environ/OPENROUTER_API_KEY_2
+
+  - model_name: minimax/minimax-m2.5:free
+    litellm_params: &or_minimax_m25_base
+      model: openrouter/minimax/minimax-m2.5:free
+      api_key: os.environ/OPENROUTER_API_KEY_1
+  - model_name: minimax/minimax-m2.5:free
+    litellm_params:
+      <<: *or_minimax_m25_base
+      api_key: os.environ/OPENROUTER_API_KEY_2
+
+  - model_name: hindsight-retain
+    litellm_params:
+      <<: *or_gpt_oss_20b_base
+
+  - model_name: hindsight-reflect
+    litellm_params:
+      <<: *or_gpt_oss_120b_base
+
+  - model_name: hindsight-consolidation
+    litellm_params:
+      <<: *or_gpt_oss_20b_base
