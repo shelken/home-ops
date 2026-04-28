@@ -14,15 +14,12 @@ respond_err() {
 }
 
 log() {
-	printf '%s\n' "$*" >&2
+	ts="$(date '+%Y-%m-%dT%H:%M:%S%z')"
+	printf '%s %s\n' "$ts" "$*" >&2
 }
 
 json_escape() {
 	printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
-}
-
-is_luci_exec_success() {
-	printf '%s' "$1" | grep -Eq '"result"[[:space:]]*:[[:space:]]*(\[[[:space:]]*0[[:space:]]*\]|"0"|0|"")'
 }
 
 is_luci_error_null() {
@@ -105,7 +102,7 @@ if [ -z "$token" ] || [ "$token" = "null" ]; then
 fi
 log "luci auth ok router_host=${ROUTER_HOST}"
 
-command_payload='{"id":1,"method":"exec","params":["sh -c '\''rm -f /tmp/lock/passwall_monitor.lock; /etc/init.d/passwall restart >/tmp/passwall-healer-restart.log 2>&1 </dev/null &'\''"]}'
+command_payload='{"id":1,"method":"exec","params":["sh -c '\''/etc/init.d/passwall restart > /dev/null 2>&1 &'\''"]}'
 log "requesting passwall restart router_host=${ROUTER_HOST}"
 if ! exec_resp="$(
 	wget -T 15 -qO- \
@@ -122,12 +119,6 @@ log "luci exec response=${exec_resp}"
 if ! is_luci_error_null "$exec_resp"; then
 	log "failed luci exec reason=error-response response=${exec_resp}"
 	respond_err "failed: luci exec error ${exec_resp}"
-	exit 1
-fi
-
-if ! is_luci_exec_success "$exec_resp"; then
-	log "failed luci exec reason=unexpected-result response=${exec_resp}"
-	respond_err "failed: luci exec unexpected result ${exec_resp}"
 	exit 1
 fi
 
