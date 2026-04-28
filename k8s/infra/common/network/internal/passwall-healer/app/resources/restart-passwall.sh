@@ -19,63 +19,44 @@ log() {
 }
 
 json_escape() {
-	printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
+	printf '%s' "$1" | awk '
+		BEGIN { ORS = "" }
+		{
+			gsub(/\\/, "\\\\")
+			gsub(/"/, "\\\"")
+			gsub(/\t/, "\\t")
+			if (NR > 1) {
+				printf "\\n"
+			}
+			printf "%s", $0
+		}
+	'
 }
 
-is_luci_error_null() {
+has_null_error() {
 	printf '%s' "$1" | grep -Eq '"error"[[:space:]]*:[[:space:]]*null'
 }
 
-log "received passwall-healer request method=${REQUEST_METHOD:-unknown}"
+log "received request method=${REQUEST_METHOD:-unknown}"
 if [ "${REQUEST_METHOD:-}" != "POST" ]; then
-	log "ignored passwall-healer request reason=method method=${REQUEST_METHOD:-unknown}"
+	log "ignored request reason=method method=${REQUEST_METHOD:-unknown}"
 	respond_ok "ignored: method ${REQUEST_METHOD:-unknown}"
 	exit 0
 fi
 
 payload="$(cat)"
-payload_bytes="$(printf '%s' "$payload" | wc -c | tr -d ' ')"
-log "received passwall-healer payload bytes=${payload_bytes}"
-if ! echo "$payload" | grep -q '"autoheal":"passwall-restart"'; then
-	log "ignored passwall-healer request reason=unmatched-alert-payload"
+log "received payload"
+if ! printf '%s' "$payload" | grep -q '"autoheal":"passwall-restart"'; then
+	log "ignored request reason=unmatched-alert-payload"
 	respond_ok "ignored: unmatched alert payload"
 	exit 0
 fi
-log "matched passwall-healer payload autoheal=passwall-restart"
+log "matched payload autoheal=passwall-restart"
 
 if [ -z "${ROUTER_HOST:-}" ] || [ -z "${AUTH_PASSWORD:-}" ]; then
-	log "failed passwall-healer config reason=missing-router-host-or-auth-password"
+	log "failed config reason=missing-router-host-or-auth-password"
 	respond_err "failed: missing ROUTER_HOST or AUTH_PASSWORD"
 	exit 1
-fi
-
-minimum_retrigger_interval_seconds=90
-last_trigger_file="/tmp/passwall-restart.last"
-
-lock_dir="/tmp/passwall-restart.lock"
-if ! mkdir "$lock_dir" 2>/dev/null; then
-	log "ignored passwall restart reason=already-running"
-	respond_ok "ignored: passwall restart already running"
-	exit 0
-fi
-trap 'rmdir "$lock_dir"' EXIT INT TERM
-
-now_epoch="$(date +%s)"
-if [ -f "$last_trigger_file" ]; then
-	last_trigger_epoch="$(sed -n '1p' "$last_trigger_file")"
-	case "$last_trigger_epoch" in
-	'' | *[!0-9]*)
-		last_trigger_epoch=''
-		;;
-	esac
-	if [ -n "$last_trigger_epoch" ]; then
-		elapsed_seconds=$((now_epoch - last_trigger_epoch))
-		if [ "$elapsed_seconds" -le "$minimum_retrigger_interval_seconds" ]; then
-			log "ignored passwall restart reason=cooldown elapsed_seconds=${elapsed_seconds} minimum_seconds=${minimum_retrigger_interval_seconds}"
-			respond_ok "ignored: passwall restart cooldown ${elapsed_seconds}s <= ${minimum_retrigger_interval_seconds}s"
-			exit 0
-		fi
-	fi
 fi
 
 rpc_base="http://${ROUTER_HOST}/cgi-bin/luci/rpc"
@@ -84,7 +65,7 @@ login_payload="$(printf '{"id":1,"method":"login","params":["root","%s"]}' "$aut
 
 log "requesting luci auth router_host=${ROUTER_HOST}"
 if ! login_resp="$(
-	wget -T 15 -qO- \
+	wget -T 10 -qO- \
 		--header 'Content-Type: application/json' \
 		--post-data "$login_payload" \
 		"${rpc_base}/auth"
@@ -94,7 +75,7 @@ if ! login_resp="$(
 	exit 1
 fi
 
-token="$(echo "$login_resp" | sed -n 's/.*"result"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')"
+token="$(printf '%s' "$login_resp" | sed -n 's/.*"result"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')"
 if [ -z "$token" ] || [ "$token" = "null" ]; then
 	log "failed luci auth reason=token-missing router_host=${ROUTER_HOST}"
 	respond_err "failed: luci auth token missing"
@@ -102,27 +83,90 @@ if [ -z "$token" ] || [ "$token" = "null" ]; then
 fi
 log "luci auth ok router_host=${ROUTER_HOST}"
 
-command_payload='{"id":1,"method":"exec","params":["sh -c '\''/etc/init.d/passwall restart > /dev/null 2>&1 &'\''"]}'
-log "requesting passwall restart router_host=${ROUTER_HOST}"
+result_marker_restarted='__CHINADNS_RESTARTED__'
+result_marker_not_running='__CHINADNS_NOT_RUNNING__'
+result_marker_cmd_missing='__CHINADNS_CMD_MISSING__'
+result_marker_failed='__CHINADNS_RESTART_FAILED__'
+
+# 禁止把多行 shell 直接改写成分号串。why: if/then 结构很容易失真，路由器侧会只回 result=""。
+# 禁止让重启后的子进程继承 rpc/sys.exec 的 stdout/stderr。why: rpc 会一直等待，调用方只会看到超时。
+# 禁止只看 error=null 就判定成功。why: chinadns-ng 可能根本没起来，必须校验 PID 已变化。
+# 这里保留多行脚本，便于阅读；启动 chinadns-ng 时断开 stdin/stdout/stderr；最后校验 PID 已变化。
+remote_script="$(cat <<EOF
+pid="\$(pidof chinadns-ng || true)"
+if [ -z "\$pid" ]; then
+  echo ${result_marker_not_running}
+  exit 0
+fi
+
+cmd="\$(grep -h chinadns-ng /tmp/etc/passwall/script_func/* 2>/dev/null | head -n1 || true)"
+if [ -z "\$cmd" ]; then
+  echo ${result_marker_cmd_missing}
+  exit 0
+fi
+
+set -- \$pid
+old_pid="\${1:-}"
+kill -9 \$pid >/dev/null 2>&1
+sleep 1
+sh -c "\$cmd" >/dev/null 2>&1 </dev/null &
+sleep 1
+
+new_pid="\$(pidof chinadns-ng || true)"
+set -- \$new_pid
+new_pid="\${1:-}"
+if [ -n "\$new_pid" ] && [ "\$new_pid" != "\$old_pid" ]; then
+  echo ${result_marker_restarted}
+else
+  echo ${result_marker_failed}
+fi
+EOF
+)"
+remote_command="sh -c '$remote_script'"
+command_payload="$(printf '{"id":1,"method":"exec","params":["%s"]}' "$(json_escape "$remote_command")")"
+
+log "requesting chinadns restart router_host=${ROUTER_HOST}"
 if ! exec_resp="$(
-	wget -T 15 -qO- \
+	wget -T 10 -qO- \
 		--header 'Content-Type: application/json' \
 		--post-data "$command_payload" \
 		"${rpc_base}/sys?auth=${token}"
 )"; then
-	log "failed passwall restart reason=request-timeout router_host=${ROUTER_HOST}"
-	respond_err "failed: passwall restart request timeout"
+	log "failed chinadns restart reason=request-timeout router_host=${ROUTER_HOST}"
+	respond_err "failed: chinadns restart request timeout"
 	exit 1
 fi
 log "luci exec response=${exec_resp}"
 
-if ! is_luci_error_null "$exec_resp"; then
+if ! has_null_error "$exec_resp"; then
 	log "failed luci exec reason=error-response response=${exec_resp}"
 	respond_err "failed: luci exec error ${exec_resp}"
 	exit 1
 fi
 
-printf '%s\n' "$now_epoch" >"$last_trigger_file"
+if printf '%s' "$exec_resp" | grep -q "$result_marker_not_running"; then
+	log "ignored chinadns restart reason=chinadns-not-running router_host=${ROUTER_HOST}"
+	respond_ok "ignored: chinadns-ng not running"
+	exit 0
+fi
 
-log "passwall restart requested router_host=${ROUTER_HOST}"
-respond_ok "ok: passwall restart requested"
+if printf '%s' "$exec_resp" | grep -q "$result_marker_cmd_missing"; then
+	log "failed chinadns restart reason=startup-command-missing router_host=${ROUTER_HOST}"
+	respond_err "failed: chinadns startup command missing"
+	exit 1
+fi
+
+if printf '%s' "$exec_resp" | grep -q "$result_marker_failed"; then
+	log "failed chinadns restart reason=pid-unchanged-or-process-missing router_host=${ROUTER_HOST}"
+	respond_err "failed: chinadns restart verification failed"
+	exit 1
+fi
+
+if ! printf '%s' "$exec_resp" | grep -q "$result_marker_restarted"; then
+	log "failed chinadns restart reason=missing-result-marker response=${exec_resp}"
+	respond_err "failed: chinadns restart result marker missing"
+	exit 1
+fi
+
+log "chinadns restart ok router_host=${ROUTER_HOST}"
+respond_ok "ok: chinadns restart requested"
