@@ -18,8 +18,20 @@ spec:
     remediation:
       retries: 3
   values:
+    configMaps:
+      policy:
+        suffix: policy
+        data:
+          policy.yaml: |-
+            bots:
+              # 放行非 GET/HEAD 的 API 请求，避免移动端/CLI 写请求被 PoW 卡住。
+              - import: (data)/common/allow-api-like.yaml
+              # 当前 Anubis v1.25.0 官方默认策略。
+              - import: (data)/meta/default-config.yaml
     controllers:
       anubis:
+        annotations:
+          reloader.stakater.com/auto: "true"
         containers:
           app:
             image:
@@ -32,12 +44,36 @@ spec:
               COOKIE_DOMAIN: ${MAIN_DOMAIN}
               BIND: ":8923"
               METRICS_BIND: ":8924"
-              DIFFICULTY: "4"
+              DIFFICULTY: "${ANUBIS_DIFFICULTY:=4}"
+              OG_EXPIRY_TIME: 24h
+              OG_PASSTHROUGH: "true"
+              POLICY_FNAME: /etc/anubis/policy.yaml
               SERVE_ROBOTS_TXT: "true"
               TARGET: "${ANUBIS_TARGET}"
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command:
+                      - anubis
+                      - --healthcheck
+                  initialDelaySeconds: 1
+                  periodSeconds: 10
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command:
+                      - anubis
+                      - --healthcheck
+                  initialDelaySeconds: 1
+                  periodSeconds: 5
             resources:
               limits:
-                memory: 256Mi
+                memory: "${ANUBIS_MEM_LIMIT:=256Mi}"
               requests:
                 cpu: 50m
                 memory: 32Mi
@@ -54,6 +90,13 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         seccompProfile: { type: RuntimeDefault }
+    persistence:
+      policy:
+        type: configMap
+        identifier: policy
+        globalMounts:
+          - path: /etc/anubis
+            readOnly: true
     service:
       app:
         controller: anubis
@@ -62,3 +105,8 @@ spec:
             port: 8923
           metrics:
             port: 8924
+    serviceMonitor:
+      app:
+        endpoints:
+          - port: metrics
+            interval: 30s
