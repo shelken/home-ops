@@ -1,0 +1,112 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: ${APP}-anubis
+spec:
+  interval: 15m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    configMaps:
+      policy:
+        suffix: policy
+        data:
+          policy.yaml: |-
+            bots:
+              # 放行非 GET/HEAD 的 API 请求，避免移动端/CLI 写请求被 PoW 卡住。
+              - import: (data)/common/allow-api-like.yaml
+              # 当前 Anubis v1.25.0 官方默认策略。
+              - import: (data)/meta/default-config.yaml
+    controllers:
+      anubis:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/techarohq/anubis
+              tag: v1.25.0
+            env:
+              # ref: https://anubis.techaro.lol/docs/admin/installation#environment-variables
+              ED25519_PRIVATE_KEY_HEX: "${ANUBIS_ED25519_PRIVATE_KEY_HEX}"
+              TZ: "${TIMEZONE}"
+              COOKIE_DOMAIN: ${MAIN_DOMAIN}
+              BIND: ":8923"
+              METRICS_BIND: ":8924"
+              DIFFICULTY: "${ANUBIS_DIFFICULTY:=4}"
+              OG_EXPIRY_TIME: 24h
+              OG_PASSTHROUGH: "true"
+              POLICY_FNAME: /etc/anubis/policy.yaml
+              SERVE_ROBOTS_TXT: "true"
+              TARGET: "${ANUBIS_TARGET}"
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command:
+                      - anubis
+                      - --healthcheck
+                  initialDelaySeconds: 1
+                  periodSeconds: 10
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command:
+                      - anubis
+                      - --healthcheck
+                  initialDelaySeconds: 1
+                  periodSeconds: 5
+            resources:
+              limits:
+                memory: "${ANUBIS_MEM_LIMIT:=256Mi}"
+              requests:
+                cpu: 50m
+                memory: 32Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+              runAsNonRoot: true
+              runAsUser: 1000
+              runAsGroup: 1000
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile: { type: RuntimeDefault }
+    persistence:
+      policy:
+        type: configMap
+        identifier: policy
+        globalMounts:
+          - path: /etc/anubis
+            readOnly: true
+    service:
+      app:
+        controller: anubis
+        ports:
+          http:
+            port: 8923
+          metrics:
+            port: 8924
+    serviceMonitor:
+      app:
+        endpoints:
+          - port: metrics
+            interval: 30s

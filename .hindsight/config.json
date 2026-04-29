@@ -2,7 +2,7 @@
   "host": {
     "pi": {
       "enabled": true,
-      "retainMode": "response",
+      "retainMode": "off",
       "recallMode": "hybrid"
     }
   },

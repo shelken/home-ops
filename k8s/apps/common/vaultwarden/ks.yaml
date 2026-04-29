@@ -8,10 +8,12 @@ metadata:
 spec:
   targetNamespace: *namespace
   components:
+    - ../../../../components/anubis
     - ../../../../components/volsync
   postBuild:
     substitute:
       APP: *app
+      ANUBIS_TARGET: http://vaultwarden:80
       VOLSYNC_CAPACITY: 2Gi
   dependsOn:
     - name: azure-store

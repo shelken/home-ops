@@ -65,34 +65,6 @@ spec:
                 memory: 128M
               limits:
                 memory: 512M
-          anubis:
-            image:
-              repository: ghcr.io/techarohq/anubis
-              tag: v1.25.0
-            env:
-              # ref: https://anubis.techaro.lol/docs/admin/installation#environment-variables
-              ED25519_PRIVATE_KEY_HEX: "${ANUBIS_ED25519_PRIVATE_KEY_HEX}"
-              TZ: "${TIMEZONE}"
-              COOKIE_DOMAIN: ${MAIN_DOMAIN}
-              BIND: ":8923"
-              METRICS_BIND: ":8924"
-              DIFFICULTY: "4"
-              SERVE_ROBOTS_TXT: "true"
-              TARGET: "http://localhost:80"
-              # XFF_STRIP_PRIVATE: false
-            resources:
-              limits:
-                memory: 256Mi
-              requests:
-                cpu: 50m
-                memory: 32Mi
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
-              runAsNonRoot: true
-              runAsUser: 1000
-              runAsGroup: 1000
     defaultPodOptions:
       securityContext:
         runAsUser: 1000
@@ -109,8 +81,6 @@ spec:
             port: *port
           s3:
             port: *s3-port
-          anubis:
-            port: &anubisPort 8923
     route:
       app:
         annotations:
@@ -165,8 +135,8 @@ spec:
                     - name: X-Real-IP
                       value: "%DOWNSTREAM_REMOTE_ADDRESS_WITHOUT_PORT%"
             backendRefs:
-              - identifier: app
-                port: *anubisPort
+              - name: ${APP}-anubis
+                port: 8923
       s3:
         # for lan backup
         hostnames: ["drive-s3.${MAIN_DOMAIN}"]
