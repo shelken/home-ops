@@ -80,33 +80,6 @@ spec:
                   timeoutSeconds: 1
                   failureThreshold: 30
               readiness: *probes
-          anubis:
-            image:
-              repository: ghcr.io/techarohq/anubis
-              tag: v1.25.0
-            env:
-              # ref: https://anubis.techaro.lol/docs/admin/installation#environment-variables
-              ED25519_PRIVATE_KEY_HEX: "${ANUBIS_ED25519_PRIVATE_KEY_HEX}"
-              TZ: "${TIMEZONE}"
-              COOKIE_DOMAIN: ${MAIN_DOMAIN}
-              BIND: ":8923"
-              METRICS_BIND: ":8924"
-              DIFFICULTY: "4"
-              SERVE_ROBOTS_TXT: "true"
-              TARGET: "http://localhost:80"
-            resources:
-              limits:
-                memory: 256Mi
-              requests:
-                cpu: 50m
-                memory: 32Mi
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
-              runAsNonRoot: true
-              runAsUser: 1000
-              runAsGroup: 1000
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
@@ -120,8 +93,6 @@ spec:
         ports:
           http:
             port: *port
-          anubis:
-            port: &anubisPort 8923
     route:
       app:
         annotations:
@@ -144,8 +115,8 @@ spec:
                     - name: X-Real-IP
                       value: "%DOWNSTREAM_REMOTE_ADDRESS_WITHOUT_PORT%"
             backendRefs:
-              - identifier: app
-                port: *anubisPort
+              - name: ${APP}-anubis
+                port: 8923
           - matches:
               - path:
                   type: PathPrefix
