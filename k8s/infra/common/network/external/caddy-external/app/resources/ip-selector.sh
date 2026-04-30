@@ -8,6 +8,9 @@ log() {
 }
 
 update_ip() {
+  # 优先读本机 eth1，避免外部探测服务失效影响 DDNS。
+  # 备用探测命令：wget -6 -qO- https://ifconfig.co/ip
+  # 备用探测命令：wget -6 -qO- https://6.icanhazip.com
   detected_ip="$(ip -6 addr show dev eth1 scope global 2>/dev/null | awk '$1 == "inet6" && $2 ~ /^2408:/ { sub(/\/.*/, "", $2); print $2; exit }')"
 
   if [ -n "$detected_ip" ]; then
