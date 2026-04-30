@@ -3,30 +3,26 @@ set -eu
 
 : "${MAIN_VPS_IP_V6:?MAIN_VPS_IP_V6 is required}"
 
-update_ip() {
-  detected_ip="$(wget -qO- https://6.ipw.cn 2>/dev/null || true)"
+log() {
+  echo "$(date '+%Y-%m-%dT%H:%M:%S%z') [ip-selector] $*"
+}
 
-  if [ -z "$detected_ip" ]; then
-    echo "$MAIN_VPS_IP_V6" >/tmp/current-ip
-    echo "[ip-selector] Using VPS IP (detection failed)"
+update_ip() {
+  detected_ip="$(ip -6 addr show dev eth1 scope global 2>/dev/null | awk '$1 == "inet6" && $2 ~ /^2408:/ { sub(/\/.*/, "", $2); print $2; exit }')"
+
+  if [ -n "$detected_ip" ]; then
+    echo "$detected_ip" >/tmp/current-ip
+    log "Using unicom IP: $detected_ip"
     return 0
   fi
 
-  case "$detected_ip" in
-    2408:*)
-      echo "$detected_ip" >/tmp/current-ip
-      echo "[ip-selector] Using unicom IP: $detected_ip"
-      ;;
-    *)
-      echo "$MAIN_VPS_IP_V6" >/tmp/current-ip
-      echo "[ip-selector] Using VPS IP (non-2408 detected: $detected_ip)"
-      ;;
-  esac
+  echo "$MAIN_VPS_IP_V6" >/tmp/current-ip
+  log "Using VPS IP (local 2408 not found)"
 }
 
 for i in 1 2 3 4 5; do
   update_ip && break
-  echo "[ip-selector] Retry $i/5..."
+  log "Retry $i/5..."
   sleep 5
 done
 
