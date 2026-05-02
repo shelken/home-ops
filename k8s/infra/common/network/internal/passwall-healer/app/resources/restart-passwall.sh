@@ -91,57 +91,77 @@ if [ -z "$token" ] || [ "$token" = "null" ]; then
 fi
 log "luci auth ok router_host=${ROUTER_HOST}"
 
-result_marker_restarted='__CHINADNS_RESTARTED__'
-result_marker_not_running='__CHINADNS_NOT_RUNNING__'
-result_marker_cmd_missing='__CHINADNS_CMD_MISSING__'
-result_marker_failed='__CHINADNS_RESTART_FAILED__'
+result_marker_recovered='__PASSWALL_DNS_RECOVERED__'
+result_marker_singbox_missing='__SING_BOX_CMD_MISSING__'
+result_marker_chinadns_missing='__CHINADNS_CMD_MISSING__'
+result_marker_singbox_failed='__SING_BOX_START_FAILED__'
+result_marker_chinadns_failed='__CHINADNS_START_FAILED__'
+result_marker_singbox_port_failed='__SING_BOX_PORT_15353_MISSING__'
+result_marker_chinadns_port_failed='__CHINADNS_PORT_15355_MISSING__'
+result_marker_dns_failed='__ROUTER_DNS_PROXY_QUERY_FAILED__'
 
-# 禁止把多行 shell 直接改写成分号串。why: if/then 结构很容易失真，路由器侧会只回 result=""。
-# 禁止让重启后的子进程继承 rpc/sys.exec 的 stdout/stderr。why: rpc 会一直等待，调用方只会看到超时。
-# 禁止只看 error=null 就判定成功。why: chinadns-ng 可能根本没起来，必须校验 PID 已变化。
-# 这里保留多行脚本，便于阅读；启动 chinadns-ng 时断开 stdin/stdout/stderr；最后校验 PID 已变化。
+# 禁止只重启 chinadns-ng。why: 代理 DNS 链路依赖 sing-box 提供 127.0.0.1:15353，上游缺失时 chinadns-ng 活着也会超时。
+# 禁止用“进程存在”作为成功标准。why: 必须验证 15353、15355 和 openai.com 解析都恢复。
+# 保持显式失败，不做兜底。why: Passwall 运行态不完整时要暴露缺失组件，而不是假装恢复成功。
 remote_script="$(cat <<EOF
-pid="\$(pidof chinadns-ng || true)"
-if [ -z "\$pid" ]; then
-  echo ${result_marker_not_running}
-  exit 0
+singbox_cmd="\$(grep -h "sing-box run" /tmp/etc/passwall/script_func/* 2>/dev/null | head -n1)"
+if [ -z "\$singbox_cmd" ]; then
+  echo ${result_marker_singbox_missing}
+  exit 1
 fi
 
-cmd="\$(grep -h chinadns-ng /tmp/etc/passwall/script_func/* 2>/dev/null | head -n1 || true)"
-if [ -z "\$cmd" ]; then
-  echo ${result_marker_cmd_missing}
-  exit 0
+chinadns_cmd="\$(grep -h "chinadns-ng" /tmp/etc/passwall/script_func/* 2>/dev/null | head -n1)"
+if [ -z "\$chinadns_cmd" ]; then
+  echo ${result_marker_chinadns_missing}
+  exit 1
 fi
 
-set -- \$pid
-old_pid="\${1:-}"
-kill -9 \$pid >/dev/null 2>&1
-sleep 1
-sh -c "\$cmd" >/dev/null 2>&1 </dev/null &
+pidof sing-box >/dev/null 2>&1 && kill -9 \$(pidof sing-box) >/dev/null 2>&1
+pidof chinadns-ng >/dev/null 2>&1 && kill -9 \$(pidof chinadns-ng) >/dev/null 2>&1
 sleep 1
 
-new_pid="\$(pidof chinadns-ng || true)"
-set -- \$new_pid
-new_pid="\${1:-}"
-if [ -n "\$new_pid" ] && [ "\$new_pid" != "\$old_pid" ]; then
-  echo ${result_marker_restarted}
-else
-  echo ${result_marker_failed}
+sh -c "\$singbox_cmd" >/dev/null 2>&1 </dev/null &
+sleep 2
+if ! pidof sing-box >/dev/null 2>&1; then
+  echo ${result_marker_singbox_failed}
+  exit 1
 fi
+if ! netstat -lntup 2>/dev/null | grep -q "127\.0\.0\.1:15353"; then
+  echo ${result_marker_singbox_port_failed}
+  exit 1
+fi
+
+sh -c "\$chinadns_cmd" >/dev/null 2>&1 </dev/null &
+sleep 2
+if ! pidof chinadns-ng >/dev/null 2>&1; then
+  echo ${result_marker_chinadns_failed}
+  exit 1
+fi
+if ! netstat -lntup 2>/dev/null | grep -q ":15355"; then
+  echo ${result_marker_chinadns_port_failed}
+  exit 1
+fi
+
+if ! nslookup openai.com 127.0.0.1 2>&1 | grep -q "Name:.*openai.com"; then
+  echo ${result_marker_dns_failed}
+  exit 1
+fi
+
+echo ${result_marker_recovered}
 EOF
 )"
 remote_command="sh -c '$remote_script'"
 command_payload="$(printf '{"id":1,"method":"exec","params":["%s"]}' "$(json_escape "$remote_command")")"
 
-log "requesting chinadns restart router_host=${ROUTER_HOST}"
+log "requesting passwall dns recovery router_host=${ROUTER_HOST}"
 if ! exec_resp="$(
-	wget -T 10 -qO- \
+	wget -T 15 -qO- \
 		--header 'Content-Type: application/json' \
 		--post-data "$command_payload" \
 		"${rpc_base}/sys?auth=${token}"
 )"; then
-	log "failed chinadns restart reason=request-timeout router_host=${ROUTER_HOST}"
-	respond_err "failed: chinadns restart request timeout"
+	log "failed passwall dns recovery reason=request-timeout router_host=${ROUTER_HOST}"
+	respond_err "failed: passwall dns recovery request timeout"
 	exit 1
 fi
 log "luci exec response=${exec_resp}"
@@ -152,29 +172,26 @@ if ! has_null_error "$exec_resp"; then
 	exit 1
 fi
 
-if printf '%s' "$exec_resp" | grep -q "$result_marker_not_running"; then
-	log "ignored chinadns restart reason=chinadns-not-running router_host=${ROUTER_HOST}"
-	respond_ok "ignored: chinadns-ng not running"
-	exit 0
-fi
+for marker in \
+	"$result_marker_singbox_missing" \
+	"$result_marker_chinadns_missing" \
+	"$result_marker_singbox_failed" \
+	"$result_marker_chinadns_failed" \
+	"$result_marker_singbox_port_failed" \
+	"$result_marker_chinadns_port_failed" \
+	"$result_marker_dns_failed"; do
+	if printf '%s' "$exec_resp" | grep -q "$marker"; then
+		log "failed passwall dns recovery reason=${marker} router_host=${ROUTER_HOST}"
+		respond_err "failed: passwall dns recovery ${marker}"
+		exit 1
+	fi
+done
 
-if printf '%s' "$exec_resp" | grep -q "$result_marker_cmd_missing"; then
-	log "failed chinadns restart reason=startup-command-missing router_host=${ROUTER_HOST}"
-	respond_err "failed: chinadns startup command missing"
+if ! printf '%s' "$exec_resp" | grep -q "$result_marker_recovered"; then
+	log "failed passwall dns recovery reason=missing-result-marker response=${exec_resp}"
+	respond_err "failed: passwall dns recovery result marker missing"
 	exit 1
 fi
 
-if printf '%s' "$exec_resp" | grep -q "$result_marker_failed"; then
-	log "failed chinadns restart reason=pid-unchanged-or-process-missing router_host=${ROUTER_HOST}"
-	respond_err "failed: chinadns restart verification failed"
-	exit 1
-fi
-
-if ! printf '%s' "$exec_resp" | grep -q "$result_marker_restarted"; then
-	log "failed chinadns restart reason=missing-result-marker response=${exec_resp}"
-	respond_err "failed: chinadns restart result marker missing"
-	exit 1
-fi
-
-log "chinadns restart ok router_host=${ROUTER_HOST}"
-respond_ok "ok: chinadns restart requested"
+log "passwall dns recovery ok router_host=${ROUTER_HOST}"
+respond_ok "ok: passwall dns recovered"
