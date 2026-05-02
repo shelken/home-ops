@@ -22,13 +22,21 @@ json_escape() {
 	printf '%s' "$1" | awk '
 		BEGIN { ORS = "" }
 		{
-			gsub(/\\/, "\\\\")
-			gsub(/"/, "\\\"")
-			gsub(/\t/, "\\t")
 			if (NR > 1) {
 				printf "\\n"
 			}
-			printf "%s", $0
+			for (i = 1; i <= length($0); i++) {
+				c = substr($0, i, 1)
+				if (c == "\\") {
+					printf "\\\\"
+				} else if (c == "\"") {
+					printf "\\\""
+				} else if (c == "\t") {
+					printf "\\t"
+				} else {
+					printf "%s", c
+				}
+			}
 		}
 	'
 }
