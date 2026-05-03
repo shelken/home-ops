@@ -90,6 +90,13 @@ spec:
           - backendRefs:
               - identifier: app
                 port: *port
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /usage
+            backendRefs:
+              - name: cpa-usage-keeper
+                port: 8080
       app-external:
         annotations:
           gethomepage.dev/enabled: "true"

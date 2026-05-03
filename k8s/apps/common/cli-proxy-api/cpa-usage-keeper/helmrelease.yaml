@@ -28,6 +28,7 @@ spec:
               REDIS_QUEUE_ADDR: cli-proxy-api:8317
               AUTH_ENABLED: "true"
               USAGE_SYNC_MODE: redis
+              APP_BASE_PATH: /usage
             envFrom:
               - secretRef:
                   name: cpa-usage-keeper-secret
@@ -53,22 +54,6 @@ spec:
         ports:
           http:
             port: &port 8080
-    route:
-      app:
-        annotations:
-          gethomepage.dev/enabled: "true"
-          gethomepage.dev/group: internal
-          gethomepage.dev/name: CPA Usage
-          gethomepage.dev/icon: kubernetes-dashboard.svg
-          gethomepage.dev/app: *app
-        hostnames: ["cpa-usage.${MAIN_DOMAIN}"]
-        parentRefs:
-          - name: envoy-internal
-            namespace: network
-        rules:
-          - backendRefs:
-              - identifier: app
-                port: *port
     persistence:
       data:
         existingClaim: cpa-usage-keeper
