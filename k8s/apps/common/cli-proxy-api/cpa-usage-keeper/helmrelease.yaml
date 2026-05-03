@@ -27,6 +27,7 @@ spec:
               CPA_BASE_URL: http://cli-proxy-api:8317
               REDIS_QUEUE_ADDR: cli-proxy-api:8317
               AUTH_ENABLED: "true"
+              USAGE_SYNC_MODE: redis
             envFrom:
               - secretRef:
                   name: cpa-usage-keeper-secret
