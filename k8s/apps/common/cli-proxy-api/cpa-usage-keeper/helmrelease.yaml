@@ -61,7 +61,7 @@ spec:
           gethomepage.dev/name: CPA Usage
           gethomepage.dev/icon: kubernetes-dashboard.svg
           gethomepage.dev/app: *app
-        hostnames: ["cpa-usage.{{ .Release.Name }}.${MAIN_DOMAIN}"]
+        hostnames: ["cpa-usage.${MAIN_DOMAIN}"]
         parentRefs:
           - name: envoy-internal
             namespace: network
