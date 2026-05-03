@@ -1,0 +1,75 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app cpa-usage-keeper
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  values:
+    controllers:
+      cpa-usage-keeper:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/willxup/cpa-usage-keeper
+              tag: v1.3.3@sha256:f671248b199adf329b99db9c9c9a9d5311450e224d061ac2cfa3ee7faba8eed9
+            env:
+              TZ: ${TIMEZONE}
+              CPA_BASE_URL: http://cli-proxy-api:8317
+              REDIS_QUEUE_ADDR: cli-proxy-api:8317
+              AUTH_ENABLED: "true"
+            envFrom:
+              - secretRef:
+                  name: cpa-usage-keeper-secret
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 512Mi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        ports:
+          http:
+            port: &port 8080
+    route:
+      app:
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: internal
+          gethomepage.dev/name: CPA Usage
+          gethomepage.dev/icon: kubernetes-dashboard.svg
+          gethomepage.dev/app: *app
+        hostnames: ["cpa-usage.{{ .Release.Name }}.${MAIN_DOMAIN}"]
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
+    persistence:
+      data:
+        existingClaim: cpa-usage-keeper
+        advancedMounts:
+          cpa-usage-keeper:
+            app:
+              - path: /data
