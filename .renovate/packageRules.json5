@@ -72,6 +72,21 @@
       sourceUrl: "https://github.com/caddyserver/caddy"
     },
     {
+      description: "hysteria2 补充",
+      matchPackageNames: ["/tobyxdd/hysteria/"],
+      sourceUrl: "https://github.com/apernet/hysteria"
+    },
+    {
+      description: "xray-core 补充",
+      matchPackageNames: ["/xtls/xray-core/"],
+      sourceUrl: "https://github.com/XTLS/Xray-core"
+    },
+    {
+      description: "icloudpd/icloudpd 补充",
+      matchPackageNames: ["/icloudpd/icloudpd/"],
+      sourceUrl: "https://github.com/icloud-photos-downloader/icloud_photos_downloader"
+    },
+    {
       description: "seafile changelog 补充",
       matchPackageNames: [
         "/seafileltd/"
