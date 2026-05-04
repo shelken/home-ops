@@ -11,7 +11,7 @@ spec:
   interval: 1h
   values:
     global:
-      imageRegistry: mirror.gcr.io
+      imageRegistry: docker.io
     config:
       envoyGateway:
         extensionApis:
