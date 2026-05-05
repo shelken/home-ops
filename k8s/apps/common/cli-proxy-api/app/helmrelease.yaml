@@ -15,18 +15,13 @@ spec:
       cli-proxy-api:
         annotations:
           reloader.stakater.com/auto: "true"
-        initContainers:
-          copy-config:
+        containers:
+          app:
             image: &image
               repository: eceasy/cli-proxy-api
               tag: v6.10.4@sha256:6343bb2c034f5c00f57b0d8dd4b3ebd5dce3fd849f74732811e40b38da43f0ba
-            command: ["sh", "-c", "cp /secret-config/config.yaml /config-rw/config.yaml"]
-            securityContext:
-              runAsUser: 1000
-              runAsGroup: 1000
-        containers:
-          app:
-            image: *image
+            command: ["/CLIProxyAPI/CLIProxyAPI"]
+            args: ["--config", "/config/config.yaml"]
             env:
               TZ: ${TIMEZONE}
               MANAGEMENT_STATIC_PATH: &management /CLIProxyAPI/management
@@ -140,21 +135,10 @@ spec:
       config-file:
         type: secret
         name: cli-proxy-api-secret
-        advancedMounts:
-          cli-proxy-api:
-            copy-config:
-              - path: /secret-config/config.yaml
-                subPath: config.yaml
-                readOnly: true
-      config-writable:
-        type: emptyDir
-        advancedMounts:
-          cli-proxy-api:
-            copy-config:
-              - path: /config-rw
-            app:
-              - path: /CLIProxyAPI/config.yaml
-                subPath: config.yaml
+        globalMounts:
+          - path: /config/config.yaml
+            subPath: config.yaml
+
       tmpfs:
         type: emptyDir
         globalMounts:
