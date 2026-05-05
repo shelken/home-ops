@@ -17,7 +17,7 @@ spec:
           reloader.stakater.com/auto: "true"
         containers:
           app:
-            image: &image
+            image:
               repository: eceasy/cli-proxy-api
               tag: v6.10.4@sha256:6343bb2c034f5c00f57b0d8dd4b3ebd5dce3fd849f74732811e40b38da43f0ba
             command: ["/CLIProxyAPI/CLIProxyAPI"]
@@ -135,9 +135,17 @@ spec:
       config-file:
         type: secret
         name: cli-proxy-api-secret
-        globalMounts:
-          - path: /config/config.yaml
-            subPath: config.yaml
+        advancedMounts:
+          cli-proxy-api:
+            app:
+              - path: /config/config.yaml
+                subPath: config.yaml
+      config-rw:
+        type: emptyDir
+        advancedMounts:
+          cli-proxy-api:
+            app:
+              - path: /config
 
       tmpfs:
         type: emptyDir
