@@ -135,6 +135,7 @@ spec:
       config-file:
         type: secret
         name: cli-proxy-api-secret
+        defaultMode: 0664
         advancedMounts:
           cli-proxy-api:
             app:
