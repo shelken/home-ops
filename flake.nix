@@ -59,7 +59,7 @@
       in
       {
         checks.pre-commit-check = pre-commit-check;
-        devShells.default = pkgs.mkShell {
+        devShells.default = pkgs.mkShellNoCC {
           name = "home-ops";
 
           packages = with pkgs; [
