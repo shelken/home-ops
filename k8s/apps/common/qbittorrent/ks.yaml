@@ -24,6 +24,7 @@ spec:
     substitute:
       APP: *app
       VOLSYNC_CAPACITY: 1Gi
+      VOLSYNC_CACHE_CAPACITY: 5Gi
   interval: 1h
   path: ./k8s/apps/common/qbittorrent/app
   prune: true
