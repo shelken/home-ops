@@ -59,7 +59,8 @@
     {
       description: "prompp 补充",
       matchPackageNames: ["/prompp/prompp/"],
-      sourceUrl: "https://github.com/deckhouse/prompp"
+      sourceUrl: "https://github.com/deckhouse/prompp",
+      ignoreUnstable: false
     },
     {
       description: "envoy 补充",
