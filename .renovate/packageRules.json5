@@ -28,6 +28,7 @@
         "/seafileltd/", // seafile
         "/yourselfhosted/slash/", // slash
         "/dani-garcia/vaultwarden/", // vaultwarden
+        "/prompp/prompp/", // 锁定 0.7.8 , 往上升级 0.7.10 等等都有bug
       ],
       enabled: false
     },
