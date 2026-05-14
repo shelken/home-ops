@@ -268,7 +268,7 @@ services:
       - homepage.href=http://sakamoto.lan:51516/tasks
       - homepage.description=本地备份
     entrypoint: ["/app/scripts/entrypoint.sh"]
-    command: ["--address=0.0.0.0:51516", "--without-password", "--insecure"]
+    command: ["--address=0.0.0.0:51516", "--without-password", "--insecure", "--allow-extremely-dangerous-unauthenticated-server-on-the-network"]
     environment:
       TZ: Asia/Shanghai
       KOPIA_CONFIG_PATH: /config/repository.config
