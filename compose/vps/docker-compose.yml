@@ -348,7 +348,7 @@ services:
 
   # ==================== Kopia Backup ====================
   kopia:
-    image: kopia/kopia:0.22.3
+    image: kopia/kopia:0.23.0
     container_name: kopia
     hostname: vps
     networks:
