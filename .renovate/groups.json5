@@ -82,5 +82,14 @@
         commitMessageTopic: "{{{groupName}}} group",
       },
     },
+    {
+      description: "Kopia Group",
+      groupName: "Kopia",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/kopia/"],
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
   ],
 }
