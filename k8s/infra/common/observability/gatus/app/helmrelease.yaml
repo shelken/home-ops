@@ -21,6 +21,8 @@ spec:
   values:
     controllers:
       gatus:
+        pod:
+          automountServiceAccountToken: true
         serviceAccount:
           identifier: gatus
         annotations:
