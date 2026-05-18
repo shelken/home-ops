@@ -63,6 +63,10 @@ proxy-url: "socks5://sakamoto.lan:7890/"
 # When true, unprefixed model requests only use credentials without a prefix (except when prefix == model name).
 force-model-prefix: false
 
+# When true, forward filtered upstream response headers to downstream clients.
+# Default is false (disabled).
+passthrough-headers: true
+
 # Number of times to retry a request. Retries will occur if the HTTP response code is 403, 408, 500, 502, 503, or 504.
 request-retry: 3
 
@@ -112,6 +116,13 @@ ws-auth: true
 
 # Claude API keys
 claude-api-key:
+  # - &opencode_claude
+  #   api-key:  {{ .OPENCODE_API_KEY_1 }}
+  #   base-url: "https://opencode.ai/zen"
+  #   priority: 100
+  #   models:
+  #     - name: "deepseek-v4-flash-free"
+  #       alias: "deepseek-v4-flash"
   - api-key:  {{ .DEEPSEEK_API_KEY_1 }}
     base-url: "https://api.deepseek.com/anthropic"
     experimental-cch-signing: false
@@ -132,6 +143,8 @@ claude-api-key:
     base-url: "https://openrouter.ai/api"
     priority: 100
     models:
+      - name: "deepseek/deepseek-v4-flash:free"
+        alias: "deepseek/deepseek-v4-flash:free"
       - name: "google/gemma-4-26b-a4b-it:free"
         alias: "google/gemma-4-26b-a4b-it:free"
       - name: "google/gemma-4-31b-it:free"
@@ -150,9 +163,6 @@ claude-api-key:
         alias: "hindsight-reflect"
       - name: "openai/gpt-oss-20b:free"
         alias: "hindsight-consolidation"
-
-# OpenAI compatibility providers
-# priority 越大越优先
   - <<: *openrouter_claude
     api-key: {{ .OPENROUTER_API_KEY_2 }}
   - <<: *openrouter_claude
@@ -168,38 +178,10 @@ claude-api-key:
   - <<: *openrouter_claude
     api-key: {{ .OPENROUTER_API_KEY_8 }}
 
+
+# OpenAI compatibility providers
+# priority 越大越优先
 openai-compatibility:
-  # - name: "openrouter"
-  #   priority: 100
-  #   base-url: "https://openrouter.ai/api/v1"
-  #   api-key-entries:
-  #     - api-key: {{ .OPENROUTER_API_KEY_1 }}
-  #     - api-key: {{ .OPENROUTER_API_KEY_2 }}
-  #     - api-key: {{ .OPENROUTER_API_KEY_3 }}
-  #     - api-key: {{ .OPENROUTER_API_KEY_4 }}
-  #     - api-key: {{ .OPENROUTER_API_KEY_5 }}
-  #     - api-key: {{ .OPENROUTER_API_KEY_6 }}
-  #     - api-key: {{ .OPENROUTER_API_KEY_7 }}
-  #     - api-key: {{ .OPENROUTER_API_KEY_8 }}
-  #   models:
-  #     - name: "google/gemma-4-26b-a4b-it:free"
-  #       alias: "google/gemma-4-26b-a4b-it:free"
-  #     - name: "google/gemma-4-31b-it:free"
-  #       alias: "google/gemma-4-31b-it:free"
-  #     - name: "openai/gpt-oss-120b:free"
-  #       alias: "openai/gpt-oss-120b:free"
-  #     - name: "openai/gpt-oss-20b:free"
-  #       alias: "openai/gpt-oss-20b:free"
-  #     - name: "minimax/minimax-m2.5:free"
-  #       alias: "minimax/minimax-m2.5:free"
-  #     - name: "inclusionai/ring-2.6-1t:free"
-  #       alias: "inclusionai/ring-2.6-1t:free"
-  #     - name: "openai/gpt-oss-20b:free"
-  #       alias: "hindsight-retain"
-  #     - name: "openai/gpt-oss-120b:free"
-  #       alias: "hindsight-reflect"
-  #     - name: "openai/gpt-oss-20b:free"
-  #       alias: "hindsight-consolidation"
   - name: "groq"
     priority: 100
     base-url: "https://api.groq.com/openai/v1"
