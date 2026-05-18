@@ -21,6 +21,8 @@ spec:
   values:
     controllers:
       barman-cloud:
+        pod:
+          automountServiceAccountToken: true
         containers:
           app:
             image:
