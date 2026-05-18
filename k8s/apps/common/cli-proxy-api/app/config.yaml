@@ -116,13 +116,6 @@ ws-auth: true
 
 # Claude API keys
 claude-api-key:
-  # - &opencode_claude
-  #   api-key:  {{ .OPENCODE_API_KEY_1 }}
-  #   base-url: "https://opencode.ai/zen"
-  #   priority: 100
-  #   models:
-  #     - name: "deepseek-v4-flash-free"
-  #       alias: "deepseek-v4-flash"
   - api-key:  {{ .DEEPSEEK_API_KEY_1 }}
     base-url: "https://api.deepseek.com/anthropic"
     experimental-cch-signing: false
