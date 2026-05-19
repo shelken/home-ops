@@ -121,6 +121,8 @@ services:
     configs:
       - source: crowdsec_acquis_all
         target: /etc/crowdsec/acquis.d/all.yaml
+      - source: crowdsec_appsec_jellyfin_exclusions
+        target: /etc/crowdsec/appsec-configs/jellyfin-exclusions.yaml
     volumes:
       - /var/log:/var/log:ro
     deploy:
@@ -394,6 +396,8 @@ configs:
     file: ./configs/caddy/Caddyfile
   crowdsec_acquis_all:
     file: ./configs/crowdsec/acquis.d/all.yaml
+  crowdsec_appsec_jellyfin_exclusions:
+    file: ./configs/crowdsec/appsec-configs/jellyfin-exclusions.yaml
   crowdsec_firewall_bouncer_config:
     file: ./configs/crowdsec/crowdsec-firewall-bouncer.yaml
   dhp_mirror_config:
