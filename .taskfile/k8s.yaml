@@ -246,3 +246,96 @@ tasks:
 
         echo ""
         echo "=== 重启完成 ==="
+
+  cleanup-volsync-large-cache:
+    desc: "清理 VolSync 源 PVC 过大的 cache PVC（默认只预览，APPLY=true 才删除）"
+    silent: true
+    vars:
+      NAMESPACE: '{{ .NAMESPACE | default "default" }}'
+      RATIO: '{{ .RATIO | default "5" }}'
+      APPLY: '{{ .APPLY | default "false" }}'
+    preconditions:
+      - sh: 'command -v kubectl >/dev/null'
+        msg: "需要先安装 kubectl"
+      - sh: 'command -v jq >/dev/null'
+        msg: "需要先安装 jq"
+      - sh: 'command -v gum >/dev/null'
+        msg: "需要先安装 gum"
+      - sh: 'printf "%s" "{{ .RATIO }}" | grep -Eq "^[0-9]+([.][0-9]+)?$"'
+        msg: "RATIO 必须是数字"
+      - sh: 'printf "%s" "{{ .APPLY }}" | grep -Eq "^(true|false)$"'
+        msg: "APPLY 只能是 true 或 false"
+    cmds:
+      - |
+        set -euo pipefail
+
+        namespace='{{ .NAMESPACE }}'
+        min_ratio='{{ .RATIO }}'
+        apply='{{ .APPLY }}'
+        workdir="$(mktemp -d)"
+        trap 'rm -rf "$workdir"' EXIT
+
+        scan() {
+          kubectl -n "$namespace" get pvc -o json >"$workdir/pvc.json"
+          kubectl -n longhorn-system get volumes.longhorn.io -o json >"$workdir/longhorn-volumes.json"
+          kubectl -n "$namespace" get replicationsource -o json >"$workdir/replicationsources.json"
+
+          jq -nr \
+            --slurpfile pvc "$workdir/pvc.json" \
+            --slurpfile volumes "$workdir/longhorn-volumes.json" \
+            --slurpfile sources "$workdir/replicationsources.json" '
+              ($pvc[0].items
+                | map({key: .metadata.name, value: .spec.volumeName})
+                | from_entries) as $pvc_to_volume |
+              ($volumes[0].items
+                | map({key: .metadata.name, value: (.status.actualSize // 0 | tonumber)})
+                | from_entries) as $volume_size |
+              $sources[0].items[] |
+              .spec.sourcePVC as $source_pvc |
+              "volsync-src-\(.metadata.name)-cache" as $cache_pvc |
+              select($source_pvc and $pvc_to_volume[$source_pvc] and $pvc_to_volume[$cache_pvc]) |
+              ($volume_size[$pvc_to_volume[$source_pvc]] // 0) as $source_size |
+              ($volume_size[$pvc_to_volume[$cache_pvc]] // 0) as $cache_size |
+              (if $source_size == 0 and $cache_size > 0 then 999999
+               elif $source_size == 0 then 1
+               else ($cache_size / $source_size)
+               end) as $ratio |
+              [$ratio, $cache_pvc, $source_pvc, $cache_size, $source_size] | @tsv
+            ' | sort -k1,1nr
+        }
+
+        show() {
+          gum style --bold "$1"
+          awk -F '\t' '
+            NF >= 5 {
+              printf "- %s <- %s | %.2fx | cache=%sB source=%sB\n", $2, $3, $1, $4, $5
+            }
+          '
+        }
+
+        candidates="$(scan | awk -F '\t' -v threshold="$min_ratio" '$1 >= threshold')"
+        if [ -z "$candidates" ]; then
+          gum style "没有达到 ${min_ratio} 倍的 cache PVC"
+          exit 0
+        fi
+
+        show "达到 ${min_ratio} 倍阈值的 cache PVC：" <<< "$candidates"
+
+        if [ "$apply" != "true" ]; then
+          gum style --foreground 212 "仅预览；如需删除，重新执行：task k8s:cleanup-volsync-large-cache APPLY=true"
+          exit 0
+        fi
+
+        exec < /dev/tty
+        gum confirm "确认删除以上 cache PVC 吗？" || { gum style "取消"; exit 0; }
+
+        printf '%s\n' "$candidates" | cut -f2 | tee "$workdir/deleted-pvcs.txt" | \
+          while IFS= read -r cache_pvc; do
+            [ -n "$cache_pvc" ] || continue
+            kubectl -n "$namespace" delete pvc "$cache_pvc"
+          done
+
+        remaining="$(scan | awk -F '\t' 'NR == FNR { deleted[$1]; next } !($2 in deleted)' "$workdir/deleted-pvcs.txt" -)"
+        if [ -n "$remaining" ]; then
+          show "未清理 cache 当前倍率：" <<< "$remaining"
+        fi
