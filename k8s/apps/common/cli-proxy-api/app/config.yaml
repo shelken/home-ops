@@ -65,7 +65,7 @@ force-model-prefix: false
 
 # When true, forward filtered upstream response headers to downstream clients.
 # Default is false (disabled).
-passthrough-headers: true
+passthrough-headers: false
 
 # Number of times to retry a request. Retries will occur if the HTTP response code is 403, 408, 500, 502, 503, or 504.
 request-retry: 3
