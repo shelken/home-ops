@@ -49,7 +49,7 @@ endpoints:
       hide-hostname: true
       hide-url: true
     conditions:
-      - "[STATUS] == 200"
+      - "[STATUS] == 405" # HEAD 请求
     alerts:
       - type: custom
   - name: kopia
