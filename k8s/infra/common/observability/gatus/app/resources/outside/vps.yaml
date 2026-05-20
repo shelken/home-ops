@@ -4,7 +4,7 @@ endpoints:
     name: subconverter
     group: vps
     url: https://sub.${MAIN_DOMAIN}/version
-    interval: 1m
+    interval: 2m
     ui:
       hide-hostname: true
       hide-url: true
@@ -22,3 +22,53 @@ endpoints:
     conditions:
       - "[CONNECTED] == true"
     ui: {}
+  - <<: *common
+    name: dockerproxy
+    url: http://ts-node-vps.network.svc:2575/_ping
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY] == OK"
+  - name: mosdns
+    group: vps
+    url: ts-node-vps.network.svc:5054
+    interval: 2m
+    dns:
+      query-name: openai.com
+      query-type: A
+    ui:
+      hide-hostname: true
+      hide-url: true
+      hide-conditions: true
+    conditions:
+      - "[CONNECTED] == true"
+      - "[DNS_RCODE] == NOERROR"
+      - "[BODY] == pat(*.*.*.*)"
+    alerts:
+      - type: custom
+  - <<: *common
+    name: openlist
+    url: http://ts-node-vps.network.svc:5244/api/public/settings
+    method: HEAD
+  - <<: *common
+    name: kopia
+    url: http://ts-node-vps.network.svc:51515/
+    method: HEAD
+  - <<: *common
+    name: vps-node-exporter
+    url: "tcp://ts-node-vps.network.svc:9100"
+    conditions:
+      - "[CONNECTED] == true"
+  - <<: *common
+    name: vless-reality
+    url: "tcp://ts-node-vps.network.svc:5443"
+    conditions:
+      - "[CONNECTED] == true"
+  - <<: *common
+    name: hysteria2
+    url: "udp://ts-node-vps.network.svc:10357"
+    conditions:
+      - "[CONNECTED] == true"
+  - <<: *common
+    name: dhp
+    url: https://dhp.${MAIN_DOMAIN}/v2/
+    method: HEAD

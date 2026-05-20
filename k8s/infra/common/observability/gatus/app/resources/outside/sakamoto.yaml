@@ -38,3 +38,53 @@ endpoints:
       - "[STATUS] == 200"
     alerts:
       - type: custom
+  - name: nvidia-dls
+    group: sakamoto
+    url: https://sakamoto.lan:5100/-/health
+    method: HEAD
+    interval: 1m
+    client:
+      insecure: true
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[STATUS] == 200"
+    alerts:
+      - type: custom
+  - name: kopia
+    group: sakamoto
+    url: http://sakamoto.lan:51515/
+    method: HEAD
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[STATUS] == 200"
+    alerts:
+      - type: custom
+  - name: kopia-local
+    group: sakamoto
+    url: http://sakamoto.lan:51516/
+    method: HEAD
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[STATUS] == 200"
+    alerts:
+      - type: custom
+  - name: dockerproxy
+    group: sakamoto
+    url: http://sakamoto.lan:2575/_ping
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY] == OK"
+    alerts:
+      - type: custom
