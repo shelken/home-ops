@@ -81,6 +81,8 @@ quota-exceeded:
 # Routing strategy for selecting credentials when multiple match.
 routing:
   strategy: "fill-first" # round-robin (default), fill-first
+  session-affinity: true
+  session-affinity-ttl: "1h"
 
 # When true, enable authentication for the WebSocket API (/v1/ws).
 ws-auth: true
