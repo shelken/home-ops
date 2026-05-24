@@ -42,7 +42,7 @@ endpoints:
     conditions:
       - "[CONNECTED] == true"
       - "[DNS_RCODE] == NOERROR"
-      - "[RESPONSE_TIME] < 1000"
+      - "[RESPONSE_TIME] < 2000"
     alerts:
       - type: custom
   - name: router-generate-204
