@@ -65,9 +65,12 @@ endpoints:
       - "[CONNECTED] == true"
   - <<: *common
     name: hysteria2
-    url: "udp://ts-node-vps.network.svc:10357"
+    url: http://ts-node-vps.network.svc:2575/containers/hysteria2/json
     conditions:
-      - "[CONNECTED] == true"
+      - "[STATUS] == 200"
+      - "[BODY].State.Running == true"
+      - "[BODY].State.Restarting == false"
+      - "[BODY].State.Dead == false"
   - <<: *common
     name: dhp
     url: https://dhp.${MAIN_DOMAIN}/v2/
