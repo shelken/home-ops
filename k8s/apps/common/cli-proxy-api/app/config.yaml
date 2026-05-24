@@ -61,7 +61,8 @@ usage-statistics-enabled: true
 proxy-url: "socks5://sakamoto.lan:7890/"
 
 # When true, unprefixed model requests only use credentials without a prefix (except when prefix == model name).
-force-model-prefix: false
+# 强制模型前缀:主会话使用付费的前缀,subagent使用free
+force-model-prefix: true
 
 # When true, forward filtered upstream response headers to downstream clients.
 # Default is false (disabled).
