@@ -92,7 +92,7 @@ spec:
           gethomepage.dev/description: ""
           gethomepage.dev/app: *app
           gatus.home-operations.com/endpoint: |-
-            url: https://{{ .Release.Name }}.${MAIN_DOMAIN}/api/public/settings
+            url: https://drive.${MAIN_DOMAIN}/api/public/settings
             method: HEAD
         hostnames: ["drive.${MAIN_DOMAIN}"]
         parentRefs:
