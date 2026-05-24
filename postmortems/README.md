@@ -5,3 +5,4 @@
 - [003 · smb error](./003-smb-error.md)
 - [004 · prompp panic lock leak](./004-prompp-panic-lock-leak.md)
 - [005 · crowdsec appsec self ban blocks vps probes](./005-crowdsec-appsec-self-ban-vps-probes.md)
+- [006 · gatus sidecar multi match wrong endpoint](./006-gatus-sidecar-multi-match-wrong-endpoint.md)
