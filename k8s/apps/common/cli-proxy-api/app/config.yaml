@@ -81,8 +81,8 @@ quota-exceeded:
 # Routing strategy for selecting credentials when multiple match.
 routing:
   strategy: "round-robin" # round-robin (default), fill-first
-  # disable-image-generation = chat(prefix不会变);force-model-prefix = true(plus free分离) 时, affinity 没有必要 true
-  session-affinity: true
+  # 这个true的时候看起来换账号时缓存失效,free也一样,先关掉
+  session-affinity: false
   session-affinity-ttl: "1h"
 
 # (可能)如果不同类型订阅,会因为tools不同导致缓存失效,plus等会加,free不加之后导致auth切换时失效
