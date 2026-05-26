@@ -99,6 +99,20 @@ spec:
           - backendRefs:
               - identifier: app
                 port: *port
+          # - &for-pi-websocket
+          #   matches:
+          #     - path:
+          #         type: Exact
+          #         value: /v1/codex/responses
+          #   filters:
+          #     - type: URLRewrite
+          #       urlRewrite:
+          #         path:
+          #           type: ReplaceFullPath
+          #           replaceFullPath: /v1/responses
+          #   backendRefs:
+          #     - name: app
+          #       port: *port
           - matches:
               - path:
                   type: PathPrefix
@@ -122,6 +136,7 @@ spec:
             namespace: network
             sectionName: https-cpa
         rules:
+          # - <<: *for-pi-websocket
           - matches:
               - path:
                   type: PathPrefix
