@@ -46,6 +46,8 @@ api-keys:
 # Enable debug logging
 debug: true
 
+request-log: true
+
 # When true, write application logs to rotating files instead of stdout
 logging-to-file: false
 
