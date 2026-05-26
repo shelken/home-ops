@@ -28,6 +28,7 @@ spec:
               REDIS_QUEUE_ADDR: cli-proxy-api:8317
               AUTH_ENABLED: "true"
               APP_BASE_PATH: /usage
+              REDIS_QUEUE_IDLE_INTERVAL: 5s
             envFrom:
               - secretRef:
                   name: cpa-usage-keeper-secret
