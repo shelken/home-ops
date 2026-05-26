@@ -254,7 +254,7 @@ services:
       replicas: 1
 
   derp:
-    image: fredliang/derper:v1.96.4
+    image: fredliang/derper:v1.98.3
     container_name: derp
     network_mode: host
     restart: always
