@@ -6,3 +6,5 @@
 - [004 · prompp panic lock leak](./004-prompp-panic-lock-leak.md)
 - [005 · crowdsec appsec self ban blocks vps probes](./005-crowdsec-appsec-self-ban-vps-probes.md)
 - [006 · gatus sidecar multi match wrong endpoint](./006-gatus-sidecar-multi-match-wrong-endpoint.md)
+- [007 · volsync burst overloads longhorn control plane](./007-volsync-burst-overloads-longhorn-control-plane.md)
+- [008 · volsync fsGroup chown CPU spike](./008-volsync-fsgroup-chown-cpu-spike.md)
