@@ -4,13 +4,42 @@
 
 ## 0) 使用原则
 
-1. 先统一故障窗口，再查任何日志或指标。
+1. 先统一故障窗口，再查关联服务近期升级/PR，最后查日志或指标。
 2. 历史日志优先 Victoria Logs；`kubectl logs` 主要补当前容器和 `--previous`。
 3. 先确认“真实故障是否发生”，再判断是监控链路坏了还是业务本身坏了。
-4. 只看一个面会误判：日志、指标、规则、发送端、接收端至少交叉两面。
+4. 只看一个面会误判：版本、日志、指标、规则、发送端、接收端至少交叉两面。
 5. 涉及外部访问、代理 DNS、家宽出口时，必须补一条路由器旁路线。
 
-## 1) 组件健康与重启
+## 1) 最近升级 / Renovate PR 排查（业务服务先做）
+
+先判断故障是否紧跟服务升级。不是为了先回退，而是为了把“升级回归”放进可验证假设。
+
+```bash
+# GitOps 期望版本与相关配置
+rg -n '<APP>|repository:|tag:|image:' k8s/apps/common/<APP> k8s/infra/common/<APP> 2>/dev/null
+
+# 集群当前实际镜像、启动时间、重启次数
+kubectl -n <NS> get deploy,sts -l app.kubernetes.io/name=<APP> -o json \
+  | jq '.items[] | {kind:.kind,name:.metadata.name,containers:[.spec.template.spec.containers[] | {name,image}],status:[.status.conditions[]? | {type,status,reason}],updatedReplicas:.status.updatedReplicas,readyReplicas:.status.readyReplicas}'
+kubectl -n <NS> get pod -l app.kubernetes.io/name=<APP> -o json \
+  | jq '.items[] | {name:.metadata.name,startTime:.status.startTime,containers:[.status.containerStatuses[] | {name,image,imageID,restartCount,state,lastState}]}'
+
+# 本仓库最近是否被 Renovate 或人工升级过
+git log --oneline --decorate -- k8s/apps/common/<APP> k8s/infra/common/<APP>
+gh pr list --state all --search 'renovate <APP>' --limit 20 --json number,title,state,updatedAt,mergedAt,url
+
+# 上游是否已有同类错误或修复 PR
+gh release list --repo <UPSTREAM_ORG>/<UPSTREAM_REPO> --limit 10
+gh search prs --repo <UPSTREAM_ORG>/<UPSTREAM_REPO> '<ERROR_KEYWORD>' --limit 10 --json number,title,state,updatedAt,closedAt,url
+```
+
+判定：
+
+- 故障窗口紧跟镜像/chart/operator 升级，且日志错误能命中上游 PR/release/issue：优先判定升级回归。
+- GitOps 版本、Pod 实际镜像、PR 内容三者不一致时，先说明“配置状态”和“集群状态”差异，不把本地未同步配置当集群事实。
+- 回退必须走 GitOps；不执行 `kubectl apply`。
+
+## 2) 组件健康与重启
 
 ```bash
 kubectl -n <NS> get pods -o wide
@@ -20,7 +49,7 @@ kubectl -n <NS> describe pod <POD> | sed -n '/Events:/,$p'
 
 关注点：频繁重启、`lastState.terminated.reason`、探针失败、BackOff、Pod 重建导致的日志/指标断面。
 
-## 2) Victoria Logs：先建历史时间线
+## 3) Victoria Logs：先建历史时间线
 
 ```bash
 curl -sG 'http://<VL_ENDPOINT>/select/logsql/query' \
@@ -49,7 +78,7 @@ curl -sG 'http://<VL_ENDPOINT>/select/logsql/query' \
 - 关键词优先用“组件状态词 + 目标名”，例如：`success=false`、`Notify success`、`BEACON-LOSS`、`router-dns-proxy`。
 - Victoria Logs 返回的是 **stream+json**，通常是一行一个 JSON，不要假设它是普通数组 JSON。
 
-## 3) 探测段：Gatus / blackbox
+## 4) 探测段：Gatus / blackbox
 
 ```bash
 kubectl -n <NS> logs deploy/<PROBER_DEPLOY> --since-time=<START_UTC>
@@ -59,11 +88,32 @@ kubectl -n <NS> logs deploy/<PROBER_DEPLOY> --since-time=<START_UTC> \
 
 Gatus 相关经验：
 
+- Gatus 没启用 storage 时，先用 runtime snapshot 明确可见窗口；不要把“本次启动以来没失败”说成“故障没发生”。
 - `router-dns-proxy` 这种 DNS 检测，先分清是 **真实解析慢/超时**，还是你配置的 `[RESPONSE_TIME] < N` 成功阈值过紧。
 - 对 DNS 端点来说，`[CONNECTED] == true`、`[DNS_RCODE] == NOERROR`、`[RESPONSE_TIME]` 是三类不同信号，不要混成一个结论。
 - 如果需要对历史多 Pod 时间线做统计，优先用 Victoria Logs，不要只看当前 `kubectl logs`。
 
-## 4) Prometheus API：不要只看 UI
+### 4.1 Gatus runtime snapshot（无持久化优先）
+
+```bash
+# 总览：观测窗口、当前失败、历史失败 Top
+.agents/skills/k8s-incident-analysis/scripts/gatus-runtime-snapshot.py
+
+# 指定 endpoint：默认只输出失败时间线
+.agents/skills/k8s-incident-analysis/scripts/gatus-runtime-snapshot.py --key <GATUS_KEY>
+
+# 指定 group/name，或输出机器可读 JSON
+.agents/skills/k8s-incident-analysis/scripts/gatus-runtime-snapshot.py --group <GROUP> --json
+```
+
+判定：
+
+- `window_start/window_end` 是 Gatus 当前进程内存结果范围，不等于真实故障窗口。
+- `current failed` 表示现在仍失败；`ever failed` 表示本次启动以来曾失败。
+- 当前全绿但 `ever failed > 0` 时，继续看 endpoint 时间线，再对照业务日志、Prometheus 或上游升级。
+- 需要更长历史时，转 Prometheus 或 Victoria Logs；不要指望 Gatus API 返回重启前数据。
+
+## 5) Prometheus API：不要只看 UI
 
 ```bash
 # instant query
@@ -98,7 +148,7 @@ scrape_samples_scraped{job="gatus"}
 - 如果应用日志有历史事件，但 Prometheus 只在更晚时间才出现样本，先判定为 **抓取盲区/监控面缺口**，而不是业务没故障。
 - 查规则时不要只看表达式，要看 `health`、`lastError` 和 `for` 是否真能满足。
 
-## 5) Alertmanager：发件端与收件端必须成对看
+## 6) Alertmanager：发件端与收件端必须成对看
 
 ```bash
 kubectl -n <NS> logs <ALERT_POD> -c alertmanager --since-time=<START_UTC>
@@ -134,11 +184,11 @@ kubectl -n network logs deploy/zte-mifi-healer --since=24h
 - grep 关键词过窄
 - 你正在看错容器/错 Pod/错时间
 
-## 6) 路由器与出口旁路线
+## 7) 路由器与出口旁路线
 
 当问题涉及外部 API 超时、`router-dns-proxy`、家宽出口、代理 DNS、Wi‑Fi 中继时，补这条旁路线。
 
-### 6.1 一键快照
+### 7.1 一键快照
 
 ```bash
 scripts/router-network-snapshot.sh <ROUTER_HOST>
@@ -146,7 +196,7 @@ scripts/router-network-snapshot.sh <ROUTER_HOST>
 
 可选环境变量：`WWAN_GW` `WAN_GW` `TEST_IP` `PROXY_DOMAIN` `DIRECT_DOMAIN` `UPSTREAM_DNS`。
 
-### 6.2 监控链路日志汇总
+### 7.2 监控链路日志汇总
 
 编写原则：
 
@@ -159,7 +209,7 @@ scripts/router-network-snapshot.sh <ROUTER_HOST>
 # 先把同一时间窗的几段日志拿出来
 python3 scripts/monitoring-log-report.py \
   --hours 6 \
-  --vl-endpoint 192.168.69.66:9428 \
+  --vl-endpoint <VL_ENDPOINT> \
   --vl-section 'name=gatus,namespace=observability,pod=gatus.*' \
   --kubectl-section 'name=alertmanager,namespace=observability,selector=app.kubernetes.io/name=alertmanager,container=alertmanager' \
   --vl-section 'name=receiver,namespace=network,pod=passwall-healer.*'
@@ -167,7 +217,7 @@ python3 scripts/monitoring-log-report.py \
 # 再按自己需要过滤
 python3 scripts/monitoring-log-report.py \
   --hours 6 \
-  --vl-endpoint 192.168.69.66:9428 \
+  --vl-endpoint <VL_ENDPOINT> \
   --vl-section 'name=gatus,namespace=observability,pod=gatus.*' \
   --vl-section 'name=receiver,namespace=network,pod=passwall-healer.*' \
   | rg 'router-dns-proxy|success=false|passwall'
@@ -175,7 +225,7 @@ python3 scripts/monitoring-log-report.py \
 # 只看某一段入口也可以
 python3 scripts/monitoring-log-report.py \
   --hours 24 \
-  --vl-endpoint 192.168.69.66:9428 \
+  --vl-endpoint <VL_ENDPOINT> \
   --skip-kubectl \
   --vl-section 'name=receiver,namespace=network,pod=passwall-healer.*'
 ```
@@ -187,7 +237,7 @@ python3 scripts/monitoring-log-report.py \
 
 适合先把原始日志拿出来，再用管道做第二步分析。
 
-### 6.3 手工最小命令集
+### 7.3 手工最小命令集
 
 
 ```bash
@@ -199,7 +249,7 @@ ssh <ROUTER_HOST> 'nslookup <PROXY_DOMAIN> 127.0.0.1; nslookup <DIRECT_DOMAIN> 1
 ssh <ROUTER_HOST> 'logread | grep -Ei "BEACON-LOSS|wpa_supplicant|passwall|sing-box|chinadns-ng|dnsmasq" | tail -n 120'
 ```
 
-### 6.4 代理 DNS 链路固定检查项
+### 7.4 代理 DNS 链路固定检查项
 
 如果是 Passwall / chinadns-ng / sing-box：
 
@@ -220,7 +270,7 @@ ssh <ROUTER_HOST> 'pidof sing-box; pidof chinadns-ng'
 - 直连域名能解析，不代表代理域名正常。
 - 普通公网 RTT 正常，不代表代理 DNS 正常。
 
-### 6.5 Wi‑Fi 中继 / WWAN 的判定经验
+### 7.5 Wi‑Fi 中继 / WWAN 的判定经验
 
 重点看：
 
@@ -236,19 +286,21 @@ ssh <ROUTER_HOST> 'pidof sing-box; pidof chinadns-ng'
 3. 普通 RTT 正常，但本地 `127.0.0.1` 查代理域名慢：本地代理 DNS 栈或其上游慢。
 4. `wwan` 比 `wan` 普通 RTT 更低，不代表它的上游 DNS 更好；基础出网与 DNS 质量要分开判断。
 
-## 7) 扩展判定表
+## 8) 扩展判定表
 
-1. 探测失败，Prom 无该指标：抓取/服务发现/Prometheus 异常，或监控盲区。
-2. Prom 指标异常，规则不触发：规则未加载、表达式不匹配、`for` 不满足、评估中断。
-3. 规则触发，AM 无记录：Prom->AM 通道或查询时间窗错误。
-4. AM 有 `Notify success`，接收端无记录：日志窗口不对、看错目标，或发件端成功但目标服务前还有其它中间层。
-5. AM 有记录，接收端也有记录，但动作无效：接收端业务逻辑失败或幂等判断吞掉了动作。
-6. 集群内 HTTP/ICMP 正常，但外部域名/DNS 慢：优先查路由器、代理 DNS、上游 DNS、WAN/WWAN。
-7. 监控组件高重启 / scrape 全面缺口：优先判定为监控平面故障。
+1. 服务刚升级，应用日志错误命中上游近期 PR/issue：优先判定升级回归，再评估 GitOps 回退。
+2. 探测失败，Prom 无该指标：抓取/服务发现/Prometheus 异常，或监控盲区。
+3. Prom 指标异常，规则不触发：规则未加载、表达式不匹配、`for` 不满足、评估中断。
+4. 规则触发，AM 无记录：Prom->AM 通道或查询时间窗错误。
+5. AM 有 `Notify success`，接收端无记录：日志窗口不对、看错目标，或发件端成功但目标服务前还有其它中间层。
+6. AM 有记录，接收端也有记录，但动作无效：接收端业务逻辑失败或幂等判断吞掉了动作。
+7. 集群内 HTTP/ICMP 正常，但外部域名/DNS 慢：优先查路由器、代理 DNS、上游 DNS、WAN/WWAN。
+8. 监控组件高重启 / scrape 全面缺口：优先判定为监控平面故障。
 
-## 8) 常见绕弯
+## 9) 常见绕弯
 
 - 先改 YAML 再取证。
+- 没查近期 Renovate/升级 PR，就直接深入网络、存储或监控链路。
 - 只看当前容器日志，不看 `--previous` 或聚合日志。
 - Prometheus 没样本就断言“故障没发生”。
 - 只看 Alertmanager 发件端，不看 receiver / webhook 接收端。
