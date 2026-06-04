@@ -1,2 +1,22 @@
-# Add one Flux Kustomization per simple service here.
-# Keep each child service in its own directory under k8s/apps/common/simple-service/.
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app simple-hello-world
+  namespace: &namespace default
+spec:
+  targetNamespace: *namespace
+  dependsOn:
+    - name: cilium
+      namespace: kube-system
+  interval: 1h
+  path: ./k8s/apps/common/simple-service/simple-hello-world
+  prune: true
+  retryInterval: 2m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  timeout: 5m
+  wait: false
