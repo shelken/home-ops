@@ -19,7 +19,7 @@ description: 在 containers 仓库创建无后端轻量前端应用，并串起 
 4. 启动本地 Docker 预览后停下，让用户审阅页面；用户确认后再继续 home-ops。
 5. 提交并推送 `containers`，等待 CI 产出镜像。
 6. 在 `home-ops` 添加 GitOps 部署资源，注册到 `k8s/apps/common/simple-service/ks.yaml`。
-7. 运行 kustomize 渲染验证。
+7. 运行 kustomize 渲染验证，并告诉用户线上链接：`https://simple-<service-name>.${MAIN_DOMAIN}`。
 
 ## containers 创建步骤
 
