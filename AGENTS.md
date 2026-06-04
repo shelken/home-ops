@@ -43,6 +43,7 @@
 - repo 目录下的命令默认继承 direnv 环境（含 kubeconfig 等环境变量）。仅在命令找不到或无法连接集群时，用 `direnv exec . <cmd>` 包装一次。不要对每条命令都使用
 - 新的skill描述全部中文描述
 - 在 `k8s/apps/common/` 启用/禁用某个应用时，同步更新 `.renovate/packageRules.json5` 的 `Disabled Packages`：禁用时添加该应用相关的镜像/包；启用时移除。
+- 当多个服务同属一个目的时，优先放在同一个应用目录下按职责拆分子目录，例如 `aistudio-proxy-api/app/` 和 `aistudio-proxy-api/login/`，再由同级 `ks.yaml` 引用这些路径。
 - 需要容器镜像时，寻找最新镜像固定化镜像版本（semver@digest），配合renovate的更新
 - 遇到失败的helmrelease，不要reconcile，直接删除hr，然后`flux reconcile ks`
 - SSH执行命令时优先使用IP地址而非主机名（参考[ansible节点信息](ansible/inventory/hosts.ini)）
