@@ -1,0 +1,2 @@
+# Add one Flux Kustomization per simple service here.
+# Keep each child service in its own directory under k8s/apps/common/simple-service/.

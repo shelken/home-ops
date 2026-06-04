@@ -35,6 +35,7 @@ resources:
   # - seafile/ks.yaml
   - shlink/ks.yaml
   # - slash/ks.yaml
+  - simple-service/ks.yaml
   - smb-volumes/ks.yaml
   # - vaultwarden/ks.yaml
   - zte-mifi-exporter/ks.yaml
