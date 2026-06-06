@@ -103,7 +103,7 @@ spec:
           app:
             image:
               repository: ghcr.io/shelken/caddy
-              tag: 2.11.3@sha256:f41c5e6104b80291b3f6c553873164e3fbd842a598df986ecd4cc6d17271af4e
+              tag: 2.11.4@sha256:1975e34b717e601ed5d03cbd21d85b61656b350e7b2a4906c2002543af575719
             env:
               TZ: ${TIMEZONE}
               MAIN_DOMAIN: ${MAIN_DOMAIN}
