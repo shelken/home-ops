@@ -102,8 +102,10 @@ tasks:
           {{.SCRIPTS_DIR}}/azure-inject.sh "$tpl" > "$output"
         done
       # 3. 同步文件到目标机器（文件自动属于 SSH 登录用户，-L 跟随符号链接）
+      #    --inplace: macOS/Lima 下 Docker bind mount 追踪 inode，rsync 默认写临时文件再 rename 会
+      #               产生新 inode 导致挂载断开，--inplace 直接写入目标文件，inode 不变
       - |
-        rsync -avzL --delete --no-owner --no-group \
+        rsync -avzL --inplace --delete --no-owner --no-group \
           --exclude '.env.tpl' \
           --exclude '*.tpl' \
           "{{.LOCAL_DIR}}/" "{{.HOST}}:{{.REMOTE_DIR}}/"

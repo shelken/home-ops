@@ -11,23 +11,25 @@ vars:
   STAGING_DIR: /tmp/kopia-restore-vps
   STAGING_MARKER: "{{.STAGING_DIR}}/.snapshot_id"
   STAGING_ARCHIVE: "{{.STAGING_DIR}}/snapshot.tar"
+  KOPIA_POD: "kubectl exec -n volsync-system deploy/kopia -- kopia"
+  KOPIA_EXEC: "kubectl exec -n volsync-system deploy/kopia --"
 
 tasks:
   list:
-    desc: "List available snapshots"
+    desc: "列出 sakamoto 上 kopia 容器中的可用 snapshot"
     cmds:
       - echo "Snapshots for {{.KOPIA_BACKUP_SOURCE}}:"
       - ssh {{.SOURCE_HOST}} "docker exec {{.SOURCE_KOPIA_CONTAINER}} kopia snapshot list --all '{{.KOPIA_BACKUP_SOURCE}}'"
 
   pull:
-    desc: "Pull snapshot from source to local (usage: SNAPSHOT_ID=xxx [FORCE=1] task kopia-restore:pull)"
+    desc: "从源拉取 snapshot 到本地临时目录（SNAPSHOT_ID=xxx [FORCE=1]）"
     cmds:
       - |
         if [ -f "{{.STAGING_MARKER}}" ] && [ -z "$FORCE" ]; then
           existing_id=$(cat "{{.STAGING_MARKER}}")
           echo "本地已有数据 (Snapshot ID: $existing_id)"
           echo "如需重新下载，请设置 FORCE=1"
-          echo "如需直接推送，运行: task kopia-restore:push"
+          echo "如需直接推送，运行: task kopia:push"
           exit 0
         fi
         if [ -z "$SNAPSHOT_ID" ]; then
@@ -43,12 +45,12 @@ tasks:
         echo "Archive saved to {{.STAGING_ARCHIVE}}"
 
   push:
-    desc: "Push local staging data to target"
+    desc: "将本地暂存的 snapshot 推送至目标机器"
     cmds:
       - |
         if [ ! -f "{{.STAGING_ARCHIVE}}" ]; then
           echo "错误: 本地没有数据"
-          echo "请先运行: SNAPSHOT_ID=xxx task kopia-restore:pull"
+          echo "请先运行: SNAPSHOT_ID=xxx task kopia:pull"
           exit 1
         fi
       - |
@@ -63,7 +65,7 @@ tasks:
       - echo "Done"
 
   clean:
-    desc: "Clean local staging data"
+    desc: "清理本地临时数据"
     cmds:
       - |
         if [ -d "{{.STAGING_DIR}}" ]; then
@@ -75,16 +77,44 @@ tasks:
         fi
 
   full:
-    desc: "Full restore workflow (usage: SNAPSHOT_ID=xxx [FORCE=1] task kopia-restore:full)"
+    desc: "完整的恢复流程（拉取 → 推送，SNAPSHOT_ID=xxx [FORCE=1]）"
     cmds:
       - |
         if [ -f "{{.STAGING_MARKER}}" ] && [ -z "$FORCE" ] && [ -z "$SNAPSHOT_ID" ]; then
           echo "检测到本地已有数据，跳过下载，直接推送..."
           echo "如需重新下载，请设置 SNAPSHOT_ID=xxx FORCE=1"
         elif [ -n "$SNAPSHOT_ID" ]; then
-          task kopia-restore:pull
+          task kopia:pull
         else
           echo "错误: 本地没有数据，请设置 SNAPSHOT_ID"
           exit 1
         fi
       - task: push
+
+  clean-volsync-src:
+    desc: "清理 VolSync 残留的 temp source snapshot 和 policy（DRY_RUN=true 仅列出）"
+    silent: true
+    cmds:
+      - |
+        if [ "${DRY_RUN:-false}" = "true" ]; then
+          echo "[DRY RUN] 列出 volsync-src- 条目（不删除）"
+          {{.KOPIA_EXEC}} sh -c '
+            echo "=== snapshot ==="
+            kopia snapshot list --json --all 2>/dev/null | \
+              jq -r ".[] | select(.source.host | startswith(\"volsync-src-\")) | .id"
+            echo "=== policy ==="
+            kopia policy list 2>/dev/null | awk "/volsync-src-/{print \$NF}"
+          '
+        else
+          {{.KOPIA_EXEC}} sh -c '
+            kopia snapshot list --json --all 2>/dev/null | \
+              jq -r ".[] | select(.source.host | startswith(\"volsync-src-\")) | .id" | \
+              xargs -rI{} kopia snapshot delete {} --delete
+            kopia policy list 2>/dev/null | \
+              awk "/volsync-src-/{print \$NF}" | \
+              xargs -rI{} kopia policy delete {}
+            kopia server refresh --address http://127.0.0.1:80 2>/dev/null
+          '
+        fi
+    preconditions:
+      - { msg: "kubectl not found", sh: "which kubectl" }
