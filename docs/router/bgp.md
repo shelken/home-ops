@@ -1,5 +1,8 @@
 # BGP 路由配置 (BIRD)
 
+> **状态：已断开**。router-home 和 yuuko-k8s 现已离线，BGP 对等已注释。
+> 本文档保留作为历史参考。
+
 本文档记录了主路由器 (`router-mine`) 和远程路由器 (`router-home`) 的 BGP 配置，用于实现跨地域 Pod 网络互通。
 
 ## 概述

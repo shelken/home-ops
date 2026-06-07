@@ -1,5 +1,8 @@
 ## BGP Configuration
 
+> **状态：已断开**。router-home 和 yuuko-k8s 现已离线，BGP 对等已注释。
+> 本文档保留作为历史参考。
+
 ```mermaid
 graph TD
     subgraph "Remote Site (Home)"

@@ -8,6 +8,8 @@
 
 ## 架构
 
+**完整架构文档**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — 物理部署、网络拓扑、服务分布、入口流量、监控采集、备份链路。不清楚系统架构时先读这个。
+
 - **容器编排**: Kubernetes (k3s)
 - **GitOps**: Flux CD v2
 - **网络**: Cilium, Multus, Envoy Gateway, External-DNS
@@ -15,16 +17,32 @@
 - **存储**: Longhorn, CloudNative-PG, SMB
 - **备份**: Volsync, Minio
 
-## 关键目录
+### 重要路径索引
 
-- `k8s/apps/common/` - 应用部署
-- `k8s/infra/common/` - 基础设施
-- `k8s/components/` - 可复用组件
-- `k8s/clusters/staging/` - Flux 监控目录(目前)
-- `bootstrap/` - 集群引导
-- `compose/` - 集群之外手动管理
-- `.taskfile/` - Task 子任务
-- `ansible/` - ansible控制
+**集群管理**
+- `k8s/clusters/staging/kustomization.yaml`: Flux 监控的应用与基础设施入口
+- `k8s/apps/common/`: 应用部署
+- `k8s/infra/common/`: 基础设施（网络、监控、数据库、存储）
+- `k8s/components/`: 可复用组件模板（Volsync、ExternalSecret 等）
+
+**网络**
+- `k8s/infra/common/network/external/`: 外部入口（Caddy、Cloudflare DNS）
+- `k8s/infra/common/network/internal/`: 内部网络（openwrt-dns、zte-mifi-healer、k8s-gateway）
+- `k8s/infra/common/network/envoy-gateway/`: Envoy Gateway 配置与路由
+- `k8s/infra/common/network/tailscale/`: Tailscale proxy 与 subnet router
+- `docs/router/`: router-mine (OpenWrt) 配置文档
+
+**集群外服务**
+- `compose/sakamoto/`: sakamoto Docker Compose 服务
+- `compose/vps/`: VPS Docker Compose 服务
+
+**基础设施**
+- `bootstrap/`: 集群引导
+- `ansible/`: Ansible 控制
+- `.taskfile/`: Task 子任务定义
+- `docs/resource/lima/`: Lima VM 配置文件
+
+> **注意**: 发现路径变更时，向用户确认是否同步更新文档。
 
 ## 集群节点信息
 
