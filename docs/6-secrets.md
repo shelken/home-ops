@@ -13,6 +13,17 @@ task sops:updatekey-all # 变更/删除/增加密钥时 一次性更新所有已
 task secret:bootstrap # 初始化集群所需的 secret
 ```
 
+## 初始化所需 Secret
+
+`task secret:bootstrap` 会根据 [`bootstrap/resources.yaml`](../bootstrap/resources.yaml) 创建集群引导阶段需要的 namespace 和 K8s Secret。外部密钥值仍来自 Azure KeyVault。
+
+| 外部 secret key | 集群内资源 | 用途 | 备注 |
+|-----------------|------------|------|------|
+| `azure-creds` | `external-secrets/azure-creds` | External Secrets 访问 Azure KeyVault | 引导后 ClusterSecretStore 依赖它读取外部密钥 |
+| `flux-instance` | `flux-system/git-token-auth` | Flux instance 拉取 Git 仓库 | `flux-instance` 是 KeyVault remote key；集群内 Secret 名是 `git-token-auth` |
+| `sops` | `flux-system/sops-age` | Flux 解密 SOPS 加密资源 | `sops` 是 KeyVault remote key；集群内 Secret 名是 `sops-age` |
+| `ooooo-space-tls` | 由 certificates/export-import 同步 | 通配 TLS 证书 | 不在 `bootstrap/resources.yaml` 中直接创建；由证书同步链路管理 |
+
 ## external-secrets
 
 > [doc](https://external-secrets.io/latest/introduction/overview/)
@@ -105,4 +116,4 @@ kubectl create secret -n external-secrets generic azure-creds \
 --from-literal=ClientSecret=XXXXX --dry-run=client -o yaml \
 | kubectl apply -f -
 
-``
+```

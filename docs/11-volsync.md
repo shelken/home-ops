@@ -11,7 +11,7 @@
 
 ```shell
 source ~/.restic.env
-export RESTIC_REPOSITORY=s3:minio.ooooo.space/k8s-restic/repos/[APP_NAME]
+export RESTIC_REPOSITORY=s3:<MINIO_ENDPOINT>/k8s-restic/repos/[APP_NAME]
 cd /data/docker/[APP_NAME]
 restic init
 restic backup .

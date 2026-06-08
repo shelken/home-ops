@@ -1,8 +1,8 @@
+# Proxmox 创建虚拟机
 
 ## 链接
 
 - [Proxmox VE - How to build an Ubuntu 22.04 Template (Updated Method)](https://www.youtube.com/watch?v=MJgIm03Jxdo)
-- [示例vm文件](resource/proxmox-vm-template-example.conf)
 
 ## 24.04-server noble
 
@@ -33,8 +33,9 @@ qemu-img resize ubuntu-24.04.qcow2 32G
 ```shell
 export TEMPLATE_ID=1800
 export TEMPLATE_NAME=ubuntu-24-04-homelab-template
-export TEMPLATE_CI_PASS=xxxxxxxx
-export MIO_KEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN9sMBAahOZKZ5QXBEsu6ACfgX8TSt5EgD+E1h6mtzG2 shelken@mio"
+export TEMPLATE_CI_USER="<CI_USER>"
+export TEMPLATE_CI_PASS="<CI_PASSWORD>"
+export SSH_PUBLIC_KEY="<SSH_PUBLIC_KEY>"
 
 # note
 # 使用 net1 而不是 net0 可以生成 eth1 设备名（期望与lima的设备统一）
@@ -55,10 +56,10 @@ qm create $TEMPLATE_ID \
   --net1 virtio,bridge=vmbr0 \
   --agent 1 \
   --serial0 socket \
-  --ciuser shelken \
+  --ciuser "$TEMPLATE_CI_USER" \
   --cipassword $(openssl passwd -5 "$TEMPLATE_CI_PASS") \
   --ciupgrade: 0 \
-  --sshkeys <(echo "$MIO_KEY")
+  --sshkeys <(echo "$SSH_PUBLIC_KEY")
 
 ```
 

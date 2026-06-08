@@ -30,221 +30,59 @@
 
 # home-ops
 
-homelab
+Homelab GitOps 仓库。Kubernetes 集群、基础设施组件、应用、外部 Compose 服务、备份和运维文档都从这里管理。
 
-## 网络拓扑
+## 架构摘要
 
-```mermaid
-graph TD
-    subgraph Backbone ["ZeroTier VPN"]
-        ZT_Link["192.168.191.0/24"]
-    end
+- 容器编排：Kubernetes / k3s
+- GitOps：Flux CD v2
+- 网络：Cilium、Multus、Envoy Gateway、External-DNS
+- 密钥：SOPS、External Secrets、Azure KeyVault
+- 存储：Longhorn、CloudNativePG、SMB
+- 备份：Volsync、MinIO、Kopia
+- 外部服务：`compose/sakamoto/`、`compose/vps/`
 
-    subgraph Local_Site ["Site: Mine (Local)"]
-        RM_IP["Router-Mine LAN: 192.168.6.1"]
-        RM_ZT["Router-Mine ZT: 192.168.191.12"]
-        Sakamoto["sakamoto-k8s<br/>(Control Plane)"]
-        Homelab1(homelab-1)
-    end
+完整架构见 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)。
 
-    RM_IP --- Sakamoto
-    RM_IP --- Homelab1
+## 文档入口
 
-    RM_ZT <== "BGP (Native Routing)" ==> ZT_Link
+| 文档 | 用途 |
+|------|------|
+| [`docs/README.md`](docs/README.md) | 文档总索引 |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | 物理部署、服务分布、入口流量、监控采集、备份链路 |
+| [`docs/network-inventory.md`](docs/network-inventory.md) | LoadBalancer、Multus 和固定服务地址清单 |
+| [`docs/operations-notes.md`](docs/operations-notes.md) | 常见 Flux、Cilium、Longhorn、SMB、Multus 排障入口 |
+| [`docs/router/README.md`](docs/router/README.md) | OpenWrt、BGP、VLAN、mDNS 配置 |
+| [`postmortems/README.md`](postmortems/README.md) | 事故复盘和长期规则 |
 
-    RM_IP --- RM_ZT
-```
+## 重要路径
 
-## 设备网络
+| 路径 | 用途 |
+|------|------|
+| `k8s/clusters/staging/kustomization.yaml` | Flux 监控的应用与基础设施入口 |
+| `k8s/apps/common/` | 应用部署 |
+| `k8s/infra/common/` | 基础设施部署 |
+| `k8s/components/` | 可复用组件模板 |
+| `compose/sakamoto/` | sakamoto Docker Compose 服务 |
+| `compose/vps/` | VPS Docker Compose 服务 |
+| `bootstrap/` | 集群引导资源 |
+| `ansible/` | 节点初始化和系统配置 |
+| `.taskfile/` | Task 子任务定义 |
+| `docs/` | 架构、部署和运维文档 |
 
-> lb ip range: 192.168.69.0/24
+## 工作原则
 
-| 服务                   | ip            | 描述                      | domain    | multus         |
-| ---------------------- | ------------- | ------------------------- | --------- | -------------- |
-| k8s-gateway            | 192.168.69.41 | 开放给外部 dns            |           |                |
-| envoy external gateway | 192.168.69.45 |                           |           |                |
-| envoy internal gateway | 192.168.69.46 |                           |           |                |
-| postgres-lb            | 192.168.69.52 | 开放postgres              | postgres. |                |
-| plex                   | 192.168.69.54 |                           |           |                |
-| immich-db              | 192.168.69.56 |                           |           |                |
-| seafile-db             | 192.168.69.57 |                           |           |                |
-| mosquitto              | 192.168.69.59 |                           |           |                |
-| vistoria-logs          | 192.168.69.66 | 给其他设备（vps）发送日志 |           |                |
-| crowdsec               | 192.168.69.67 | 其他设备agent/bounce连接  |           |                |
-| netbird                | 192.168.6.44  | 关闭 保留                 |           | multus-ipv6    |
-| caddy-external         | 192.168.6.47  |                           |           | multus-ipv6    |
-| home assistant         | 192.168.50.51 | mDNS                      |           | multus-iot     |
-| go2rtc                 | 192.168.6.53  | mDNS                      |           | multus-homekit |
-| qbittorrent            | 192.168.6.58  | IPv6 直连                 |           | multus-ipv6    |
-| tailscale-sub-router   | 192.168.6.65  | IPv6 直连                 |           | multus-ipv6    |
-| tailscale-node-vps     | 192.168.6.66  | IPv6 直连                 |           | multus-ipv6    |
+- 常规变更走 Git + Flux，不直接 `kubectl apply`。
+- 资源删除必须先确认目标和影响范围。
+- 本地未提交/未推送的文件不是集群状态。
+- 新增或禁用 `k8s/apps/common/` 应用时，同步维护 `.renovate/packageRules.json5`。
+- 需要暴露单独地址时，优先确认 LoadBalancer、Multus、Gateway、External-DNS 的责任边界。
+- 需要容器镜像时固定版本和 digest，并交给 Renovate 后续更新。
 
-## multus 网络定义
-
-[参考-网络类型](k8s/infra/common/network/multus/networks/README.md)
-
-## 服务网络
-
-| 服务 | 状态                                                                            |
-| ---- | ------------------------------------------------------------------------------- |
-| echo | ![](https://status.ooooo.space/api/v1/endpoints/external_echo/health/badge.svg) |
-
-## 核心组件
-
-### Core Components
-
-- [cert-manager](https://github.com/cert-manager/cert-manager): Creates SSL certificates for services in my cluster.
-- [cilium](https://github.com/cilium/cilium): eBPF-based networking for my workloads.
-- [external-dns](https://github.com/kubernetes-sigs/external-dns): Automatically syncs ingress DNS records to a DNS provider.
-- [k8s-gateway](https://github.com/k8s-gateway/k8s_gateway): https://github.com/k8s-gateway/k8s_gateway
-- [external-secrets](https://github.com/external-secrets/external-secrets): Managed Kubernetes secrets using Azure KeyVault
-- [sops](https://github.com/getsops/sops): Managed secrets for Kubernetes and Terraform which are commited to Git.
-- [volsync](https://github.com/backube/volsync): Backup and recovery of persistent volume claims.
-
-## 初始化所需Secret
-
-> 以下secret存储在 Azure KeyVault 或任何 external secret 提供商
->
-> [resources](/bootstrap/resources.yaml)
-
-| secret key      | 用途                                                      | 备注 |
-| --------------- | --------------------------------------------------------- | ---- |
-| azure-creds     | external-secret 获取secret必须                            |      |
-| flux-instance   | flux-instance 拉取private repo必须                        |      |
-| sops            | 部分使用sops加密的配置                                    |      |
-| ooooo-space-tls | 域名证书（加快集群部署速,度避免cert-manager多次获取证书） |      |
-
-## flux
-
-### 疑难问题
-
-- `dry-run failed: no matches for kind "OCIRepository in version "source.toolkit.fluxcd.io/v1`
-
-检查cli安装的版本，版本太低与文件定义的api版本和实际版本对不上。
-
-直接升级cli版本，然后Bootstrap 让flux自动升级。
-
-ocirepo 在 2.6上才是v1，在2.5上配置是v1beta2
-
-- 卸载longhorn（删除helmrelease）前
+## 常用命令
 
 ```shell
-kubectl -n longhorn-system patch -p '{"value": "true"}' --type=merge lhs deleting-confirmation-flag
+task --list
 ```
 
-- 每次重建集群之后，cilium总是不给gateway ip
-
-`task restart-cilium` 重启后正常了
-
-- lima 无法挂载磁盘
-
-```json
-{
-  "level": "fatal",
-  "msg": "failed to run attach disk \"longhorn\", in use by instance \"sakamoto-k8s\"",
-  "time": "2025-07-08T14:24:21+08:00"
-}
-```
-
-`limactl disk unlock longhorn`
-
-- 迁移secret后， external-secrets 无法push
-
-因为external-secret azure会自动给pushsecret打上tag，表示由external-secret管理，迁移时没有加上这个tag
-
-导致出现问题, 删掉secret让external-secret重新同步。
-
-- longhorn 的daemonset在重启k3s或者机器时存在Misscheduled的情况
-
-删掉对应 pod 解决
-
-非常奇怪。。。。。。
-
-- smb 中文乱码问题
-
-宿主机缺失相关动态库
-
-```shell
-sudo apt-get install -y cifs-utils linux-modules-extra-$(uname -r)
-```
-
-- 遇到helmrelease/kustomization卡住的情况
-
-```shell
-flux suspend helmrelease cilium -n kube-system
-flux resume helmrelease cilium -n kube-system
-```
-
-- 遇到multus设备无法获取，且同时存在两个相同pod
-
-检查更新策略，不要设置滚动更新
-
-如果有部署自带，通过以下操作去除滚动更新
-
-```
-postRenderers:
-  - kustomize:
-      patches:
-        - target:
-            kind: Deployment
-            name: xxx
-          patch: |-
-            - op: remove
-              path: /spec/strategy/rollingUpdate
-```
-
-- 哪些情形不适合使用滚动更新？
-
-- 设置了multus的容器，会被上一个占用网卡
-- 设置了 readwriteonce pvc的
-
-- L2宣告问题，导致某个lbip无法连接
-
-我们可能会有这种情况，一个服务，例如a，此时a服务需要一个lbip
-
-当分配时，例如节点a获取到了这个服务的领导（因为各种情况，例如仅只有a节点存活），
-
-此时lease在a，a只有一个副本，且我们配置了a服务仅能运行在节点b。当我们把externalTrafficPolicy设为local时
-
-此时我们对a发起请求，或者连接a的端口，发现被拒绝，因为此时b节点拿到流量发现没有a服务且`externalTrafficPolicy=Local`，直接丢弃流量
-
-我们可以删除a当前获取的lease `kubectl delete lease x -n kube-system`
-
-但是，不想每次手动，需要考虑为服务创建2个以上
-
-- multus 网卡的使用情况
-
-只有几种情况需要用multus：
-
-**multus-ipv6** - 需要 IPv6/UDP 直连的服务：
-
-- tailscale (subnet-router, node-vps)
-- qbittorrent
-- caddy-external
-- netbird-router (暂未使用)
-
-**multus-iot** ：
-
-- home-assistant
-
-**multus-homekit** ：
-
-- go2rtc
-
-**multus-main (eth1, 192.168.6.0/24)** - 保留备用
-
-除此之外需要单独 IP 的都应该使用 L2 宣告，并严格限定端口
-
-multus 引用时的 ips 掩码是32还是24很重要，影响到自动加不加出口的网段
-
-- 容器频繁重启且有规律（smb）
-
-如果都是使用smb，那么应该是`smb-scaler`的问题
-
-keda 通过检查 prometheus 的指标获取smb服务情况。
-
-blackbox 采集smb端口连通性（使用了域名）
-
-dns 如果无法正常解析lan域名的话，blackbox会失败，进而出问题。
-
-因此检查blackbox容器是否存在检测问题或者当前smb连接情况
+更多命令见 [`Taskfile.yaml`](Taskfile.yaml) 和 `.taskfile/`。

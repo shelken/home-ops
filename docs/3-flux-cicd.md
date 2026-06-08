@@ -1,4 +1,4 @@
-## flux
+# Flux GitOps
 
 > NOTE: 目前项目不再使用CLI命令即`flux bootstrap`来初始化。而是使用`flux-instance`和`flux-operator`。
 > [教程 flux-git-ops](https://fschoenberger.dev/homelab/04-flux-git-ops/)
@@ -16,8 +16,8 @@ nix shell nixpkgs#fluxcd
 然后使用flux bootstrap，引用对应repo。
 
 ```shell
-# 在github创建具体仓库使用的githu token
-export GITHUB_TOKEN=xxxx
+# 在 GitHub 创建当前仓库使用的 token
+export GITHUB_TOKEN="<GITHUB_TOKEN>"
 
 flux bootstrap github \
 --owner=shelken \
@@ -27,7 +27,7 @@ flux bootstrap github \
 --personal \
 --token-auth \
 
-# 如果使用ssh，可以带上--private-key-file=~/.ssh/id_ed25519参数，去掉token-auth
+# 如果使用 SSH，可以带上 --private-key-file=<SSH_PRIVATE_KEY_PATH> 参数，去掉 token-auth
 # --private 如果是私有仓库的话加上
 
 # 将sops-secret放过去

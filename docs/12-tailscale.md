@@ -1,4 +1,6 @@
-## 使用tailscale连接VPS和家庭网
+# Tailscale
+
+## 使用 Tailscale 连接 VPS 和家庭网
 
 > 目前限制：目前集群单栈ipv4 无法direct（通过ipv6）
 >

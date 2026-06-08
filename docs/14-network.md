@@ -1,4 +1,6 @@
-## ipv6
+# 网络配置记录
+
+## IPv6
 
 [HomeLab 中 K3s 的 IPv6 配置](https://yadom.in/archives/k3s-ipv6-configuration.html)
 

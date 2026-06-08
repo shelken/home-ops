@@ -55,14 +55,14 @@ ansible-playbook ansible/playbooks/install-nvidia.yaml
 
 ```shell
 #rsync传输文件
-rsync -avzP /Volumes/sakamoto-data/k8s/resource/nvidia-driver/vgpu-550.163.02-17.6/NVIDIA-Linux-x86_64-550.163.01-grid.run shelken@192.168.6.111:~/
+rsync -avzP <NVIDIA_DRIVER_RUN_FILE> <SSH_USER>@192.168.6.111:~/
 
 sudo ./NVIDIA-Linux-x86_64-550.163.01-grid.run --silent --no-questions --accept-license --disable-nouveau
 ```
 
 处理licence
 
-部署一个 [fastapi-dls](https://github.com/shelken/homelab-compose/blob/main/apps/nvidia-dls/docker-compose.yaml)
+部署一个 fastapi-dls 服务，当前配置见 [`compose/sakamoto/docker-compose.yml`](../compose/sakamoto/docker-compose.yml) 的 `nvidia-dls` 服务。
 
 ```shell
 export MAIN_DOMAIN=
