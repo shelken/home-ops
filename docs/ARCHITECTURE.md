@@ -35,7 +35,7 @@ graph LR
         Router["router-mine<br/>OpenWrt<br/>192.168.6.1"]
 
         subgraph VLAN6["VLAN 6 · 主内网<br/>192.168.6.0/24"]
-            SAKAMOTO["sakamoto<br/>192.168.6.80"]
+            SAKAMOTO["sakamoto<br/>192.168.6.144"]
             PVE_NODE["PVE<br/>192.168.6.213"]
         end
 
@@ -47,14 +47,22 @@ graph LR
     subgraph K8S["k3s 集群"]
         CP["sakamoto-k8s<br/>192.168.6.80"]
         WORKER["homelab-1<br/>192.168.6.110"]
+
+        subgraph LBIPAM["Cilium LB IPAM<br/>192.168.69.0/24"]
+            K8SGW["k8s-gateway<br/>192.168.69.41"]
+            ENV_EXT["envoy-external<br/>192.168.69.45"]
+            ENV_INT["envoy-internal<br/>192.168.69.46"]
+        end
     end
 
-    VPS["VPS<br/>100.97.0.0/16"]
+    VPS["VPS<br/>Tailscale: 100.97.0.0/16"]
 
     Internet <--> F50
     F50 <--> Router
     Router <--> SAKAMOTO
     Router <--> PVE_NODE
+    Router <-->|"eBGP"| CP
+    Router <-->|"eBGP"| WORKER
     SAKAMOTO --- CP
     PVE_NODE --- WORKER
     CP <-->|"LAN"| WORKER
@@ -73,11 +81,15 @@ graph LR
 | IoT 设备 ↔ router-mine | LAN (VLAN 50) | 192.168.50.0/24 |
 | IoT 设备 → k3s pods | Multus CNI | VLAN 50 接入集群 |
 | sakamoto-k8s ↔ homelab-1 | LAN (VLAN 6) | k3s 节点间通信 |
+| router-mine ↔ k3s 节点 | eBGP | Cilium 向 router-mine 通告 PodCIDR 和 LoadBalancerIP |
+| Cilium LB IPAM | 192.168.69.0/24 | k8s-gateway: 192.168.69.41；envoy-external: 192.168.69.45；envoy-internal: 192.168.69.46 |
 | VPS ↔ sakamoto-k8s | Tailscale | 100.97.0.0/16，VPS 通过 Tailscale 直连集群 subnet router |
 
 ---
 
 ## 3. 服务分布
+
+> 本节只列主要 Compose 服务，不是完整容器清单；辅助容器以实际 `docker-compose.yml` 为准。
 
 ```mermaid
 graph TB
@@ -178,25 +190,24 @@ CN / HK + VPS IP"]
 
 ```mermaid
 graph LR
-    subgraph LAN["家庭内网"]
+    subgraph LAN["家庭内网<br/>192.168.6.0/24"]
         Client["局域网设备"]
-        Router["OpenWrt 路由器 (DNS)"]
+        Router["router-mine (DNS 解析)<br/>192.168.6.1"]
     end
 
-    subgraph TS["Tailscale"]
+    subgraph TS["Tailscale<br/>100.97.0.0/16"]
         TS_Client["Tailscale 客户端"]
         TS_Subnet["subnet router"]
     end
 
     subgraph K8S["k3s 集群"]
-        OpenwrtDNS["openwrt-dns
-(External-DNS webhook)"]
+        OpenwrtDNS["openwrt-dns<br/>(External-DNS webhook)"]
         Envoy_Internal["envoy-internal"]
     end
 
-    OpenwrtDNS --> Router
-    Client --> Router
-    Router --> Envoy_Internal
+    OpenwrtDNS -->|"同步 DNS 记录"| Router
+    Client -->|"DNS 查询"| Router
+    Router -->|"A 记录 → LB IP"| Envoy_Internal
     TS_Client --> TS_Subnet
     TS_Subnet --> Envoy_Internal
 ```
@@ -221,7 +232,7 @@ graph TB
     subgraph VPS["VPS"]
         Caddy["VPS Caddy（443）"]
 
-        subgraph LOCAL["本地直答"]
+        subgraph LOCAL["Docker 本地服务<br/>172.20.0.0/16"]
             mosdns["vdns → mosdns"]
             subconv["sub → sub-converter"]
             derp["derp → DERP"]
@@ -242,7 +253,6 @@ graph TB
     Caddy -->|"cpa"| Envoy_CPA
     Caddy -->|"*（默认）"| Envoy
     Caddy --> mosdns
-    Caddy -.->|"不经过 Caddy"| hysteria2
 ```
 
 | 域名 | 路由目标 | 说明 |
@@ -266,12 +276,11 @@ graph LR
     subgraph VPS["VPS"]
         NE_VPS["node-exporter"]
         CADDY_VPS["Caddy metrics"]
-        FB_VPS["Fluent Bit"]
+        FB_VPS["Fluent Bit<br/>VPS Caddy 日志"]
     end
 
     subgraph SAKAMOTO["sakamoto"]
         CADDY_SAKA["Caddy metrics"]
-        FB_SAKA["Fluent Bit"]
     end
 
     subgraph TS_PROXY["Tailscale Proxy"]
@@ -282,6 +291,7 @@ graph LR
         Prometheus["Prometheus"]
         VL["VictoriaLogs"]
         Gatus["Gatus"]
+        FB_K8S["Fluent Bit<br/>k8s 容器日志"]
     end
 
     NE_VPS --> TS_SVC
@@ -290,9 +300,9 @@ graph LR
     CADDY_SAKA --> Prometheus
 
     FB_VPS --> VL
-    FB_SAKA --> VL
+    FB_K8S --> VL
 
-    TS_SVC --> Gatus
+    Gatus --> TS_SVC
     Gatus --> VPS_Public["VPS 公网 URL"]
 ```
 
@@ -304,8 +314,8 @@ graph LR
 | VPS Caddy metrics | ts-node-vps:2019 | Prometheus |
 | VPS Docker 状态 | ts-node-vps:2575 | Gatus / Homepage |
 | sakamoto Caddy | sakamoto.lan:2019 | Prometheus |
-| VPS 访问日志 | Fluent Bit | VictoriaLogs |
-| sakamoto 访问日志 | Fluent Bit | VictoriaLogs |
+| VPS Caddy 访问日志 | VPS Fluent Bit | VictoriaLogs |
+| k8s 容器日志 | 集群 Fluent Bit | VictoriaLogs |
 
 ---
 
@@ -322,7 +332,7 @@ graph TB
     end
 
     subgraph SAKA_BACKUP["sakamoto"]
-        MinIO["MinIO (S3)"]
+        MinIO["MinIO (S3)<br/>:9000"]
         COMPOSE_Data["Compose 数据"]
         SAKA_Kopia["Kopia（云端）"]
         SAKA_Kopia_Local["Kopia（本地）"]

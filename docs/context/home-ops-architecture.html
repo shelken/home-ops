@@ -134,7 +134,7 @@
     <div class="header">
       <p class="header-eyebrow">Architecture · home-ops</p>
       <h1>home-ops 架构总览</h1>
-      <p class="subtitle">仓库是主要配置入口。Taskfile 与 Ansible 完成节点引导，Flux 从 <code>k8s/clusters/staging</code> 继续分发到 <code>k8s/infra/staging</code> 与 <code>k8s/apps/staging</code>；密钥链路同时覆盖 Azure Key Vault 与 repo 内 SOPS 密文；网络由 Cilium、Multus、Envoy Gateway 与家庭网络入口组成；持久化、备份、观测与集群外 compose 服务共同支撑家庭服务。</p>
+      <p class="subtitle">本图保留作历史总览与视觉参考；当前事实以 <code>docs/ARCHITECTURE.md</code> 为准。仓库是主要配置入口，Flux 从 <code>k8s/clusters/staging</code> 分发到 <code>k8s/infra/common</code> 与 <code>k8s/apps/common</code>；网络、入口、观测、备份与集群外 Compose 服务共同支撑家庭服务。</p>
     </div>
 
     <div class="diagram-shell">
@@ -279,7 +279,7 @@
         <text x="455" y="417" fill="#57534e" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">OBSERVE</text>
         <text x="508" y="436" fill="#1c1917" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">观测栈</text>
         <text x="508" y="452" fill="#57534e" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">Prometheus · Grafana · VictoriaLogs</text>
-        <text x="508" y="466" fill="#57534e" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">Gatus · Kromgo · Fluent Bit</text>
+        <text x="508" y="466" fill="#57534e" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">Gatus · Kromgo · k8s Fluent Bit</text>
 
         <rect x="648" y="400" width="176" height="84" rx="6" fill="#faf7f2" />
         <rect x="648" y="400" width="176" height="84" rx="6" fill="#ffffff" stroke="#1c1917" stroke-width="1" />
@@ -311,13 +311,14 @@
         <text x="1114" y="281" fill="#1c1917" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">OpenWrt 路由器</text>
         <text x="1114" y="297" fill="#57534e" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">VLAN 6 / 50 · mDNS reflect · BGP</text>
 
-        <rect x="1016" y="364" width="196" height="72" rx="6" fill="#faf7f2" />
-        <rect x="1016" y="364" width="196" height="72" rx="6" fill="rgba(28,25,23,0.03)" stroke="rgba(28,25,23,0.30)" stroke-width="1" />
+        <rect x="1016" y="364" width="196" height="92" rx="6" fill="#faf7f2" />
+        <rect x="1016" y="364" width="196" height="92" rx="6" fill="rgba(28,25,23,0.03)" stroke="rgba(28,25,23,0.30)" stroke-width="1" />
         <rect x="1024" y="372" width="60" height="12" rx="2" fill="transparent" stroke="rgba(28,25,23,0.24)" stroke-width="0.8" />
         <text x="1054" y="381" fill="#57534e" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">COMPOSE</text>
         <text x="1114" y="401" fill="#1c1917" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">集群外服务</text>
         <text x="1114" y="417" fill="#57534e" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">compose/vps · compose/sakamoto</text>
-        <text x="1114" y="431" fill="#57534e" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">Caddy · Fluent Bit · CrowdSec · Kopia · MinIO</text>
+        <text x="1114" y="431" fill="#57534e" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">VPS: Caddy · Fluent Bit · CrowdSec</text>
+        <text x="1114" y="445" fill="#57534e" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">sakamoto: Caddy · MinIO · Kopia</text>
 
         <rect x="1016" y="484" width="196" height="72" rx="6" fill="#faf7f2" />
         <rect x="1016" y="484" width="196" height="72" rx="6" fill="rgba(28,25,23,0.05)" stroke="#57534e" stroke-width="1" />
@@ -333,7 +334,7 @@
         <p class="card-eyebrow">Control plane</p>
         <h3>GitOps 主干</h3>
         <ul>
-          <li>仓库入口在 <code>k8s/clusters/staging</code>，Flux 继续分发到 <code>k8s/infra/staging</code> 与 <code>k8s/apps/staging</code>。</li>
+          <li>仓库入口在 <code>k8s/clusters/staging</code>，Flux 继续分发到 <code>k8s/infra/common</code> 与 <code>k8s/apps/common</code>。</li>
           <li>Taskfile 与 Ansible 负责节点初装、CRD 与基础文件，不承担长期配置事实源角色。</li>
           <li>仓库还承载 docs、compose、ansible、bootstrap，形成完整运维工作区。</li>
         </ul>
@@ -354,14 +355,14 @@
         <h3>集群外协作面</h3>
         <ul>
           <li>OpenWrt 提供 VLAN 划分、mDNS 反射与 BGP，承接家庭网络语义。</li>
-          <li><code>compose/</code> 分成 <code>compose/vps</code> 与 <code>compose/sakamoto</code>，承接代理、日志、备份与对象存储等集群外职责。</li>
+          <li><code>compose/vps</code> 承接公网代理、日志采集和 VPS 备份；<code>compose/sakamoto</code> 承接内部代理、MinIO、镜像代理与本地/云端备份。</li>
           <li>业务层覆盖家庭自动化、媒体、知识与通用工具，典型例子见 Home Assistant、Jellyfin、Memos、Frigate。</li>
         </ul>
       </section>
     </div>
 
     <div class="footer">
-      <span>默认配色 · light editorial tokens</span>
+      <span>历史总览 · 当前事实以 docs/ARCHITECTURE.md 为准</span>
       <span>文件：docs/context/home-ops-architecture.html</span>
     </div>
   </div>
