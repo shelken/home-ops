@@ -10,7 +10,7 @@ tasks:
     preconditions:
       - sh: '[ -n "{{ .DIR }}" ] || [ -n "{{ .FILE }}" ]'
         msg: "必须传 DIR 或 FILE"
-      - sh: '! { [ -n "{{ .DIR }}" ] && [ -n "{{ .FILE }}" ]; }'
+      - sh: '[ -z "{{ .DIR }}" ] || [ -z "{{ .FILE }}" ]'
         msg: "DIR 和 FILE 只能二选一"
       - sh: '[ -z "{{ .DIR }}" ] || test -d "{{ .DIR }}"'
         msg: "DIR 不存在或不是目录"
