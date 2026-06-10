@@ -24,6 +24,25 @@ services:
         max-size: "80m"
         max-file: "3"
 
+  dnsmasq:
+    image: dockurr/dnsmasq:2.92@sha256:e84feecd6551b586cf86f830f111ef36c399b0ca26a9bb6dae4a8ceb11626373
+    container_name: dnsmasq
+    networks:
+      - homelab
+    restart: always
+    configs:
+      - source: dnsmasq_config
+        target: /etc/dnsmasq.conf
+    ports:
+      - "127.0.0.1:53:5353/tcp"
+      - "127.0.0.1:53:5353/udp"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      replicas: 1
+
   node-exporter:
     container_name: node-exporter
     command:
@@ -400,6 +419,8 @@ configs:
     file: ./configs/crowdsec/appsec-configs/jellyfin-exclusions.yaml
   crowdsec_firewall_bouncer_config:
     file: ./configs/crowdsec/crowdsec-firewall-bouncer.yaml
+  dnsmasq_config:
+    file: ./configs/dnsmasq/dnsmasq.conf
   dhp_mirror_config:
     file: ./configs/mirror-config.yaml
   fluent_bit_config:

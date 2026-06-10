@@ -49,6 +49,7 @@ compose/**/.env
 compose/**/repository.config
 compose/**/config.json
 compose/**/config.yaml
+compose/**/dnsmasq.conf
 
 # Auto Claude data directory
 .auto-claude/

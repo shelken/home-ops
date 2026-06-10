@@ -109,6 +109,7 @@ Nvidia DLS"]
     subgraph COMPOSE_VPS["VPS · Docker Compose"]
         CD_VPS["Caddy (公网入口 + TLS)
 CrowdSec (WAF)
+dnsmasq (本机 DNS)
 mosdns (DNS)
 Hysteria2 / Xray (代理)
 DERP (Tailscale 中继)
@@ -134,6 +135,11 @@ sub-converter (订阅转换)"]
               └── AAAA: 集群 v6（DDNS，由集群内 caddy-external 更新）
 
 ExternalDNS 自动管理各服务子域名的记录
+
+VPS 本机 DNS:
+  127.0.0.1 -> dnsmasq
+               MAIN_DOMAIN -> k8s-gateway 192.168.69.41
+               其他域名 -> 公网 DNS
 ```
 
 ### 流量路径
@@ -264,8 +270,8 @@ graph TB
 | `dhp` | → 本地 registry-proxy | Docker 镜像代理 |
 | `vdns` | → 本地 mosdns | DNS 服务 |
 
-> hysteria2、xray 使用 `network_mode: host`，不经过 Caddy，
-> 直接暴露在宿主机端口。
+> hysteria2、xray、dnsmasq 不经过 Caddy，
+> 直接使用宿主机端口。
 
 ---
 
