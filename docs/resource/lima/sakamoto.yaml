@@ -52,13 +52,18 @@ portForwards:
     guestIP: 0.0.0.0
 
 images:
-  # Try to use release-yyyyMMdd image if available. Note that release-yyyyMMdd will be removed after several months.
+  # 固定版本 + digest，只下载一次，后续复用缓存。release-yyyyMMdd 几个月后可能被删，届时改用下一行回退
+  - location: "https://cloud-images.ubuntu.com/releases/noble/release-20260518/ubuntu-24.04-server-cloudimg-amd64.img"
+    arch: "x86_64"
+    digest: "sha256:53fdde898feed8b027d94baa9cfe8229867f330a1d9c49dc7d84465ee7f229f7"
+  - location: "https://cloud-images.ubuntu.com/releases/noble/release-20260518/ubuntu-24.04-server-cloudimg-arm64.img"
+    arch: "aarch64"
+    digest: "sha256:6a61b967ba4a27dd1966f835a67643073ed55c2860ce3dc1cb0517282e6b8bec"
+  # 回退——不带 digest，跟随上游滚动
   - location: "https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-amd64.img"
     arch: "x86_64"
-    # digest: "sha256:eacac65efe9e9bae0cbcb3f9d5c2b5e8c5313fa78a3bc401c3fb28b2d48cefc0"
   - location: "https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-arm64.img"
     arch: "aarch64"
-    # digest: "sha256:103f31c5a5b7f031a60ce3555c8fbd56317fd8ffbaaa7e17002879e6157d546d"
 
 # containerd is managed by k3s, not by Lima, so the values are set to false here.
 containerd:
