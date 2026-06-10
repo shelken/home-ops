@@ -72,7 +72,7 @@ services:
       replicas: 1
 
   caddy:
-    image: ghcr.io/shelken/caddy:2.11.3
+    image: ghcr.io/shelken/caddy:2.11.4
     container_name: caddy
     networks:
       - homelab
