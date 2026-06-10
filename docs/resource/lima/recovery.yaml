@@ -1,0 +1,49 @@
+# Recovery VM — 单次恢复群晖磁盘数据用
+# 参考：sakamoto.yaml
+# 需要 Lima HEAD (v2.2.0-dev) 以上才支持 blockDevices
+
+vmType: "vz"
+
+cpus: 2
+memory: 2G
+disk: 20G
+
+# 群晖残盘直通
+# 插盘后先确认设备号：diskutil list external physical
+# 这里以 /dev/disk6 为例，实际启动时替换或改 YAML
+blockDevices:
+  - /dev/disk6
+
+ssh:
+  localPort: 60124
+
+hostResolver:
+  enabled: false
+
+images:
+  # 固定到 20260518 版本 + digest，避免每次对比上游最新并重下
+  - location: "https://cloud-images.ubuntu.com/releases/noble/release-20260518/ubuntu-24.04-server-cloudimg-arm64.img"
+    arch: "aarch64"
+    digest: "sha256:6a61b967ba4a27dd1966f835a67643073ed55c2860ce3dc1cb0517282e6b8bec"
+  # 回退——如果上面链接被删，走滚动 release（不带 digest，会重下）
+  - location: "https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-arm64.img"
+    arch: "aarch64"
+
+containerd:
+  system: false
+  user: false
+
+# 装恢复工具
+provision:
+  - mode: system
+    script: |
+      #!/bin/bash
+      set -eux -o pipefail
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get update
+      apt-get install -y --no-install-recommends \
+        mdadm lvm2 btrfs-progs rsync smartmontools \
+        htop ncdu tree vim
+
+probes: []
+copyToHost: []
