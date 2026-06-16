@@ -29,7 +29,7 @@ resources:
   # - new-api/ks.yaml
   # - ollama/ks.yaml
   - openlist/ks.yaml
-  - qbittorrent/ks.yaml
+  # - qbittorrent/ks.yaml # 没流量了
   - qui/ks.yaml
   - plex/ks.yaml
   # - seafile/ks.yaml
