@@ -19,3 +19,14 @@ spec:
           labels:
             severity: critical
             autoheal: f50-network
+        - alert: Gatus|外部入口大面积连接失败
+          expr: |
+            count(gatus_results_endpoint_success{group="external"} == 0) > 3
+          for: 2m
+          annotations:
+            summary: 外部入口大面积连接失败，F50 网络重连
+            description: >-
+              external 组超过 3 个端点同时失败，通常表示当前 F50 蜂窝出口到公网入口路径异常，执行一次 F50 断网重连。
+          labels:
+            severity: critical
+            autoheal: f50-network
