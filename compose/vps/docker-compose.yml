@@ -313,6 +313,25 @@ services:
     deploy:
       replicas: 1
 
+  hysteria2-no-obfs:
+    image: tobyxdd/hysteria:v2.9.2
+    container_name: hysteria2-no-obfs
+    network_mode: host
+    restart: always
+    labels:
+      - homepage.group=VPS
+      - homepage.name=hysteria2-no-obfs
+      - homepage.icon=https://cdn.jsdelivr.net/gh/apernet/hysteria-website@master/docs/assets/logo.svg
+      - homepage.description=hysteria2 no obfs for daed
+    configs:
+      - source: hysteria2_no_obfs_config
+        target: /etc/hysteria/config.yaml
+    volumes:
+      - ${DATA_BASE_DIR}/caddy/data/caddy/certificates/acme-v02.api.letsencrypt.org-directory/wildcard_.${MAIN_DOMAIN}:/data/hysteria2/tls:ro
+    command: ["server", "-c", "/etc/hysteria/config.yaml"]
+    deploy:
+      replicas: 1
+
   xray:
     image: ghcr.io/xtls/xray-core:26.6.1
     container_name: xray
@@ -435,6 +454,8 @@ configs:
     file: ./configs/kopia/entrypoint.sh
   hysteria2_config:
     file: ./configs/hysteria2/config.yaml
+  hysteria2_no_obfs_config:
+    file: ./configs/hysteria2/config-no-obfs.yaml
   xray_config:
     file: ./configs/xray/config.json
 
