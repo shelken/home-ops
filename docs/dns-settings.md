@@ -1,19 +1,35 @@
 # DNS 设置记录
 
-## 查询
+## 问题
 
-ubuntu
+部分节点会从 IPv6 RA/DHCPv6 获得运营商 DNS，导致解析被污染。
+
+## 原则
+
+- 不在 Ansible 里写死 DNS 服务器。
+- 不修改 IP、网关、DHCP/static 模式、cloud-init 或 netplan 网络形态。
+- 自动只让默认 IPv4 路由网卡参与 DNS。
+- 其他网卡不参与 DNS。
+- 禁止 IPv6 RA/DHCPv6 下发 DNS。
+
+## 检查
 
 ```shell
-sudo cat /etc/netplan/xx.conf
+sudo cat /etc/netplan/*.yaml
+resolvectl status
 ```
 
-## lima
+确认结果：
 
-在配置文件中限定，`dns:` 配置限定了默认的网卡。额外的卡，即在`networks:`配置下的卡目前没有看到可以调整的
+```text
+没有 IPv6 DNS server
+IPv4 DNS 只来自默认 IPv4 路由网卡
+```
 
-## pve-vm
+## 日常修复
 
 ```shell
-qm set $id --nameserver "223.5.5.5"
+ansible-playbook -i ansible/inventory/hosts.ini ansible/playbooks/setup-dns.yaml
 ```
+
+`setup-dns.yaml` 只做 DNS policy，不负责网络迁移。
