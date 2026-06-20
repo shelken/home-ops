@@ -149,6 +149,51 @@ LAN → WAN/Internet
 masq/NAT 开启
 ```
 
+## 主路由 IPv6 RA relay 下发的 DNS 会绕过 TVBox/daed
+
+旁路由模型依赖客户端 DNS 走 TVBox 转发路径，再经 daed 处理。如果客户端同时从主路由 RA relay 收到运营商 IPv6 DNS，macOS 等系统可能优先使用 IPv6 DNS，链路变为：
+
+```text
+Client → 上游 IPv6 DNS:53 → 主路由 IPv6 relay → 公网
+```
+
+这条路径不经过 TVBox，DNS 不会进入 daed DNS routing，实际解析返回污染结果。
+
+确认主路由能否安全改 RA server 的前提：检查是否从 WAN6 获得 delegated prefix。
+
+```sh
+ifstatus wan6
+```
+
+如果 `ipv6-prefix=[]` 且 `delegation=false`，则不能直接把 LAN RA 从 relay 改成 server，否则客户端失去 IPv6。
+
+当前止血方案：保留 RA relay，阻断 LAN 到 WAN 的 IPv6 DNS 53 端口，让客户端回退到 DHCPv4 下发的 IPv4 DNS（由主路由 DHCP option 6 设定）。
+
+```sh
+uci add firewall rule
+uci set firewall.@rule[-1].name='Block-LAN-IPv6-DNS'
+uci set firewall.@rule[-1].family='ipv6'
+uci set firewall.@rule[-1].src='lan'
+uci set firewall.@rule[-1].dest='wan'
+uci set firewall.@rule[-1].proto='tcp udp'
+uci set firewall.@rule[-1].dest_port='53'
+uci set firewall.@rule[-1].target='REJECT'
+uci commit firewall
+/etc/init.d/firewall restart
+```
+
+验证：
+
+```sh
+dig @<RA_RDNSS_IPV6> www.google.com A
+# 期望：connection timed out; no servers could be reached
+
+dig www.google.com A
+# 期望：SERVER 是 DHCPv4 IP，返回正常地址
+```
+
+这条规则只拦 LAN → WAN 方向的 IPv6 DNS，不关闭 IPv6 地址、默认路由或其他 IPv6 流量。
+
 ## DHCP 下发旁路由网关的自环风险
 
 旁路由给客户端当默认网关，但旁路由自己的上游默认网关仍然必须是主路由：
