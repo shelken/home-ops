@@ -33,6 +33,7 @@ graph LR
 
     subgraph HOME["家庭内网"]
         Router["router-mine<br/>OpenWrt<br/>192.168.6.1"]
+        TVBox["TVBox / HK1 Box<br/>OpenWrt + daed<br/>192.168.6.3"]
 
         subgraph VLAN6["VLAN 6 · 主内网<br/>192.168.6.0/24"]
             SAKAMOTO["sakamoto<br/>192.168.6.144"]
@@ -59,6 +60,10 @@ graph LR
 
     Internet <--> F50
     F50 <--> Router
+    TVBox -->|"default route"| Router
+    SAKAMOTO -->|"default gateway"| TVBox
+    CP -->|"default gateway"| TVBox
+    WORKER -->|"default gateway"| TVBox
     Router <--> SAKAMOTO
     Router <--> PVE_NODE
     Router <-->|"eBGP"| CP
@@ -76,6 +81,7 @@ graph LR
 |------|------|------|
 | F50 ↔ 互联网 | WAN (移动数据) | F50 是 router-mine 的互联网出口 |
 | router-mine ↔ F50 | LAN | router-mine 通过 F50 出网；F50 断线时 zte-mifi-healer 自动重连 |
+| TVBox ↔ router-mine | LAN (VLAN 6) | TVBox 是旁路由；自身默认路由仍指向 router-mine |
 | sakamoto ↔ router-mine | LAN (VLAN 6) | 192.168.6.0/24 |
 | PVE ↔ router-mine | LAN (VLAN 6) | 192.168.6.0/24 |
 | IoT 设备 ↔ router-mine | LAN (VLAN 50) | 192.168.50.0/24 |
@@ -111,7 +117,7 @@ Nvidia DLS"]
 CrowdSec (WAF)
 dnsmasq (本机 DNS)
 mosdns (DNS)
-Hysteria2 / Xray (代理)
+Hysteria2 / Hysteria2 no-obfs / Xray (代理)
 DERP (Tailscale 中继)
 OpenList (S3 网关)
 Kopia (备份源)
@@ -192,13 +198,21 @@ CN / HK + VPS IP"]
     GeoIP --> HTTPRoute
 ```
 
-### 内网入口
+### 内网入口与旁路由 DNS
 
 ```mermaid
 graph LR
     subgraph LAN["家庭内网<br/>192.168.6.0/24"]
         Client["局域网设备"]
-        Router["router-mine (DNS 解析)<br/>192.168.6.1"]
+        TVBox["TVBox 旁路由<br/>daed"]
+        Router["router-mine<br/>DHCP + 内网 DNS 权威"]
+    end
+
+    subgraph DNSPATH["DNS 分流"]
+        DaeDNS["daed DNS routing<br/>dport(53) -> direct"]
+        RouterDNS["router-mine DNS<br/>内网域名"]
+        ForeignDNS["DoH over proxy<br/>国外域名"]
+        CNDNS["国内 DNS<br/>国内域名"]
     end
 
     subgraph TS["Tailscale<br/>100.97.0.0/16"]
@@ -211,9 +225,13 @@ graph LR
         Envoy_Internal["envoy-internal"]
     end
 
-    OpenwrtDNS -->|"同步 DNS 记录"| Router
-    Client -->|"DNS 查询"| Router
-    Router -->|"A 记录 → LB IP"| Envoy_Internal
+    Client -->|"DNS"| TVBox
+    TVBox --> DaeDNS
+    DaeDNS --> RouterDNS
+    DaeDNS --> ForeignDNS
+    DaeDNS --> CNDNS
+    OpenwrtDNS -->|"同步 DNS 记录"| RouterDNS
+    RouterDNS -->|"A/CNAME → LB IP"| Envoy_Internal
     TS_Client --> TS_Subnet
     TS_Subnet --> Envoy_Internal
 ```
@@ -224,7 +242,7 @@ graph LR
 |---|------|------|--------|------|------|
 | 1 | VPS Caddy (v4) | 公网 | A `*` → VPS → Tailscale | envoy-external | ✅ 活跃 |
 | 2 | caddy-external (v6) | 公网 | AAAA `*` → 集群 v6 | envoy-external | ✅ 活跃 |
-| 3 | envoy-internal | 内网 | OpenWrt DNS (openwrt-dns 同步) → LB | envoy-internal | ✅ 活跃 |
+| 3 | envoy-internal | 内网 | 客户端 DNS → TVBox daed → router-mine DNS (openwrt-dns 同步) → LB | envoy-internal | ✅ 活跃 |
 | 4 | Tailscale | 内网 | 直连 → subnet router | 集群服务 | ✅ 活跃 |
 | ~5~ | Cloudflare Tunnel | — | — | — | ❌ 已停用 |
 | ~6~ | NetBird | — | — | — | ❌ 已停用 |
@@ -247,6 +265,7 @@ graph TB
 
         subgraph HOST["Host 网络模式"]
             hysteria2["hysteria2"]
+            hysteria2_no_obfs["hysteria2-no-obfs<br/>daed 兼容入口"]
             xray["xray"]
         end
     end
@@ -270,8 +289,8 @@ graph TB
 | `dhp` | → 本地 registry-proxy | Docker 镜像代理 |
 | `vdns` | → 本地 mosdns | DNS 服务 |
 
-> hysteria2、xray、dnsmasq 不经过 Caddy，
-> 直接使用宿主机端口。
+> hysteria2、hysteria2-no-obfs、xray、dnsmasq 不经过 Caddy，
+> 直接使用宿主机端口；no-obfs Hysteria2 供 daed 客户端使用。
 
 ---
 
