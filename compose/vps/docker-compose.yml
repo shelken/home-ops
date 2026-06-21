@@ -332,20 +332,40 @@ services:
     deploy:
       replicas: 1
 
-  xray:
-    image: ghcr.io/xtls/xray-core:26.6.1
-    container_name: xray
+  # xray:
+  #   image: ghcr.io/xtls/xray-core:26.6.1
+  #   container_name: xray
+  #   network_mode: host
+  #   restart: always
+  #   labels:
+  #     - homepage.group=VPS
+  #     - homepage.name=vless-reality
+  #     - homepage.icon=https://avatars.githubusercontent.com/u/71564206
+  #     - homepage.description=VLESS Reality
+  #   configs:
+  #     - source: xray_config
+  #       target: /etc/xray/config.json
+  #   command: ["run", "-config", "/etc/xray/config.json"]
+  #   deploy:
+  #     replicas: 1
+
+  anytls:
+    image: ghcr.io/sagernet/sing-box:v1.13.13
+    container_name: anytls
     network_mode: host
     restart: always
     labels:
       - homepage.group=VPS
-      - homepage.name=vless-reality
-      - homepage.icon=https://avatars.githubusercontent.com/u/71564206
-      - homepage.description=VLESS Reality
+      - homepage.name=anytls
+      - homepage.icon=https://avatars.githubusercontent.com/u/83217677
+      - homepage.description=AnyTLS
     configs:
-      - source: xray_config
-        target: /etc/xray/config.json
-    command: ["run", "-config", "/etc/xray/config.json"]
+      - source: sing_box_config
+        target: /etc/sing-box/config.json
+      - source: sing_box_entrypoint
+        target: /entrypoint.sh
+        mode: 0755
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
     deploy:
       replicas: 1
 
@@ -458,6 +478,10 @@ configs:
     file: ./configs/hysteria2/config-no-obfs.yaml
   xray_config:
     file: ./configs/xray/config.json
+  sing_box_config:
+    file: ./configs/sing-box/config.json
+  sing_box_entrypoint:
+    file: ./configs/sing-box/entrypoint.sh
 
 volumes:
   kopia_cache:
