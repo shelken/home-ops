@@ -58,11 +58,11 @@ endpoints:
     url: "tcp://ts-node-vps.network.svc:9100"
     conditions:
       - "[CONNECTED] == true"
-  # - <<: *common
-  #   name: vless-reality
-  #   url: "tcp://ts-node-vps.network.svc:5443"
-  #   conditions:
-  #     - "[CONNECTED] == true"
+  - <<: *common
+    name: anytls
+    url: "tcp://ts-node-vps.network.svc:5444"
+    conditions:
+      - "[CONNECTED] == true"
   - <<: *common
     name: hysteria2
     url: http://ts-node-vps.network.svc:2575/containers/hysteria2/json
