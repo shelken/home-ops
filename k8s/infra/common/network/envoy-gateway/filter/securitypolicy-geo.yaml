@@ -11,7 +11,7 @@ spec:
   authorization:
     defaultAction: Deny
     rules:
-      # 白名单服务：按 Host 放行
+      # 白名单服务
       - action: Allow
         name: allow-specific-services
         principal:
@@ -29,9 +29,9 @@ spec:
           clientCIDRs:
             - ${MAIN_VPS_IP}/32
             - ${MAIN_VPS_IP_V6}/128
-      # 内网/私有 IP（无 GeoIP 数据）
+      # 无 GeoIP 数据（私有/内网IP，等价 allow-unknown-location）
       - action: Allow
-        name: allow-private-networks
+        name: allow-unknown-location
         principal:
           clientCIDRs:
             - 10.0.0.0/8
@@ -43,5 +43,9 @@ spec:
         name: allow-geo-cn-hk
         principal:
           clientIPGeoLocations:
+            - country: CN
+              city: Shenzhen
+            - country: CN
+              region: GD
             - country: CN
             - country: HK
