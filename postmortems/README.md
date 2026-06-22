@@ -8,3 +8,4 @@
 - [006 · gatus sidecar multi match wrong endpoint](./006-gatus-sidecar-multi-match-wrong-endpoint.md)
 - [007 · volsync burst overloads longhorn control plane](./007-volsync-burst-overloads-longhorn-control-plane.md)
 - [008 · volsync fsGroup chown CPU spike](./008-volsync-fsgroup-chown-cpu-spike.md)
+- [009 · envoy gateway logs query parser](./009-envoy-gateway-logs-query-parser.md)
