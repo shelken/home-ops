@@ -12,4 +12,4 @@ roles:
   # PyratLabs 的 k3s role，提供更多高级特性
   - src: xanmanning.k3s
     name: xanmanning.k3s
-    version: "v3.4.4"  # 指定具体版本
+    version: "v3.6.2"  # 指定具体版本

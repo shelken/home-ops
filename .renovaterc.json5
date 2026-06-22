@@ -20,6 +20,9 @@
   dependencyDashboard: true,
   dependencyDashboardTitle: "Renovate Dashboard 🤖",
   ignorePaths: ["**/*.sops.*"],
+  "ansible-galaxy": {
+    managerFilePatterns: ["/(^|/)ansible/requirements\\.ya?ml$/"],
+  },
   flux: {
     managerFilePatterns: ["/(^|/)k8s/.+\\.ya?ml(?:\\.j2)?$/"],
   },

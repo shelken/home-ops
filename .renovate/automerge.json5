@@ -21,8 +21,17 @@
       rebaseWhen: "behind-base-branch",
     },
     {
-      description: "Auto-merge Ansible relate",
+      description: "Auto-merge Ansible collections",
       matchDatasources: ["galaxy-collection"],
+      automerge: true,
+      automergeType: "pr",
+      matchUpdateTypes: ["minor", "patch"],
+      ignoreTests: true,
+      rebaseWhen: "behind-base-branch",
+    },
+    {
+      description: "Auto-merge Ansible roles",
+      matchDatasources: ["galaxy"],
       automerge: true,
       automergeType: "pr",
       matchUpdateTypes: ["minor", "patch"],
