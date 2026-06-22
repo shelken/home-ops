@@ -123,6 +123,8 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: envoy-external
+  labels:
+    app.ooooo.space/gateway-type: external
   annotations:
     external-dns.alpha.kubernetes.io/target: &hostname homelab-external.${MAIN_DOMAIN}
     gatus.home-operations.com/endpoint: |-
@@ -231,6 +233,9 @@ spec:
   targetSelectors:
     - group: gateway.networking.k8s.io
       kind: Gateway
+      matchExpressions:
+        - key: app.ooooo.space/gateway-type
+          operator: DoesNotExist
   tcpKeepalive: {}
   timeout:
     http:
