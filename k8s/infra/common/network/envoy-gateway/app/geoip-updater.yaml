@@ -27,7 +27,8 @@ spec:
                   for db in GeoLite2-City.mmdb GeoLite2-ASN.mmdb; do
                     echo "Updating $db..."
                     curl -sSL --connect-timeout 10 --max-time 300 \
-                      -z "/geoip/$db" -o "/geoip/$db" \
+                      --etag-compare "/geoip/$db.etag" --etag-save "/geoip/$db.etag" \
+                      -o "/geoip/$db" \
                       "https://github.com/P3TERX/GeoLite.mmdb/raw/download/$db" || true
                   done
                   echo "Done."
