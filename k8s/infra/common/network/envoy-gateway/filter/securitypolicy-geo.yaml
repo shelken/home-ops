@@ -1,0 +1,47 @@
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: geoip-authorization
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: envoy-external
+  authorization:
+    defaultAction: Deny
+    rules:
+      # 白名单服务：按 Host 放行
+      - action: Allow
+        name: allow-specific-services
+        principal:
+          headers:
+            - name: ":authority"
+              values:
+                - flux-webhook.${MAIN_DOMAIN}
+                - status.${MAIN_DOMAIN}
+                - memos.${MAIN_DOMAIN}
+                - kromgo.${MAIN_DOMAIN}
+      # VPS IP
+      - action: Allow
+        name: allow-vps
+        principal:
+          clientCIDRs:
+            - ${MAIN_VPS_IP}/32
+            - ${MAIN_VPS_IP_V6}/128
+      # 内网/私有 IP（无 GeoIP 数据）
+      - action: Allow
+        name: allow-private-networks
+        principal:
+          clientCIDRs:
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
+            - 127.0.0.0/8
+      # 地域放行
+      - action: Allow
+        name: allow-geo-cn-hk
+        principal:
+          clientIPGeoLocations:
+            - country: CN
+            - country: HK

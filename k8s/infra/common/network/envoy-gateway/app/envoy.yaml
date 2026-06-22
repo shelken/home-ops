@@ -86,6 +86,16 @@ spec:
         externalTrafficPolicy: Local
   shutdown:
     drainTimeout: 60s
+  geoIP:
+    provider:
+      type: MaxMind
+      maxMind:
+        cityDbSource:
+          local:
+            path: /etc/envoy/geoip/GeoLite2-City.mmdb
+        asnDbSource:
+          local:
+            path: /etc/envoy/geoip/GeoLite2-ASN.mmdb
   telemetry:
     metrics:
       prometheus:
