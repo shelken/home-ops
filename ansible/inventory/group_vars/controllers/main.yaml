@@ -26,6 +26,11 @@ k3s_server:
   kube-apiserver-arg:
     - "--feature-gates=ImageVolume=true,MutatingAdmissionPolicy=true,ResourceHealthStatus=true"
     - "--runtime-config=admissionregistration.k8s.io/v1beta1=true"
+    - "--audit-policy-file=/etc/rancher/k3s/audit-policy.yaml"
+    - "--audit-log-path=/var/lib/rancher/k3s/server/logs/audit.log"
+    - "--audit-log-maxage=14"
+    - "--audit-log-maxbackup=10"
+    - "--audit-log-maxsize=50"
   kube-controller-manager-arg: &manager-args
     - "bind-address=0.0.0.0"
     - "feature-gates=ImageVolume=true"

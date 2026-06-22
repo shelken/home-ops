@@ -5,7 +5,18 @@
   hosts: all
   become: true
   gather_facts: true
+  handlers:
+    - name: restart k3s
+      ansible.builtin.service:
+        name: k3s
+        state: restarted
+      when: k3s_control_node | default(false) | bool
+
   tasks:
+    - name: K3s audit policy
+      ansible.builtin.include_tasks: tasks/k3s-audit.yaml
+      when: k3s_control_node | default(false) | bool
+
     - name: Install Kubernetes
       ansible.builtin.include_role:
         name: xanmanning.k3s

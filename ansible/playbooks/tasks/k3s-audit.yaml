@@ -1,0 +1,17 @@
+---
+- name: 创建 k3s 审计配置目录
+  ansible.builtin.file:
+    path: /etc/rancher/k3s
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: 下发 k3s audit policy
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/resource/k3s/audit-policy.yaml"
+    dest: /etc/rancher/k3s/audit-policy.yaml
+    owner: root
+    group: root
+    mode: "0644"
+  notify: restart k3s

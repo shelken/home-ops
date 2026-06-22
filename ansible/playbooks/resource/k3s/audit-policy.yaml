@@ -1,0 +1,35 @@
+---
+apiVersion: audit.k8s.io/v1
+kind: Policy
+omitStages:
+  - RequestReceived
+rules:
+  - level: None
+    verbs:
+      - get
+      - list
+      - watch
+
+  - level: Request
+    verbs:
+      - patch
+      - update
+    resources:
+      - group: apps
+        resources:
+          - deployments/scale
+
+  - level: None
+    resources:
+      - group: "*"
+        resources: ["leases"]
+
+  - level: Metadata
+    verbs:
+      - create
+      - update
+      - patch
+      - delete
+      - deletecollection
+
+  - level: None
