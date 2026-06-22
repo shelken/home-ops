@@ -42,4 +42,4 @@ spec:
   datasources:
     - datasourceName: victorialogs
       inputName: DS_VICTORIALOGS
-  url: https://raw.githubusercontent.com/shelken/grafanadashboards/main/envoy-gateway-logs.json
+  url: https://raw.githubusercontent.com/shelken/grafanadashboards/fba3f281d7419d4a38d13d5ef26467d20acf3330/envoy-gateway-logs.json
