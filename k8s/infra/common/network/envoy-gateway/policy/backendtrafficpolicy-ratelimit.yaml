@@ -22,7 +22,7 @@ spec:
     type: Local
     local:
       rules:
-        # 每个 HTTPRoute 上限 30 req/s，超限返回 429
+        # 每个 HTTPRoute 上限 100 req/s，超限返回 429; homepage peak ~= 70
         - limit:
-            requests: 30
+            requests: 100
             unit: Second
