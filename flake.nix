@@ -83,6 +83,7 @@
             gum
 
             helmfile
+            yq-go
             # talosctl
 
             gitleaks

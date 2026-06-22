@@ -39,49 +39,18 @@ tasks:
   init-crd:
     desc: "初始化crd"
     cmd: |
-      helmfile -f bootstrap/crds.yaml template -q | kubectl apply --server-side --field-manager bootstrap --force-conflicts -f -
+      set -o pipefail
+      # CRDs from helm charts
+      helmfile -f bootstrap/crds.yaml template -q | yq ea -r -e 'select(.kind == "CustomResourceDefinition")' | kubectl apply --server-side --field-manager bootstrap --force-conflicts -f -
+      # renovate: datasource=github-releases depName=dragonflydb/dragonfly-operator
+      kubectl apply -f https://raw.githubusercontent.com/dragonflydb/dragonfly-operator/v1.5.0/manifests/crd.yaml --server-side --field-manager bootstrap --force-conflicts
 
   init:
-    desc: "集群中初始化内容（部署密钥/获取一些crd资源）"
+    desc: "集群中初始化内容（部署密钥/flux）"
     cmds:
-      # - task: add-gateway-crd
-      - task: add-external-dns-crd
-      - task: add-prometheus-crd
       - task: secret:bootstrap
       - cmd: |
           helmfile --file bootstrap/helmfile.yaml sync --hide-notes
-          # helmfile apply -f bootstrap/helmfile.yaml
-
-  add-gateway-crd:
-    desc: "添加gateway的CRD"
-    cmd: |
-      # renovate: datasource=github-releases depName=kubernetes-sigs/gateway-api
-      kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.5.1/experimental-install.yaml --server-side
-
-  # https://github.com/kubernetes-sigs/external-dns/blob/master/docs/sources/crd.md
-  add-external-dns-crd:
-    desc: "添加external-dns的CRD"
-    cmd: |
-      # renovate: datasource=github-releases depName=kubernetes-sigs/external-dns
-      kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/external-dns/refs/tags/v0.21.0/config/crd/standard/dnsendpoints.externaldns.k8s.io.yaml --server-side
-
-  add-prometheus-crd:
-    desc: "添加prometheus的CRD"
-    cmd: |
-      # renovate: datasource=github-releases depName=prometheus-operator/prometheus-operator
-      kubectl apply -f https://github.com/prometheus-operator/prometheus-operator/releases/download/v0.92.0/stripped-down-crds.yaml --server-side
-
-  add-dragonfly-crd:
-    desc: "添加dragonfly-operator的CRD"
-    cmd: |
-      # renovate: datasource=github-releases depName=dragonflydb/dragonfly-operator
-      kubectl apply -f https://raw.githubusercontent.com/dragonflydb/dragonfly-operator/v1.5.0/manifests/crd.yaml --server-side
-
-  add-barman-cloud-crd:
-    desc: "添加barman-cloud的CRD"
-    cmd: |
-      # renovate: datasource=github-releases depName=cloudnative-pg/plugin-barman-cloud
-      kubectl apply -f https://raw.githubusercontent.com/cloudnative-pg/plugin-barman-cloud/refs/tags/v0.13.0/config/crd/bases/barmancloud.cnpg.io_objectstores.yaml --server-side
 
   show-route:
     desc: "显示gateway和对应的服务"
