@@ -10,6 +10,7 @@ spec:
     name: grafana-operator
   values:
     # ref: https://github.com/grafana/grafana-operator/blob/master/deploy/helm/grafana-operator/values.yaml
+    replicas: 1
     dashboard:
       enabled: true
     serviceMonitor:
