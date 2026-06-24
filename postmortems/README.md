@@ -9,3 +9,4 @@
 - [007 · volsync burst overloads longhorn control plane](./007-volsync-burst-overloads-longhorn-control-plane.md)
 - [008 · volsync fsGroup chown CPU spike](./008-volsync-fsgroup-chown-cpu-spike.md)
 - [009 · envoy gateway logs query parser](./009-envoy-gateway-logs-query-parser.md)
+- [010 · daed dns routing saved but not reloaded](./010-daed-dns-routing-not-reloaded.md)
