@@ -76,6 +76,54 @@ spec:
                 memory: 16Mi
               limits:
                 memory: 64Mi
+          ip-selector:
+            image:
+              repository: busybox
+              tag: stable
+            env:
+              TZ: ${TIMEZONE}
+              MAIN_VPS_IP_V6: ${MAIN_VPS_IP_V6}
+            command: ["/scripts/ip-selector.sh"]
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+            resources:
+              requests:
+                cpu: 5m
+                memory: 8Mi
+              limits:
+                memory: 32Mi
+          ddns:
+            image:
+              repository: docker.io/favonia/cloudflare-ddns
+              tag: 1.16.2
+            env:
+              TZ: ${TIMEZONE}
+              CLOUDFLARE_API_TOKEN:
+                valueFrom:
+                  secretKeyRef:
+                    name: caddy-external-secret
+                    key: CLOUDFLARE_API_TOKEN
+              DOMAINS: ss-rust.${MAIN_DOMAIN}
+              PROXIED: "false"
+              IP4_PROVIDER: "none"
+              IP6_PROVIDER: "url:http://localhost:8888"
+              UPDATE_CRON: "@every 15s"
+              UPDATE_ON_START: "true"
+              QUIET: "true"
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+            resources:
+              requests:
+                cpu: 10m
+                memory: 16Mi
+              limits:
+                memory: 64Mi
 
     defaultPodOptions:
       annotations:
@@ -113,3 +161,16 @@ spec:
               - subPath: config.json
                 path: /etc/shadowsocks-rust/config.json
                 readOnly: true
+      scripts:
+        type: configMap
+        name: caddy-external-scripts
+        defaultMode: 0755
+        advancedMounts:
+          ss-rust:
+            ip-selector:
+              - path: /scripts
+                readOnly: true
+      tmpfs:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
