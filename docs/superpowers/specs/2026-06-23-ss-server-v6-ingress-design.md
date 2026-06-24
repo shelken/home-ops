@@ -60,7 +60,7 @@ k8s/infra/common/network/external/ss-rust/
 
 - **Chart**: `bjw-s-labs/app-template`
 - **Image**: `ghcr.io/shadowsocks/shadowsocks-rust`，固定版本 + digest
-- **Multus**: 使用 `multus-ipv6` network（macvlan on eth1），分配 static IPv4（192.168.6.XX + MAC），v6 由 SLAAC 自动分配
+- **Multus**: 使用 `multus-ipv6` network（macvlan on eth1），分配 static IPv4（192.168.6.55 + MAC），v6 由 SLAAC 自动分配
 - **Service**: 不需要 ClusterIP Service（四层透传，直用 multus 接口地址）
 - **Probes**: TCP probe on 55483
 - **Config**: JSON 格式配置文件挂载 ConfigMap，password 字段引用环境变量 `${SS_PASSWORD}`
@@ -92,7 +92,7 @@ k8s.v1.cni.cncf.io/networks: |
     "name": "multus-ipv6",
     "namespace": "network",
     "interface": "eth1",
-    "ips": ["192.168.6.<XX>/24"],
+    "ips": ["192.168.6.55/24"],
     "mac": "02:<RANDOM>"
   }]
 ```

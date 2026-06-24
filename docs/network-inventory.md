@@ -25,6 +25,7 @@ LB IP range: `192.168.69.0/24`
 | -------------------- | --------------- | ---------------- | ---------------- |
 | netbird              | `192.168.6.44`  | 已停用，保留记录 | `multus-ipv6`    |
 | caddy-external       | `192.168.6.47`  | IPv6 入口与 DDNS | `multus-ipv6`    |
+| ss-rust              | `192.168.6.55`  | SS 服务器         | `multus-ipv6`    |
 | home assistant       | `192.168.50.51` | IoT VLAN / mDNS  | `multus-iot`     |
 | go2rtc               | `192.168.50.53` | HomeKit / mDNS   | `multus-homekit` |
 | qbittorrent          | `192.168.6.58`  | IPv6 / UDP 直连  | `multus-ipv6`    |
