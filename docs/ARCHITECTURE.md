@@ -403,3 +403,92 @@ graph TB
 | VPS 服务数据 | VPS 数据 | Kopia → OpenList (VPS 本地 S3) | 189 云盘 | 4 小时 |
 
 > Kopia 仓库配置通过 `.env.tpl` 从外部密钥管理注入，不提交到 Git。
+
+---
+
+## 8. Flux 部署链路
+
+```mermaid
+graph TB
+    GIT["GitHub: shelken/home-ops (main)"]
+
+    subgraph BOOT["flux bootstrap"]
+        STAGING["k8s/clusters/staging/kustomization.yaml"]
+        REPOS["repos.yaml<br/>flux-repositories"]
+    end
+
+    subgraph SOURCE["GitRepository: flux-system"]
+        SRC_MONITOR["监听 main 分支变更, interval: 1m"]
+    end
+
+    subgraph INFRA_LAYER["infra.yml (Flux Kustomization)"]
+        INFRA_CFG["path: ./k8s/infra/staging<br/>wait: true<br/>patches: sops + subst"]
+    end
+
+    subgraph APPS_LAYER["apps.yml (Flux Kustomization)"]
+        APPS_CFG["path: ./k8s/apps/staging<br/>dependsOn: infra<br/>wait: false<br/>patches: sops + subst"]
+    end
+
+    subgraph KUSTOMIZE_INFRA["kustomize build -> 生成子级 Flux CRD"]
+        IN_CAT["k8s/infra/staging/kustomization.yaml<br/>imports: ../common/{network, database}"]
+        IN_CATEGORY["k8s/infra/common/{category}/kustomization.yaml"]
+        IN_CHILD["category/ks.yaml<br/>(caddy-external, ss-rust)"]
+        IN_CAT --> IN_CATEGORY --> IN_CHILD
+    end
+
+    subgraph KUSTOMIZE_APPS["kustomize build -> 生成子级 Flux CRD"]
+        AP_CAT["k8s/apps/staging/kustomization.yaml<br/>imports: ../common/"]
+        AP_LAYER["k8s/apps/common/kustomization.yaml"]
+        AP_CHILD["app/ks.yaml<br/>(echo, homepage)"]
+        AP_CAT --> AP_LAYER --> AP_CHILD
+    end
+
+    subgraph APP_DIR["app/ 目录 (kustomize)"]
+        DIR_KS["kustomization.yaml<br/>resources: helmrelease, externalsecret"]
+        DIR_HR["helmrelease.yaml<br/>app-template chart"]
+        DIR_ES["externalsecret.yaml<br/>Azure KeyVault"]
+    end
+
+    subgraph CLUSTER["k3s 集群部署结果"]
+        HELM["HelmRelease -> app-template<br/>Helm Chart (OCIRepository)"]
+        OBJ["Secret / ConfigMap / Service<br/>chart template 生成"]
+        POD["Pod"]
+    end
+
+    GIT -.->|创建| STAGING
+    STAGING --> SOURCE
+    OCI["OCIRepository<br/>app-template"]
+    REPOS -.-> OCI
+
+    SOURCE --> INFRA_LAYER
+    SOURCE --> APPS_LAYER
+
+    INFRA_LAYER --> IN_CAT
+    APPS_LAYER --> AP_CAT
+
+    IN_CHILD -.->|path: ./{app}/| APP_DIR
+    AP_CHILD -.->|path: ./{app}/| APP_DIR
+
+    DIR_HR --> HELM
+    DIR_ES --> OBJ
+    HELM --> POD
+    HELM --> OBJ
+```
+
+### 部署顺序
+
+| 层 | Kustomization | 入口 | 等待上游 | 说明 |
+|---|-------------|------|---------|------|
+| 0 | `flux-system` GitRepository | 由 bootstrap 创建 | — | 监听代码仓库，触发所有同步 |
+| 1 | `flux-repositories` | `repos.yaml` → `k8s/clusters/common/repos/` | — | 预注册 Helm chart 源（app-template 等） |
+| 2 | `infra` | `infra.yml` → `k8s/infra/staging/` | — | 基础设施先部署，`wait: true` |
+| 3 | 各 infra 子 Kustomization | `k8s/infra/common/{category}/<app>/ks.yaml` | infra 层父级 | 网络、存储、数据库、监控等 |
+| 4 | `apps` | `apps.yml` → `k8s/apps/staging/` | infra 完成 | 应用层后部署，`wait: false` |
+| 5 | 各 apps 子 Kustomization | `k8s/apps/common/<app>/ks.yaml` | apps 层父级 | 普通业务应用 |
+
+### 关键机制
+
+- **变量注入**：所有子 Kustomization 自动获得 `cluster-secrets`（Secret）和 `cluster-settings`（ConfigMap）中的 postBuild 变量。可通过标签 `substitution.flux/disabled: "true"` 跳过。
+- **SOPs 解密**：所有子 Kustomization 自动获得 SOPs age 解密能力。
+- **等待策略**：`infra` 层 `wait: true`（等待所有子资源就绪），`apps` 层 `wait: false`（快速同步，不等待）。
+- **HelmRelease**：最终通过 `app-template` chart（OCIRepository）或直接 Helm chart 部署 Pod。
