@@ -1,0 +1,114 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app ss-rust
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  values:
+    configMaps:
+      ss-config:
+        enabled: true
+        data:
+          config.json: |
+            {
+              "server": "::",
+              "server_port": 55483,
+              "method": "2022-blake3-aes-256-gcm",
+              "password": "${SS_PASSWORD}",
+              "mode": "tcp_only",
+              "fast_open": true
+            }
+
+    controllers:
+      ss-rust:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/shadowsocks/ssserver-rust
+              tag: v1.24.0
+            args:
+              - --log-without-time
+              - -c
+              - /etc/shadowsocks-rust/config.json
+            env:
+              TZ: ${TIMEZONE}
+              SS_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: ss-rust-secret
+                    key: SS_PASSWORD
+            probes:
+              liveness: &probes
+                enabled: true
+                type: TCP
+                port: 55483
+                spec:
+                  initialDelaySeconds: 10
+                  periodSeconds: 15
+                  timeoutSeconds: 1
+                  failureThreshold: 10
+              readiness: *probes
+              startup:
+                enabled: true
+                type: TCP
+                port: 55483
+                spec:
+                  initialDelaySeconds: 0
+                  periodSeconds: 5
+                  failureThreshold: 30
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+            resources:
+              requests:
+                cpu: 10m
+                memory: 16Mi
+              limits:
+                memory: 64Mi
+
+    defaultPodOptions:
+      annotations:
+        k8s.v1.cni.cncf.io/networks: |
+          [{
+            "name": "multus-ipv6",
+            "namespace": "network",
+            "interface": "eth1",
+            "ips": ["192.168.6.55/24"],
+            "mac": "02:2F:3E:E3:C3:B0"
+          }]
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - sakamoto-k8s
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+
+    persistence:
+      ss-config:
+        type: configMap
+        identifier: ss-config
+        advancedMounts:
+          ss-rust:
+            app:
+              - subPath: config.json
+                path: /etc/shadowsocks-rust/config.json
+                readOnly: true
