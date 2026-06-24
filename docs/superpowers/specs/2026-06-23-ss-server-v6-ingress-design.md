@@ -6,7 +6,7 @@
 - **v4 入口**：`Loon → v4 → VPS(hysteria2) → Tailscale → envoy-external → 服务`
 - **v6 入口**：`Loon → v6 → caddy-external → envoy-external → 服务`
 
-两个入口最终都打到 `envoy-external`，访问的是公网域名。需要一个新的入口：通过 v6 直连集群，走 SS 协议，最终访问内网域名（由 `envoy-internal` 解析）。
+两个入口最终都打到 `envoy-external`，访问的是公网域名。需要一个新的入口：让 iOS 设备在仅使用 Loon 的情况下，通过 v6 直连集群 SS 协议入口，如同置身内网一般访问 envoy-internal 背后的内网域名。
 
 ## 本次范围
 
@@ -31,20 +31,19 @@
 ```text
 Loon (iOS)
   → v6 直连
-  → Shadowsocks server (cluster, :55483)
-  → 解密直出
-  → CoreDNS 解析内网域名
-  → envoy-internal (192.168.69.46)
-  → HTTPRoute → 后端服务
+  → Shadowsocks server (cluster, :55483, multus-ipv6)
+  → 解密（SS 协议附带的连接目标）
+  → 连接目标地址（DNS 由 pod 默认 CoreDNS 解析）
+  → envoy-internal / 任意内网服务
 ```
 
 ### 组件
 
 | 组件 | 说明 |
 |------|------|
-| shadowsocks-rust `ssserver` | 监听 55483 TCP，SS 2022 AEAD 解密后直接出站 |
-| CoreDNS | 集群内建 DNS，内网域名解析到 envoy-internal |
-| envoy-internal | 内网 Gateway，路由到对应服务 |
+| shadowsocks-rust `ssserver` | 监听 55483 TCP，SS 2022 AEAD 解密，按 Loon 指定的目标地址建立连接 |
+| CoreDNS（pod 默认） | 集群内 DNS，SS server 通过它解析目标域名 |
+| envoy-internal（等） | 目标服务，SS 不关心具体是什么，只负责透传 TCP |
 
 ### 目录结构
 
@@ -112,5 +111,5 @@ k8s.v1.cni.cncf.io/networks: |
 
 ## 验证方式
 
-- Pod 启动后，从外部（如 Loon）用 v6 地址 + 55483 + `2022-blake3-aes-256-gcm` 连接。
-- 测试访问 `http://<内网域名>` 确认路由到服务。
+- Pod 启动后，在 Loon 添加 SS 代理节点（v6 地址:55483，method `2022-blake3-aes-256-gcm`）。
+- 开启 Loon 代理后，访问内网域名确认可达。
