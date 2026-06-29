@@ -57,3 +57,5 @@ compose/**/dnsmasq.conf
 
 .pre-commit-config.yaml
 __pycache__
+
+.playwright-cli
