@@ -79,3 +79,8 @@ task --list # 查看命令
 ### 自维护镜像源码位置
 
 - `zte-mifi-exporter`（集群部署在 `k8s/apps/common/zte-mifi-exporter/`）的源码不在本仓库，在外部 `containers` 仓库的 `apps/zte-mifi-exporter/` 下。需要改 exporter 指标逻辑、抓取字段时，去 containers 仓库改源码并构建镜像，再回 home-ops 更新镜像 tag。
+
+### 自愈告警约定
+
+- 自愈类 PrometheusRule 告警的 label 应精确描述动作语义，便于 Alertmanager 路由与抑制；新增动作类告警用 `action: <动词-对象>`（如 `f50-disconnect-cellular`），不要复用笼统的 `autoheal`。
+- 自愈动作相互冲突时用 `inhibitRules` 协调：主动动作的告警 active 期间，抑制会与之冲突的被动自愈告警（如主动断蜂窝后抑制 `autoheal: f50-network` 的 reconnect，避免反复拨号耗流量）。
