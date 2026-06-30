@@ -41,6 +41,14 @@ spec:
           - name: autoheal
             value: f50-network
             matchType: =
+      - receiver: f50-quota-disconnect
+        groupInterval: 30m
+        groupWait: 30s
+        repeatInterval: 30m
+        matchers:
+          - name: action
+            value: f50-disconnect-cellular
+            matchType: =
       - receiver: alert
         matchers:
           - name: severity
@@ -55,6 +63,15 @@ spec:
       targetMatch:
         - name: severity
           value: warning
+          matchType: =
+    # 流量即将耗尽已主动断网时，抑制 reconnect 类重连告警，避免反复拨号消耗流量
+    - sourceMatch:
+        - name: action
+          value: f50-disconnect-cellular
+          matchType: =
+      targetMatch:
+        - name: autoheal
+          value: f50-network
           matchType: =
   receivers:
     - name: "null"
@@ -75,6 +92,10 @@ spec:
         - url: "http://zte-mifi-healer.network.svc.cluster.local:9587/cgi-bin/reconnect"
           sendResolved: false
         - url: "http://localhost:8060/webhook"
+          sendResolved: false
+    - name: f50-quota-disconnect
+      webhookConfigs:
+        - url: "http://zte-mifi-healer.network.svc.cluster.local:9587/cgi-bin/disconnect"
           sendResolved: false
     - name: &name alert
       webhookConfigs:

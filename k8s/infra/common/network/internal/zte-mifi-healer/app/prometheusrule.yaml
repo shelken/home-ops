@@ -19,14 +19,28 @@ spec:
           labels:
             severity: critical
             autoheal: f50-network
+        - alert: F50|流量即将耗尽
+          expr: |
+            (zte_mifi_monthly_quota_bytes > 0)
+              and on (host)
+            (zte_mifi_monthly_remaining_bytes < 524288000)
+          for: 2m
+          annotations:
+            summary: F50 月流量剩余不足 500Mi，主动断开蜂窝
+            description: >-
+              月流量配额即将耗尽，主动断开 F50 蜂窝数据连接以避免超量。断网期间抑制 reconnect 类重连告警，避免反复拨号消耗流量。
+          labels:
+            severity: critical
+            action: f50-disconnect-cellular
         - alert: Gatus|外部入口大面积连接失败
           expr: |
-            count(gatus_results_endpoint_success{group="external"} == 0) > 3
+            count(gatus_results_endpoint_success{group="external"} == 0)
+              / count(gatus_results_endpoint_success{group="external"}) > 0.5
           for: 2m
           annotations:
             summary: 外部入口大面积连接失败，F50 网络重连
             description: >-
-              external 组超过 3 个端点同时失败，通常表示当前 F50 蜂窝出口到公网入口路径异常，执行一次 F50 断网重连。
+              external 组超过 50% 端点同时失败，通常表示当前 F50 蜂窝出口到公网入口路径异常，执行一次 F50 断网重连。
           labels:
             severity: critical
             autoheal: f50-network

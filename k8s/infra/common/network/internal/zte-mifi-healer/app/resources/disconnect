@@ -1,0 +1,20 @@
+#!/bin/sh
+set -eu
+
+# 与 reconnect 同构，仅过滤的 label 和调用的子命令不同。
+# 流量即将耗尽时 Alertmanager 路由到本 CGI，断开 F50 蜂窝数据连接。
+printf 'Status: 200 OK\r\n'
+printf 'Content-Type: text/plain; charset=utf-8\r\n\r\n'
+
+[ "${REQUEST_METHOD:-}" = "POST" ] || {
+	printf 'method not allowed\n'
+	exit 0
+}
+
+payload="$(cat)"
+printf '%s' "$payload" | grep -Eq '"action"[[:space:]]*:[[:space:]]*"f50-disconnect-cellular"' || {
+	printf 'ignored\n'
+	exit 0
+}
+
+exec /opt/zte-mifi-healer/f50-cli.sh disconnect

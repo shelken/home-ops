@@ -10,6 +10,7 @@ configMapGenerator:
   - name: zte-mifi-healer-cgi-configmap
     files:
       - reconnect=./resources/reconnect
+      - disconnect=./resources/disconnect
   - name: zte-mifi-healer-cli-configmap
     files:
       - f50-cli.sh=./resources/f50-cli.sh
