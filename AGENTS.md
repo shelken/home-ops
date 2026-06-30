@@ -73,3 +73,9 @@
 ```bash
 task --list # 查看命令
 ```
+
+## Agents Remind
+
+### 自维护镜像源码位置
+
+- `zte-mifi-exporter`（集群部署在 `k8s/apps/common/zte-mifi-exporter/`）的源码不在本仓库，在外部 `containers` 仓库的 `apps/zte-mifi-exporter/` 下。需要改 exporter 指标逻辑、抓取字段时，去 containers 仓库改源码并构建镜像，再回 home-ops 更新镜像 tag。
