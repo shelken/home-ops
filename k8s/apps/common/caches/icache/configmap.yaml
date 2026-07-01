@@ -55,6 +55,7 @@ data:
             "raw.githubusercontent.com" 1;
             # nix
             "cache.nixos.org" 1;
+            "nix-community.cachix.org" 1;
             "mirrors.ustc.edu.cn" 1;
         }
 
@@ -64,6 +65,7 @@ data:
             default 0;
             # nix - 7 days (immutable content)
             "cache.nixos.org" 604800;
+            "nix-community.cachix.org" 604800;
             "mirrors.ustc.edu.cn" 604800;
         }
 
