@@ -43,7 +43,6 @@ task secret:azure-creds-list
 task secret:azure-creds-rotate years=1
 ```
 
-`task secret:bootstrap` 是幂等的：脚本从 KeyVault 渲染 `bootstrap/resources.yaml`，先执行 `kubectl diff`，有差异才 `kubectl apply --server-side`。副作用范围是 `bootstrap/resources.yaml` 声明的 2 个 Namespace 和 3 个 Secret；当 KeyVault 值变更时，会更新对应 K8s Secret 的 data 和 managedFields。Kubernetes Secret 更新不会重启已经运行的 Pod，所以 `azure-creds` 轮换后需要重启 External Secrets。
 
 ### 初始创建流程回忆
 
