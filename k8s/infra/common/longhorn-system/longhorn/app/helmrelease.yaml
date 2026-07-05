@@ -31,6 +31,9 @@ spec:
       defaultDataLocality: best-effort
       defaultDataPath: /mnt/lima-longhorn # 默认是 /var/lib/longhorn
       defaultReplicaCount: "1"
+      # 该值控制 Longhorn instance-manager Pod 的 CPU request 百分比。
+      # 当前 2 节点集群的 KubeCPUOvercommit 由 N-1 容灾公式触发；从 12% 降到 8% 可减少 0.48 CPU request。
+      guaranteedInstanceManagerCPU: '{"v1":"8","v2":"8"}'
       # nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
       # replicaAutoBalance: best-effort # 默认disabled
       storageMinimalAvailablePercentage: "5" # 默认 25

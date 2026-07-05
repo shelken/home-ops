@@ -33,6 +33,16 @@ spec:
       retries: 3
   values:
     kind: Deployment
+    # descheduler 是周期性调度优化器，不是常驻高吞吐服务。
+    # chart 默认 cpu request 是 500m；这里把长期预留降到 100m，limit 保持 500m 允许运行时突发。
+    # 这和 Longhorn instance-manager CPU request 一起，使 2 节点集群重新满足当前 KubeCPUOvercommit 的 N-1 容量公式。
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
     deschedulerPolicyAPIVersion: descheduler/v1alpha2
     deschedulerPolicy:
       metricsProviders:
