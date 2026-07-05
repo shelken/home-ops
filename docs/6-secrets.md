@@ -28,8 +28,27 @@ task secret:bootstrap # 初始化集群所需的 secret
 
 > [doc](https://external-secrets.io/latest/introduction/overview/)
 > [quick-start](https://external-secrets.io/latest/introduction/getting-started)
-> [azure-key-vault](https://azure.github.io/azure-workload-identity/docs/quick-start.html#6-establish-federated-identity-credential-between-the-identity-and-the-service-account-issuer--subject)
-> [azure-key-vault](https://example.com)
+> [azure-key-vault](https://external-secrets.io/latest/provider/azure-key-vault/)
+
+### azure-creds 轮换
+
+`azure-creds` 是 External Secrets 访问 Azure KeyVault 的 bootstrap 凭据，KeyVault 中保存 JSON：`ClientID` 和 `ClientSecret`。Azure App client secret 不能原地续期；正确流程是新增 credential、写回 KeyVault、同步 bootstrap Secret、重启 ESO，确认正常后删除旧 credential。
+
+```shell
+task secret:azure-creds-list
+
+task secret:azure-creds-rotate years=1
+
+task secret:bootstrap
+kubectl -n external-secrets rollout restart deploy/external-secrets
+kubectl get externalsecret -A
+
+# 确认 ExternalSecret 恢复后，删除旧 credential
+task secret:azure-creds-list
+az ad app credential delete --id <ClientID> --key-id <OLD_KEY_ID>
+```
+
+### 初始创建流程回忆
 
 ```shell
 az login
