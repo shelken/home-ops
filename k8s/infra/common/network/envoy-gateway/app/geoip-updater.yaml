@@ -55,16 +55,23 @@ spec:
                   mountPath: /geoip
           containers:
             - name: restarter
-              image: bitnami/kubectl:1.32
+              image: curlimages/curl:8.11.1
               command: ["/bin/sh", "-c"]
               args:
                 - |
                   # initContainer 已完成，本节点 DB 已更新；另一个 Pod 并行更新各自节点。
                   # 只由 index 0 触发一次滚动重启，让两个 Envoy 副本都加载新 DB。
+                  # 用 curl 调 K8s API patch deployment annotation，不依赖 kubectl 镜像。
                   if [ "$JOB_COMPLETION_INDEX" = "0" ]; then
-                    echo "Rolling restart envoy-external to load new GeoIP DB..."
-                    kubectl -n network rollout restart deployment/envoy-external
-                    kubectl -n network rollout status deployment/envoy-external --timeout=300s
+                    TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+                    NS=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+                    TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+                    curl -sS -k -X PATCH \
+                      -H "Authorization: Bearer $TOKEN" \
+                      -H "Content-Type: application/merge-patch+json" \
+                      https://kubernetes.default.svc/apis/apps/v1/namespaces/$NS/deployments/envoy-external \
+                      -d "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"kubectl.kubernetes.io/restartedAt\":\"$TS\"}}}}}}"
+                    echo "Triggered rollout restart of envoy-external at $TS"
                   else
                     echo "Not leader (index=$JOB_COMPLETION_INDEX), skip restart."
                   fi
