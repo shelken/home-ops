@@ -3,54 +3,6 @@
 version: "3"
 
 tasks:
-  node-disk-audit:
-    desc: "只读盘点所有 k8s 节点磁盘、Longhorn、containerd 与日志占用"
-    dir: "{{.ROOT_DIR}}/ansible"
-    vars:
-      LIMIT: '{{ .LIMIT | default "k8s" }}'
-    cmds:
-      - |
-        ansible-playbook -i inventory/hosts.ini -l '{{ .LIMIT }}' /dev/stdin <<'PLAY'
-        - name: 只读盘点 k8s 节点磁盘占用
-          hosts: all
-          become: true
-          gather_facts: false
-          tasks:
-            - name: 收集磁盘占用
-              ansible.builtin.shell: |
-                set -eu
-                echo "--- df ---"
-                df -hT / /mnt/lima-longhorn 2>/dev/null || df -hT /
-                echo
-                echo "--- root top ---"
-                du -xhd1 / 2>/dev/null | sort -h | tail -20
-                echo
-                echo "--- var top ---"
-                du -xhd1 /var 2>/dev/null | sort -h | tail -20
-                echo
-                echo "--- longhorn replicas ---"
-                du -sh /mnt/lima-longhorn/replicas 2>/dev/null || true
-                du -sh /mnt/lima-longhorn/replicas/* 2>/dev/null | sort -h | tail -30 || true
-                echo
-                echo "--- containerd ---"
-                du -sh /var/lib/rancher/k3s/agent/containerd 2>/dev/null || true
-                k3s crictl images 2>/dev/null | tail -n +2 | wc -l | awk '{print "image_count=" $1}' || true
-                k3s crictl ps -a 2>/dev/null | tail -n +2 | wc -l | awk '{print "containers_all=" $1}' || true
-                echo
-                echo "--- journal/logs ---"
-                journalctl --disk-usage 2>/dev/null || true
-                du -xhd1 /var/log 2>/dev/null | sort -h | tail -20 || true
-                echo
-                echo "--- home large files ---"
-                find /home -xdev -type f -printf '%s\t%p\n' 2>/dev/null | sort -nr | head -20 | awk '{printf "%.1fMiB\t%s\n", $1/1024/1024, $2}'
-              register: disk_audit
-              changed_when: false
-
-            - name: 输出磁盘占用
-              ansible.builtin.debug:
-                var: disk_audit.stdout_lines
-        PLAY
-
   copy-json-to-cli-proxy-api:
     desc: "将目录下一级 JSON 文件或单个 JSON 文件复制到 cli-proxy-api 的 /.cli-proxy-api/"
     vars:
