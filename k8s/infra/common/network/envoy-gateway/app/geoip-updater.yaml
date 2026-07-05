@@ -11,15 +11,31 @@ spec:
   failedJobsHistoryLimit: 3
   jobTemplate:
     spec:
+      # Indexed Job：每个节点各跑一个 Pod 更新自己的 hostPath。
+      # Envoy MaxMind local provider 不热重载，磁盘 DB 更新后必须重启 Envoy 才生效。
+      # 两节点并行更新完后由 index 0 触发 envoy-external 滚动重启。
+      completionMode: Indexed
+      completions: 2
+      parallelism: 2
       ttlSecondsAfterFinished: 86400
       template:
         spec:
+          serviceAccountName: geoip-updater
           restartPolicy: OnFailure
           securityContext:
             runAsUser: 0
-          containers:
+          labels:
+            app: geoip-updater
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchLabels:
+                      app: geoip-updater
+                  topologyKey: kubernetes.io/hostname
+          initContainers:
             - name: updater
-              image: curlimages/curl:latest
+              image: curlimages/curl:8.11.1
               command: ["/bin/sh", "-c"]
               args:
                 - |
@@ -36,8 +52,56 @@ spec:
               volumeMounts:
                 - name: geoip-storage
                   mountPath: /geoip
+          containers:
+            - name: restarter
+              image: bitnami/kubectl:1.32
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  # initContainer 已完成，本节点 DB 已更新；另一个 Pod 并行更新各自节点。
+                  # 只由 index 0 触发一次滚动重启，让两个 Envoy 副本都加载新 DB。
+                  if [ "$JOB_COMPLETION_INDEX" = "0" ]; then
+                    echo "Rolling restart envoy-external to load new GeoIP DB..."
+                    kubectl -n network rollout restart deployment/envoy-external
+                    kubectl -n network rollout status deployment/envoy-external --timeout=300s
+                  else
+                    echo "Not leader (index=$JOB_COMPLETION_INDEX), skip restart."
+                  fi
+              volumeMounts:
+                - name: geoip-storage
+                  mountPath: /geoip
           volumes:
             - name: geoip-storage
               hostPath:
                 path: /data/envoy-geoip
                 type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: geoip-updater
+  namespace: network
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: geoip-updater
+  namespace: network
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: geoip-updater
+  namespace: network
+subjects:
+  - kind: ServiceAccount
+    name: geoip-updater
+    namespace: network
+roleRef:
+  kind: Role
+  name: geoip-updater
+  apiGroup: rbac.authorization.k8s.io
