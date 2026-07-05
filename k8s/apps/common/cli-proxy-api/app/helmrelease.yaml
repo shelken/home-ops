@@ -154,6 +154,8 @@ spec:
                 subPath: auths
               - path: /.cli-proxy-api
                 subPath: for-run
+              - path: /CLIProxyAPI/plugins
+                subPath: plugins
       config-file:
         type: secret
         name: cli-proxy-api-secret
