@@ -34,19 +34,16 @@ task secret:bootstrap # 初始化集群所需的 secret
 
 `azure-creds` 是 External Secrets 访问 Azure KeyVault 的 bootstrap 凭据，KeyVault 中保存 JSON：`ClientID` 和 `ClientSecret`。Azure App client secret 不能原地续期；正确流程是新增 credential、写回 KeyVault、同步 bootstrap Secret、重启 ESO，确认正常后删除旧 credential。
 
+同一个 Azure App 只轮换 credential 时不需要重新分配 RBAC；原来的 Service Principal 角色仍然有效。只有新建 App/SP 时，才需要重新执行 KeyVault RBAC 分配。
+
 ```shell
 task secret:azure-creds-list
 
+# 会自动：新增 credential -> 写回 KeyVault -> task secret:bootstrap -> 重启 ESO -> 验证 ExternalSecret -> 删除旧 credential
 task secret:azure-creds-rotate years=1
-
-task secret:bootstrap
-kubectl -n external-secrets rollout restart deploy/external-secrets
-kubectl get externalsecret -A
-
-# 确认 ExternalSecret 恢复后，删除旧 credential
-task secret:azure-creds-list
-az ad app credential delete --id <ClientID> --key-id <OLD_KEY_ID>
 ```
+
+`task secret:bootstrap` 是幂等的：脚本从 KeyVault 渲染 `bootstrap/resources.yaml`，先执行 `kubectl diff`，有差异才 `kubectl apply --server-side`。副作用范围是 bootstrap 文件中声明的 namespace/Secret；当 KeyVault 值变更时，会更新对应 K8s Secret 的 data 和 managedFields，但不会主动重启依赖这些 Secret 的 Pod，所以 `azure-creds` 轮换后仍需要重启 External Secrets。
 
 ### 初始创建流程回忆
 
