@@ -66,11 +66,12 @@ spec:
                     TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
                     NS=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
                     TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+                    BODY='{"spec":{"template":{"metadata":{"annotations":{"kubectl.kubernetes.io/restartedAt":"'$TS'"}}}}}'
                     curl -sS -k -X PATCH \
                       -H "Authorization: Bearer $TOKEN" \
                       -H "Content-Type: application/merge-patch+json" \
                       https://kubernetes.default.svc/apis/apps/v1/namespaces/$NS/deployments/envoy-external \
-                      -d "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"kubectl.kubernetes.io/restartedAt\":\"$TS\"}}}}}}"
+                      -d "$BODY"
                     echo "Triggered rollout restart of envoy-external at $TS"
                   else
                     echo "Not leader (index=$JOB_COMPLETION_INDEX), skip restart."
