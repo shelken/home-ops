@@ -1,116 +1,76 @@
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/batch/cronjob_v1.json
-apiVersion: batch/v1
-kind: CronJob
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/apps/daemonset_v1.json
+apiVersion: apps/v1
+kind: DaemonSet
 metadata:
   name: geoip-updater
 spec:
-  schedule: "0 3 * * 0" # 每周日凌晨 3 点
-  concurrencyPolicy: Forbid
-  successfulJobsHistoryLimit: 1
-  failedJobsHistoryLimit: 3
-  jobTemplate:
+  selector:
+    matchLabels:
+      app: geoip-updater
+  template:
+    metadata:
+      labels:
+        app: geoip-updater
     spec:
-      # Indexed Job：每个节点各跑一个 Pod 更新自己的 hostPath。
-      # Envoy MaxMind local provider 不热重载，磁盘 DB 更新后必须重启 Envoy 才生效。
-      # 两节点并行更新完后由 index 0 触发 envoy-external 滚动重启。
-      completionMode: Indexed
-      completions: 2
-      parallelism: 2
-      ttlSecondsAfterFinished: 86400
-      template:
-        metadata:
-          labels:
-            app: geoip-updater
-        spec:
-          serviceAccountName: geoip-updater
-          restartPolicy: OnFailure
-          securityContext:
-            runAsUser: 0
-          affinity:
-            podAntiAffinity:
-              requiredDuringSchedulingIgnoredDuringExecution:
-                - labelSelector:
-                    matchLabels:
-                      app: geoip-updater
-                  topologyKey: kubernetes.io/hostname
-          initContainers:
-            - name: updater
-              image: curlimages/curl:8.11.1
-              command: ["/bin/sh", "-c"]
-              args:
-                - |
-                  set -e
-                  for db in GeoLite2-City.mmdb GeoLite2-ASN.mmdb; do
-                    echo "Updating $db..."
-                    curl -sSL --connect-timeout 10 --max-time 300 \
-                      --etag-compare "/geoip/$db.etag" --etag-save "/geoip/$db.etag" \
-                      -o "/geoip/$db" \
-                      "https://github.com/P3TERX/GeoLite.mmdb/raw/download/$db" || true
-                  done
-                  echo "Done."
-                  ls -lh /geoip/
-              volumeMounts:
-                - name: geoip-storage
-                  mountPath: /geoip
-          containers:
-            - name: restarter
-              image: curlimages/curl:8.11.1
-              command: ["/bin/sh", "-c"]
-              args:
-                - |
-                  # initContainer 已完成，本节点 DB 已更新；另一个 Pod 并行更新各自节点。
-                  # 只由 index 0 触发一次滚动重启，让两个 Envoy 副本都加载新 DB。
-                  # 用 curl 调 K8s API patch deployment annotation，不依赖 kubectl 镜像。
-                  if [ "$JOB_COMPLETION_INDEX" = "0" ]; then
-                    TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
-                    NS=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
-                    TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-                    BODY='{"spec":{"template":{"metadata":{"annotations":{"kubectl.kubernetes.io/restartedAt":"'$TS'"}}}}}'
-                    curl -sS -k -X PATCH \
-                      -H "Authorization: Bearer $TOKEN" \
-                      -H "Content-Type: application/merge-patch+json" \
-                      https://kubernetes.default.svc/apis/apps/v1/namespaces/$NS/deployments/envoy-external \
-                      -d "$BODY"
-                    echo "Triggered rollout restart of envoy-external at $TS"
-                  else
-                    echo "Not leader (index=$JOB_COMPLETION_INDEX), skip restart."
+      nodeSelector:
+        kubernetes.io/os: linux
+      securityContext:
+        runAsUser: 0
+      containers:
+        - name: updater
+          image: curlimages/curl:8.11.1
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -eu
+
+              sync_db() {
+                for db in GeoLite2-City.mmdb GeoLite2-ASN.mmdb; do
+                  url="https://github.com/P3TERX/GeoLite.mmdb/raw/download/$db"
+                  target="/geoip/$db"
+                  tmp="$target.tmp"
+                  etag="$target.etag"
+                  etag_tmp="$etag.tmp"
+
+                  echo "Updating $db..."
+                  code=$(curl -sSL --connect-timeout 10 --max-time 300 \
+                    --etag-compare "$etag" --etag-save "$etag_tmp" \
+                    -w "%{http_code}" -o "$tmp" "$url")
+
+                  if [ "$code" = "304" ]; then
+                    rm -f "$tmp" "$etag_tmp"
+                    echo "$db unchanged."
+                    continue
                   fi
-              volumeMounts:
-                - name: geoip-storage
-                  mountPath: /geoip
-          volumes:
+
+                  if [ "$code" -lt 200 ] || [ "$code" -ge 300 ]; then
+                    echo "$db download failed: HTTP $code" >&2
+                    rm -f "$tmp" "$etag_tmp"
+                    exit 1
+                  fi
+
+                  test -s "$tmp"
+                  mv -f "$tmp" "$target"
+                  if [ -s "$etag_tmp" ]; then
+                    mv -f "$etag_tmp" "$etag"
+                  else
+                    rm -f "$etag_tmp"
+                  fi
+                done
+
+                ls -lh /geoip/
+              }
+
+              while true; do
+                sync_db
+                sleep 604800
+              done
+          volumeMounts:
             - name: geoip-storage
-              hostPath:
-                path: /data/envoy-geoip
-                type: DirectoryOrCreate
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: geoip-updater
-  namespace: network
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: geoip-updater
-  namespace: network
-rules:
-  - apiGroups: ["apps"]
-    resources: ["deployments"]
-    verbs: ["get", "patch"]
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: geoip-updater
-  namespace: network
-subjects:
-  - kind: ServiceAccount
-    name: geoip-updater
-    namespace: network
-roleRef:
-  kind: Role
-  name: geoip-updater
-  apiGroup: rbac.authorization.k8s.io
+              mountPath: /geoip
+      volumes:
+        - name: geoip-storage
+          hostPath:
+            path: /data/envoy-geoip
+            type: DirectoryOrCreate

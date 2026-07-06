@@ -29,7 +29,7 @@ spec:
           clientCIDRs:
             - ${MAIN_VPS_IP}/32
             - ${MAIN_VPS_IP_V6}/128
-      # 无 GeoIP 数据（私有/内网IP，等价 allow-unknown-location）
+      # 仅放行私网/本机地址；不等价旧 EnvoyPatchPolicy 的 unknown GeoIP 放行。
       - action: Allow
         name: allow-unknown-location
         principal:
