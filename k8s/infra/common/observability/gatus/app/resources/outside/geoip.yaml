@@ -1,0 +1,31 @@
+---
+endpoints:
+  - name: envoy-geoip-allow
+    group: external
+    url: https://echo.${MAIN_DOMAIN}/
+    interval: 1m
+    headers:
+      User-Agent: Gatus-GeoIP-Canary/1.0
+      X-Forwarded-For: 223.5.5.5
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[STATUS] == 200"
+    alerts:
+      - type: custom
+
+  - name: envoy-geoip-deny
+    group: external
+    url: https://echo.${MAIN_DOMAIN}/
+    interval: 1m
+    headers:
+      User-Agent: Gatus-GeoIP-Canary/1.0
+      X-Forwarded-For: 8.8.8.8
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[STATUS] == 403"
+    alerts:
+      - type: custom

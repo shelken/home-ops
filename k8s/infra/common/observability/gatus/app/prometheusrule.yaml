@@ -10,11 +10,13 @@ spec:
       rules:
         - alert: Gatus|外部服务无法访问
           expr: |
-            gatus_results_endpoint_success{group=~"external"} == 0
-          for: 5m
+            gatus_results_endpoint_success{group="external"} == 0
+          for: 1m
           annotations:
             summary: >-
-              服务 {{ $labels.name }} 无法访问({{ $labels.type }})
+              外部入口 {{ $labels.name }} 无法访问({{ $labels.type }})
+            description: >-
+              external 分组失败通常位于公网 DNS/VPS Caddy/Envoy Gateway/GeoIP RBAC 链路，先查 Victoria Logs 中对应 Envoy access log 的 response_code_details。
           labels:
             severity: critical
 
