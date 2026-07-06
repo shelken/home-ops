@@ -78,6 +78,94 @@ curl -sG 'http://<VL_ENDPOINT>/select/logsql/query' \
 - 关键词优先用“组件状态词 + 目标名”，例如：`success=false`、`Notify success`、`BEACON-LOSS`、`router-dns-proxy`。
 - Victoria Logs 返回的是 **stream+json**，通常是一行一个 JSON，不要假设它是普通数组 JSON。
 
+### 3.1 Envoy Gateway 403 / GeoIP / RBAC
+
+先用 Victoria Logs 还原历史分布，再碰当前 Pod。
+
+```bash
+# 拉取某个窗口的 Gatus -> Envoy access log，再本地聚合状态码 / Pod / XFF
+tmp_dir=$(mktemp -d)
+curl -sG 'http://<VL_ENDPOINT>/select/logsql/query' \
+  --data-urlencode 'query=_stream:{k_namespace_name="network"} "Gatus" _time:[<START_UTC>,<END_UTC>] | fields _time,_msg,k_pod_name,k_container_name' \
+  --data-urlencode 'limit=50000' > "$tmp_dir/envoy-gatus.jsonl"
+
+ENVOY_GATUS_LOG="$tmp_dir/envoy-gatus.jsonl" python3 - <<'PY'
+import json, collections, os
+rows=[]
+for line in open(os.environ['ENVOY_GATUS_LOG']):
+    try:
+        outer=json.loads(line); msg=json.loads(outer['_msg'])
+    except Exception:
+        continue
+    if outer.get('k_container_name')!='envoy':
+        continue
+    if not str(outer.get('k_pod_name','')).startswith('<ENVOY_POD_PREFIX>'):
+        continue
+    rows.append((outer['_time'], outer.get('k_pod_name'), msg))
+
+print('rows', len(rows))
+print('by pod/ip/status')
+for k,v in sorted(collections.Counter((pod, msg.get('downstream_local_address','').split(':')[0], msg.get('response_code')) for _,pod,msg in rows).items()):
+    print(v, k)
+
+print('\n403 details')
+for t,pod,msg in rows:
+    if msg.get('response_code') == 403:
+        print(t, pod, msg.get(':authority'), msg.get('x-forwarded-for'), msg.get('response_code_details'))
+PY
+```
+
+查 403 起点是否对齐更新/重启：
+
+```bash
+# 按小时或分钟看 403 是否从某个操作后开始
+ENVOY_GATUS_LOG="$tmp_dir/envoy-gatus.jsonl" python3 - <<'PY'
+import json, collections, os
+rows=[]
+for line in open(os.environ['ENVOY_GATUS_LOG']):
+    try:
+        outer=json.loads(line); msg=json.loads(outer['_msg'])
+    except Exception:
+        continue
+    if outer.get('k_container_name')=='envoy' and msg.get('response_code')==403:
+        rows.append((outer['_time'], outer.get('k_pod_name'), msg))
+for (bucket,pod),n in sorted(collections.Counter((t[:16],p) for t,p,_ in rows).items()):
+    print(bucket, n, pod)
+PY
+```
+
+重启/删除 Envoy Pod 前取证：
+
+```bash
+kubectl -n network get pod -l gateway.networking.k8s.io/gateway-name=<GATEWAY> -o wide
+kubectl -n network get securitypolicy,clienttrafficpolicy,envoyproxy -o yaml
+
+tmp_dir=$(mktemp -d)
+pod=$(kubectl -n network get pod -l gateway.networking.k8s.io/gateway-name=<GATEWAY> -o jsonpath='{.items[0].metadata.name}')
+(kubectl -n network port-forward "pod/$pod" 19000:19000 >"$tmp_dir/envoy-pf.log" 2>&1 & echo $! >"$tmp_dir/envoy-pf.pid")
+sleep 2
+curl -fsS http://127.0.0.1:19000/config_dump > "$tmp_dir/envoy-config-dump.json"
+curl -fsS http://127.0.0.1:19000/stats/prometheus > "$tmp_dir/envoy-stats.prom"
+kill "$(cat "$tmp_dir/envoy-pf.pid")" 2>/dev/null || true
+```
+
+GeoIP / MaxMind 方向固定检查：
+
+```bash
+kubectl -n network get cronjob,job,pod | grep -i geoip || true
+kubectl -n network get pod -l gateway.networking.k8s.io/gateway-name=<GATEWAY> -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.nodeName}{"\t"}{.status.podIP}{"\n"}{end}'
+
+# 如果 mmdb 是 node-local hostPath：检查 updater 是否每节点运行、是否原子替换、是否有重复旧 CronJob/Job
+kubectl get cronjob,job -A | grep -i geoip || true
+```
+
+判定：
+
+- `response_code_details=rbac_access_denied_matched_policy[DENY]`：403 是 Envoy RBAC/SecurityPolicy 返回。
+- 同一 Host 偶尔 200、偶尔 403：优先怀疑运行时匹配状态或上游数据更新，不要先判定静态 YAML 恒定拒绝。
+- 旧 Pod 删除后无法再抓 config_dump/stats；恢复前先保存现场。
+- Gatus 在集群内不代表它走内网路径；先看 DNS resolver、XFF、外部代理链路。
+
 ## 4) 探测段：Gatus / blackbox
 
 ```bash
@@ -286,7 +374,107 @@ ssh <ROUTER_HOST> 'pidof sing-box; pidof chinadns-ng'
 3. 普通 RTT 正常，但本地 `127.0.0.1` 查代理域名慢：本地代理 DNS 栈或其上游慢。
 4. `wwan` 比 `wan` 普通 RTT 更低，不代表它的上游 DNS 更好；基础出网与 DNS 质量要分开判断。
 
-## 8) 扩展判定表
+## 8) Audit log / 手动操作追溯
+
+用 audit 追溯人工操作时，先确认日志覆盖窗口，再统计 kubectl 写操作。
+
+```bash
+ssh <CONTROL_HOST> 'sudo python3 - <<"PY"
+import json, glob, pathlib, collections
+files=sorted(glob.glob("<AUDIT_DIR>/audit*.log"))
+print("files", files)
+for fn in files:
+    first=last=None; n=0
+    users=collections.Counter(); agents=collections.Counter(); verbs=collections.Counter(); resources=collections.Counter()
+    with open(fn) as f:
+        for line in f:
+            try: e=json.loads(line)
+            except Exception: continue
+            ts=e.get("requestReceivedTimestamp") or e.get("stageTimestamp")
+            if not ts: continue
+            first=first or ts; last=ts; n+=1
+            users[e.get("user",{}).get("username","")] += 1
+            agents[(e.get("userAgent","").split() or [""])[0]] += 1
+            verbs[e.get("verb","")] += 1
+            ri=e.get("objectRef",{})
+            resources[(ri.get("apiGroup",""), ri.get("resource",""), ri.get("namespace",""))] += 1
+    print("\n", pathlib.Path(fn).name, "events", n, "first", first, "last", last)
+    print(" users", users.most_common(5))
+    print(" agents", agents.most_common(5))
+    print(" verbs", verbs.most_common(5))
+    print(" resources", resources.most_common(5))
+PY'
+```
+
+统计 kubectl 写操作与 apply-like 事件：
+
+```bash
+ssh <CONTROL_HOST> 'sudo python3 - <<"PY"
+import json, glob, pathlib, urllib.parse, collections
+kub=[]
+for fn in sorted(glob.glob("<AUDIT_DIR>/audit*.log")):
+    for line in open(fn):
+        try: e=json.loads(line)
+        except Exception: continue
+        verb=e.get("verb","")
+        if verb not in {"create","update","patch","delete","deletecollection"}:
+            continue
+        ua=e.get("userAgent","")
+        if "kubectl" not in ua.lower():
+            continue
+        ri=e.get("objectRef",{})
+        kub.append({
+            "ts": e.get("requestReceivedTimestamp"),
+            "user": e.get("user",{}).get("username",""),
+            "ua": ua,
+            "verb": verb,
+            "group": ri.get("apiGroup",""),
+            "resource": ri.get("resource",""),
+            "namespace": ri.get("namespace",""),
+            "name": ri.get("name",""),
+            "subresource": ri.get("subresource",""),
+            "uri": e.get("requestURI",""),
+            "code": e.get("responseStatus",{}).get("code"),
+        })
+
+def category(r):
+    qs=urllib.parse.parse_qs(urllib.parse.urlparse(r["uri"]).query)
+    fm=(qs.get("fieldManager") or [""])[0]
+    if r["verb"]=="patch" and r["subresource"]=="" and fm in {"kubectl","kubectl-client-side-apply"}:
+        return "apply-like dryRun" if "dryRun=All" in r["uri"] else "apply-like actual"
+    if fm=="kubectl-rollout":
+        return "rollout"
+    if r["verb"]=="delete":
+        return "delete"
+    if r["subresource"] in {"exec","attach","ephemeralcontainers"}:
+        return "debug/exec"
+    return "other"
+
+print("kubectl writes", len(kub))
+for k,v in collections.Counter(category(r) for r in kub).most_common():
+    print(v, k)
+for r in kub:
+    print("|".join(str(r[x] or "-") for x in ["ts","user","verb","group","resource","namespace","name","subresource","code","uri"]))
+PY'
+```
+
+查 live 手动 apply 残留：
+
+```bash
+resources=$(kubectl api-resources --verbs=list -o name | grep -vE '^(events(\.|$)|leases(\.|$)|tokenreviews|subjectaccessreviews|selfsubject)')
+for r in $resources; do
+  kubectl get "$r" -A -o jsonpath='{range .items[?(@.metadata.annotations.kubectl\.kubernetes\.io/last-applied-configuration)]}{.apiVersion}{"\t"}{.kind}{"\t"}{.metadata.namespace}{"\t"}{.metadata.name}{"\t"}{.metadata.labels.kustomize\.toolkit\.fluxcd\.io/name}{"\t"}{.metadata.labels.helm\.toolkit\.fluxcd\.io/name}{"\t"}{.metadata.creationTimestamp}{"\n"}{end}' 2>/dev/null || true
+done | sort -u
+```
+
+判定：
+
+- Kubernetes 轮转文件可能是 `audit-<timestamp>.log`，不要只查 `audit.log*`。
+- `Metadata` 不含 request body；apply 只能近似识别。
+- `last-applied-configuration` 只能说明当前对象曾被 apply，不说明发生在 audit 可见窗口内。
+- 如果噪声过大，先按 user / userAgent / resource 排名，再调 audit policy；不要只增加 maxbackup。
+
+## 9) 扩展判定表
 
 1. 服务刚升级，应用日志错误命中上游近期 PR/issue：优先判定升级回归，再评估 GitOps 回退。
 2. 探测失败，Prom 无该指标：抓取/服务发现/Prometheus 异常，或监控盲区。
@@ -297,7 +485,7 @@ ssh <ROUTER_HOST> 'pidof sing-box; pidof chinadns-ng'
 7. 集群内 HTTP/ICMP 正常，但外部域名/DNS 慢：优先查路由器、代理 DNS、上游 DNS、WAN/WWAN。
 8. 监控组件高重启 / scrape 全面缺口：优先判定为监控平面故障。
 
-## 9) 常见绕弯
+## 10) 常见绕弯
 
 - 先改 YAML 再取证。
 - 没查近期 Renovate/升级 PR，就直接深入网络、存储或监控链路。
