@@ -1,104 +1,42 @@
 ---
-- name: 实施全局 DNS 纯净策略
-  block:
-    # -------------------------------------------------------
-    # 第一步：不写死 DNS，只清理旧的全局 DNS 固定值。
-    # 机器保留现有 IPv4 DNS 获取行为；这里只拒绝 IPv6 RA/DHCPv6 下发的 DNS。
-    # -------------------------------------------------------
-    - name: 移除 systemd-resolved 全局固定 DNS
-      ansible.builtin.lineinfile:
-        path: /etc/systemd/resolved.conf
-        regexp: '^DNS='
-        state: absent
-      notify: Restart systemd-resolved
+- name: 发现 Netplan 生成的 systemd-networkd 配置
+  ansible.builtin.find:
+    paths: /run/systemd/network
+    patterns: "*netplan*.network"
+  register: netplan_networks
 
-    # -------------------------------------------------------
-    # 第二步：检测网络管理器类型
-    # -------------------------------------------------------
-    - name: 检查 NetworkManager 是否在运行
-      ansible.builtin.command: systemctl is-active NetworkManager
-      register: nm_status
-      check_mode: false
-      changed_when: false
-      failed_when: false
+- name: 创建 systemd-networkd drop-in 目录
+  ansible.builtin.file:
+    path: "/etc/systemd/network/{{ item.path | basename }}.d"
+    state: directory
+    mode: "0755"
+  loop: "{{ netplan_networks.files }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
 
-    - name: 检查 systemd-networkd 是否在运行
-      ansible.builtin.command: systemctl is-active systemd-networkd
-      register: networkd_status
-      check_mode: false
-      changed_when: false
-      failed_when: false
+- name: 只让默认 IPv4 路由网卡参与 DNS
+  ansible.builtin.copy:
+    dest: "/etc/systemd/network/{{ item.path | basename }}.d/override-block-upstream-dns.conf"
+    mode: "0644"
+    content: |
+      # Ansible Managed: DNS policy
+      # 默认 IPv4 路由网卡接收 DHCP DNS；其他网卡不参与 DNS；全部网卡拒绝 IPv6 DNS。
 
-    # -------------------------------------------------------
-    # 第三步 (A)：NetworkManager 环境 - 保留 IPv4 DNS，拒绝 IPv6 DNS
-    # -------------------------------------------------------
-    - name: 创建 NetworkManager DNS 配置目录
-      ansible.builtin.file:
-        path: /etc/NetworkManager/conf.d
-        state: directory
-        mode: '0755'
-      when: nm_status.rc == 0
+      {% set primary_network_file = '10-netplan-' ~ ansible_facts.default_ipv4.interface ~ '.network' %}
+      {% set use_dns = (item.path | basename) == primary_network_file %}
+      [Network]
+      DNSDefaultRoute={{ 'true' if use_dns else 'false' }}
 
-    - name: 配置 NetworkManager 使用 systemd-resolved 并拒绝 IPv6 DNS
-      ansible.builtin.copy:
-        dest: /etc/NetworkManager/conf.d/90-dns-systemd-resolved.conf
-        content: |
-          # Ansible Managed: 使用 systemd-resolved 作为 DNS 后端
-          # 保留 IPv4 DNS 获取行为，拒绝 IPv6 RA/DHCPv6 下发的 DNS。
-          [main]
-          dns=systemd-resolved
+      [IPv6AcceptRA]
+      UseDNS=false
+      UseDomains=false
 
-          [connection]
-          ipv4.ignore-auto-dns=false
-          ipv6.ignore-auto-dns=true
-        mode: '0644'
-      when: nm_status.rc == 0
-      notify: Reload NetworkManager
+      [DHCPv4]
+      UseDNS={{ 'true' if use_dns else 'false' }}
 
-    # -------------------------------------------------------
-    # 第三步 (B)：systemd-networkd 环境 - 保留 IPv4 DNS，拒绝 IPv6 DNS
-    # -------------------------------------------------------
-    - name: 发现所有 Netplan 生成的网卡配置
-      ansible.builtin.find:
-        paths: /run/systemd/network
-        patterns: "*netplan*.network" # 自动匹配所有 Netplan 网卡，无需人工指定
-      register: target_interfaces
-      when: networkd_status.rc == 0
-
-    - name: 为所有网卡创建补丁目录
-      ansible.builtin.file:
-        path: "/etc/systemd/network/{{ item.path | basename }}.d"
-        state: directory
-        mode: '0755'
-      loop: "{{ target_interfaces.files | default([]) }}"
-      loop_control:
-        label: "{{ item.path | basename }}"
-      when: networkd_status.rc == 0 and target_interfaces.files | default([]) | length > 0
-
-    - name: 下发 DNS 获取策略
-      ansible.builtin.copy:
-        dest: "/etc/systemd/network/{{ item.path | basename }}.d/override-block-upstream-dns.conf"
-        content: |
-          # Ansible Managed: DNS policy
-          # 默认 IPv4 路由网卡接收 DNS；其他网卡不参与 DNS；全部网卡拒绝 IPv6 DNS。
-
-          {% set primary_network_file = '10-netplan-' ~ ansible_facts.default_ipv4.interface ~ '.network' %}
-          {% set use_dns = (item.path | basename) == primary_network_file %}
-          [Network]
-          DNSDefaultRoute={{ 'true' if use_dns else 'false' }}
-
-          [IPv6AcceptRA]
-          UseDNS=false
-          UseDomains=false
-
-          [DHCPv4]
-          UseDNS={{ 'true' if use_dns else 'false' }}
-
-          [DHCPv6]
-          UseDNS=false
-        mode: '0644'
-      loop: "{{ target_interfaces.files | default([]) }}"
-      loop_control:
-        label: "{{ item.path | basename }}"
-      when: networkd_status.rc == 0 and target_interfaces.files | default([]) | length > 0
-      notify: Reload systemd-networkd
+      [DHCPv6]
+      UseDNS=false
+  loop: "{{ netplan_networks.files }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+  notify: Reload systemd-networkd

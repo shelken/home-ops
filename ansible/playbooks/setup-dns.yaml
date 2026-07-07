@@ -1,12 +1,48 @@
 ---
+- name: 归一化 K8s 节点 LAN
+  hosts: k8s
+  become: true
+  gather_facts: false
+  vars:
+    node_netplan:
+      sakamoto-k8s: |
+        network:
+          version: 2
+          ethernets:
+            eth0:
+              dhcp4: true
+              dhcp4-overrides:
+                route-metric: 200
+            eth1:
+              dhcp4: true
+              dhcp4-overrides:
+                route-metric: 100
+      homelab-1: |
+        network:
+          version: 2
+          ethernets:
+            eth1:
+              dhcp4: true
+
+  tasks:
+    - name: 配置 K8s 节点 LAN
+      ansible.builtin.include_tasks: tasks/k8s-lan.yaml
+
+  handlers:
+    - name: Apply netplan
+      ansible.builtin.command: netplan apply
+      changed_when: true
+
 - name: 重置 DNS
   hosts: all
   become: true
   gather_facts: true
+
   tasks:
-    - name: 重设dns
+    - name: 重设 DNS
       ansible.builtin.include_tasks: tasks/dns-patch.yaml
       when: (setup_dns | default(true)) | bool
+
   handlers:
     - name: Reload systemd-networkd
       ansible.builtin.service:

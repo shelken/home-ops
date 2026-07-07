@@ -11,3 +11,5 @@
 - [009 · envoy gateway logs query parser](./009-envoy-gateway-logs-query-parser.md)
 - [010 · daed dns routing saved but not reloaded](./010-daed-dns-routing-not-reloaded.md)
 - [011 · envoy geoip inplace mmdb reload](./011-envoy-geoip-inplace-mmdb-reload.md)
+- [012 · bypass router snat breaks homekit path](./012-bypass-router-homekit-snat.md)
+- [013 · k8s dhcp dns route confusion](./013-k8s-dhcp-dns-route-confusion.md)

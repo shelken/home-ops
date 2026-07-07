@@ -1,0 +1,29 @@
+---
+- name: 禁用 cloud-init 网络接管
+  ansible.builtin.copy:
+    dest: /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
+    mode: "0644"
+    content: |
+      network: {config: disabled}
+  notify: Apply netplan
+
+- name: 下发节点 netplan
+  ansible.builtin.copy:
+    dest: /etc/netplan/50-node-network.yaml
+    mode: "0644"
+    content: "{{ node_netplan[inventory_hostname] }}"
+  notify: Apply netplan
+
+- name: 删除旧 netplan 残留
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/netplan/50-cloud-init.yaml
+    - /etc/netplan/50-cloud-init.yaml.disabled-by-ansible
+    - /etc/netplan/50-eth1-dhcp.yaml
+    - /etc/netplan/50-k8s-lan.yaml
+    - /etc/netplan/90-eth1.yaml.disabled-by-ansible
+    - /etc/netplan/90-k8s-lan.yaml
+    - /etc/netplan/90-k8s-lan.yaml.disabled-by-ansible
+  notify: Apply netplan
