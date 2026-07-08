@@ -19,7 +19,7 @@ spec:
         runAsUser: 0
       containers:
         - name: updater
-          image: curlimages/curl:8.11.1
+          image: curlimages/curl:8.21.0
           command: ["/bin/sh", "-c"]
           args:
             - |
