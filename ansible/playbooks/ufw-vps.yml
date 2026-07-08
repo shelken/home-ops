@@ -2,21 +2,86 @@
 - name: 配置 UFW 规则
   hosts: vps-cc
   become: true
+  gather_facts: false
   tasks:
     - name: 安装 UFW
       ansible.builtin.apt:
         name: ufw
         state: present
         update_cache: true
+        cache_valid_time: 3600
+      when: (ufw_allowed_rules | default([])) | length > 0
+
+    - name: 读取当前 UFW allow 端口规则
+      ansible.builtin.command: ufw show added
+      changed_when: false
+      check_mode: false
+      register: ufw_added_rules
+      when: (ufw_allowed_rules | default([])) | length > 0
+
+    - name: 计算需要删除的 UFW allow 端口规则
+      ansible.builtin.set_fact:
+        ufw_removed_rules: >-
+          {{
+            ufw_added_rules.stdout_lines
+            | select('match', '^ufw allow [0-9]+(/(tcp|udp))?$')
+            | map('regex_replace', '^ufw allow ', '')
+            | list
+            | difference(ufw_allowed_rules | default([]) | map('string') | list)
+          }}
+      when: (ufw_allowed_rules | default([])) | length > 0
+
+    - name: 删除未声明的 UFW allow 端口规则
+      community.general.ufw:
+        rule: allow
+        port: "{{ (item | string).split('/')[0] }}"
+        proto: "{{ (item | string).split('/')[1] if '/' in (item | string) else 'any' }}"
+        delete: true
+      loop: "{{ ufw_removed_rules | default([]) }}"
+      when: (ufw_removed_rules | default([])) | length > 0
+
+    - name: 计算需要添加的 UFW allow 端口规则
+      ansible.builtin.set_fact:
+        ufw_missing_rules: >-
+          {{
+            ufw_allowed_rules
+            | default([])
+            | map('string')
+            | list
+            | difference(
+              ufw_added_rules.stdout_lines
+              | select('match', '^ufw allow [0-9]+(/(tcp|udp))?$')
+              | map('regex_replace', '^ufw allow ', '')
+              | list
+            )
+          }}
       when: (ufw_allowed_rules | default([])) | length > 0
 
     - name: 允许端口规则
       community.general.ufw:
         rule: allow
-        port: "{{ item.split('/')[0] }}"
-        proto: "{{ item.split('/')[1] }}"
-      loop: "{{ ufw_allowed_rules | default([]) }}"
-      when: (ufw_allowed_rules | default([])) | length > 0
+        port: "{{ (item | string).split('/')[0] }}"
+        proto: "{{ (item | string).split('/')[1] if '/' in (item | string) else 'any' }}"
+      loop: "{{ ufw_missing_rules | default([]) }}"
+      when: (ufw_missing_rules | default([])) | length > 0
+
+    - name: 配置 TCP MSS clamp
+      ansible.builtin.blockinfile:
+        path: /etc/ufw/before.rules
+        insertbefore: BOF
+        marker: "# {mark} ANSIBLE MANAGED TCP MSS CLAMP"
+        block: |
+          *mangle
+          :POSTROUTING ACCEPT [0:0]
+          -A POSTROUTING -o {{ ufw_tcp_mss_clamp.interface }} -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss {{ ufw_tcp_mss_clamp.mss }}
+          COMMIT
+      register: ufw_tcp_mss_clamp_rules
+      when: ufw_tcp_mss_clamp.enabled | default(false)
+
+    - name: 重载 UFW 使 TCP MSS clamp 生效
+      ansible.builtin.command: ufw reload
+      changed_when: true
+      when: ufw_tcp_mss_clamp_rules.changed | default(false)
 
     - name: 启用 UFW
       community.general.ufw:

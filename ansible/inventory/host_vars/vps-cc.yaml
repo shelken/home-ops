@@ -18,13 +18,24 @@ enable_install_tailscale: true
 # 安装 Oh My Zsh
 enable_install_ohmyzsh: true
 
+# SSH
+ssh_port: 60223
+ssh_disable_password_login: true
+
 # UFW
 ufw_allowed_rules:
   - 22/tcp
   - 443/tcp
   - 443/udp
-  - 10357/udp
-  - 10357/tcp
-  - 8666/tcp
-  - 3478/udp
-  - 5443/tcp
+  - 8666/tcp # derp
+  - 3478/udp # derp
+  - "5201" # iperf3
+  - "10357" # hy2
+  - "10358" # hy2 + no-obfs
+  - "5444" # anytls
+  - 60223/tcp # ssh
+
+ufw_tcp_mss_clamp:
+  enabled: true
+  interface: eth0
+  mss: 1436

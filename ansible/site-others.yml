@@ -27,3 +27,11 @@
 - import_playbook: playbooks/setup-sysctl.yaml
 
 - import_playbook: playbooks/ufw-vps.yml
+
+- name: 配置 SSH
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: 配置 SSH
+      ansible.builtin.include_tasks: playbooks/tasks/ssh.yaml

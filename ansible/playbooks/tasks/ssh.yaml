@@ -1,0 +1,72 @@
+---
+- name: 创建 sshd 配置目录
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d
+    state: directory
+    mode: "0755"
+
+- name: 配置 SSH 监听端口
+  ansible.builtin.copy:
+    dest: /etc/ssh/sshd_config.d/00-port.conf
+    mode: "0644"
+    content: |
+      Port {{ ssh_port }}
+  when: ssh_port is defined
+  register: ssh_port_present
+
+- name: 删除 SSH 监听端口配置
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d/00-port.conf
+    state: absent
+  when: ssh_port is not defined
+  register: ssh_port_absent
+
+- name: 配置 SSH 禁用密码登录
+  ansible.builtin.copy:
+    dest: /etc/ssh/sshd_config.d/00-auth.conf
+    mode: "0644"
+    content: |
+      PasswordAuthentication no
+  when: ssh_disable_password_login | default(false) | bool
+  register: ssh_auth_present
+
+- name: 删除 SSH 禁用密码登录配置
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d/00-auth.conf
+    state: absent
+  when: not (ssh_disable_password_login | default(false) | bool)
+  register: ssh_auth_absent
+
+- name: 读取 SSH 监听端口
+  ansible.builtin.command: ss -ltnH
+  changed_when: false
+  register: ssh_listeners
+  when: ssh_port is defined
+
+- name: 应用 SSH 变更
+  when: >-
+    (ssh_port_present.changed | default(false))
+    or (ssh_port_absent.changed | default(false))
+    or (ssh_auth_present.changed | default(false))
+    or (ssh_auth_absent.changed | default(false))
+    or (
+      ssh_port is defined and (
+        (':' ~ (ssh_port | string) not in (ssh_listeners.stdout | default('')))
+        or ((ssh_port | string) != '22' and ':22 ' in (ssh_listeners.stdout | default('')))
+      )
+    )
+  block:
+    - name: 验证 sshd 配置
+      ansible.builtin.command: /usr/sbin/sshd -t
+      changed_when: false
+
+    - name: 重启 SSH socket
+      ansible.builtin.systemd:
+        daemon_reload: true
+        name: ssh.socket
+        state: restarted
+
+    - name: 重启 SSH 服务
+      ansible.builtin.systemd:
+        name: ssh
+        state: restarted
