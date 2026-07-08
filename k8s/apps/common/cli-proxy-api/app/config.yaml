@@ -60,6 +60,12 @@ usage-statistics-enabled: true
 
 plugins:
   enabled: true
+  configs:
+    cpa-codex-autoban:
+      enabled: true
+      priority: 100
+    codexcomp:
+      enabled: true
   store-sources:
     - https://raw.githubusercontent.com/shelken/cpa-codex-autoban/main/registry.json
     - https://raw.githubusercontent.com/shelken/cpa-plugin-codexcomp/master/registry.json
