@@ -7,12 +7,14 @@ KEY_FILE="$CERT_DIR/key.pem"
 
 if [ ! -f "$CERT_FILE" ] || [ ! -f "$KEY_FILE" ]; then
   mkdir -p "$CERT_DIR"
-  apk add --no-cache openssl > /dev/null 2>&1
-  openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 \
-    -days 3650 -nodes \
-    -keyout "$KEY_FILE" -out "$CERT_FILE" \
-    -subj "/CN=git.opslab.net" \
-    -addext "subjectAltName=DNS:git.opslab.net"
+  umask 077
+  tmp_pair=$(mktemp)
+  /usr/local/bin/sing-box generate tls-keypair git.opslab.net -m 120 > "$tmp_pair"
+  awk '/BEGIN PRIVATE KEY/{key=1} key{print} /END PRIVATE KEY/{key=0}' "$tmp_pair" > "$KEY_FILE"
+  awk '/BEGIN CERTIFICATE/{cert=1} cert{print} /END CERTIFICATE/{cert=0}' "$tmp_pair" > "$CERT_FILE"
+  test -s "$KEY_FILE"
+  test -s "$CERT_FILE"
+  rm -f "$tmp_pair"
 fi
 
 exec /usr/local/bin/sing-box run -c /etc/sing-box/config.json

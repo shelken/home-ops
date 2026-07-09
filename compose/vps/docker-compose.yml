@@ -365,6 +365,8 @@ services:
       - source: sing_box_entrypoint
         target: /entrypoint.sh
         mode: 0755
+    volumes:
+      - ${DATA_BASE_DIR}/sing-box/cert:/etc/sing-box/cert
     entrypoint: ["/bin/sh", "/entrypoint.sh"]
     deploy:
       replicas: 1
