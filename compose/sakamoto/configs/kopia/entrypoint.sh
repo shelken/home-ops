@@ -5,6 +5,12 @@ set -e
 
 CURRENT_HOST=$(hostname)
 
+echo "检查 Kopia 仓库连接..."
+if ! kopia repository status >/dev/null; then
+    echo "无法打开 Kopia 仓库，请检查 repository.config、KOPIA_PASSWORD 和 S3 后端。" >&2
+    exit 1
+fi
+
 # 导入策略（幂等：先删除当前主机的路径策略，再导入）
 echo "正在导入策略..."
 
