@@ -19,7 +19,7 @@ spec:
           copy-config:
             image: &image
               repository: eceasy/cli-proxy-api
-              tag: v7.2.51@sha256:4343e2c7b23b4af330a30039e86fd18a22ff1b1aa6d6f54430b928cfacd8261c
+              tag: v7.2.54@sha256:1f839d8028f741e7325694152996ed476fe50e4c73462c1d2f610da3621b7e58
             command: ["sh", "-c", "cp /secret-config/config.yaml /config/config.yaml"]
             securityContext:
               runAsUser: 1000
