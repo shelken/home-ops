@@ -35,7 +35,12 @@ ufw_allowed_rules:
   - "5444" # anytls
   - 60223/tcp # ssh
 
-ufw_tcp_mss_clamp:
+# 服务商路径 MTU 低于 1500；实测 IPv6 DF@1400 失败、@1350 成功
+interface_mtu:
   enabled: true
   interface: eth0
-  mss: 1436
+  mtu: 1400
+
+# 已由 interface_mtu 取代；本提交负责清掉旧 clamp
+ufw_tcp_mss_clamp:
+  enabled: false

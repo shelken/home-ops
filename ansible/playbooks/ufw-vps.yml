@@ -76,12 +76,60 @@
           -A POSTROUTING -o {{ ufw_tcp_mss_clamp.interface }} -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss {{ ufw_tcp_mss_clamp.mss }}
           COMMIT
       register: ufw_tcp_mss_clamp_rules
-      when: ufw_tcp_mss_clamp.enabled | default(false)
+      when:
+        - ufw_tcp_mss_clamp.enabled | default(false)
+        - ufw_tcp_mss_clamp.interface is defined
+        - ufw_tcp_mss_clamp.mss is defined
 
-    - name: 重载 UFW 使 TCP MSS clamp 生效
+    - name: 移除 TCP MSS clamp（改由接口 MTU 自洽）
+      ansible.builtin.blockinfile:
+        path: /etc/ufw/before.rules
+        marker: "# {mark} ANSIBLE MANAGED TCP MSS CLAMP"
+        state: absent
+      register: ufw_tcp_mss_clamp_removed
+      when: not (ufw_tcp_mss_clamp.enabled | default(false))
+
+    - name: 重载 UFW 使 mangle 变更生效
       ansible.builtin.command: ufw reload
       changed_when: true
-      when: ufw_tcp_mss_clamp_rules.changed | default(false)
+      when: >-
+        (ufw_tcp_mss_clamp_rules.changed | default(false))
+        or (ufw_tcp_mss_clamp_removed.changed | default(false))
+
+    # reload 后 mangle 里可能仍留着旧 TCPMSS，再清一次 live
+    - name: 清除 live TCPMSS 规则
+      ansible.builtin.shell: |
+        changed=0
+        while iptables -t mangle -S POSTROUTING | grep -q 'TCPMSS --set-mss'; do
+          rule=$(iptables -t mangle -S POSTROUTING | grep 'TCPMSS --set-mss' | head -1 | sed 's/^-A /-D /')
+          # shellcheck disable=SC2086
+          iptables -t mangle $rule
+          changed=1
+        done
+        exit $changed
+      register: ufw_tcp_mss_live_clear
+      changed_when: ufw_tcp_mss_live_clear.rc == 1
+      failed_when: ufw_tcp_mss_live_clear.rc > 1
+      when: not (ufw_tcp_mss_clamp.enabled | default(false))
+
+    - name: 持久化接口 MTU（ifupdown）
+      ansible.builtin.lineinfile:
+        path: /etc/network/interfaces
+        insertafter: "^iface {{ interface_mtu.interface }} inet static$"
+        regexp: "^\\s*mtu\\s+\\d+"
+        line: "\tmtu {{ interface_mtu.mtu }}"
+      when: interface_mtu.enabled | default(false)
+
+    - name: 应用接口 MTU
+      ansible.builtin.shell: |
+        cur=$(cat /sys/class/net/{{ interface_mtu.interface }}/mtu)
+        if [ "$cur" != "{{ interface_mtu.mtu }}" ]; then
+          ip link set dev {{ interface_mtu.interface }} mtu {{ interface_mtu.mtu }}
+          echo changed
+        fi
+      register: interface_mtu_apply
+      changed_when: "'changed' in interface_mtu_apply.stdout"
+      when: interface_mtu.enabled | default(false)
 
     - name: 启用 UFW
       community.general.ufw:
