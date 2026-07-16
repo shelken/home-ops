@@ -40,7 +40,3 @@ interface_mtu:
   enabled: true
   interface: eth0
   mtu: 1400
-
-# 已由 interface_mtu 取代；本提交负责清掉旧 clamp
-ufw_tcp_mss_clamp:
-  enabled: false
