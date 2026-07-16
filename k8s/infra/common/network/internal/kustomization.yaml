@@ -5,5 +5,5 @@ kind: Kustomization
 resources:
   - k8s-gateway/ks.yaml
   - openwrt-dns/ks.yaml
-  - passwall-healer/ks.yaml
+  # - passwall-healer/ks.yaml # 当前已经转向 daed 进行代理故关闭
   - zte-mifi-healer/ks.yaml
