@@ -17,6 +17,18 @@
               dhcp4: true
               dhcp4-overrides:
                 route-metric: 100
+      yuuko-k8s: |
+        network:
+          version: 2
+          ethernets:
+            eth0:
+              dhcp4: true
+              dhcp4-overrides:
+                route-metric: 200
+            eth1:
+              dhcp4: true
+              dhcp4-overrides:
+                route-metric: 100
       homelab-1: |
         network:
           version: 2

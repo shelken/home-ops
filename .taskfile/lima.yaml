@@ -3,11 +3,20 @@
 version: "3"
 
 # Lima VM 管理任务
+#
+# 关键事实：
+# - limactl start 在 VZ 已 Running 后仍会等 guest 内部 SSH（常见 192.168.5.15:22）
+# - limactl --timeout 只覆盖到 “Running”，盖不住内部 SSH 等待
+# - 业务可达判据只用桥接 IP: {{.SAKAMOTO_BRIDGE_IP}}:22（不要用 192.168.5.15）
+# - limactl start 若因实例已 Running 立刻 exit 0，不能当成功
 
 vars:
   SAKAMOTO_HOST: "sakamoto"
   SAKAMOTO_VM: "sakamoto-k8s"
   SAKAMOTO_CONFIG: "docs/resource/lima/sakamoto.yaml"
+  SAKAMOTO_BRIDGE_IP: "192.168.6.80"
+  # 桥接 SSH 就绪等待上限；过长会让 task 假死感明显
+  LIMA_START_TIMEOUT_SEC: "90"
 
 tasks:
   sync:
@@ -18,42 +27,141 @@ tasks:
 
   sync:config:
     desc: "同步 Lima 配置文件到 sakamoto"
-    silent: true
     cmd: |
+      set -euo pipefail
       echo "同步配置到 {{.SAKAMOTO_HOST}}..."
       scp {{.SAKAMOTO_CONFIG}} {{.SAKAMOTO_HOST}}:~/.lima/{{.SAKAMOTO_VM}}/lima.yaml
       echo "✓ 配置同步完成"
 
   restart:
     desc: "重启 sakamoto-k8s VM"
-    silent: true
     cmd: |
+      set -euo pipefail
       echo "正在重启 {{.SAKAMOTO_VM}}..."
-      ssh {{.SAKAMOTO_HOST}} "limactl stop {{.SAKAMOTO_VM}} && limactl disk unlock longhorn && limactl start {{.SAKAMOTO_VM}}"
-      echo "✓ VM 已重启"
+      ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=40 {{.SAKAMOTO_HOST}} \
+        "set -euo pipefail
+         # 1) 停机：普通 stop 失败则 force
+         if ! limactl stop {{.SAKAMOTO_VM}}; then
+           echo 'WARN: limactl stop 失败，改用 --force'
+           limactl stop --force {{.SAKAMOTO_VM}} || true
+         fi
+         limactl disk unlock longhorn || true
+
+         # 2) 后台 start（可能卡在内部 SSH 探测）
+         rm -f /tmp/lima-start-{{.SAKAMOTO_VM}}.log /tmp/lima-start-{{.SAKAMOTO_VM}}.exit
+         ( limactl start --tty=false {{.SAKAMOTO_VM}} > /tmp/lima-start-{{.SAKAMOTO_VM}}.log 2>&1
+           echo \$? > /tmp/lima-start-{{.SAKAMOTO_VM}}.exit
+         ) &
+         start_pid=\$!
+
+         # 3) 唯一成功条件：桥接 IP SSH 通
+         ok=0
+         for i in \$(seq 1 {{.LIMA_START_TIMEOUT_SEC}}); do
+           if ping -c 1 -W 1 {{.SAKAMOTO_BRIDGE_IP}} >/dev/null 2>&1 \
+              && nc -z -w 1 {{.SAKAMOTO_BRIDGE_IP}} 22 >/dev/null 2>&1; then
+             ok=1
+             break
+           fi
+           # start 进程已退出且非 0 → 直接失败（仍再给桥接探测 0 次机会上面已查过）
+           if [ -f /tmp/lima-start-{{.SAKAMOTO_VM}}.exit ]; then
+             code=\$(cat /tmp/lima-start-{{.SAKAMOTO_VM}}.exit)
+             if [ \"\$code\" != 0 ]; then
+               echo 'limactl start failed:'
+               tail -80 /tmp/lima-start-{{.SAKAMOTO_VM}}.log || true
+               exit \"\$code\"
+             fi
+             # exit 0 但桥接未通：继续等，不立刻成功
+           fi
+           sleep 1
+         done
+
+         if [ \"\$ok\" != 1 ]; then
+           echo 'ERROR: {{.LIMA_START_TIMEOUT_SEC}}s 内 {{.SAKAMOTO_BRIDGE_IP}}:22 未就绪'
+           echo '--- limactl list ---'
+           limactl list || true
+           echo '--- start log ---'
+           tail -100 /tmp/lima-start-{{.SAKAMOTO_VM}}.log || true
+           kill \$start_pid 2>/dev/null || true
+           exit 1
+         fi
+
+         if [ ! -f /tmp/lima-start-{{.SAKAMOTO_VM}}.exit ]; then
+           echo 'INFO: {{.SAKAMOTO_BRIDGE_IP}} 已通；结束等待 limactl 内部 SSH'
+           kill \$start_pid 2>/dev/null || true
+         fi
+         limactl list
+        "
+      echo "✓ VM 已重启（{{.SAKAMOTO_BRIDGE_IP}}:22 可达）"
 
   stop:
     desc: "停止 sakamoto-k8s VM"
-    silent: true
     cmd: |
-      ssh {{.SAKAMOTO_HOST}} "limactl stop {{.SAKAMOTO_VM}}"
+      set -euo pipefail
+      ssh {{.SAKAMOTO_HOST}} "
+        limactl stop {{.SAKAMOTO_VM}} || limactl stop --force {{.SAKAMOTO_VM}}
+      "
       echo "✓ VM 已停止"
 
   start:
-    desc: "启动 sakamoto-k8s VM"
-    silent: true
+    desc: "启动 sakamoto-k8s VM（与 restart 相同就绪判据）"
     cmd: |
-      ssh {{.SAKAMOTO_HOST}} "limactl start {{.SAKAMOTO_VM}}"
-      echo "✓ VM 已启动"
+      set -euo pipefail
+      ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=40 {{.SAKAMOTO_HOST}} \
+        "set -euo pipefail
+         limactl disk unlock longhorn || true
+         rm -f /tmp/lima-start-{{.SAKAMOTO_VM}}.log /tmp/lima-start-{{.SAKAMOTO_VM}}.exit
+         ( limactl start --tty=false {{.SAKAMOTO_VM}} > /tmp/lima-start-{{.SAKAMOTO_VM}}.log 2>&1
+           echo \$? > /tmp/lima-start-{{.SAKAMOTO_VM}}.exit
+         ) &
+         start_pid=\$!
+         ok=0
+         for i in \$(seq 1 {{.LIMA_START_TIMEOUT_SEC}}); do
+           if ping -c 1 -W 1 {{.SAKAMOTO_BRIDGE_IP}} >/dev/null 2>&1 \
+              && nc -z -w 1 {{.SAKAMOTO_BRIDGE_IP}} 22 >/dev/null 2>&1; then
+             ok=1
+             break
+           fi
+           if [ -f /tmp/lima-start-{{.SAKAMOTO_VM}}.exit ]; then
+             code=\$(cat /tmp/lima-start-{{.SAKAMOTO_VM}}.exit)
+             if [ \"\$code\" != 0 ]; then
+               echo 'limactl start failed:'
+               tail -80 /tmp/lima-start-{{.SAKAMOTO_VM}}.log || true
+               exit \"\$code\"
+             fi
+           fi
+           sleep 1
+         done
+         if [ \"\$ok\" != 1 ]; then
+           echo 'ERROR: {{.LIMA_START_TIMEOUT_SEC}}s 内 {{.SAKAMOTO_BRIDGE_IP}}:22 未就绪'
+           tail -100 /tmp/lima-start-{{.SAKAMOTO_VM}}.log || true
+           kill \$start_pid 2>/dev/null || true
+           exit 1
+         fi
+         if [ ! -f /tmp/lima-start-{{.SAKAMOTO_VM}}.exit ]; then
+           kill \$start_pid 2>/dev/null || true
+         fi
+         limactl list
+        "
+      echo "✓ VM 已启动（{{.SAKAMOTO_BRIDGE_IP}}:22 可达）"
 
   status:
     desc: "查看 sakamoto-k8s VM 状态"
-    silent: true
-    cmd: ssh {{.SAKAMOTO_HOST}} "limactl list"
+    cmd: |
+      ssh {{.SAKAMOTO_HOST}} "limactl list"
+      echo "--- bridge ---"
+      ping -c 1 -W 2 {{.SAKAMOTO_BRIDGE_IP}} >/dev/null 2>&1 && echo "{{.SAKAMOTO_BRIDGE_IP}} ping ok" || echo "{{.SAKAMOTO_BRIDGE_IP}} ping FAIL"
+      nc -z -w 2 {{.SAKAMOTO_BRIDGE_IP}} 22 >/dev/null 2>&1 && echo "{{.SAKAMOTO_BRIDGE_IP}}:22 open" || echo "{{.SAKAMOTO_BRIDGE_IP}}:22 closed"
 
   diff:
-    desc: "对比仓库配置与 sakamoto 实际配置的差异"
-    silent: true
+    desc: "对比运行中配置(旧)与仓库配置(新)的差异"
     cmd: |
+      set -euo pipefail
       ssh {{.SAKAMOTO_HOST}} "cat ~/.lima/{{.SAKAMOTO_VM}}/lima.yaml" > /tmp/sakamoto-lima.yaml
-      delta {{.SAKAMOTO_CONFIG}} /tmp/sakamoto-lima.yaml || true
+      if command -v delta >/dev/null 2>&1; then
+        git --no-pager diff --no-index --color=always -- /tmp/sakamoto-lima.yaml {{.SAKAMOTO_CONFIG}} \
+          | delta --paging=never \
+          || true
+      else
+        git --no-pager diff --no-index --color=always -- /tmp/sakamoto-lima.yaml {{.SAKAMOTO_CONFIG}} \
+          || true
+      fi

@@ -23,6 +23,8 @@
     - /etc/netplan/50-cloud-init.yaml.disabled-by-ansible
     - /etc/netplan/50-eth1-dhcp.yaml
     - /etc/netplan/50-k8s-lan.yaml
+    # Lima provision 遗留的静态网关 .1；保留会与 DHCP 下发的 .3 冲突。
+    - /etc/netplan/90-eth1.yaml
     - /etc/netplan/90-eth1.yaml.disabled-by-ansible
     - /etc/netplan/90-k8s-lan.yaml
     - /etc/netplan/90-k8s-lan.yaml.disabled-by-ansible

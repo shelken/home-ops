@@ -75,22 +75,9 @@ provision:
   - mode: system
     script: |
       #!/bin/bash
-      # Configure static IP for eth1
-      rm -f /etc/netplan/99-eth1.yaml
-      cat > /etc/netplan/90-eth1.yaml << 'EOF'
-      network:
-        version: 2
-        ethernets:
-          eth1:
-            dhcp4: false
-            addresses:
-              - 192.168.6.80/24
-            routes:
-              - to: default
-                via: 192.168.6.1
-                metric: 100
-      EOF
-      chmod 600 /etc/netplan/90-eth1.yaml
+      # 网络由 Ansible setup-dns.yaml 统一管理（50-node-network.yaml）。
+      # 这里只清理 cloud-init / Lima 历史遗留的 netplan，避免与 Ansible 冲突。
+      rm -f /etc/netplan/99-eth1.yaml /etc/netplan/90-eth1.yaml /etc/netplan/50-cloud-init.yaml
       netplan apply || true
 
 # 健康探针
