@@ -66,6 +66,10 @@ provision:
       # 这里只清理 cloud-init / Lima 历史遗留的 netplan，避免与 Ansible 冲突。
       rm -f /etc/netplan/99-eth1.yaml /etc/netplan/90-eth1.yaml /etc/netplan/50-cloud-init.yaml
       netplan apply || true
+      # Lima cidata 20-rootless-base.sh 无条件 loginctl enable-linger，
+      # 但本机 k3s 用 root containerd，不需要 rootless user manager 常驻。
+      # 关闭 linger 避免 systemd 255 mountinfo churn 堆积内存（见 postmortem 015、issue #1301）。
+      loginctl disable-linger shelken 2>/dev/null || true
 
 probes: []
 copyToHost: []
