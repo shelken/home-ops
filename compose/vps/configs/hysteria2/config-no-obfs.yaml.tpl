@@ -9,8 +9,8 @@ auth:
   password: azure://shelken-homelab/compose-vps/HYSTERIA2_AUTH_PASSWORD
 
 bandwidth:
-  up: 100 mbps
-  down: 100 mbps
+  up: 160 mbps
+  down: 160 mbps
 
 masquerade:
   type: proxy
