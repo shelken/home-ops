@@ -15,3 +15,4 @@
 - [013 · k8s dhcp dns route confusion](./013-k8s-dhcp-dns-route-confusion.md)
 - [014 · vps mss blackhole after migration](./014-vps-mss-blackhole-after-migration.md)
 - [015 · netplan file conflict disrupts control plane](./015-netplan-file-conflict-disrupts-control-plane.md)
+- [016 · cpa gatus docker mtu tailscale](./016-cpa-gatus-docker-mtu-tailscale.md)

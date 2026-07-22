@@ -59,3 +59,4 @@ compose/**/dnsmasq.conf
 __pycache__
 
 .playwright-cli
+DISCOVERY.md

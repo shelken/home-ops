@@ -131,18 +131,34 @@ UFW 持久化规则：
 COMMIT
 ```
 
+## 项目现行约定（防跑偏，2026-07 起）
+
+**MTU 是因，MSS 是果。** 长期方案是 **声明式统一各口 MTU**，不要把 TCPMSS clamp 当默认主修。
+
+```text
+MTU（接口/路径） ──决定──► TCP MSS（≈ MTU − 40，抓包观测值）
+```
+
+| 阶段 | 做法 | 说明 |
+|---|---|---|
+| 事故当时应急 | `TCPMSS --set-mss 1436` 出 eth0 | 本报告下文保留为历史；能立刻验证「包过大」 |
+| **现行长期** | ansible `interface_mtu: eth0=1400` | 公网腿统一 MTU，仓库里已无 `ufw_tcp_mss_clamp` |
+| 同源后续问题 | Docker 网与 tailscale0 也要统一 MTU | 见根目录 `DISCOVERY.md`（容器 1500 vs tailscale0 1280） |
+
+排障可以看 SYN 上的 mss 数字（判断「当前按哪份 MTU 在拨」），**改配置时改 MTU，不主修 MSS。**
+
 ## 预防
 
-- VPS 供应商迁移、换机房、换上游、启用 DDoS 清洗后，必须把 PMTU/MSS 作为第一批检查项。
-- 遇到“TCP connect 成功但 TLS handshake timeout”，不要先假设 DNS 或服务端故障；先做 MSS 对照测试。
-- 排查顺序固定为：DNS 解析 → TCP connect → TLS 抓包 → MSS 阈值 → 路径/迁移时间线 → 应用层。
+- VPS 供应商迁移、换机房、换上游、启用 DDoS 清洗后，必须把 **路径 MTU / 各口 MTU 是否统一** 作为第一批检查项。
+- 遇到“TCP connect 成功但 TLS handshake timeout”，不要先假设 DNS 或服务端故障；先做 **路径 MTU 对照**（可用临时降 MSS 作探测，但落地修 MTU）。
+- 排查顺序：DNS → TCP connect → TLS 抓包 → **各口 MTU 与路径是否一致** → 时间线 → 应用层。
 - 对 Docker/Quay/ECR/OpenList 同时异常的情况，优先怀疑公共网络层，不要逐个应用修补。
 - Kopia 报 `BLOB not found` 时，先验证后端对象层是否可读，不要直接判断仓库损坏。
 - `host` 网络容器里 `127.0.0.1` 指宿主机；bridge 网络容器里 `127.0.0.1` 指容器自己。容器 DNS 排障必须先看 network mode。
-- UFW 规则必须由 Ansible 收敛；临时 `iptables` 验证成功后，要尽快写回声明式配置。
-- 给供应商工单时附带可复现证据：默认 MSS 1460 失败、MSS 1436 成功、抓包显示大 TLS 回包缺失。
+- 网络相关临时 `iptables` 验证成功后，要尽快写回 **声明式 MTU**（`interface_mtu` / compose `driver.mtu`），避免长期靠 TCPMSS。
+- 给供应商工单时附带：默认路径失败、收紧 MTU/MSS 后成功、抓包大 TLS 回包缺失。
 
 参考：
 
 - RFC 2923: TCP Problems with Path MTU Discovery: https://www.rfc-editor.org/rfc/rfc2923.html
-- iptables TCPMSS target: https://manpages.debian.org/bookworm/iptables/iptables-extensions.8.en.html
+- 项目后续同族问题：`DISCOVERY.md`（Docker MTU 与 Tailscale 未统一）
