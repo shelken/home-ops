@@ -59,7 +59,7 @@
 
 ## Notes
 
-- repo 目录下的命令默认继承 direnv 环境（含 kubeconfig 等环境变量）。仅在命令找不到或无法连接集群时，用 `direnv exec . <cmd>` 包装一次。不要对每条命令都使用
+- 进入 repo 目录后 mise 自动加载工具与环境变量（含 kubeconfig）。直接执行命令即可，无需额外包装
 - 新的skill描述全部中文描述
 - 在 `k8s/apps/common/` 启用/禁用某个应用时，同步更新 `.renovate/packageRules.json5` 的 `Disabled Packages`：禁用时添加该应用相关的镜像/包；启用时移除。
 - 当多个服务同属一个目的时，优先放在同一个应用目录下按职责拆分子目录，例如 `aistudio-proxy-api/app/` 和 `aistudio-proxy-api/login/`，再由同级 `ks.yaml` 引用这些路径。

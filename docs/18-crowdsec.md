@@ -262,7 +262,7 @@ kubectl -n security exec deploy/crowdsec-lapi -- cscli bouncers inspect <BOUNCER
 ### VPS compose 状态
 
 ```bash
-direnv exec . task compose:status:vps
+task compose:status:vps
 ssh <VPS_HOST> 'cd <REMOTE_COMPOSE_DIR> && docker compose ps crowdsec-agent crowdsec-firewall-bouncer caddy'
 ```
 
@@ -460,7 +460,7 @@ pre_eval:
 3. 同步 VPS：
 
    ```bash
-   direnv exec . task compose:sync:vps
+   task compose:sync:vps
    ```
 
 4. 重建 agent：

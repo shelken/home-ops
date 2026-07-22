@@ -1,0 +1,39 @@
+min_version = "2024.9.5"
+
+[tools]
+# pipx/uv 工具依赖的运行时，先装这两个再装 ansible 等
+python = "3.13.13"
+uv = "0.11.30"
+pipx = "1.16.1"
+
+kustomize = "5.8.1"
+krew = "0.5.0"
+ansible = "14.2.0"
+flux2 = "2.9.2"
+helm = "3.21.3"
+cilium-cli = "0.19.6"
+sops = "3.13.2"
+task = "3.52.0"
+gum = "0.17.0"
+helmfile = "1.7.1"
+yq = "4.53.3"
+gitleaks = "8.30.1"
+yamllint = "1.38.0"
+pre-commit = "4.6.0"
+"pipx:pre-commit-hooks" = "6.0.0"
+"pipx:homeassistant-cli" = "1.0.0"
+
+[env]
+KUBECONFIG = "{{config_root}}/kubeconfig"
+ANSIBLE_CONFIG = "{{config_root}}/ansible/ansible.cfg"
+SOPS_AGE_KEY_FILE = "~/.config/sops/age/keys.txt"
+# 避免系统 uv 落到不兼容的 Python（如 3.14）导致 pipx 工具装失败
+UV_PYTHON = "3.13.13"
+
+[tasks.setup]
+description = "首次环境初始化（安装 pre-commit hooks）"
+run = "pre-commit install"
+
+[tasks.sync]
+description = "同步/重装 mise 工具"
+run = "mise install"

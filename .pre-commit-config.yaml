@@ -1,0 +1,35 @@
+default_stages:
+  - pre-commit
+
+repos:
+  - repo: local
+    hooks:
+      - id: check-merge-conflicts
+        name: check-merge-conflicts
+        entry: check-merge-conflict
+        language: system
+        types: [text]
+
+      - id: end-of-file-fixer
+        name: end-of-file-fixer
+        entry: end-of-file-fixer
+        language: system
+        types: [text]
+
+      - id: trim-trailing-whitespace
+        name: trim-trailing-whitespace
+        entry: trailing-whitespace-fixer
+        language: system
+        types: [text]
+
+      - id: yamllint
+        name: yamllint
+        entry: yamllint --config-file .yamllint
+        language: system
+        types: [yaml]
+
+      - id: gitleaks
+        name: gitleaks
+        entry: gitleaks protect --staged --config gitleaks.toml --redact -v
+        language: system
+        pass_filenames: false

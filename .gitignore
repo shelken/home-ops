@@ -55,7 +55,6 @@ compose/**/dnsmasq.conf
 .auto-claude/
 .alma-snapshots
 
-.pre-commit-config.yaml
 __pycache__
 
 .playwright-cli

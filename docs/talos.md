@@ -1,8 +1,7 @@
 # Talos 记录
 
 ```shell
-
-nix shell nixpkgs#talosctl
+# 需本机已安装 talosctl（本仓库 mise 未纳入）
 
 talosctl gen config talos-proxmox-cluster https://$CONTROL_PLANE_IP:6443 --output-dir _out
 

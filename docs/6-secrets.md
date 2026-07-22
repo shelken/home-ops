@@ -4,8 +4,7 @@
 ## sops
 
 ```shell
-nix shell nixpkgs#sops nixpkgs#go-task
-
+# 进入仓库根目录后 mise 自动提供 sops / task
 task sops:encrypt-all # 一次性加密所有需要未加密文件
 
 task sops:updatekey-all # 变更/删除/增加密钥时 一次性更新所有已加密的文件
