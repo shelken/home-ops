@@ -2,15 +2,15 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app dragonfly-operator
+  name: dragonfly-operator
   namespace: database
 spec:
   interval: 1h
   timeout: 5m
   chartRef:
     kind: OCIRepository
-    name: app-template
-    namespace: flux-system
+    name: dragonfly-operator
+  # ref: https://github.com/dragonflydb/dragonfly-operator/blob/main/charts/dragonfly-operator/values.yaml
   install:
     remediation:
       retries: -1
@@ -18,84 +18,30 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
-
   values:
-    controllers:
-      dragonfly-operator:
-        pod:
-          automountServiceAccountToken: true
-        containers:
-          app:
-            image:
-              repository: ghcr.io/dragonflydb/operator
-              tag: v1.6.1@sha256:b11411142935f92ed0ec30a5ddeb31680e09ab66beecb827cb0224f1c4238638
-            command: ["/manager"]
-            args:
-              - --health-probe-bind-address=:8081
-              - --metrics-bind-address=:8080
-            probes:
-              liveness:
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /healthz
-                    port: &port 8081
-                  initialDelaySeconds: 15
-                  periodSeconds: 10
-                  timeoutSeconds: 1
-                  failureThreshold: 10
-              readiness:
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /readyz
-                    port: *port
-                  initialDelaySeconds: 5
-                  periodSeconds: 10
-                  timeoutSeconds: 1
-                  failureThreshold: 10
-            resources:
-              requests:
-                cpu: 10m
-                memory: 50Mi
-              limits:
-                memory: 128Mi
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
-    defaultPodOptions:
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: kubernetes.io/hostname
-                    operator: In
-                    values:
-                      - sakamoto-k8s
-    service:
-      app:
-        controller: *app
-        ports:
-          http:
-            port: *port
-          metrics:
-            port: 8080
-    serviceMonitor:
-      app:
-        serviceName: *app
-        endpoints:
-          - port: metrics
-            scheme: http
-            path: /metrics
-            interval: 1m
-            scrapeTimeout: 10s
+    # 固定 SA 名，避免迁移后残留旧 ServiceAccount
     serviceAccount:
-      dragonfly-operator: {}
+      name: dragonfly-operator
+    # 关闭后 metrics 直连 :8080，Prometheus 无需额外 metrics-reader 绑定
+    rbacProxy:
+      enabled: false
+    manager:
+      image:
+        repository: ghcr.io/dragonflydb/operator
+      resources:
+        requests:
+          cpu: 10m
+          memory: 50Mi
+        limits:
+          memory: 128Mi
+    serviceMonitor:
+      enabled: true
+      interval: 1m
+      timeout: 10s
+    grafanaDashboard:
+      enabled: true
+      folder: Dragonfly
+      grafanaOperator:
+        enabled: true
+        matchLabels:
+          grafana.internal/instance: grafana

@@ -8,8 +8,8 @@ spec:
   targetNamespace: *namespace
   path: ./k8s/infra/common/database/dragonfly/app
   healthChecks:
-    - apiVersion: apps/v1
-      kind: Deployment
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
       name: dragonfly-operator
       namespace: *namespace
   prune: true
