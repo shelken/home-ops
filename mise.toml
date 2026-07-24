@@ -3,7 +3,7 @@ min_version = "2024.9.5"
 [tools]
 # pipx/uv 工具依赖的运行时，先装这两个再装 ansible 等
 python = "3.13.13"
-uv = "0.11.30"
+uv = "0.11.32"
 pipx = "1.16.1"
 
 kustomize = "5.8.1"
