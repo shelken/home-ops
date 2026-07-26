@@ -1,8 +1,8 @@
 # CPA 外部探测经 Docker→Tailscale 间歇 TLS 超时
 
-**日期**: 2026-07-22  
-**影响**: Gatus `cli-proxy-api-app-external` 约每 10–12 分钟 critical 告警；CPA 应用本身可用，公网用户偶发首连变慢/超时  
-**发现人**: shelken / 调查会话  
+**日期**: 2026-07-22
+**影响**: Gatus `cli-proxy-api-app-external` 约每 10–12 分钟 critical 告警；CPA 应用本身可用，公网用户偶发首连变慢/超时
+**发现人**: shelken / 调查会话
 
 ## 问题
 
@@ -49,9 +49,9 @@ MTU（因） ──决定──► TCP MSS（果，抓包读数）
 
 要点：
 
-1. 到 `192.168.69.45` 的主机路由是 **`dev tailscale0`**，不是 eth0。eth0=1400 只约束 WireGuard **外层**，管不了容器内层 TCP 段长。  
-2. 容器内核用 **PMTU 缓存**记住路径 MTU=1280（约 `mtu_expires=600s`）；过期后按容器 1500 拨号 → 内层超过 1280 → 大段丢失 → TLS 握手卡死。  
-3. 抓包 mss=1460/1240 只表示「当时按哪份 MTU 拨」，**不是**独立修法旋钮。  
+1. 到 `192.168.69.45` 的主机路由是 **`dev tailscale0`**，不是 eth0。eth0=1400 只约束 WireGuard **外层**，管不了容器内层 TCP 段长。
+2. 容器内核用 **PMTU 缓存**记住路径 MTU=1280（约 `mtu_expires=600s`）；过期后按容器 1500 拨号 → 内层超过 1280 → 大段丢失 → TLS 握手卡死。
+3. 抓包 mss=1460/1240 只表示「当时按哪份 MTU 拨」，**不是**独立修法旋钮。
 4. **为何主要 CPA 告警**：CPA 走独立上游且曾加 `keepalive off`（每次新拨），冷窗口必暴露；默认服务热池可复用或同秒 relearn 后再拨成功。
 
 ### 错误假设（调查中跑偏）
@@ -75,25 +75,25 @@ MTU（因） ──决定──► TCP MSS（果，抓包读数）
      com.docker.network.driver.mtu: "1280"
    ```
 
-2. **生效**：已有 network 不会热更新 MTU → `compose down` → 删 `homelab` → `up -d`（或等价重建）。  
-3. **验证**：  
-   - `docker network inspect homelab` → mtu 1280  
-   - 容器内 `ip route flush cache` 后拨上游 → 404 亚秒（修前必超时）  
-   - 冷启动 SYN mss≈1240  
-4. **回退误改**：去掉无效 `idle_timeout`；`keepalive off` 对根因无效，建议与默认上游一致后删掉。  
+2. **生效**：已有 network 不会热更新 MTU → `compose down` → 删 `homelab` → `up -d`（或等价重建）。
+3. **验证**：
+   - `docker network inspect homelab` → mtu 1280
+   - 容器内 `ip route flush cache` 后拨上游 → 404 亚秒（修前必超时）
+   - 冷启动 SYN mss≈1240
+4. **回退误改**：去掉无效 `idle_timeout`；`keepalive off` 对根因无效，建议与默认上游一致后删掉。
 
 ## 预防
 
-- **统一 MTU，不夹 MSS 当长期方案。** 公网腿用 `interface_mtu`；Docker→Tailscale 腿用 compose `driver.mtu` 与 `tailscale0` 对齐。  
-- 排障「TCP 通、TLS handshake 卡」：先画清 **下一跳是 eth0 还是 tailscale0**，再比各口 MTU；抓包看 SYN mss 只作读数。  
-- 改 Docker 网络 MTU 必须 **重建 network**；只 `compose up` 不会改已有 bridge 的 mtu。  
-- Caddyfile 全局选项上线前用 `caddy adapt` / 同版本镜像校验；未知 `servers` 字段会导致整站起不来。  
-- 对「只某一 upstream 规律超时」：查是否独立 transport / 每次新拨，是否更容易踩 PMTU 过期。  
-- Tailscale **无** tailnet 级全局 MTU；不要指望 Admin 统一改 MTU 解决容器 1500。  
-- 详细时间线与实验：`DISCOVERY.md`；Issue：#1310  
+- **统一 MTU，不夹 MSS 当长期方案。** 公网腿用 `interface_mtu`；Docker→Tailscale 腿用 compose `driver.mtu` 与 `tailscale0` 对齐。
+- 排障「TCP 通、TLS handshake 卡」：先画清 **下一跳是 eth0 还是 tailscale0**，再比各口 MTU；抓包看 SYN mss 只作读数。
+- 改 Docker 网络 MTU 必须 **重建 network**；只 `compose up` 不会改已有 bridge 的 mtu。
+- Caddyfile 全局选项上线前用 `caddy adapt` / 同版本镜像校验；未知 `servers` 字段会导致整站起不来。
+- 对「只某一 upstream 规律超时」：查是否独立 transport / 每次新拨，是否更容易踩 PMTU 过期。
+- Tailscale **无** tailnet 级全局 MTU；不要指望 Admin 统一改 MTU 解决容器 1500。
+- 详细时间线与实验：`DISCOVERY.md`；Issue：#1310
 
 参考：
 
-- RFC 2923 Path MTU Discovery 问题  
-- `postmortems/014-vps-mss-blackhole-after-migration.md`  
+- RFC 2923 Path MTU Discovery 问题
+- `postmortems/014-vps-mss-blackhole-after-migration.md`
 - Tailscale 默认 MTU 1280；无 Admin 全局 MTU（[FR #16017](https://github.com/tailscale/tailscale/issues/16017)）
