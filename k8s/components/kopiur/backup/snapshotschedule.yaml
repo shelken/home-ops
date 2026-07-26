@@ -1,0 +1,15 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/home-operations/kopiur/main/deploy/crds/snapshotschedules.yaml
+apiVersion: kopiur.home-operations.com/v1alpha1
+kind: SnapshotSchedule
+metadata:
+  name: ${APP}
+spec:
+  policyRef:
+    name: ${APP}
+  schedule:
+    # Jenkins-style H：按对象确定性展开分钟，避免整点齐射
+    cron: H * * * *
+    jitter: 15m
+    # GitOps 友好：创建时不立刻备份
+    runOnCreate: false
