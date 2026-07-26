@@ -1,0 +1,29 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/home-operations/kopiur/main/deploy/crds/snapshotpolicies.yaml
+apiVersion: kopiur.home-operations.com/v1alpha1
+kind: SnapshotPolicy
+metadata:
+  name: ${APP}
+spec:
+  compression:
+    compressor: zstd
+  mover:
+    cache:
+      capacity: ${KOPIUR_CACHE_CAPACITY:=3Gi}
+      mode: Persistent
+      storageClassName: ${KOPIUR_CACHE_STORAGECLASS:=longhorn-cache}
+    securityContext:
+      runAsUser: ${KOPIUR_PUID:=1000}
+      runAsGroup: ${KOPIUR_PGID:=1000}
+  repository:
+    kind: ClusterRepository
+    name: sakamoto
+  retention:
+    keepLatest: 3
+    keepHourly: 24
+    keepDaily: 7
+    keepWeekly: 4
+  sources:
+    - pvc:
+        name: ${APP}
+  volumeSnapshotClassName: ${KOPIUR_SNAPSHOTCLASS:=longhorn-snapclass}

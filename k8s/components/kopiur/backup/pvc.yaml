@@ -1,0 +1,16 @@
+---
+# 试点：保留已有 PVC，不改 dataSourceRef。
+# IfNotPresent 避免 Flux 改写 Bound PVC 的不可变字段；资源仍在 desired 中以免 prune 删除。
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ${APP}
+  annotations:
+    kustomize.toolkit.fluxcd.io/ssa: IfNotPresent
+spec:
+  accessModes:
+    - ${KOPIUR_ACCESSMODES:=ReadWriteOnce}
+  resources:
+    requests:
+      storage: ${KOPIUR_CAPACITY:=1Gi}
+  storageClassName: ${KOPIUR_STORAGECLASS:=longhorn}
