@@ -19,7 +19,7 @@ spec:
     substitute:
       APP: *app
       VOLSYNC_CAPACITY: 1Gi
-      VOLSYNC_CACHE_CAPACITY: 1Gi
+      VOLSYNC_CACHE_CAPACITY: 3Gi
   interval: 1h
   path: ./k8s/apps/common/cli-proxy-api/app
   prune: true
@@ -52,7 +52,7 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 1Gi
+      VOLSYNC_CAPACITY: 3Gi
       VOLSYNC_CACHE_CAPACITY: 5Gi
   path: ./k8s/apps/common/cli-proxy-api/cpa-usage-keeper
   prune: true
