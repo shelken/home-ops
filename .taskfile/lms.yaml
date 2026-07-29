@@ -32,7 +32,7 @@ tasks:
       - task: install:link-models
 
   install:app:
-    desc: "在 sakamoto 上安装 LM Studio 应用"
+    internal: true
     silent: true
     cmd: |
       ssh {{.SAKAMOTO_HOST}} "
@@ -45,7 +45,7 @@ tasks:
       "
 
   install:link-models:
-    desc: "创建 models 目录软链接到 sakamoto-data"
+    internal: true
     silent: true
     cmd: |
       ssh {{.SAKAMOTO_HOST}} "
@@ -73,6 +73,7 @@ tasks:
   # ==================== 模型同步任务 ====================
 
   sync-models:
+    silent: true
     desc: "从本机 (mio) 同步模型到 sakamoto (一次性操作)"
     cmd: |
       echo "正在同步模型到 sakamoto..."
@@ -91,7 +92,7 @@ tasks:
       - task: load
 
   start:server:
-    desc: "启动 LM Studio 服务器 (监听 0.0.0.0:1234)"
+    internal: true
     silent: true
     cmd: |
       ssh {{.SAKAMOTO_HOST}} "
@@ -207,6 +208,7 @@ tasks:
   # ==================== 快捷任务 ====================
 
   setup:
+    silent: true
     desc: "完整安装配置流程 (安装 + 启动服务)"
     cmds:
       - task: install

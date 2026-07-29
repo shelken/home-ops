@@ -19,6 +19,7 @@ tasks:
       sh {{ .ZTE_CLI }} {{ .zte_cmd }}
 
   reconnect:
+    silent: true
     desc: 触发 ZTE MiFi 断线重连（从 KeyVault 取凭据）
     cmds:
       - task: run
@@ -26,6 +27,7 @@ tasks:
           zte_cmd: reconnect
 
   status:
+    silent: true
     desc: 查看 ZTE MiFi 当前状态（从 KeyVault 取凭据）
     cmds:
       - task: run

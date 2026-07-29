@@ -26,6 +26,7 @@ tasks:
   default: task --list
 
   bootstrap:
+    silent: true
     desc: "k3s 部署"
     cmds:
       - cmd: |
@@ -39,6 +40,7 @@ tasks:
           ansible-playbook {{.ROOT_DIR}}/ansible/playbooks/install-k3s.yaml
 
   init-crd:
+    silent: true
     desc: "初始化crd"
     cmd: |
       set -o pipefail
@@ -48,6 +50,7 @@ tasks:
       kubectl apply -f https://raw.githubusercontent.com/dragonflydb/dragonfly-operator/v1.6.1/manifests/crd.yaml --server-side --field-manager bootstrap --force-conflicts
 
   init:
+    silent: true
     desc: "集群中初始化内容（部署密钥/flux）"
     cmds:
       - task: secret:bootstrap
@@ -85,8 +88,8 @@ tasks:
         kubectl rollout restart deployment -n kube-system coredns
 
   relpath:
-    desc: Calculate relative path from one file to another
-    summary: ...
+    silent: true
+    internal: true
     dir: "{{ .ROOT_DIR }}"
     cmd: echo $(realpath --relative-to=$(dirname "{{ .start }}") "{{ .end }}")
     requires:
@@ -101,6 +104,7 @@ tasks:
   # 将某个pvc（可选）挂载并起一个pod
   # pvc= kube-run
   kube-run:
+    silent: true
     vars:
       image: '{{.image | default "busybox:latest"}}'
       pod: '{{.pod | default "test"}}'
@@ -153,10 +157,12 @@ tasks:
       '
 
   cscli:
+    silent: true
     cmd: |
       kubectl exec -it -n security deployments/crowdsec-lapi -- cscli {{.CLI_ARGS}}
 
   browse-pvc:
+    silent: true
     requires:
       vars: ["namespace", "claim"]
     cmd: |

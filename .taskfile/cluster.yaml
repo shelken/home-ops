@@ -1,66 +1,37 @@
----
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: "3"
 
-# stop:  drain+qm shutdown workers → lima:stop
-# start: lima:start → API → qm start workers → Ready+uncordon
+# 集群启停走 ansible playbook：
+#   ansible-playbook -i inventory/hosts.ini -i inventory/others.ini playbooks/cluster-stop.yml
+#   ansible-playbook -i inventory/hosts.ini -i inventory/others.ini playbooks/cluster-start.yml
 
 vars:
-  CLUSTER: "{{.ROOT_DIR}}/.taskfile/scripts/cluster.sh"
-  STOP_WAIT_SEC: "90"
-  START_WAIT_SEC: "120"
+  ANSIBLE_DIR: "{{.ROOT_DIR}}/ansible"
+  INV_K8S: "{{.ROOT_DIR}}/ansible/inventory/hosts.ini"
+  INV_MACH: "{{.ROOT_DIR}}/ansible/inventory/others.ini"
 
 tasks:
-  stop:
-    desc: "优雅关停 k3s 集群与 VM（workers → control-plane）"
-    cmds:
-      - task: stop:workers
-      - task: stop:control-plane
-      - task: status
-      - echo "✓ 集群已关停"
-
-  start:
-    desc: "逆序启动（control-plane → API → workers → uncordon）"
-    cmds:
-      - task: start:control-plane
-      - task: wait:api
-      - task: start:workers
-      - task: wait:nodes
-      - task: status
-      - echo "✓ 集群已启动"
-
   status:
-    desc: "查看 workers VM 与 k3s 节点"
+    silent: true
+    desc: "查看 Lima / PVE worker / k3s nodes"
     cmds:
       - task: :lima:status
-      - STOP_WAIT_SEC={{.STOP_WAIT_SEC}} START_WAIT_SEC={{.START_WAIT_SEC}} {{.CLUSTER}} status
-
-  stop:workers:
-    desc: "drain → qm shutdown（已 stopped 则跳过）"
-    cmds:
-      - STOP_WAIT_SEC={{.STOP_WAIT_SEC}} START_WAIT_SEC={{.START_WAIT_SEC}} {{.CLUSTER}} stop-workers
-
-  stop:control-plane:
-    desc: "关停 control-plane Lima VM"
-    cmds:
-      - task: :lima:stop
-
-  start:control-plane:
-    desc: "启动 control-plane Lima VM"
-    cmds:
-      - task: :lima:start
-
-  start:workers:
-    desc: "qm start（已 running 则跳过）"
-    cmds:
-      - STOP_WAIT_SEC={{.STOP_WAIT_SEC}} START_WAIT_SEC={{.START_WAIT_SEC}} {{.CLUSTER}} start-workers
-
-  wait:api:
-    desc: "等 kube-apiserver"
-    cmds:
-      - STOP_WAIT_SEC={{.STOP_WAIT_SEC}} START_WAIT_SEC={{.START_WAIT_SEC}} {{.CLUSTER}} wait-api
-
-  wait:nodes:
-    desc: "等 Ready 后 uncordon 全部节点"
-    cmds:
-      - STOP_WAIT_SEC={{.STOP_WAIT_SEC}} START_WAIT_SEC={{.START_WAIT_SEC}} {{.CLUSTER}} wait-nodes
+      - |
+        set -euo pipefail
+        echo
+        echo "=== PVE workers ==="
+        pve="$(ansible-inventory -i "{{.INV_MACH}}" --host pve | jq -r '.ansible_user + "@" + .ansible_host')"
+        vm_list="$(ssh "${pve}" 'qm list' 2>/dev/null || true)"
+        while IFS=$'\t' read -r node ip; do
+          [ -n "${node:-}" ] || continue
+          vmid="$(echo "${vm_list}" | awk -v name="${node}" '$2 == name {print $1}')"
+          if [ -z "${vmid}" ]; then
+            echo "${node}  ip=${ip}  vmid=? (no matching PVE VM)"
+          else
+            echo "${node}  ip=${ip}  vmid=${vmid}  $(ssh "${pve}" "qm status ${vmid}")"
+          fi
+        done < <(ansible-inventory -i "{{.INV_K8S}}" --list \
+          | jq -r '._meta.hostvars as $h | .workers.hosts[]? // empty | "\(.)\t\($h[.].ansible_host)"')
+        echo
+        echo "=== k3s nodes ==="
+        kubectl get nodes -o wide --request-timeout=5s 2>/dev/null || echo "(API 不可达)"

@@ -1,0 +1,96 @@
+---
+# 整集群启动（cluster-stop 的逆序）
+#
+# 用法:
+#   cd ansible
+#   ansible-playbook -i inventory/hosts.ini -i inventory/others.ini playbooks/cluster-start.yml
+#
+# 顺序: limactl start CP → 等 controllers k3s → qm start workers → 等 workers k3s
+
+- name: Start control-plane Lima VM
+  hosts: sakamoto
+  gather_facts: false
+  vars:
+    lima_vm: "{{ groups['controllers'][0] }}"
+  tasks:
+    - name: limactl start
+      ansible.builtin.shell: |
+        set -euo pipefail
+        vm="{{ lima_vm }}"
+        st="$(limactl list | awk -v vm="${vm}" '$1 == vm { print $2; exit }')"
+        if [ "${st}" = "Running" ]; then
+          echo "already running"
+          exit 0
+        fi
+        limactl start "${vm}"
+      args:
+        executable: /bin/bash
+
+- name: Wait controllers and ensure k3s
+  hosts: controllers
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Wait for SSH
+      ansible.builtin.wait_for_connection:
+        timeout: 180
+
+    - name: Start k3s.service
+      ansible.builtin.systemd:
+        name: k3s
+        state: started
+
+    - name: Wait k3s active
+      ansible.builtin.systemd:
+        name: k3s
+      register: k3s_st
+      until: k3s_st.status.ActiveState | default('') == 'active'
+      retries: 60
+      delay: 2
+
+- name: Start worker VMs on PVE
+  hosts: pve
+  gather_facts: false
+  tasks:
+    - name: Start each worker VM
+      ansible.builtin.shell: |
+        set -euo pipefail
+        vmid="$(qm list | awk -v name="{{ item }}" '$2 == name {print $1}')"
+        if [ -z "${vmid}" ]; then
+          echo "ERROR: no PVE VM named {{ item }}" >&2
+          exit 1
+        fi
+        st="$(qm status "${vmid}")"
+        echo "{{ item }} vmid=${vmid} ${st}"
+        if echo "${st}" | grep -q "status: running"; then
+          echo "already running"
+          exit 0
+        fi
+        qm start "${vmid}"
+      args:
+        executable: /bin/bash
+      loop: "{{ groups['workers'] | default([]) }}"
+      loop_control:
+        label: "{{ item }}"
+
+- name: Wait workers and ensure k3s
+  hosts: workers
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Wait for SSH
+      ansible.builtin.wait_for_connection:
+        timeout: 180
+
+    - name: Start k3s.service
+      ansible.builtin.systemd:
+        name: k3s
+        state: started
+
+    - name: Wait k3s active
+      ansible.builtin.systemd:
+        name: k3s
+      register: k3s_st
+      until: k3s_st.status.ActiveState | default('') == 'active'
+      retries: 60
+      delay: 2

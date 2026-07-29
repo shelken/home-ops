@@ -4,6 +4,7 @@ version: "3"
 
 tasks:
   copy-json-to-cli-proxy-api:
+    silent: true
     desc: "将目录下一级 JSON 文件或单个 JSON 文件复制到 cli-proxy-api 的 /.cli-proxy-api/"
     vars:
       NAMESPACE: '{{ .NAMESPACE | default "default" }}'
@@ -56,6 +57,7 @@ tasks:
         kubectl -n "{{ .NAMESPACE }}" cp -c app "$STAGING_DIR/." "$POD:/.cli-proxy-api/"
 
   restart-network-problem-pods:
+    silent: true
     desc: "查询并重启有网络问题(no route to host)的 Pod"
     vars:
       # 仅此处使用 → 直接读对应 HelmRelease，不进 inv.sh
@@ -114,6 +116,7 @@ tasks:
         echo "=== 重启完成 ==="
 
   restart-all-old-pods:
+    silent: true
     desc: "重启所有比 Cilium 更早启动的 Pod（用于 datapathMode 切换后）"
     cmds:
       - |
@@ -153,6 +156,7 @@ tasks:
         echo "=== 重启完成 ==="
 
   restart-old-controllers:
+    silent: true
     desc: "重启比 Cilium 更早启动的 Controller/Operator 类 Pod（用于 datapathMode 切换后）"
     cmds:
       - |

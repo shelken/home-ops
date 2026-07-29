@@ -25,13 +25,14 @@ vars:
 
 tasks:
   sync:
+    silent: true
     desc: "同步 Lima 配置到 sakamoto 并重启 VM"
     cmds:
       - task: sync:config
       - task: restart
 
   sync:config:
-    desc: "同步 Lima 配置文件到 sakamoto"
+    internal: true
     cmd: |
       set -euo pipefail
       echo "同步配置到 {{.SAKAMOTO_HOST}}..."
@@ -39,6 +40,7 @@ tasks:
       echo "✓ 配置同步完成"
 
   restart:
+    silent: true
     desc: "重启 sakamoto-k8s VM"
     cmd: |
       set -euo pipefail
@@ -99,6 +101,7 @@ tasks:
       echo "✓ VM 已重启（{{.SAKAMOTO_BRIDGE_IP}}:22 可达）"
 
   stop:
+    silent: true
     desc: "停止 sakamoto-k8s VM"
     cmd: |
       set -euo pipefail
@@ -108,6 +111,7 @@ tasks:
       echo "✓ VM 已停止"
 
   start:
+    silent: true
     desc: "启动 sakamoto-k8s VM（与 restart 相同就绪判据）"
     cmd: |
       set -euo pipefail
@@ -150,14 +154,15 @@ tasks:
       echo "✓ VM 已启动（{{.SAKAMOTO_BRIDGE_IP}}:22 可达）"
 
   status:
+    silent: true
     desc: "查看 sakamoto-k8s VM 状态"
     cmd: |
       ssh {{.SAKAMOTO_HOST}} "limactl list"
       echo "--- bridge ---"
       ping -c 1 -W 2 {{.SAKAMOTO_BRIDGE_IP}} >/dev/null 2>&1 && echo "{{.SAKAMOTO_BRIDGE_IP}} ping ok" || echo "{{.SAKAMOTO_BRIDGE_IP}} ping FAIL"
-      nc -z -w 2 {{.SAKAMOTO_BRIDGE_IP}} 22 >/dev/null 2>&1 && echo "{{.SAKAMOTO_BRIDGE_IP}}:22 open" || echo "{{.SAKAMOTO_BRIDGE_IP}}:22 closed"
 
   diff:
+    silent: true
     desc: "对比运行中配置(旧)与仓库配置(新)的差异"
     cmd: |
       set -euo pipefail

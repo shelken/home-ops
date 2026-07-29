@@ -1,0 +1,94 @@
+---
+# 整集群关停：停 k3s → 关 worker VM → 关 control-plane Lima
+#
+# 服务名：xanmanning.k3s 在 server/agent 上 unit 均为 k3s.service（不是 k3s-agent）
+# 不做 drain/cordon（整集群下电无需迁 Pod，且会撞 Longhorn/CNPG PDB）
+#
+# 用法（需同时加载 k8s 节点与 pve/sakamoto）:
+#   cd ansible
+#   ansible-playbook -i inventory/hosts.ini -i inventory/others.ini playbooks/cluster-stop.yml
+#
+# 顺序: workers k3s → controllers k3s → PVE qm shutdown workers → limactl stop CP
+
+- name: Stop k3s on workers
+  hosts: workers
+  become: true
+  gather_facts: false
+  ignore_unreachable: true
+  tasks:
+    - name: Stop k3s.service
+      ansible.builtin.systemd:
+        name: k3s
+        state: stopped
+
+- name: Stop k3s on controllers
+  hosts: controllers
+  become: true
+  gather_facts: false
+  ignore_unreachable: true
+  tasks:
+    - name: Stop k3s.service
+      ansible.builtin.systemd:
+        name: k3s
+        state: stopped
+
+- name: Shutdown worker VMs on PVE
+  hosts: pve
+  gather_facts: false
+  vars:
+    cluster_qm_wait_retries: 30
+    cluster_qm_wait_delay: 3
+  tasks:
+    - name: Shut down each worker VM
+      ansible.builtin.shell: |
+        set -euo pipefail
+        vmid="$(qm list | awk -v name="{{ item }}" '$2 == name {print $1}')"
+        if [ -z "${vmid}" ]; then
+          echo "ERROR: no PVE VM named {{ item }}" >&2
+          exit 1
+        fi
+        st="$(qm status "${vmid}")"
+        echo "{{ item }} vmid=${vmid} ${st}"
+        if echo "${st}" | grep -q "status: stopped"; then
+          echo "already stopped"
+          exit 0
+        fi
+        qm shutdown "${vmid}" --timeout 30 || true
+        for i in $(seq 1 {{ cluster_qm_wait_retries }}); do
+          st="$(qm status "${vmid}")"
+          echo "  [${i}] ${st}"
+          if echo "${st}" | grep -q "status: stopped"; then
+            exit 0
+          fi
+          sleep {{ cluster_qm_wait_delay }}
+        done
+        echo "WARN: force qm stop ${vmid}"
+        qm stop "${vmid}"
+      args:
+        executable: /bin/bash
+      loop: "{{ groups['workers'] | default([]) }}"
+      loop_control:
+        label: "{{ item }}"
+
+- name: Stop control-plane Lima VM
+  hosts: sakamoto
+  gather_facts: false
+  vars:
+    lima_vm: "{{ groups['controllers'][0] }}"
+  tasks:
+    - name: limactl stop
+      ansible.builtin.shell: |
+        set -euo pipefail
+        vm="{{ lima_vm }}"
+        st="$(limactl list | awk -v vm="${vm}" '$1 == vm { print $2; exit }')"
+        if [ -z "${st}" ]; then
+          echo "Lima instance ${vm} not found" >&2
+          exit 1
+        fi
+        if [ "${st}" = "Stopped" ]; then
+          echo "already stopped"
+          exit 0
+        fi
+        limactl stop "${vm}" || limactl stop -f "${vm}"
+      args:
+        executable: /bin/bash

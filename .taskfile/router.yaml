@@ -23,6 +23,7 @@ tasks:
         {{ .ROUTER_SSH }} '{{ .router_cmd }}'
 
   restart-firewall:
+    silent: true
     desc: 重启路由器 firewall（避免阻塞调用方）
     cmds:
       - task: run

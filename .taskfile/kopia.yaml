@@ -20,12 +20,14 @@ vars:
 
 tasks:
   list:
+    silent: true
     desc: "列出 sakamoto 上 kopia 容器中的可用 snapshot"
     cmds:
       - echo "Snapshots for {{.KOPIA_BACKUP_SOURCE}}:"
       - ssh {{.SOURCE_HOST}} "docker exec {{.SOURCE_KOPIA_CONTAINER}} kopia snapshot list --all '{{.KOPIA_BACKUP_SOURCE}}'"
 
   pull:
+    silent: true
     desc: "从源拉取 snapshot 到本地临时目录（SNAPSHOT_ID=xxx [FORCE=1]）"
     cmds:
       - |
@@ -49,6 +51,7 @@ tasks:
         echo "Archive saved to {{.STAGING_ARCHIVE}}"
 
   push:
+    silent: true
     desc: "将本地暂存的 snapshot 推送至目标机器"
     cmds:
       - |
@@ -69,6 +72,7 @@ tasks:
       - echo "Done"
 
   clean:
+    silent: true
     desc: "清理本地临时数据"
     cmds:
       - |
@@ -81,6 +85,7 @@ tasks:
         fi
 
   full:
+    silent: true
     desc: "完整的恢复流程（拉取 → 推送，SNAPSHOT_ID=xxx [FORCE=1]）"
     cmds:
       - |

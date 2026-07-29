@@ -26,6 +26,7 @@ tasks:
       - which jq sops
 
   updatekey-all:
+    silent: true
     desc: "更新目录下所有sops.yaml结尾的文件"
     cmds:
       - for: { var: SECRET_FILES }

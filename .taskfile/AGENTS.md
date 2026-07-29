@@ -15,7 +15,10 @@
 - **共享抽取门槛**：同一取值在 **两处及以上** 被引用，才进入 `.taskfile/scripts/` 共享（如 `inv.sh`）；**只出现一次** 的留在当前 taskfile / 脚本本地，不预埋“以后可能用”的通用接口
 - **最少代码**：先证明用更少代码能达到目的；能一行 inventory/kubectl/yq 解决的，不写多层封装；共享脚本保持小 CLI，避免 source 样板与未使用的子命令
 - **幂等与安全**：启停类任务对已达目标状态应跳过（如 VM 已 stopped/running）；破坏性步骤（drain、强制 stop）允许失败继续或有明确回退，不把「全库存 hosts: all」式假设带进运维脚本的数据源选择
-- **互逆操作**：成对的 stop/start（或 down/up）必须按逆序成对实现；stop 多做的每一步，start 都要有对应恢复（含 cordon/uncordon、API 就绪等待等），不能只起 VM 不恢复调度状态
+- **互逆操作**：成对的 stop/start 必须按逆序成对实现；stop 多做的每一步，start 都要有对应恢复（如等 API / nodes Ready）
+- **整集群下电 ≠ 撤节点**：不 drain/cordon（会撞 Longhorn/CNPG 等 PDB）。drain 只用于「集群继续跑、只撤一台」
+- **集群启停走 Ansible**：`playbooks/cluster-stop.yml` / `cluster-start.yml`（unit 名 `k3s.service`，与 xanmanning.k3s 一致）；`task cluster:*` 只做薄封装。库存需同时 `-i hosts.ini -i others.ini`
+- **对外暴露最小化**：`task --list` 只展示会直接执行的入口；仅被其他 task 组合调用的子步骤、纯调试/极少手跑的工具一律 `internal: true`（仍可被依赖调用，也可显式 `task ns:name` 跑）。示例：`cluster` 只暴露 start/stop/status
 
 ## 数据与分组（写 task 时）
 
@@ -30,3 +33,4 @@
 - [ ] 若抽了共享函数/脚本：调用方是否 ≥ 2？否则改回本地
 - [ ] stop/start 是否互逆、是否对已是目标状态幂等？
 - [ ] 是否用了最小实现，而不是提前抽象？
+- [ ] 子步骤 / 调试 task 是否已 `internal: true`，`--list` 是否只剩入口？

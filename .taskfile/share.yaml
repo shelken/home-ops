@@ -8,6 +8,8 @@ vars:
 
 tasks:
   host:
-    desc: "查 ansible_host：task share:host -- <name>"
+    silent: true
+    # 调试用，不进 --list；需要时仍可 task share:host -- <name>
+    internal: true
     cmds:
       - "{{.INV}} {{.CLI_ARGS}}"
