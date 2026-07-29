@@ -1,0 +1,66 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+# stop:  drain+qm shutdown workers → lima:stop
+# start: lima:start → API → qm start workers → Ready+uncordon
+
+vars:
+  CLUSTER: "{{.ROOT_DIR}}/.taskfile/scripts/cluster.sh"
+  STOP_WAIT_SEC: "90"
+  START_WAIT_SEC: "120"
+
+tasks:
+  stop:
+    desc: "优雅关停 k3s 集群与 VM（workers → control-plane）"
+    cmds:
+      - task: stop:workers
+      - task: stop:control-plane
+      - task: status
+      - echo "✓ 集群已关停"
+
+  start:
+    desc: "逆序启动（control-plane → API → workers → uncordon）"
+    cmds:
+      - task: start:control-plane
+      - task: wait:api
+      - task: start:workers
+      - task: wait:nodes
+      - task: status
+      - echo "✓ 集群已启动"
+
+  status:
+    desc: "查看 workers VM 与 k3s 节点"
+    cmds:
+      - task: :lima:status
+      - STOP_WAIT_SEC={{.STOP_WAIT_SEC}} START_WAIT_SEC={{.START_WAIT_SEC}} {{.CLUSTER}} status
+
+  stop:workers:
+    desc: "drain → qm shutdown（已 stopped 则跳过）"
+    cmds:
+      - STOP_WAIT_SEC={{.STOP_WAIT_SEC}} START_WAIT_SEC={{.START_WAIT_SEC}} {{.CLUSTER}} stop-workers
+
+  stop:control-plane:
+    desc: "关停 control-plane Lima VM"
+    cmds:
+      - task: :lima:stop
+
+  start:control-plane:
+    desc: "启动 control-plane Lima VM"
+    cmds:
+      - task: :lima:start
+
+  start:workers:
+    desc: "qm start（已 running 则跳过）"
+    cmds:
+      - STOP_WAIT_SEC={{.STOP_WAIT_SEC}} START_WAIT_SEC={{.START_WAIT_SEC}} {{.CLUSTER}} start-workers
+
+  wait:api:
+    desc: "等 kube-apiserver"
+    cmds:
+      - STOP_WAIT_SEC={{.STOP_WAIT_SEC}} START_WAIT_SEC={{.START_WAIT_SEC}} {{.CLUSTER}} wait-api
+
+  wait:nodes:
+    desc: "等 Ready 后 uncordon 全部节点"
+    cmds:
+      - STOP_WAIT_SEC={{.STOP_WAIT_SEC}} START_WAIT_SEC={{.START_WAIT_SEC}} {{.CLUSTER}} wait-nodes

@@ -18,6 +18,7 @@ includes:
   lms: .taskfile/lms.yaml
   lima: .taskfile/lima.yaml
   k8s: .taskfile/k8s.yaml
+  cluster: .taskfile/cluster.yaml
   zte: .taskfile/zte.yaml
   router: .taskfile/router.yaml
 
