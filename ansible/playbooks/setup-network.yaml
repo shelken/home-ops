@@ -1,0 +1,67 @@
+---
+# K8s 节点网络（LAN / DNS / VLAN 统一入口）
+#
+# 平台分工：
+#   Lima — Ansible 写 netplan（route-metric 精细控制），cloud-init 网络禁用
+#   PVE  — cloud-init 原生管网（ipconfig → name: eth1），Ansible 不写 netplan
+#   全部 — DNS 策略（systemd-networkd drop-in）+ VLAN（netplan）
+#
+# 变量来源：group_vars/k8s.yml + host_vars/<node>.yaml
+#   k8s_lan_iface       — LAN 接口名（group_vars，默认 eth1）
+#   k8s_lan_route_metric — LAN 路由优先级（group_vars，默认 100）
+#   k8s_mgmt_iface      — 管理口名（Lima host_vars，如 eth0）
+#   k8s_mgmt_route_metric — 管理口路由优先级（Lima host_vars，如 200）
+#   k8s_vlan_parent     — VLAN 父接口（group_vars，默认 eth1）
+#   k8s_vlan_ids        — VLAN ID 列表（group_vars，默认 [50, 70]）
+#
+# 平台由 ansible_virtualization_type 自动推断（kvm=PVE，其他=Lima）
+#
+# 用法:
+#   ansible-playbook -i inventory/hosts.ini playbooks/setup-network.yaml
+#   ansible-playbook -i inventory/hosts.ini playbooks/setup-network.yaml --limit homelab-1
+
+- name: 配置 K8s 节点网络
+  hosts: k8s
+  become: true
+  gather_facts: true
+
+  pre_tasks:
+    - name: 推断平台类型
+      ansible.builtin.set_fact:
+        is_pve: "{{ ansible_facts.virtualization_type == 'kvm' }}"
+
+  tasks:
+    - name: LAN 配置
+      ansible.builtin.include_tasks: tasks/k8s-lan.yaml
+      tags: [lan]
+
+    - name: VLAN 配置
+      ansible.builtin.include_tasks: tasks/k8s-vlan.yaml
+      tags: [vlan]
+
+    - name: DNS 策略
+      ansible.builtin.include_tasks: tasks/k8s-dns.yaml
+      tags: [dns]
+
+  handlers:
+    # PVE: cloud-init 必须先跑（生成 50-cloud-init.yaml），再 netplan apply
+    - name: Reapply cloud-init network
+      ansible.builtin.shell: |
+        cloud-init clean
+        cloud-init init
+      changed_when: true
+
+    - name: Apply netplan
+      ansible.builtin.command: netplan apply
+      changed_when: true
+
+    - name: Reload systemd-networkd
+      ansible.builtin.service:
+        name: systemd-networkd
+        state: reloaded
+      notify: Restart systemd-resolved
+
+    - name: Restart systemd-resolved
+      ansible.builtin.service:
+        name: systemd-resolved
+        state: restarted

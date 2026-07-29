@@ -1,0 +1,18 @@
+# Ansible managed — Lima 专用
+# LAN 口用 k8s_lan_route_metric，其余 eth* 自动降权（+100）
+network:
+  version: 2
+  ethernets:
+{% for iface in ansible_facts.interfaces | select('match', '^eth\\d+$') | list %}
+{% if iface == k8s_lan_iface %}
+    {{ iface }}:
+      dhcp4: true
+      dhcp4-overrides:
+        route-metric: {{ k8s_lan_route_metric }}
+{% else %}
+    {{ iface }}:
+      dhcp4: true
+      dhcp4-overrides:
+        route-metric: {{ k8s_lan_route_metric + 100 }}
+{% endif %}
+{% endfor %}

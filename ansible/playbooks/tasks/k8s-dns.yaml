@@ -1,0 +1,55 @@
+---
+# DNS 策略 — systemd-networkd drop-in
+# 规则：默认 IPv4 路由网卡参与 DNS，其余不参与，全部禁 IPv6 DNS
+
+- name: 发现 netplan 生成的 networkd 配置
+  ansible.builtin.find:
+    paths: /run/systemd/network
+    patterns: "*netplan*.network"
+  register: netplan_networks
+
+- name: 创建 drop-in 目录
+  ansible.builtin.file:
+    path: "/etc/systemd/network/{{ item.path | basename }}.d"
+    state: directory
+    mode: "0755"
+  loop: "{{ netplan_networks.files }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+
+- name: 写入 DNS 策略 drop-in
+  ansible.builtin.copy:
+    dest: "/etc/systemd/network/{{ item.path | basename }}.d/ansible-dns.conf"
+    mode: "0644"
+    content: |
+      # Ansible managed: DNS policy
+      {% set is_primary = (item.path | basename) == ('10-netplan-' ~ ansible_facts.default_ipv4.interface ~ '.network') %}
+      [Network]
+      DNSDefaultRoute={{ 'true' if is_primary else 'false' }}
+
+      [DHCPv4]
+      UseDNS={{ 'true' if is_primary else 'false' }}
+
+      [DHCPv6]
+      UseDNS=false
+
+      [IPv6AcceptRA]
+      UseDNS=false
+      UseDomains=false
+  loop: "{{ netplan_networks.files }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+  notify: Reload systemd-networkd
+
+- name: 清理旧 DNS drop-in
+  ansible.builtin.file:
+    path: "/etc/systemd/network/{{ item.0.path | basename }}.d/{{ item.1 }}"
+    state: absent
+  loop: "{{ netplan_networks.files | product(dns_legacy_files) | list }}"
+  loop_control:
+    label: "{{ item.0.path | basename }}/{{ item.1 }}"
+  vars:
+    dns_legacy_files:
+      - override-block-upstream-dns.conf
+      - override-dns-default-route.conf
+      - override-disable-ipv6-dns.conf

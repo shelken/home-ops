@@ -1,31 +1,48 @@
 ---
-- name: 禁用 cloud-init 网络接管
+# LAN 配置 — 按虚拟化类型自动推断
+# PVE KVM: cloud-init 原生管网（ipconfig → eth1）
+# Lima VZ: Ansible 写 netplan（route-metric 精细控制）
+
+- name: "Lima: 禁用 cloud-init 网络"
   ansible.builtin.copy:
     dest: /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
     mode: "0644"
     content: |
       network: {config: disabled}
+  when: not is_pve
   notify: Apply netplan
 
-- name: 下发节点 netplan
-  ansible.builtin.copy:
+- name: "Lima: 下发 netplan"
+  ansible.builtin.template:
+    src: templates/50-node-network.yaml.j2
     dest: /etc/netplan/50-node-network.yaml
-    mode: "0644"
-    content: "{{ node_netplan[inventory_hostname] }}"
+    mode: "0600"
+  when: not is_pve
   notify: Apply netplan
 
-- name: 删除旧 netplan 残留
+- name: "Lima: 清理旧 netplan 残留"
   ansible.builtin.file:
     path: "{{ item }}"
     state: absent
   loop:
     - /etc/netplan/50-cloud-init.yaml
-    - /etc/netplan/50-cloud-init.yaml.disabled-by-ansible
     - /etc/netplan/50-eth1-dhcp.yaml
     - /etc/netplan/50-k8s-lan.yaml
-    # Lima provision 遗留的静态网关 .1；保留会与 DHCP 下发的 .3 冲突。
     - /etc/netplan/90-eth1.yaml
-    - /etc/netplan/90-eth1.yaml.disabled-by-ansible
     - /etc/netplan/90-k8s-lan.yaml
-    - /etc/netplan/90-k8s-lan.yaml.disabled-by-ansible
+  when: not is_pve
+  notify: Apply netplan
+
+- name: "PVE: 恢复 cloud-init 网络"
+  ansible.builtin.file:
+    path: /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
+    state: absent
+  when: is_pve
+  notify: Reapply cloud-init network
+
+- name: "PVE: 清理 Ansible 残留 netplan"
+  ansible.builtin.file:
+    path: /etc/netplan/50-node-network.yaml
+    state: absent
+  when: is_pve
   notify: Apply netplan

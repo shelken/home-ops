@@ -1,2 +1,10 @@
 ---
 k3s_registration_address: 192.168.6.80
+
+# 网络
+k8s_lan_iface: eth1
+k8s_lan_route_metric: 100
+k8s_vlan_parent: eth1
+k8s_vlan_ids:
+  - 50
+  - 70

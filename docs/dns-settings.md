@@ -29,7 +29,7 @@ IPv4 DNS 只来自默认 IPv4 路由网卡
 ## 日常修复
 
 ```shell
-ansible-playbook -i ansible/inventory/hosts.ini ansible/playbooks/setup-dns.yaml
+ansible-playbook -i ansible/inventory/hosts.ini ansible/playbooks/setup-network.yaml --tags dns
 ```
 
-`setup-dns.yaml` 只做 DNS policy，不负责网络迁移。
+DNS 策略在 `setup-network.yaml` 中统一管理（`--tags dns` 只跑 DNS 部分）。
