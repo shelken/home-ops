@@ -9,7 +9,8 @@
 
 - name: 复制配置
   ansible.builtin.copy:
-    src: "{{ playbook_dir }}/resource/sysctl/{{ item }}"
+    # 不依赖 playbook_dir（import 时指向顶层 play），固定相对 inventory 布局
+    src: "{{ inventory_dir }}/../playbooks/resource/sysctl/{{ item }}"
     dest: /etc/sysctl.d/{{ item }}
     owner: root
     group: root

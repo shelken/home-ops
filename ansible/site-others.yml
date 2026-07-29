@@ -1,6 +1,11 @@
 ---
-- name: 准备 Kubernetes 节点
-  hosts: all
+# 集群外 Linux VPS 初始化。
+# 库存: -i ansible/inventory/others.ini
+# 目标: 仅 [vps]（不含 hypervisor / endpoint / router）
+# 即使忘记 --limit，也不会打到 sakamoto / pve / router-mine。
+
+- name: 准备 VPS 节点
+  hosts: vps
   become: true
   tasks:
     - name: 设置主机名为 "{{ inventory_hostname }}"
@@ -11,25 +16,36 @@
       community.general.timezone:
         name: "{{ system_timezone }}"
 
-    - import_tasks: playbooks/tasks/change-sources.yaml
+    - name: 换源
+      ansible.builtin.import_tasks: playbooks/tasks/change-sources.yaml
 
     - name: install system pkgs
       ansible.builtin.apt:
         name: "{{ system_packages }}"
         state: present
 
-    - import_tasks: playbooks/tasks/install-docker.yaml
+    - name: 安装 Docker
+      ansible.builtin.import_tasks: playbooks/tasks/install-docker.yaml
 
-    - import_tasks: playbooks/tasks/install-tailscale.yaml
+    - name: 安装 Tailscale
+      ansible.builtin.import_tasks: playbooks/tasks/install-tailscale.yaml
 
-    - import_tasks: playbooks/tasks/install-ohmyzsh.yaml
+    - name: 安装 Oh My Zsh
+      ansible.builtin.import_tasks: playbooks/tasks/install-ohmyzsh.yaml
 
-- import_playbook: playbooks/setup-sysctl.yaml
+- name: VPS sysctl
+  hosts: vps
+  become: true
+  gather_facts: false
+  tasks:
+    - name: 设置 sysctl
+      ansible.builtin.include_tasks: playbooks/tasks/sysctl.yaml
 
-- import_playbook: playbooks/ufw-vps.yml
+- name: VPS UFW
+  ansible.builtin.import_playbook: playbooks/ufw-vps.yml
 
 - name: 配置 SSH
-  hosts: all
+  hosts: vps
   become: true
   gather_facts: false
   tasks:

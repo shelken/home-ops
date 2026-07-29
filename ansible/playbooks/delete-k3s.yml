@@ -1,6 +1,6 @@
 ---
 - name: Uninstall k3s
-  hosts: all
+  hosts: k8s
   become: true
   tasks:
     # - name: "Run k3s-agent-uninstall.sh"

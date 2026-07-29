@@ -1,6 +1,7 @@
 ---
+# 仅 [vps] 组；规则内容由 host_vars/<host>.yaml 的 ufw_allowed_rules 驱动
 - name: 配置 UFW 规则
-  hosts: vps-cc
+  hosts: vps
   become: true
   gather_facts: false
   tasks:

@@ -1,6 +1,6 @@
 ---
 - name: Install Nvidia Driver And Container Runtime
-  hosts: all
+  hosts: k8s
   become: true
   gather_facts: true
   tasks:

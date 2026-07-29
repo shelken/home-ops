@@ -1,0 +1,9 @@
+---
+# 独立安装 Oh My Zsh。仅 [vps]，避免 tasks 文件被当成 playbook 时误用 hosts=all。
+# 用法: ansible-playbook -i ansible/inventory/others.ini ansible/playbooks/install-ohmyzsh.yaml
+- name: 安装 Oh My Zsh
+  hosts: vps
+  become: true
+  tasks:
+    - name: Oh My Zsh
+      ansible.builtin.import_tasks: tasks/install-ohmyzsh.yaml

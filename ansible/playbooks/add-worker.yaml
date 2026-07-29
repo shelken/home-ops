@@ -1,6 +1,6 @@
 ---
 - name: 安装并加入 worker
-  hosts: all
+  hosts: k8s
   become: true
   gather_facts: true
   tasks:

@@ -1,6 +1,7 @@
 ---
+# k8s 节点初始化。库存默认 hosts.ini；目标仅 [k8s]，避免误用 others.ini 时打到 VPS/路由器/宿主机。
 - name: 准备 Kubernetes 节点
-  hosts: all
+  hosts: k8s
   become: true
   tasks:
     - name: 设置主机名为 "{{ inventory_hostname }}"

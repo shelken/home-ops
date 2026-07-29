@@ -2,7 +2,7 @@
 # - import_playbook: ./send-files.yml
 
 - name: 安装并配置k3s
-  hosts: all
+  hosts: k8s
   become: true
   gather_facts: true
   handlers:

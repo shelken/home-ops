@@ -1,6 +1,8 @@
 ---
+# 仅 k8s。VPS 的 sysctl 由 site-others.yml 内 hosts:vps 的 play 负责，
+# 避免 site.yml 误接 others.ini 时经 k8s:vps 打到 VPS。
 - name: sysctl
-  hosts: all
+  hosts: k8s
   become: true
   gather_facts: false
   tasks:

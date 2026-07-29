@@ -1,6 +1,6 @@
 ---
 - name: 设置时间
-  hosts: all
+  hosts: k8s
   become: true
   gather_facts: true
   tasks:
