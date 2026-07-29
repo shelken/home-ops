@@ -3,10 +3,14 @@
 version: "3"
 
 vars:
-  SOURCE_HOST: sakamoto.lan
+  INV: "{{.ROOT_DIR}}/.taskfile/scripts/inv.sh"
+  SOURCE_HOST:
+    sh: '"{{.INV}}" sakamoto'
   SOURCE_KOPIA_CONTAINER: kopia
-  TARGET_HOST: vps-cc
+  TARGET_HOST:
+    sh: '"{{.INV}}" vps-cc'
   TARGET_DATA_DIR: /data/docker
+  # kopia snapshot source 字符串，非 SSH 主机
   KOPIA_BACKUP_SOURCE: shelken@vps:/backup/data
   STAGING_DIR: /tmp/kopia-restore-vps
   STAGING_MARKER: "{{.STAGING_DIR}}/.snapshot_id"

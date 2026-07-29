@@ -9,6 +9,7 @@ vars:
   TEST: "test"
 
 includes:
+  share: .taskfile/share.yaml
   sops: .taskfile/sops.yaml
   secret: .taskfile/secret.yaml
   flux: .taskfile/flux.yaml

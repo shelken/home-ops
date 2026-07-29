@@ -6,8 +6,9 @@ version: "3"
 # 用于在 sakamoto 上声明化配置和启动 LM Studio
 
 vars:
-  # sakamoto 主机配置
-  SAKAMOTO_HOST: "sakamoto"
+  INV: "{{.ROOT_DIR}}/.taskfile/scripts/inv.sh"
+  SAKAMOTO_HOST:
+    sh: '"{{.INV}}" sakamoto'
   # LM Studio 模型存储路径 (软链接目标)
   LMS_MODELS_PATH: "/Volumes/sakamoto-data/Devlopment/llm-model/lmstudio"
   # lms CLI 路径
@@ -214,7 +215,7 @@ tasks:
           echo ""
           echo "========================================="
           echo "✓ LM Studio 配置完成!"
-          echo "API 地址: http://sakamoto.lan:1234"
+          echo "API 地址: http://{{.SAKAMOTO_HOST}}:1234"
           echo "========================================="
 
   restart:

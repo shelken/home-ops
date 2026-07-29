@@ -5,13 +5,12 @@ version: "3"
 vars:
   COMPOSE_DIR: "{{.ROOT_DIR}}/compose"
   SCRIPTS_DIR: "{{.ROOT_DIR}}/scripts"
-
-  # sakamoto 配置
-  SAKAMOTO_HOST: "sakamoto.lan"
+  INV: "{{.ROOT_DIR}}/.taskfile/scripts/inv.sh"
+  SAKAMOTO_HOST:
+    sh: '"{{.INV}}" sakamoto'
   SAKAMOTO_COMPOSE_DIR: "~/homelab-compose"
-
-  # VPS 配置
-  VPS_HOST: "vps-cc"
+  VPS_HOST:
+    sh: '"{{.INV}}" vps-cc'
   VPS_COMPOSE_DIR: "/opt/homelab-compose"
 
 tasks:

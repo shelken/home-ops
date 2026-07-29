@@ -11,11 +11,16 @@ version: "3"
 # - limactl start 若因实例已 Running 立刻 exit 0，不能当成功
 
 vars:
-  SAKAMOTO_HOST: "sakamoto"
-  SAKAMOTO_VM: "sakamoto-k8s"
-  SAKAMOTO_CONFIG: "docs/resource/lima/sakamoto.yaml"
-  SAKAMOTO_BRIDGE_IP: "192.168.6.80"
-  # 桥接 SSH 就绪等待上限；过长会让 task 假死感明显
+  INV: "{{.ROOT_DIR}}/.taskfile/scripts/inv.sh"
+  K8S_INV: "{{.ROOT_DIR}}/ansible/inventory/hosts.ini"
+  # 多处共用 → inv；仅 lima 用 → 本地 inventory / 路径
+  SAKAMOTO_HOST:
+    sh: '"{{.INV}}" sakamoto'
+  SAKAMOTO_VM:
+    sh: 'ansible-inventory -i "{{.K8S_INV}}" --list | jq -r ".controllers.hosts[0]"'
+  SAKAMOTO_BRIDGE_IP:
+    sh: 'ansible-inventory -i "{{.K8S_INV}}" --host "$(ansible-inventory -i "{{.K8S_INV}}" --list | jq -r ".controllers.hosts[0]")" | jq -re .ansible_host'
+  SAKAMOTO_CONFIG: "{{.ROOT_DIR}}/docs/resource/lima/sakamoto.yaml"
   LIMA_START_TIMEOUT_SEC: "90"
 
 tasks:

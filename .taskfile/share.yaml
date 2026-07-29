@@ -1,0 +1,13 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+# inv.sh 只提供多处共用的 ansible_host 查询
+vars:
+  INV: "{{.ROOT_DIR}}/.taskfile/scripts/inv.sh"
+
+tasks:
+  host:
+    desc: "查 ansible_host：task share:host -- <name>"
+    cmds:
+      - "{{.INV}} {{.CLI_ARGS}}"

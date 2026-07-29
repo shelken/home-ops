@@ -58,7 +58,9 @@ tasks:
   restart-network-problem-pods:
     desc: "查询并重启有网络问题(no route to host)的 Pod"
     vars:
-      VL_ENDPOINT: "192.168.69.66:9428"
+      # 仅此处使用 → 直接读对应 HelmRelease，不进 inv.sh
+      VL_ENDPOINT:
+        sh: 'f="{{.ROOT_DIR}}/k8s/infra/common/observability/victoria-logs/app/helmrelease.yaml"; echo "$(yq -r ".spec.values.server.service.annotations[\"lbipam.cilium.io/ips\"]" "$f"):$(yq -r ".spec.values.server.service.servicePort" "$f")"'
     cmds:
       - |
         echo "=== 查询 victoria-logs 中 'no route to host' 错误 ==="

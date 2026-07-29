@@ -2,7 +2,11 @@
 version: "3"
 
 vars:
-  ROUTER_SSH: root@192.168.6.1
+  # 仅 router 使用 → 不进 inv.sh
+  ROUTER_SSH:
+    sh: |
+      ansible-inventory -i {{.ROOT_DIR}}/ansible/inventory/others.ini --host router-mine \
+        | jq -re '.ansible_user + "@" + .ansible_host'
 
 tasks:
   run:
