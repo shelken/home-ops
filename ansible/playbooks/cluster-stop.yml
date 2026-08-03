@@ -1,45 +1,28 @@
 ---
-# 整集群关停：停 k3s → 关 worker VM → 关 control-plane Lima
+# 整集群关停：只优雅关 node，不先 stop k3s
 #
-# 服务名：xanmanning.k3s 在 server/agent 上 unit 均为 k3s.service（不是 k3s-agent）
-# 不做 drain/cordon（整集群下电无需迁 Pod，且会撞 Longhorn/CNPG PDB）
+# 原因（2026-08-01 事故）：先 systemctl stop k3s 再断电，会在卷仍挂载时
+# 干掉 Longhorn 引擎 → poweroff 时 device offline + lost sync + /mnt/lima-longhorn
+# umount busy → 脏盘；lima 脏盘误 mkfs 可毁掉数据盘。
+# 直接 qm shutdown / limactl stop，由 guest systemd 按依赖停服务再 umount。
+#
+# 不做 drain/cordon（整集群下电无处可迁，且撞 Longhorn/CNPG PDB）
+# 不做 limactl stop -f / qm stop 默认强杀（强杀 = 脏盘）
 #
 # 用法（需同时加载 k8s 节点与 pve/sakamoto）:
 #   cd ansible
 #   ansible-playbook -i inventory/hosts.ini -i inventory/others.ini playbooks/cluster-stop.yml
 #
-# 顺序: workers k3s → controllers k3s → PVE qm shutdown workers → limactl stop CP
-
-- name: Stop k3s on workers
-  hosts: workers
-  become: true
-  gather_facts: false
-  ignore_unreachable: true
-  tasks:
-    - name: Stop k3s.service
-      ansible.builtin.systemd:
-        name: k3s
-        state: stopped
-
-- name: Stop k3s on controllers
-  hosts: controllers
-  become: true
-  gather_facts: false
-  ignore_unreachable: true
-  tasks:
-    - name: Stop k3s.service
-      ansible.builtin.systemd:
-        name: k3s
-        state: stopped
+# 顺序: PVE qm shutdown workers → limactl stop CP
 
 - name: Shutdown worker VMs on PVE
   hosts: pve
   gather_facts: false
   vars:
-    cluster_qm_wait_retries: 30
+    cluster_qm_wait_retries: 60
     cluster_qm_wait_delay: 3
   tasks:
-    - name: Shut down each worker VM
+    - name: Graceful shutdown each worker VM
       ansible.builtin.shell: |
         set -euo pipefail
         vmid="$(qm list | awk -v name="{{ item }}" '$2 == name {print $1}')"
@@ -53,7 +36,7 @@
           echo "already stopped"
           exit 0
         fi
-        qm shutdown "${vmid}" --timeout 30 || true
+        qm shutdown "${vmid}" --timeout 120
         for i in $(seq 1 {{ cluster_qm_wait_retries }}); do
           st="$(qm status "${vmid}")"
           echo "  [${i}] ${st}"
@@ -62,8 +45,8 @@
           fi
           sleep {{ cluster_qm_wait_delay }}
         done
-        echo "WARN: force qm stop ${vmid}"
-        qm stop "${vmid}"
+        echo "ERROR: {{ item }} (vmid=${vmid}) did not stop after graceful shutdown; refuse qm stop (force = dirty disk)" >&2
+        exit 1
       args:
         executable: /bin/bash
       loop: "{{ groups['workers'] | default([]) }}"
@@ -75,8 +58,10 @@
   gather_facts: false
   vars:
     lima_vm: "{{ groups['controllers'][0] }}"
+    cluster_lima_wait_retries: 60
+    cluster_lima_wait_delay: 3
   tasks:
-    - name: limactl stop
+    - name: Graceful limactl stop
       ansible.builtin.shell: |
         set -euo pipefail
         vm="{{ lima_vm }}"
@@ -89,6 +74,17 @@
           echo "already stopped"
           exit 0
         fi
-        limactl stop "${vm}" || limactl stop -f "${vm}"
+        # 禁止 stop -f：强杀会跳过 guest umount，Longhorn 数据盘必脏
+        limactl stop "${vm}"
+        for i in $(seq 1 {{ cluster_lima_wait_retries }}); do
+          st="$(limactl list | awk -v vm="${vm}" '$1 == vm { print $2; exit }')"
+          echo "  [${i}] ${st}"
+          if [ "${st}" = "Stopped" ]; then
+            exit 0
+          fi
+          sleep {{ cluster_lima_wait_delay }}
+        done
+        echo "ERROR: ${vm} did not reach Stopped after limactl stop; refuse stop -f (force = dirty disk)" >&2
+        exit 1
       args:
         executable: /bin/bash
