@@ -16,3 +16,4 @@
 - [014 · vps mss blackhole after migration](./014-vps-mss-blackhole-after-migration.md)
 - [015 · netplan file conflict disrupts control plane](./015-netplan-file-conflict-disrupts-control-plane.md)
 - [016 · cpa gatus docker mtu tailscale](./016-cpa-gatus-docker-mtu-tailscale.md)
+- [019 · lima dirty disk mkfs destroys longhorn](./019-lima-dirty-disk-mkfs-destroys-longhorn.md)

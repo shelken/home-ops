@@ -15,6 +15,7 @@ includes:
   flux: .taskfile/flux.yaml
   compose: .taskfile/compose.yaml
   kopia: .taskfile/kopia.yaml
+  volsync: .taskfile/volsync.yaml
   lms: .taskfile/lms.yaml
   lima: .taskfile/lima.yaml
   k8s: .taskfile/k8s.yaml

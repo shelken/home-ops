@@ -1,0 +1,160 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+# 集群 VolSync/kopia PVC 恢复。
+# VPS 侧 kopia 拉推仍用 task kopia:*（.taskfile/kopia.yaml）。
+
+vars:
+  KOPIA_EXEC: kubectl exec -n volsync-system deploy/kopia --
+
+tasks:
+  snapshots:
+    desc: "列集群 kopia 快照。可选 APP=metatube（匹配 source 名）"
+    silent: true
+    vars:
+      APP: '{{.APP | default ""}}'
+    cmds:
+      - |
+        set -euo pipefail
+        APP="{{.APP}}"
+        if [ -n "$APP" ]; then
+          echo "▶ snapshots matching APP=$APP"
+          {{.KOPIA_EXEC}} kopia snapshot list --all 2>/dev/null | grep -i "$APP" || \
+            echo "（无匹配；试 task volsync:snapshots 看全量）"
+        else
+          echo "▶ all snapshots (cluster kopia)"
+          {{.KOPIA_EXEC}} kopia snapshot list --all
+        fi
+    preconditions:
+      - sh: which kubectl
+        msg: "kubectl not found"
+      - sh: kubectl get deploy kopia -n volsync-system
+        msg: "volsync-system/kopia Deployment 不存在"
+
+  status:
+    desc: "看应用 VolSync/工作负载状态。APP=… [NAMESPACE=default]"
+    silent: true
+    requires:
+      vars: [APP]
+    vars:
+      NAMESPACE: '{{.NAMESPACE | default "default"}}'
+    cmds:
+      - |
+        set -euo pipefail
+        NS="{{.NAMESPACE}}"; APP="{{.APP}}"
+        echo "=== ks/hr ==="
+        kubectl get ks,hr -n "$NS" 2>/dev/null | grep -E "NAME|$APP" || true
+        echo "=== pvc ==="
+        kubectl get pvc -n "$NS" 2>/dev/null | grep -E "NAME|$APP|volsync.*$APP" || true
+        echo "=== rs/rd ==="
+        kubectl get replicationsource,replicationdestination -n "$NS" 2>/dev/null | grep -E "NAME|$APP" || true
+        echo "=== pod ==="
+        kubectl get pod -n "$NS" 2>/dev/null | grep -E "NAME|$APP" || true
+
+  restore:
+    desc: "VolSync 恢复 PVC。APP=… CONFIRM=… [NAMESPACE=default] [TIME=RFC3339]"
+    silent: true
+    requires:
+      vars: [APP, CONFIRM]
+    vars:
+      NAMESPACE: '{{.NAMESPACE | default "default"}}'
+      TIME: '{{.TIME | default ""}}'
+    preconditions:
+      - sh: which kubectl
+        msg: "kubectl not found"
+      - sh: which flux
+        msg: "flux not found"
+    cmds:
+      - |
+        set -euo pipefail
+        NS="{{.NAMESPACE}}"
+        APP="{{.APP}}"
+        TIME="{{.TIME}}"
+        CONFIRM="{{.CONFIRM}}"
+
+        if [ "$CONFIRM" != "$APP" ]; then
+          echo "错误: 删除 PVC 前必须传 CONFIRM=$APP"
+          exit 1
+        fi
+        for parent in infra apps; do
+          ready=$(kubectl get ks "$parent" -n flux-system -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}')
+          if [ "$ready" != "True" ]; then
+            echo "错误: flux-system/$parent 未 Ready，先修 parent gate"
+            exit 1
+          fi
+        done
+        echo "▶ APP=$APP NS=$NS TIME=${TIME:-<latest/restore-once>}"
+
+        echo "▶ 0. 确认 kopia 有快照"
+        if ! snapshots=$({{.KOPIA_EXEC}} kopia snapshot list --all 2>/dev/null | grep -i "$APP"); then
+          echo "错误: kopia 快照列表没有 $APP"
+          exit 1
+        fi
+        printf '%s\n' "$snapshots" | head -5
+
+        echo "▶ 1. 删除 ks（prune inventory）"
+        kubectl delete ks "$APP" -n "$NS" --ignore-not-found --wait=true --timeout=180s
+
+        echo "▶ 2. 清可能阻塞的残留（死 RD / faulted PVC / 旧 VolumeSnapshot）"
+        kubectl delete replicationdestination "${APP}-dst" -n "$NS" --ignore-not-found --wait=true --timeout=90s
+        kubectl delete pvc "$APP" -n "$NS" --ignore-not-found --wait=false
+        kubectl get volumesnapshot -n "$NS" -o name | { grep -E "volsync-${APP}-|${APP}-dst" || true; } | xargs -r kubectl delete -n "$NS" --wait=false
+
+        echo "▶ 3. 等待应用 PVC 消失"
+        for i in $(seq 1 36); do
+          if ! kubectl get pvc "$APP" -n "$NS" >/dev/null 2>&1; then
+            echo "  PVC gone"
+            break
+          fi
+          phase=$(kubectl get pvc "$APP" -n "$NS" -o jsonpath='{.status.phase}' 2>/dev/null || true)
+          echo "  wait pvc phase=$phase ($i)"
+          sleep 5
+        done
+        if kubectl get pvc "$APP" -n "$NS" >/dev/null 2>&1; then
+          echo "错误: PVC $APP 仍在（可能 finalizer/卷卡死），先手工处理再跑"
+          kubectl describe pvc "$APP" -n "$NS" | tail -20
+          exit 1
+        fi
+
+        echo "▶ 4. 由 apps parent 从 Git 重建 ks"
+        flux reconcile ks apps -n flux-system --timeout=5m
+        for i in $(seq 1 30); do
+          kubectl get ks "$APP" -n "$NS" >/dev/null 2>&1 && break
+          sleep 2
+        done
+        if ! kubectl get ks "$APP" -n "$NS" >/dev/null 2>&1; then
+          echo "错误: apps reconcile 后未创建 $NS/$APP"
+          exit 1
+        fi
+        flux reconcile ks "$APP" -n "$NS" --timeout=3m
+
+        if [ -n "$TIME" ]; then
+          echo "▶ 5. 定点恢复 TIME=$TIME（换新 manual 才会重跑）"
+          # 等 RD 出现
+          for i in $(seq 1 30); do
+            kubectl get replicationdestination "${APP}-dst" -n "$NS" >/dev/null 2>&1 && break
+            sleep 2
+          done
+          TRIG="restore-$(echo "$TIME" | tr -cd 'A-Za-z0-9')"
+          kubectl patch replicationdestination "${APP}-dst" -n "$NS" --type merge -p "{\"spec\":{\"trigger\":{\"manual\":\"$TRIG\"},\"kopia\":{\"restoreAsOf\":\"$TIME\"}}}"
+        else
+          echo "▶ 5. 使用 Git 默认 manual restore-once（最新快照）"
+        fi
+
+        echo "▶ 6. 等待 RD 成功 + PVC Bound + HR Ready"
+        for i in $(seq 1 60); do
+          rd_msg=$(kubectl get replicationdestination "${APP}-dst" -n "$NS" -o jsonpath='{.status.latestMoverStatus.result}/{.status.conditions[?(@.type=="Synchronizing")].reason}' 2>/dev/null || echo "?")
+          pvc=$(kubectl get pvc "$APP" -n "$NS" -o jsonpath='{.status.phase}' 2>/dev/null || echo none)
+          hr=$(kubectl get hr "$APP" -n "$NS" -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}' 2>/dev/null || echo none)
+          pod=$(kubectl get pod -n "$NS" -l app.kubernetes.io/name="$APP" --no-headers 2>/dev/null | awk '{print $3}' | head -1)
+          echo "  $(date +%H:%M:%S) rd=$rd_msg pvc=$pvc hr=$hr pod=${pod:-?}"
+          if [ "$pvc" = "Bound" ] && [ "$hr" = "True" ]; then
+            echo "✔ restore finished: $APP.$NS PVC Bound, HR Ready"
+            kubectl get hr,pvc,pod -n "$NS" 2>/dev/null | grep -E "NAME|$APP" || true
+            exit 0
+          fi
+          sleep 10
+        done
+        echo "错误: 超时。task volsync:status APP=$APP NAMESPACE=$NS"
+        exit 1

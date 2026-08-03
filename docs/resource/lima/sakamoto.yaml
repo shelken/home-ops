@@ -11,7 +11,8 @@ disk: 80G
 
 # 映射到vm中的目录为`/mnt/lima-longhorn`
 additionalDisks:
-  - "longhorn"
+  - name: "longhorn"
+    format: false
 
 ssh:
   localPort: 60122
