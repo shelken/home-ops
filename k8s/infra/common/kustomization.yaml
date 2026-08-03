@@ -11,6 +11,7 @@ resources:
   # - rook-ceph
   - openebs-system
   - volsync-system
+  - kopiur-system
   - database
   - observability
   - storage
