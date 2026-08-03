@@ -2,6 +2,9 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: "3"
 
+# VPS/compose 路径的 kopia 拉推与 volsync-src 垃圾清理。
+# 集群 PVC 的 VolSync 恢复用 task volsync:*（.taskfile/volsync.yaml）。
+
 vars:
   INV: "{{.ROOT_DIR}}/.taskfile/scripts/inv.sh"
   SOURCE_HOST:
