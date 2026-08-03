@@ -6,6 +6,10 @@
   become: true
   gather_facts: true
   handlers:
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: true
+
     - name: restart k3s
       ansible.builtin.service:
         name: k3s
@@ -23,6 +27,23 @@
         public: true
       vars:
         k3s_state: installed
+
+    - name: Create k3s service drop-in directory
+      ansible.builtin.file:
+        path: /etc/systemd/system/k3s.service.d
+        state: directory
+        mode: "0755"
+      when: k3s_control_node | default(false) | bool
+
+    - name: Require Longhorn mount before k3s starts
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/k3s.service.d/10-longhorn-mount.conf
+        mode: "0644"
+        content: |
+          [Service]
+          ExecStartPre=/usr/bin/mountpoint -q /mnt/lima-longhorn
+      notify: Reload systemd
+      when: k3s_control_node | default(false) | bool
 
     - name: Kubeconfig
       ansible.builtin.include_tasks: tasks/kubeconfig.yaml
