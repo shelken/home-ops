@@ -5,7 +5,8 @@
 #   cd ansible
 #   ansible-playbook -i inventory/hosts.ini -i inventory/others.ini playbooks/cluster-start.yml
 #
-# 顺序: limactl start CP → 等 controllers k3s → qm start workers → 等 workers k3s
+# 顺序: disk unlock → limactl start CP → 等 controllers k3s → qm start workers → 等 workers k3s
+# disk unlock: force stop / 崩溃后 in_use_by 锁可残留，不 unlock 则 start 失败
 
 - name: Start control-plane Lima VM
   hosts: sakamoto
@@ -13,6 +14,10 @@
   vars:
     lima_vm: "{{ groups['controllers'][0] }}"
   tasks:
+    - name: Unlock lima disk
+      ansible.builtin.command: limactl disk unlock longhorn
+      failed_when: false
+
     - name: limactl start
       ansible.builtin.shell: |
         set -euo pipefail
