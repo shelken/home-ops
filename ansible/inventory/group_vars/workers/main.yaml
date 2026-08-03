@@ -8,3 +8,7 @@ k3s_agent:
       "feature-gates=ImageVolume=true",
       "allowed-unsafe-sysctls=net.ipv6.*", # 给 tailscale 等使用
     ]
+  # 节点特有标签（GPU 透传）由 host_vars 的 k3s_node_labels 提供，未定义则为空
+  # role 渲染 config.yaml 变化时自动 notify 重启 k3s 生效；
+  # 移除标签需同步 kubectl label node homelab-1 <label>- 清理已打上的标签
+  node-label: "{{ k3s_node_labels | default([]) }}"

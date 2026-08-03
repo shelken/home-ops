@@ -1,2 +1,8 @@
+# homelab-1 PVE VM（Intel i5-7300HQ + NVIDIA mdev 透传）
 intel_gpu: true
 nvidia_gpu: true
+# 声明式 GPU 标签（替代手动 kubectl label，节点重建后 install-k3s 自动恢复）
+# 由 group_vars/workers k3s_agent.node-label 引用渲染进 config.yaml
+k3s_node_labels:
+  - "intel.feature.node.kubernetes.io/gpu=true"
+  - "nvidia.com/gpu.present=true"
