@@ -148,7 +148,7 @@ services:
       replicas: 1
 
   crowdsec-firewall-bouncer:
-    image: ghcr.io/shgew/cs-firewall-bouncer-docker:v0.0.34
+    image: ghcr.io/shgew/cs-firewall-bouncer-docker:v0.0.36
     container_name: crowdsec-firewall-bouncer
     network_mode: host
     restart: always
