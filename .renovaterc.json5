@@ -19,7 +19,7 @@
   ],
   dependencyDashboard: true,
   dependencyDashboardTitle: "Renovate Dashboard 🤖",
-  ignorePaths: ["**/*.sops.*"],
+  ignorePaths: ["**/*.sops.*", "mise.toml"],
   "ansible-galaxy": {
     managerFilePatterns: ["/(^|/)ansible/requirements\\.ya?ml$/"],
   },
