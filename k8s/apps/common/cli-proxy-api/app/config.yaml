@@ -211,6 +211,14 @@ openai-compatibility:
         alias: "hindsight-reflect"
       - name: "openai/gpt-oss-20b"
         alias: "hindsight-consolidation"
+  - name: "wx"
+    priority: 100
+    base-url: "https://chatapi.weixin.qq.com/openai/v1"
+    api-key-entries:
+      - api-key: {{ .WX_API_KEY_1 }}
+    models:
+      - name: "GLM-5.2"
+      - name: "Deepseek-v4-flash"
   # - name: "lm-studio"
   #   base-url: "http://sakamoto.lan:1234/v1"
   #   models:
