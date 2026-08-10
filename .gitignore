@@ -59,3 +59,4 @@ __pycache__
 
 .playwright-cli
 DISCOVERY.md
+.papercuts.jsonl

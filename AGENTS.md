@@ -1,4 +1,6 @@
-## 最高原则
+home-ops 是使用 Flux 管理 Kubernetes 集群与集群外服务的 GitOps 配置仓库。
+
+## 基本约束
 
 - 所有配置默认遵循最小权限原则;任何权限提升或新增的安全敏感配置变更，必须引用官方文档、配置参考或发布日志作为依据，并附上来源链接
 - GitOps原则，Flux管理，不准执行`kubectl apply`，不准直接对集群进行操作
@@ -13,52 +15,47 @@
 **完整架构文档**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — 物理部署、网络拓扑、服务分布、入口流量、监控采集、备份链路。不清楚系统架构时先读这个。
 
 - **容器编排**: Kubernetes (k3s)
-- **GitOps**: Flux CD v2
-- **网络**: Cilium, Multus, Envoy Gateway, External-DNS
-- **密钥**: SOPS + External-Secrets + Azure KeyVault
-- **存储**: Longhorn, CloudNative-PG, SMB
-- **备份**: Volsync, Minio
+- **GitOps**: Flux CD v2；staging 根 Kustomization 依次装载仓库源、infra 和 apps，apps 显式依赖 infra
+- **网络**: Cilium、Multus、Envoy Gateway、External-DNS、Tailscale
+- **密钥**: SOPS、External-Secrets、Azure Key Vault
+- **数据库与缓存**: CloudNative-PG、Dragonfly
+- **存储**: Longhorn、OpenEBS、SMB CSI
+- **备份**: VolSync 使用 Kopia，将备份写入集群外 MinIO
+- **可观测性**: Prometheus、Grafana、Gatus、VictoriaLogs
 
-### 重要路径索引
+### 重要目录索引
 
-**集群管理**
-- `k8s/clusters/staging/kustomization.yaml`: Flux 监控的应用与基础设施入口
-- `k8s/apps/common/`: 应用部署
-- `k8s/infra/common/`: 基础设施（网络、监控、数据库、存储）
-- `k8s/components/`: 可复用组件模板（Volsync、ExternalSecret 等）
+**集群与 GitOps**
+- `k8s/clusters/`: Flux 集群入口、仓库源及 infra/apps 父级编排
+- `k8s/apps/common/`: 应用通用配置
+- `k8s/apps/staging/`: staging 应用聚合入口
+- `k8s/infra/common/`: 网络、证书、密钥、数据库、存储、监控和安全等基础设施
+- `k8s/infra/staging/`: staging 当前启用的基础设施聚合入口
+- `k8s/components/`: VolSync、SOPS、认证和调度等可复用组件
 
-**网络**
-- `k8s/infra/common/network/external/`: 外部入口（Caddy、Cloudflare DNS）
-- `k8s/infra/common/network/internal/`: 内部网络（openwrt-dns、zte-mifi-healer、k8s-gateway）
-- `k8s/infra/common/network/envoy-gateway/`: Envoy Gateway 配置与路由
-- `k8s/infra/common/network/tailscale/`: Tailscale proxy 与 subnet router
-- `docs/router/`: router-mine (OpenWrt) 配置文档
+**网络与集群外服务**
+- `k8s/infra/common/network/`: 内外 DNS、入口网关、Multus、证书、Tailscale 和网络自愈组件
+- `docs/router/`: OpenWrt 路由器配置文档与资源
+- `compose/sakamoto/`: sakamoto Docker Compose 服务及配置
+- `compose/vps/`: VPS Docker Compose 服务及配置
 
-**集群外服务**
-- `compose/sakamoto/`: sakamoto Docker Compose 服务
-- `compose/vps/`: VPS Docker Compose 服务
-
-**基础设施**
-- `bootstrap/`: 集群引导
-- `ansible/`: Ansible 控制
+**引导、自动化与维护**
+- `bootstrap/`: 集群引导配置
+- `ansible/`: 节点清单与配置自动化
 - `.taskfile/`: Task 子任务定义
-- `docs/resource/lima/`: Lima VM 配置文件
+- `.renovate/`: Renovate 分组、规则和自定义管理器
+- `scripts/`: 可重复运行的运维与维护脚本
+- `tests/`: 配置和脚本测试
+- `postmortems/`: 已解决复杂问题的尸检报告
+- `docs/resource/`: Lima 等基础设施资源配置
 
-> **注意**: 发现路径变更时，向用户确认是否同步更新文档。
-
-## 集群节点信息
-
-| 节点名       | 角色          | 所在                         | CPU    | 内存 | 架构  | IP            | 系统盘 | Longhorn 存储 |
-| ------------ | ------------- | ---------------------------- | ------ | ---- | ----- | ------------- | ------ | ------------- |
-| sakamoto-k8s | control-plane | Mac Mini M4（lima vm中）     | 8 vCPU | 14GB | arm64 | 192.168.6.80  | 80GB   | 1TB SSD       |
-| homelab-1    | worker        | PVE (Intel i5-7300HQ 4核) VM | 4 核   | 14GB | amd64 | 192.168.6.110 | 321GB  | 共用系统盘    |
+> **注意**: 发现路径或组件状态变化时，同步检查本索引和 `docs/ARCHITECTURE.md`。
 
 ### Lima VM 配置文件
 
 - `docs/resource/lima/sakamoto.yaml` - sakamoto-k8s 配置
-- `docs/resource/lima/yuuko.yaml` - yuuko-k8s 配置
 
-## Notes
+## 项目约定
 
 - 进入 repo 目录后 mise 自动加载工具与环境变量（含 kubeconfig）。直接执行命令即可，无需额外包装
 - 新的skill描述全部中文描述
@@ -76,13 +73,7 @@
 task --list # 查看命令
 ```
 
-## Agents Remind
+## 参考仓库
 
-### 自维护镜像源码位置
-
-- `zte-mifi-exporter`（集群部署在 `k8s/apps/common/zte-mifi-exporter/`）的源码不在本仓库，在外部 `containers` 仓库的 `apps/zte-mifi-exporter/` 下。需要改 exporter 指标逻辑、抓取字段时，去 containers 仓库改源码并构建镜像，再回 home-ops 更新镜像 tag。
-
-### 自愈告警约定
-
-- 自愈类 PrometheusRule 告警的 label 应精确描述动作语义，便于 Alertmanager 路由与抑制；新增动作类告警用 `action: <动词-对象>`（如 `f50-disconnect-cellular`），不要复用笼统的 `autoheal`。
-- 自愈动作相互冲突时用 `inhibitRules` 协调：主动动作的告警 active 期间，抑制会与之冲突的被动自愈告警（如主动断蜂窝后抑制 `autoheal: f50-network` 的 reconnect，避免反复拨号耗流量）。
+- [`onedr0p/home-ops`](https://github.com/onedr0p/home-ops): 架构与配置模式的上游参考
+- `kaiyuan/homelab/home-ops`: 上游仓库的本地参考副本(每次拉最新再看)
