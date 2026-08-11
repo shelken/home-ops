@@ -24,7 +24,7 @@ spec:
           app:
             image:
               repository: ghcr.io/shelken/openlist-git
-              tag: v4.2.3-patched
+              tag: v4.2.3-patched@sha256:31bc2f62c8d3438cc09b792a74daca99d8a920c296ea0f3837c39457ecb75801
             command:
               - /bin/sh
               - /scripts/overriden-entrypoint.sh
