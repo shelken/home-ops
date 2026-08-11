@@ -25,7 +25,7 @@ compose，进入仓库后 mise 会自动加载工具环境，直接执行 task�
 ## Core Pattern
 
 ```bash
-cd ~/Code/MyRepo/home-ops
+cd {home-ops-dir}
 task compose:deploy:vps
 ```
 
@@ -46,7 +46,7 @@ task compose:deploy:vps
 
 ## Implementation
 
-1. 进入仓库根目录：`cd ~/Code/MyRepo/home-ops`（mise 自动加载）
+1. 进入仓库根目录：`cd {home-ops-dir}`（mise 自动加载）
 2. 首次使用先 `mise trust && mise install && mise run setup`
 3. 按 Quick Reference 执行对应 task
 

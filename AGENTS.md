@@ -4,6 +4,7 @@ home-ops 是使用 Flux 管理 Kubernetes 集群与集群外服务的 GitOps 配
 
 - 所有配置默认遵循最小权限原则;任何权限提升或新增的安全敏感配置变更，必须引用官方文档、配置参考或发布日志作为依据，并附上来源链接
 - GitOps原则，Flux管理，不准执行`kubectl apply`，不准直接对集群进行操作
+- 在你运维任何问题时, 必须给我把问题相关的架构搞清楚. 阅读 `docs/ARCHITECTURE.md` 先把整体搞清楚
 - **infra → apps**：运维/debug/恢复时永远先让 `flux-system/infra` Ready（含其 wait/health 依赖），再处理 `apps`。apps 依赖 infra；infra 未通时禁止靠长期旁路子 ks 顶替 parent
 - 任何资源的删除操作必须确认之后才可以执行
 - 区分哪些文件是集群的状态，哪些是当前的工作区状态要区分，不要认为本地未提交或未推送的代码就等于集群
