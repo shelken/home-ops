@@ -373,7 +373,7 @@ services:
 
   # ==================== OpenList ====================
   openlist:
-    image: ghcr.io/openlistteam/openlist-git:v4.2.3
+    image: ghcr.io/shelken/openlist-git:v4.2.3-patched
     container_name: openlist
     networks:
       - homelab

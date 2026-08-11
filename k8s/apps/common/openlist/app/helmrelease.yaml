@@ -23,8 +23,8 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/openlistteam/openlist-git
-              tag: v4.2.3
+              repository: ghcr.io/shelken/openlist-git
+              tag: v4.2.3-patched
             command:
               - /bin/sh
               - /scripts/overriden-entrypoint.sh
