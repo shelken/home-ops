@@ -11,22 +11,35 @@ if ! kopia repository status >/dev/null; then
     exit 1
 fi
 
-# 导入策略（幂等：先删除当前主机的路径策略，再导入）
-echo "正在导入策略..."
+# 配置指纹:policy.json 内容 + webhook 配置(URL/severity)
+# 状态文件存于 /config/cache(持久卷)，容器重建不丢；模板代码变更需删除该文件或 --force-recreate 后手动对账
+STATE_FILE=/config/cache/.applied-config-hash
+POLICY_HASH=$(sha256sum /config/policy.json 2>/dev/null | awk '{print $1}')
+WEBHOOK_HASH=$(printf 'url=%s\nseverity=%s' "${KOPIA_WEBHOOK_URL:-}" "${KOPIA_MIN_SEVERITY:-report}" | sha256sum | awk '{print $1}')
+FINGERPRINT="policy:${POLICY_HASH:-none} webhook:${WEBHOOK_HASH}"
 
-# 删除当前主机的所有路径策略（shelken@hostname:/path 格式）
-# 保留 @hostname 级别的主机策略，只删除具体路径策略
-echo "清理旧的路径策略..."
-kopia policy list 2>/dev/null | grep "shelken@${CURRENT_HOST}:/" | awk '{print $1}' | while read target; do
-    echo "  删除: $target"
-    kopia policy remove "$target" 2>/dev/null || true
-done
+if [ -n "$POLICY_HASH" ] && [ -f "$STATE_FILE" ] && [ "$(cat "$STATE_FILE" 2>/dev/null)" = "$FINGERPRINT" ]; then
+    echo "配置未变更（policy/webhook 指纹一致），跳过对账。"
+    SKIP_RECONCILE=1
+else
+    echo "配置变更，执行 policy/webhook 对账..."
 
-# 导入新策略
-kopia policy import --from-file /config/policy.json
+    # 导入策略（幂等：先删除当前主机的路径策略，再导入）
+    echo "清理旧的路径策略..."
+    kopia policy list 2>/dev/null | grep "shelken@${CURRENT_HOST}:/" | awk '{print $1}' | while read target; do
+        echo "  删除: $target"
+        kopia policy remove "$target" 2>/dev/null || true
+    done
 
-# 如果设置了 Webhook URL，则配置通知
-if [ -n "$KOPIA_WEBHOOK_URL" ]; then
+    # 导入新策略
+    kopia policy import --from-file /config/policy.json
+
+    # 记录指纹
+    echo "$FINGERPRINT" > "$STATE_FILE"
+fi
+
+# 如果设置了 Webhook URL，则配置通知（仅在对账时执行）
+if [ -n "$KOPIA_WEBHOOK_URL" ] && [ "$SKIP_RECONCILE" != "1" ]; then
     echo "正在配置企业微信 Webhook 通知..."
 
     # 配置通知 Profile
@@ -59,7 +72,11 @@ TEMPLATE_EOF
 
     echo "通知配置完成: wecom_webhook"
 else
-    echo "未设置 KOPIA_WEBHOOK_URL，跳过通知配置。"
+    if [ "$SKIP_RECONCILE" = "1" ]; then
+        echo "跳过对账，webhook 配置保持现状。"
+    else
+        echo "未设置 KOPIA_WEBHOOK_URL，跳过通知配置。"
+    fi
 fi
 
 # 启动服务器
