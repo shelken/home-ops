@@ -33,7 +33,7 @@ spec:
           app:
             image:
               repository: ghcr.io/shadowsocks/ssserver-rust
-              tag: v1.24.0
+              tag: v1.25.0
             args:
               - ssserver
               - --log-without-time
