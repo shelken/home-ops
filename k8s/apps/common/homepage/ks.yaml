@@ -7,9 +7,6 @@ metadata:
   namespace: &namespace default
 spec:
   targetNamespace: *namespace
-  components:
-    - ../../../../components/authelia
-    # - ../../../../components/envoy-gateway-oidc
   postBuild:
     substitute:
       APP: *app
