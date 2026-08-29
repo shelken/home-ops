@@ -9,6 +9,13 @@ spec:
   chartRef:
     kind: OCIRepository
     name: cloudnative-pg
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
   # ref: https://github.com/cloudnative-pg/charts/blob/main/charts/cloudnative-pg/values.yaml
   values:
     crds:

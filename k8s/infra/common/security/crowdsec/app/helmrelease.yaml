@@ -9,6 +9,13 @@ spec:
   chartRef:
     kind: OCIRepository
     name: crowdsec
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
   # schema: https://raw.githubusercontent.com/crowdsecurity/helm-charts/refs/heads/main/charts/crowdsec/values.schema.json
   values:
     #ref: https://github.com/crowdsecurity/helm-charts/blob/main/charts/crowdsec/values.yaml
