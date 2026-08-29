@@ -12,7 +12,9 @@
         "/netbirdio/",
 
         "/toeverything/affine/", // affine
+        "/cloudflare/cloudflared/", // cloudflare-tunnel
         "/amir20/dozzle/", // dozzle
+        "/blakeblackshear/frigate/", // frigate
         "/glanceapp/glance/", // glance
         "/immich-app/", // immich
         "/zxh326/kite/", // kite
@@ -24,6 +26,7 @@
         "/calciumion/new-api/", // new-api
         "/ollama/ollama/", // ollama
         "/open-webui/open-webui/", // ollama-web
+        "/rancher/system-upgrade-controller/", // system-upgrade-controller
         "/linuxserver/mariadb/", // seafile-db
         "/seafileltd/", // seafile
         "/yourselfhosted/slash/", // slash
