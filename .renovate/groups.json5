@@ -66,9 +66,11 @@
     },
     {
       description: "CNPG barman-cloud",
-      groupName: " CNPG barman-cloud",
-      matchDatasources: ["docker", "github-releases"],
-      matchPackageNames: ["/cloudnative-pg/plugin-barman-cloud/"],
+      groupName: "CNPG barman-cloud",
+      matchPackageNames: [
+        "/cloudnative-pg/plugin-barman-cloud/",
+        "/cloudnative-pg/charts/plugin-barman-cloud/",
+      ],
       group: {
         commitMessageTopic: "{{{groupName}}} group",
       },
