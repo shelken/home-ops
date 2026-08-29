@@ -27,9 +27,21 @@ spec:
               kind: DaemonSet
               name: multus
             patch: |
-              - op: add
-                path: /spec/template/spec/tolerations/-
-                value:
-                  key: dedicated
-                  operator: Exists
-                  effect: NoSchedule
+              apiVersion: apps/v1
+              kind: DaemonSet
+              metadata:
+                name: multus
+              spec:
+                template:
+                  spec:
+                    tolerations:
+                      - key: dedicated
+                        operator: Exists
+                        effect: NoSchedule
+                    containers:
+                      - name: multus
+                        env:
+                          - name: KUBERNETES_SERVICE_HOST
+                            value: "127.0.0.1"
+                          - name: KUBERNETES_SERVICE_PORT
+                            value: "6444"
