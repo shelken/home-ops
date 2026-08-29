@@ -116,6 +116,11 @@ spec:
         existingClaim: plex-cache
         globalMounts:
           - path: /config/Library/Application Support/Plex Media Server/Cache
+            subPath: Cache
+          - path: /config/Library/Application Support/Plex Media Server/Metadata
+            subPath: Metadata
+          - path: /config/Library/Application Support/Plex Media Server/Media
+            subPath: Media
       music:
         existingClaim: smb-sakamoto-media
         globalMounts:
