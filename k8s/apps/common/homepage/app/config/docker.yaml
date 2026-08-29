@@ -3,9 +3,15 @@
 # https://gethomepage.dev/configs/docker/
 
 vps-docker:
-  host: ts-node-vps.network.svc
-  port: 2575
+  conn:
+    host: ts-node-vps.network.svc
+    port: 2575
+    connectionTimeout: 5000
+    timeout: 5000
 
 sakamoto-docker:
-  host: sakamoto.lan
-  port: 2575
+  conn:
+    host: sakamoto.lan
+    port: 2575
+    connectionTimeout: 5000
+    timeout: 5000
