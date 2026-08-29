@@ -41,9 +41,9 @@ spec:
         statefulset:
           volumeClaimTemplates:
             - name: config
-              storageClass: longhorn
+              storageClass: openebs-hostpath
               accessMode: ReadWriteOnce
-              size: 5Gi
+              size: 1Gi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
