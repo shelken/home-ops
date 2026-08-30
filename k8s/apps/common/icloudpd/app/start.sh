@@ -17,7 +17,7 @@ NOTIFICATION_EMAIL_FROM=$(cat /config/secret/NOTIFICATION_EMAIL_FROM)
     --mfa-provider=webui \
     --password-provider=webui \
     --domain=cn \
-    --username="$APPLE_ID" \
+    --username "$APPLE_ID" \
     --directory=/data \
     --cookie-directory=/config \
     --auto-delete \
