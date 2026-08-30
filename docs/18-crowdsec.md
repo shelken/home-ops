@@ -7,25 +7,29 @@
 ## 当前拓扑
 
 ```text
-公网请求
+v4 公网请求
   -> VPS Caddy
-      -> Caddy CrowdSec bouncer
-      -> VPS crowdsec-agent AppSec listener (:7422)
-      -> VPS crowdsec-agent 上报事件
+      -> VPS crowdsec-agent AppSec (:7422)
+      -> 业务服务
+
+v6 公网请求
+  -> 集群 caddy-external
+      -> 集群 CrowdSec AppSec (:7422)
+      -> Envoy Gateway
+      -> 业务服务
+
+VPS agent / 集群 AppSec
   -> 集群 CrowdSec LAPI
       -> PostgreSQL
-      -> profile 生成 decision
-      -> 通知到 VictoriaLogs / 企业微信
-      -> bouncer 拉取 decisions
-  -> VPS firewall bouncer / Caddy bouncer 执行拦截
+      -> profile / notification / decisions
 ```
 
 关键结论：
 
-- **集群内 CrowdSec 主要是 LAPI + DB + profile + 通知**。
-- **VPS 上的 `crowdsec-agent` 才负责读取 VPS Caddy 日志、SSH 日志和 AppSec 检测**。
-- **VPS firewall bouncer 才负责把 decisions 写进 VPS iptables/ip6tables**。
-- **AppSec 规则排除要写在 VPS compose 的 CrowdSec agent 配置里，不是写在集群 LAPI 里**。
+- **集群运行 LAPI 和 v6 AppSec，不运行日志采集 agent**。
+- **VPS `crowdsec-agent` 读取 VPS Caddy、SSH 日志，并执行 v4 AppSec**。
+- **VPS firewall bouncer 把 decisions 写进 VPS iptables/ip6tables**。
+- **v4、v6 AppSec 使用相同的 collections 和 Jellyfin 精确排除规则**。
 
 ## 代码位置
 
@@ -79,11 +83,11 @@ lapi:
 
 > 具体 LB 地址属于私有信息，文档里不要写死；排查时用 `kubectl -n security get svc crowdsec-service -o wide` 查当前值。
 
-当前集群侧没有启用 agent/appsec：
+当前集群启用 AppSec，不启用日志采集 agent：
 
 ```yaml
 appsec:
-  enabled: false
+  enabled: true
 agent:
   enabled: false
 ```
@@ -92,7 +96,8 @@ agent:
 
 ```text
 集群 LAPI = 中央 API / DB / profile / notification
-VPS agent = 实际采集与 AppSec 规则执行
+集群 AppSec = v6 请求的同步 CRS 检测
+VPS agent = VPS 日志采集与 v4 AppSec
 ```
 
 ## VPS CrowdSec agent
@@ -147,7 +152,7 @@ source: appsec
 
 ## Caddy 集成
 
-VPS Caddy 全局配置里有 CrowdSec：
+VPS Caddy 和集群 `caddy-external` 都在反代前执行 CrowdSec decision 和 AppSec 检查。VPS Caddy 全局配置示例：
 
 ```caddy
 crowdsec {
@@ -405,10 +410,11 @@ kubectl -n security exec deploy/crowdsec-lapi -- cscli decisions list -a | grep 
 
 ## 自定义 AppSec 排除规则
 
-当前已有 Jellyfin 播放进度接口排除：
+当前 v4、v6 AppSec 都加载 Jellyfin 播放进度接口排除：
 
 ```text
 compose/vps/configs/crowdsec/appsec-configs/jellyfin-exclusions.yaml
+k8s/infra/common/security/crowdsec/app/helmrelease.yaml
 ```
 
 内容：
@@ -421,11 +427,7 @@ pre_eval:
       - RemoveOutBandRuleByID(932370)
 ```
 
-选择这个位置的原因：
-
-- 误判发生在 VPS AppSec 规则执行阶段。
-- 集群 LAPI 只是接收已生成的 alert/decision。
-- 要减少误报源头，必须在 VPS AppSec config 排除具体规则。
+排除规则在请求进入 LAPI 前由两端 AppSec 执行。规则只限定 `/Sessions/Playing/Progress` 的 out-of-band 检测和 `932370`，避免扩大安全豁免。
 
 不要优先做：
 
