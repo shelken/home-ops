@@ -29,7 +29,31 @@ spec:
               tag: 1.32.3@sha256:af2bf40cb2c1d42051793b4c3c04c825950697d7fedcd12bd8455d6952395801
             env:
               TZ: ${TIMEZONE}
-            command: ["/config/start.sh"]
+            envFrom:
+              - secretRef:
+                  name: icloudpd-secret
+            args:
+              - icloudpd
+              - --log-level=debug
+              - --no-progress-bar
+              - --watch-with-interval=21600
+              - --mfa-provider=webui
+              - --password-provider=webui
+              - --domain=cn
+              - --username
+              - $(APPLE_ID)
+              - --directory=/data
+              - --cookie-directory=/config
+              - --auto-delete
+              - --size=original
+              - --keep-unicode-in-filenames
+              - --folder-structure={:%Y/%m/%d}
+              - --smtp-host=$(SMTP_HOST)
+              - --smtp-port=$(SMTP_PORT)
+              - --smtp-username=$(SMTP_USERNAME)
+              - --smtp-password=$(SMTP_PASSWORD)
+              - --notification-email=$(NOTIFICATION_EMAIL)
+              - --notification-email-from=$(NOTIFICATION_EMAIL_FROM)
             probes:
               liveness: &probes
                 enabled: true
@@ -96,19 +120,6 @@ spec:
         globalMounts:
           - path: /data
             subPath: Photo/icloudpd/shelken
-      entry:
-        type: configMap
-        name: icloudpd-configmap
-        defaultMode: 0750
-        globalMounts:
-          - path: /config/start.sh
-            subPath: start.sh
-      secret-files:
-        type: secret
-        name: icloudpd-secret
-        globalMounts:
-          - path: /config/secret
-            readOnly: true
       tmpfs:
         type: emptyDir
         advancedMounts:
