@@ -27,6 +27,7 @@ services:
   dnsmasq:
     image: dockurr/dnsmasq:2.93@sha256:b40fbaa3a9c3742d5943a4bec789dabc6c5c932b2db76a4e052c84f0b8d173a2
     container_name: dnsmasq
+    user: dnsmasq
     networks:
       - homelab
     restart: always
