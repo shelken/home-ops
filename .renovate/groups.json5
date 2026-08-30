@@ -77,7 +77,7 @@
     },
     {
       description: "Volsync Group",
-      groupName: " Volsync",
+      groupName: "Volsync",
       matchDatasources: ["docker"],
       matchPackageNames: ["/perfectra1n/"],
       group: {
@@ -89,6 +89,36 @@
       groupName: "Kopia",
       matchDatasources: ["docker"],
       matchPackageNames: ["/kopia/"],
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
+    {
+      description: "Ansible Collections",
+      groupName: "Ansible Collections",
+      matchManagers: ["ansible-galaxy"],
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
+    {
+      description: "Gatus Group",
+      groupName: "Gatus",
+      matchPackageNames: [
+        "/twin/gatus/",
+        "/home-operations/gatus-sidecar/",
+      ],
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
+    {
+      description: "Envoy Gateway Group",
+      groupName: "Envoy Gateway",
+      matchPackageNames: [
+        "/envoyproxy/gateway-helm/",
+        "/envoyproxy/envoy/",
+      ],
       group: {
         commitMessageTopic: "{{{groupName}}} group",
       },
