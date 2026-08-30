@@ -15,7 +15,7 @@ resources:
   - home-assistant/ks.yaml
   - homepage/ks.yaml
   - icloudpd/ks.yaml
-  # - immich/ks.yaml
+  - immich/ks.yaml
   - it-tools/ks.yaml
   - jellyfin/ks.yaml
   # - kite/ks.yaml

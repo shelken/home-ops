@@ -28,7 +28,7 @@ spec:
           app:
             image:
               repository: ghcr.io/immich-app/immich-machine-learning
-              tag: v2.4.1-cuda
+              tag: v3.1.0-cuda@sha256:82d3f6a093455964508052e0b3bc55a91075b48b65be35e78b40774a72c1ebb3
             # ref：https://immich.app/docs/install/environment-variables/#machine-learning
             env:
               TZ: ${TIMEZONE}
@@ -67,6 +67,8 @@ spec:
               readOnlyRootFilesystem: true
               capabilities: { drop: ["ALL"] }
     defaultPodOptions:
+      nodeSelector:
+        kubernetes.io/hostname: homelab-1
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
