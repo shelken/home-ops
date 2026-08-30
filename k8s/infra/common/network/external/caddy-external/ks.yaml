@@ -13,6 +13,8 @@ spec:
       namespace: network
     - name: envoy-gateway
       namespace: network
+    - name: crowdsec
+      namespace: security
   postBuild:
     substitute:
       APP: *app
