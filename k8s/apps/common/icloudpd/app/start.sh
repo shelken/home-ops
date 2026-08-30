@@ -10,7 +10,7 @@ NOTIFICATION_EMAIL_FROM=$(cat /config/secret/NOTIFICATION_EMAIL_FROM)
 # ref: https://icloud-photos-downloader.github.io/icloud_photos_downloader/reference.html
 # ref: https://github.com/icloud-photos-downloader/icloud_photos_downloader/blob/master/src/icloudpd/base.py
 
-/app/icloudpd_ex icloudpd \
+/app/icloudpd \
     --log-level=debug \
     --no-progress-bar \
     --watch-with-interval=21600 \
@@ -22,7 +22,7 @@ NOTIFICATION_EMAIL_FROM=$(cat /config/secret/NOTIFICATION_EMAIL_FROM)
     --cookie-directory=/config \
     --auto-delete \
     --size=original \
-    --keep-unicode-in-filenames=true \
+    --keep-unicode-in-filenames \
     --folder-structure="{:%Y/%m/%d}" \
     --smtp-host="$SMTP_HOST" \
     --smtp-port="$SMTP_PORT" \
