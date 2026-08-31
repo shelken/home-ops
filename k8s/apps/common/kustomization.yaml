@@ -14,7 +14,7 @@ resources:
   - go2rtc/ks.yaml
   - home-assistant/ks.yaml
   - homepage/ks.yaml
-  - icloudpd/ks.yaml
+  # - icloudpd/ks.yaml # 使用immich管理备份
   - immich/ks.yaml
   - it-tools/ks.yaml
   - jellyfin/ks.yaml
