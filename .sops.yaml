@@ -1,6 +1,6 @@
 keys:
   - &admin_mio age1kmr8epyg0et773rg4x2hquu3ylua72xyzcu7lw2hf9g5l7nrzuyslexq35
-  - &home-ops age12uqzp3ezd2q2z5wkrd8mjprneypgskm2ve4takjp700hyu4l49nsa5jxkw
+  - &home-ops age1gjms24erernqu5cqv8fz56ck6lye0s3c0jtf3yy4nszj5fl5sq9q0s93mv
 creation_rules:
   - path_regex: (k8s)/.+\.sops\.(ya?ml)
     encrypted_regex: "^(data|stringData)$"
