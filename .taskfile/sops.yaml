@@ -32,7 +32,7 @@ tasks:
       - for: { var: SECRET_FILES }
         cmd: |
           if sops filestatus "{{.ITEM}}" | jq --exit-status ".encrypted == true" &>/dev/null; then
-              sops updatekeys "{{.ITEM}}"
+              sops updatekeys -y "{{.ITEM}}"
           fi
     vars:
       SECRET_FILES:
