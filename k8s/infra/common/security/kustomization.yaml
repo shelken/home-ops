@@ -8,3 +8,11 @@ resources:
   - authelia/ks.yaml
   - crowdsec/ks.yaml
   - pocket-id/ks.yaml
+
+patches:
+  - target:
+      kind: Namespace
+    patch: |-
+      - op: add
+        path: /metadata/annotations/kopiur.home-operations.com~1privileged-movers
+        value: "true"
