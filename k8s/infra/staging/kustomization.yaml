@@ -10,6 +10,7 @@ resources:
   # - ../common/rook-ceph
   - ../common/openebs-system
   - ../common/volsync-system
+  - ../common/kopiur-system
   - ../common/database
   - ../common/network
   - ../common/observability
