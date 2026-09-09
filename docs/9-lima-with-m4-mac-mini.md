@@ -6,7 +6,7 @@
 
 需要桥接网络的话，安装[socket_vmnet](https://lima-vm.io/docs/config/network/vmnet/)
 
-```shell
+```bash
 git clone https://github.com/lima-vm/socket_vmnet
 cd socket_vmnet
 # Change "v1.2.2" to the actual latest release in https://github.com/lima-vm/socket_vmnet/releases
@@ -33,7 +33,7 @@ networks:
 
 ## 添加硬盘
 
-```shell
+```bash
 # 将lima的硬盘位置软链接到外置ssd
 rm -rf ~/.lima/_disks
 mkdir -p /Volumes/sakamoto-data/k8s/lima/_disks && ln -s /Volumes/sakamoto-data/k8s/lima/_disks ~/.lima/_disks

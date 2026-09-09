@@ -1,6 +1,6 @@
 # Talos 记录
 
-```shell
+```bash
 # 需本机已安装 talosctl（本仓库 mise 未纳入）
 
 talosctl gen config talos-proxmox-cluster https://$CONTROL_PLANE_IP:6443 --output-dir _out
@@ -17,7 +17,7 @@ talosctl apply-config --insecure --nodes $WORKER_IP --file _out/worker.yaml
 
 添加新的worker
 
-```shell
+```bash
 qm clone 1003 116 --name talos-2
 
 talosctl apply-config --insecure --nodes $WORKER_IP --file _out/worker.yaml

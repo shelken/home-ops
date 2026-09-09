@@ -81,7 +81,7 @@ Homelab GitOps 仓库。Kubernetes 集群、基础设施组件、应用、外部
 
 ## 常用命令
 
-```shell
+```bash
 task --list
 ```
 

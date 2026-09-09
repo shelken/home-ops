@@ -24,7 +24,7 @@
 
 防止升级不备份这个文件，给这个文件加上备份
 
-```shell
+```bash
 grep -qw homepage.json /etc/sysupgrade.conf || echo "/usr/share/rpcd/acl.d/homepage.json" >> /etc/sysupgrade.conf
 ```
 

@@ -3,7 +3,7 @@
 > NOTE: 目前项目不再使用CLI命令即`flux bootstrap`来初始化。而是使用`flux-instance`和`flux-operator`。
 > [教程 flux-git-ops](https://fschoenberger.dev/homelab/04-flux-git-ops/)
 
-```shell
+```bash
 # 进入仓库根目录后 mise 自动提供 flux
 ```
 
@@ -13,7 +13,7 @@
 
 然后使用flux bootstrap，引用对应repo。
 
-```shell
+```bash
 # 在 GitHub 创建当前仓库使用的 token
 export GITHUB_TOKEN="<GITHUB_TOKEN>"
 

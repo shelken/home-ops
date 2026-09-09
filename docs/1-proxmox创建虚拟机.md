@@ -12,7 +12,7 @@
 
 ### download image
 
-```shell
+```bash
 ssh pve
 
 cd /var/lib/vz/template/iso
@@ -30,7 +30,7 @@ qemu-img resize ubuntu-24.04.qcow2 32G
 
 ### 创建 VM template
 
-```shell
+```bash
 export TEMPLATE_ID=1800
 export TEMPLATE_NAME=ubuntu-24-04-homelab-template
 export TEMPLATE_CI_USER="<CI_USER>"
@@ -64,7 +64,7 @@ qm create $TEMPLATE_ID \
 ```
 
 
-```shell
+```bash
 ## disk 操作
 qm importdisk $TEMPLATE_ID ubuntu-24.04.qcow2 local-lvm
 
@@ -80,7 +80,7 @@ qm template $TEMPLATE_ID
 
 6. 启动
 
-```shell
+```bash
 export CURRENT_VM_ID=110
 
 # 克隆 1002 模板 成新的110实例
@@ -117,7 +117,7 @@ qm terminal $CURRENT_VM_ID
 
 如果原来是ide0
 
-```shell
+```bash
 qm set $CURRENT_VM_ID --delete ide0
 qm set $CURRENT_VM_ID --scsi1 local-lvm:cloudinit
 ```

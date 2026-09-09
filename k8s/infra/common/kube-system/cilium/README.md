@@ -46,7 +46,7 @@ config rule
 
 对于本地和远程站点之间的Pod CIDR（‘ 10.42.0.0/16 ‘）流量，确保在’ lan ’和‘ zt ’区域之间启用‘转发’
 
-```shell
+```bash
 # Check BIRD status
 birdc configure check
 birdc configure

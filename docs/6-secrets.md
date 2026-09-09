@@ -3,7 +3,7 @@
 
 ## sops
 
-```shell
+```bash
 # 进入仓库根目录后 mise 自动提供 sops / task
 task sops:encrypt-all # 一次性加密所有需要未加密文件
 
@@ -35,7 +35,7 @@ task secret:bootstrap # 初始化集群所需的 secret
 
 同一个 Azure App 只轮换 credential 时不需要重新分配 RBAC；原来的 Service Principal 角色仍然有效。只有新建 App/SP 时，才需要重新执行 KeyVault RBAC 分配。
 
-```shell
+```bash
 task secret:azure-creds-list
 
 # 会自动：新增 credential -> 写回 KeyVault -> task secret:bootstrap -> 重启 ESO -> 验证 ExternalSecret -> 删除旧 credential
@@ -45,7 +45,7 @@ task secret:azure-creds-rotate years=1
 
 ### 初始创建流程回忆
 
-```shell
+```bash
 az login
 
 # 创建 key vault 和资源组：
@@ -123,7 +123,7 @@ az ad app delete --id [appid]
 
 ```
 
-```shell
+```bash
 # k8s 创建一个secret name=[azure-creds]
 kubectl create secret -n external-secrets generic azure-creds \
 --from-literal=ClientID=XXXXX \

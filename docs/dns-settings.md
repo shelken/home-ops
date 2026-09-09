@@ -14,7 +14,7 @@
 
 ## 检查
 
-```shell
+```bash
 sudo cat /etc/netplan/*.yaml
 resolvectl status
 ```
@@ -28,7 +28,7 @@ IPv4 DNS 只来自默认 IPv4 路由网卡
 
 ## 日常修复
 
-```shell
+```bash
 ansible-playbook -i ansible/inventory/hosts.ini ansible/playbooks/setup-network.yaml --tags dns
 ```
 

@@ -2,7 +2,7 @@
 
 创建特定用户给特定bucket使用
 
-```shell
+```bash
 vim ~/.mc/config.json
 mc admin info s3
 
@@ -30,7 +30,7 @@ mc admin policy attach s3 $poclic_name --user $user
 
 ```
 
-```shell
+```bash
 # 允许任何人读取/下载
 mc anonymous set download s3/$bucket
 

@@ -26,7 +26,7 @@
 
 目前稳定使用17.6没有问题. 旧的16.8也测试正常
 
-```shell
+```bash
 ./NVIDIA-Linux-x86_64-550.163.02-vgpu-kvm.run --apply-patch ~/vgpu-proxmox/550.163.02.patch
 ./NVIDIA-Linux-x86_64-550.163.02-vgpu-kvm-custom.run --dkms -m=kernel
 ```
@@ -49,11 +49,11 @@ framebuffer_reservation = 0x14000000
 
 然后虚拟机vm安装相关包和驱动
 
-```shell
+```bash
 ansible-playbook ansible/playbooks/install-nvidia.yaml
 ```
 
-```shell
+```bash
 #rsync传输文件
 rsync -avzP <NVIDIA_DRIVER_RUN_FILE> <SSH_USER>@192.168.6.111:~/
 
@@ -64,7 +64,7 @@ sudo ./NVIDIA-Linux-x86_64-550.163.01-grid.run --silent --no-questions --accept-
 
 部署一个 fastapi-dls 服务，当前配置见 [`compose/sakamoto/docker-compose.yml`](../compose/sakamoto/docker-compose.yml) 的 `nvidia-dls` 服务。
 
-```shell
+```bash
 export MAIN_DOMAIN=
 sudo curl --insecure -L -X GET https://nvidia-dls.$MAIN_DOMAIN/-/client-token -o /etc/nvidia/ClientConfigToken/client_configuration_token_$(date '+%d-%m-%Y-%H-%M-%S').tok
 sudo service nvidia-gridd enable --now
@@ -86,14 +86,14 @@ UEFI情况下，VM关闭「安全启动」
 
 然后进入安装
 
-```shell
+```bash
 sudo apt install nvidia-headless-570-server
 sudo reboot
 ```
 
 安装driver后VM中检查：
 
-```shell
+```bash
 lsmod | grep nvid
 lspci -nnk | grep -A5 NVI
 # ffmpeg
@@ -102,7 +102,7 @@ ffmpeg -decoders | grep cuvid
 https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#with-apt-ubuntu-debian
 [k3s中配置nvidia-container-toolkit](https://docs.k3s.io/advanced#nvidia-container-runtime)
 
-```shell
+```bash
 curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
   && curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
     sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
@@ -116,13 +116,13 @@ sudo reboot
 
 > 放弃在lxc上弄k3s，会有大量问题。至少在vm
 
-```shell
+```bash
 ./NVIDIA-Linux-x86_64-535.247.01.run --no-kernel-module
 ```
 
 ### 分配
 
-```shell
+```bash
 k label node [node] nvidia.com/gpu.present=true
 ```
 
@@ -132,7 +132,7 @@ k label node [node] nvidia.com/gpu.present=true
 
 在完成pve直通intel gpu的一些操作之后，给vm添加pci
 
-```shell
+```bash
 # 然后确保存在 renderD128
 ls -la /dev/dri
 
@@ -143,19 +143,19 @@ sudo apt install linux-firmware
 
 检查
 
-```shell
+```bash
 lspci -nnk | grep -B5 i915
 ```
 
 ### 分配
 
-```shell
+```bash
 k label node [node] intel.feature.node.kubernetes.io/gpu=true
 ```
 
 ## Intel
 
-```shell
+```bash
 # 宿主机
 
 # 手动加载模块

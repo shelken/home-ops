@@ -13,7 +13,7 @@ tvbox 关闭隐私ipv6与启用 eui-64 地址：
 addr-gen-mode=eui64 意味着接收的ipv6后缀为固定的mac生成的。
 关闭 ip6-privacy 意味着不再使用一个动态的v6地址来发起请求，则eth0接口有且仅有一个v6地址，这方便我们ddns和防火墙配置。
 
-```shell
+```bash
 nmcli connection modify "Armbian ethernet" ipv6.addr-gen-mode eui64
 nmcli connection modify "Armbian ethernet" ipv6.ip6-privacy 0
 nmcli connection reload
@@ -36,7 +36,7 @@ nmcli connection up "Armbian ethernet"
 
 ### ansible k3s node-ip
 
-```shell
+```bash
 #查看默认的ipv6,前缀为路由的 ula地址 ，后缀为 eui64
 ansible all -m setup -a 'filter=ansible_default_ipv6'
 ```

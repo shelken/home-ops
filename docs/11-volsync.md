@@ -9,7 +9,7 @@
 
 [文档](https://volsync.readthedocs.io)
 
-```shell
+```bash
 source ~/.restic.env
 export RESTIC_REPOSITORY=s3:<MINIO_ENDPOINT>/k8s-restic/repos/[APP_NAME]
 cd /data/docker/[APP_NAME]
@@ -19,7 +19,7 @@ restic backup .
 
 ### kopia
 
-```shell
+```bash
 export KOPIA_PASSWORD=''
 export AWS_SECRET_ACCESS_KEY=''
 export AWS_ACCESS_KEY_ID=''
@@ -92,7 +92,7 @@ spec:
          claimName: [APP_NAME]
 ```
 
-```shell
+```bash
 kubectl -n staging apply -f pod.yaml
 kubectl -n staging exec -it pod/busybox -- ls -al /mnt
 

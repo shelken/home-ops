@@ -20,7 +20,7 @@ dry-run failed: no matches for kind "OCIRepository" in version "source.toolkit.f
 
 事故恢复时可考虑：
 
-```shell
+```bash
 flux suspend helmrelease cilium -n kube-system
 flux resume helmrelease cilium -n kube-system
 ```
@@ -31,7 +31,7 @@ flux resume helmrelease cilium -n kube-system
 
 删除 Longhorn HelmRelease 前，需要显式设置删除确认标记：
 
-```shell
+```bash
 kubectl -n longhorn-system patch -p '{"value": "true"}' --type=merge lhs deleting-confirmation-flag
 ```
 
@@ -47,7 +47,7 @@ k3s 或宿主机重启后，Longhorn DaemonSet 可能出现 Misscheduled。先�
 
 重建集群后，如果 Cilium 没有正确分配 Gateway IP，可用项目任务重启 Cilium 相关组件：
 
-```shell
+```bash
 task restart-cilium
 ```
 
@@ -57,7 +57,7 @@ task restart-cilium
 
 事故恢复时可以删除对应 lease 让控制器重新选主；这是删除操作，执行前必须确认目标 lease：
 
-```shell
+```bash
 kubectl delete lease <LEASE_NAME> -n kube-system
 ```
 
@@ -78,7 +78,7 @@ kubectl delete lease <LEASE_NAME> -n kube-system
 
 处理：确认没有实例正在使用该磁盘后解锁。
 
-```shell
+```bash
 limactl disk unlock longhorn
 ```
 
@@ -96,7 +96,7 @@ External Secrets 会给由它管理的外部 secret 打 tag。迁移时如果没
 
 宿主机可能缺少 CIFS 相关组件：
 
-```shell
+```bash
 sudo apt-get install -y cifs-utils linux-modules-extra-$(uname -r)
 ```
 
