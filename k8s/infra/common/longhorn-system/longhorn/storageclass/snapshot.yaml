@@ -20,7 +20,7 @@ reclaimPolicy: Delete
 provisioner: driver.longhorn.io
 parameters:
   dataLocality: best-effort
-  numberOfReplicas: "2"
+  numberOfReplicas: "1"
   staleReplicaTimeout: "30"
   fsType: ext4
   dataEngine: v1

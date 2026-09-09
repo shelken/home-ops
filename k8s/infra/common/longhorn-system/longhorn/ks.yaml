@@ -30,6 +30,7 @@ metadata:
   name: &app storageclass
   namespace: &namespace longhorn-system
 spec:
+  force: true
   interval: 1h
   path: ./k8s/infra/common/longhorn-system/longhorn/storageclass
   prune: true
