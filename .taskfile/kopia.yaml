@@ -200,3 +200,75 @@ tasks:
     preconditions:
       - { msg: "kopia not found", sh: "which kopia" }
       - { msg: "kubectl not found", sh: "which kubectl" }
+
+  migrate-active:
+    desc: "将活跃服务的最新快照基线从旧库(kopia-backup)冷迁移到新库(kopiur)并转换路径至 /pvc/*"
+    cmds:
+      - |
+        TMP_DIR=$(mktemp -d)
+        trap 'rm -rf "$TMP_DIR"' EXIT
+
+        echo "==> 获取 Kopia 连接凭据..."
+        AWS_ACCESS_KEY_ID=$(kubectl -n kopiur-system get secret kopiur-repository-secret -o jsonpath='{.data.AWS_ACCESS_KEY_ID}' | base64 -d)
+        AWS_SECRET_ACCESS_KEY=$(kubectl -n kopiur-system get secret kopiur-repository-secret -o jsonpath='{.data.AWS_SECRET_ACCESS_KEY}' | base64 -d)
+        KOPIA_PASSWORD=$(kubectl -n kopiur-system get secret kopiur-repository-secret -o jsonpath='{.data.KOPIA_PASSWORD}' | base64 -d)
+
+        echo "==> 连接源仓库 (s3/kopia-backup)..."
+        env AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" \
+            AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" \
+            KOPIA_PASSWORD="$KOPIA_PASSWORD" \
+            KOPIA_CHECK_FOR_UPDATES=false \
+            kopia repository connect s3 \
+              --config-file="$TMP_DIR/src.config" \
+              --cache-directory="$TMP_DIR/src-cache" \
+              --bucket=kopia-backup \
+              --endpoint=sakamoto.lan:9000 \
+              --disable-tls 2>/dev/null
+
+        echo "==> 连接目标仓库 (s3/kopiur)..."
+        env AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" \
+            AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" \
+            KOPIA_PASSWORD="$KOPIA_PASSWORD" \
+            KOPIA_CHECK_FOR_UPDATES=false \
+            kopia repository connect s3 \
+              --config-file="$TMP_DIR/dst.config" \
+              --cache-directory="$TMP_DIR/dst-cache" \
+              --bucket=kopiur \
+              --endpoint=sakamoto.lan:9000 \
+              --disable-tls 2>/dev/null
+
+        ACTIVE_SOURCES="cli-proxy-api@default:/data cpa-usage-keeper@default:/data crowdsec@security:/data frigate@default:/data home-assistant@default:/data jellyfin@default:/data metatube@default:/data openlist@default:/data plex@default:/data pocket-id@security:/data qbittorrent@default:/data qui@default:/data"
+        SOURCES_ARGS=""
+        for src in $ACTIVE_SOURCES; do
+          SOURCES_ARGS="$SOURCES_ARGS --sources=$src"
+        done
+
+        echo "==> 开始冷迁移活跃服务的最新基线快照 (--latest-only)..."
+        env KOPIA_PASSWORD="$KOPIA_PASSWORD" \
+            KOPIA_CHECK_FOR_UPDATES=false \
+            kopia snapshot migrate \
+              --source-config="$TMP_DIR/src.config" \
+              --config-file="$TMP_DIR/dst.config" \
+              $SOURCES_ARGS \
+              --latest-only \
+              --no-policies
+
+        echo "==> 将快照路径从 /data 转换至 Kopiur 标准 /pvc/* ..."
+        for src in $ACTIVE_SOURCES; do
+          user=$(echo "$src" | cut -d'@' -f1)
+          host=$(echo "$src" | cut -d'@' -f2 | cut -d':' -f1)
+          dst_source="${user}@${host}:/pvc/${user}"
+          env KOPIA_PASSWORD="$KOPIA_PASSWORD" KOPIA_CHECK_FOR_UPDATES=false \
+            kopia snapshot move-history --config-file="$TMP_DIR/dst.config" "$src" "$dst_source" 2>/dev/null || true
+          env KOPIA_PASSWORD="$KOPIA_PASSWORD" KOPIA_CHECK_FOR_UPDATES=false \
+            kopia policy delete --config-file="$TMP_DIR/dst.config" "$src" 2>/dev/null || true
+        done
+
+        echo "==> 迁移完成，目标库 (kopiur) 快照列表："
+        env KOPIA_PASSWORD="$KOPIA_PASSWORD" \
+            KOPIA_CHECK_FOR_UPDATES=false \
+            kopia snapshot list --all \
+              --config-file="$TMP_DIR/dst.config"
+    preconditions:
+      - { msg: "kopia not found", sh: "which kopia" }
+      - { msg: "kubectl not found", sh: "which kubectl" }
