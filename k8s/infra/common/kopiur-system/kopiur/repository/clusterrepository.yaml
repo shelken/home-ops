@@ -15,7 +15,6 @@ spec:
           namespace: kopiur-system
       bucket: kopiur
       endpoint: sakamoto.lan:9000
-      region: us-east-1
       tls:
         disableTls: true
   encryption:
@@ -39,4 +38,4 @@ spec:
     epoch:
       minDuration: 1h
   scheduleDefaults:
-    timezone: Asia/Shanghai
+    timezone: ${TIMEZONE}
