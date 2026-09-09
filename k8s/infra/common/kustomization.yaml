@@ -10,7 +10,6 @@ resources:
   - longhorn-system
   # - rook-ceph
   - openebs-system
-  - volsync-system
   - kopiur-system
   - database
   - observability

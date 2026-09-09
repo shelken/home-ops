@@ -11,7 +11,7 @@ spec:
       namespace: default
     - group: gateway.envoyproxy.io
       kind: SecurityPolicy
-      namespace: volsync-system
+      namespace: kopiur-system
   to:
     - group: ""
       kind: Service

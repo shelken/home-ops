@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app kopia
+  name: kopia
 spec:
   interval: 1h
   chartRef:
@@ -79,9 +79,6 @@ spec:
           gethomepage.dev/name: kopia
           gethomepage.dev/icon: kopia.svg
           gethomepage.dev/description: ""
-          # 没有username/password 401
-          # gethomepage.dev/widget.type: kopia
-          # gethomepage.dev/widget.url: http://kopia.volsync-system.svc.cluster.local:80
         hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
         parentRefs:
           - name: envoy-internal

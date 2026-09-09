@@ -39,11 +39,3 @@ resources:
   - smb-volumes/ks.yaml
   # - vaultwarden/ks.yaml
   - zte-mifi-exporter/ks.yaml
-
-patches:
-  - target:
-      kind: Namespace
-    patch: |-
-      - op: add
-        path: /metadata/annotations/volsync.backube~1privileged-movers
-        value: "true"

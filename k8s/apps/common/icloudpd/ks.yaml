@@ -17,8 +17,6 @@ spec:
     - name: smb-volumes
     - name: keda
       namespace: observability
-    - name: volsync
-      namespace: volsync-system
     - name: azure-store
       namespace: external-secrets
   postBuild:
