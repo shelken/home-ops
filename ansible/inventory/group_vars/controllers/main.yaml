@@ -54,4 +54,4 @@ k3s_server:
       "k8s-vip",
       "k8s-vip.ooooo.space",
     ]
-  write-kubeconfig-mode: "0644" # quote
+  write-kubeconfig-mode: "0600" # quote

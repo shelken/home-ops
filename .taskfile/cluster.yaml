@@ -35,3 +35,8 @@ tasks:
         echo
         echo "=== k3s nodes ==="
         kubectl get nodes -o wide --request-timeout=5s 2>/dev/null || echo "(API 不可达)"
+
+  kubeconfig:
+    desc: "刷新本地 kubeconfig (~/.kube/home-ops.yaml)"
+    cmds:
+      - ansible-playbook -i "{{.INV_K8S}}" "{{.ANSIBLE_DIR}}/playbooks/kubeconfig.yaml"

@@ -20,7 +20,7 @@ pre-commit = "4.6.2"
 "pipx:homeassistant-cli" = "1.0.0"
 
 [env]
-KUBECONFIG = "{{config_root}}/kubeconfig"
+KUBECONFIG = "{{env.HOME}}/.kube/home-ops.yaml"
 ANSIBLE_CONFIG = "{{config_root}}/ansible/ansible.cfg"
 SOPS_AGE_KEY_FILE = "~/.config/sops/age/keys.txt"
 

@@ -40,6 +40,11 @@ tasks:
           echo "部署k3s"
           ansible-playbook {{.ROOT_DIR}}/ansible/playbooks/install-k3s.yaml
 
+  kubeconfig:
+    desc: "刷新本地 kubeconfig (~/.kube/home-ops.yaml)"
+    cmds:
+      - task: cluster:kubeconfig
+
   init-crd:
     silent: true
     desc: "初始化crd"
