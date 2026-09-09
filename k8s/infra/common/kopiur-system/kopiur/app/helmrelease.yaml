@@ -29,6 +29,9 @@ spec:
       runAsGroup: 1000
       fsGroup: 1000
       fsGroupChangePolicy: OnRootMismatch
+    features:
+      credentialProjection:
+        enabled: true
     resources:
       requests:
         cpu: 100m
