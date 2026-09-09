@@ -11,13 +11,13 @@ spec:
     labels:
       app.ooooo.space/need-smb: "true"
   components:
-    - ../../../../components/volsync
+    - ../../../../components/kopiur/backup
   postBuild:
     substitute:
       APP: *app
   dependsOn:
-    - name: volsync
-      namespace: volsync-system
+    - name: kopiur-repository
+      namespace: kopiur-system
   interval: 1h
   path: ./k8s/apps/common/affine/app
   prune: true

@@ -13,18 +13,18 @@ spec:
   components:
     - ../../../../components/authelia
     - ../../../../components/keda/smb-scaler
-    - ../../../../components/volsync
+    - ../../../../components/kopiur/backup
   dependsOn:
     - name: smb-volumes
     - name: keda
       namespace: observability
-    - name: volsync
-      namespace: volsync-system
+    - name: kopiur-repository
+      namespace: kopiur-system
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 1Gi
-      VOLSYNC_CACHE_CAPACITY: 5Gi
+      KOPIUR_CAPACITY: 1Gi
+      KOPIUR_CACHE_CAPACITY: 5Gi
   interval: 1h
   path: ./k8s/apps/common/qbittorrent/app
   prune: true

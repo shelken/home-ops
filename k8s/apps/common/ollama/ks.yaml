@@ -7,13 +7,15 @@ metadata:
 spec:
   targetNamespace: *namespace
   components:
-    - ../../../../components/volsync
+    - ../../../../components/kopiur/backup
   postBuild:
     substitute:
       APP: *app
   dependsOn:
     - name: longhorn
       namespace: longhorn-system
+    - name: kopiur-repository
+      namespace: kopiur-system
   path: ./k8s/apps/common/ollama/app
   prune: true
   sourceRef:
@@ -36,7 +38,7 @@ spec:
 #     labels:
 #       app.ooooo.space/need-main-pg: "true"
 #   components:
-#     - ../../../../components/volsync
+#     - ../../../../components/kopiur/backup
 #   postBuild:
 #     substitute:
 #       APP: *app

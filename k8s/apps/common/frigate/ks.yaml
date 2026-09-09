@@ -10,7 +10,7 @@ spec:
     labels:
       app.ooooo.space/need-smb: "true"
   components:
-    - ../../../../components/volsync
+    - ../../../../components/kopiur/backup
     - ../../../../components/authelia
     # - ../../../../components/keda/smb-scaler
   dependsOn:
@@ -20,13 +20,15 @@ spec:
       namespace: observability
     - name: smb-volumes
     - name: go2rtc
+    - name: kopiur-repository
+      namespace: kopiur-system
   interval: 1h
   path: ./k8s/apps/common/frigate/app
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 5Gi
-      VOLSYNC_CACHE_CAPACITY: 5Gi
+      KOPIUR_CAPACITY: 5Gi
+      KOPIUR_CACHE_CAPACITY: 5Gi
   prune: true
   retryInterval: 2m
   sourceRef:

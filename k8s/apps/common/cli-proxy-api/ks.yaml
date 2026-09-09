@@ -7,19 +7,19 @@ metadata:
 spec:
   targetNamespace: *namespace
   components:
-    - ../../../../components/volsync
+    - ../../../../components/kopiur/backup
   dependsOn:
     - name: cilium
       namespace: kube-system
     - name: azure-store
       namespace: external-secrets
-    - name: volsync
-      namespace: volsync-system
+    - name: kopiur-repository
+      namespace: kopiur-system
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 1Gi
-      VOLSYNC_CACHE_CAPACITY: 3Gi
+      KOPIUR_CAPACITY: 1Gi
+      KOPIUR_CACHE_CAPACITY: 3Gi
   interval: 1h
   path: ./k8s/apps/common/cli-proxy-api/app
   prune: true
@@ -39,21 +39,21 @@ metadata:
 spec:
   targetNamespace: *namespace
   components:
-    - ../../../../components/volsync
+    - ../../../../components/kopiur/backup
   dependsOn:
     - name: cilium
       namespace: kube-system
     - name: azure-store
       namespace: external-secrets
-    - name: volsync
-      namespace: volsync-system
+    - name: kopiur-repository
+      namespace: kopiur-system
     - name: cli-proxy-api
       namespace: default
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 3Gi
-      VOLSYNC_CACHE_CAPACITY: 5Gi
+      KOPIUR_CAPACITY: 3Gi
+      KOPIUR_CACHE_CAPACITY: 5Gi
   path: ./k8s/apps/common/cli-proxy-api/cpa-usage-keeper
   prune: true
   sourceRef:

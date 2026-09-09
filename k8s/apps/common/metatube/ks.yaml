@@ -8,18 +8,18 @@ metadata:
 spec:
   targetNamespace: *namespace
   components:
-    - ../../../../components/volsync
+    - ../../../../components/kopiur/backup
   dependsOn:
     - name: azure-store
       namespace: external-secrets
     - name: cloudnative-pg-cluster
       namespace: database
-    - name: volsync
-      namespace: volsync-system
+    - name: kopiur-repository
+      namespace: kopiur-system
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CACHE_CAPACITY: 5Gi
+      KOPIUR_CACHE_CAPACITY: 5Gi
   interval: 1h
   path: ./k8s/apps/common/metatube/app
   prune: true

@@ -7,20 +7,20 @@ metadata:
 spec:
   targetNamespace: *namespace
   components:
-    - ../../../../components/volsync
+    - ../../../../components/kopiur/backup
     - ../../../../components/authelia
   dependsOn:
     - name: azure-store
       namespace: external-secrets
-    - name: volsync
-      namespace: volsync-system
+    - name: kopiur-repository
+      namespace: kopiur-system
     - name: multus-networks
       namespace: network
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 5Gi
-      VOLSYNC_CACHE_CAPACITY: 5Gi
+      KOPIUR_CAPACITY: 5Gi
+      KOPIUR_CACHE_CAPACITY: 5Gi
       AUTHELIA_ROUTE: home-assistant-code-server
   interval: 1h
   path: ./k8s/apps/common/home-assistant/app

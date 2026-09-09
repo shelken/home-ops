@@ -9,17 +9,17 @@ spec:
   targetNamespace: *namespace
   components:
     - ../../../../components/anubis
-    - ../../../../components/volsync
+    - ../../../../components/kopiur/backup
   postBuild:
     substitute:
       APP: *app
       ANUBIS_TARGET: http://vaultwarden:80
-      VOLSYNC_CAPACITY: 2Gi
+      KOPIUR_CAPACITY: 2Gi
   dependsOn:
     - name: azure-store
       namespace: external-secrets
-    - name: volsync
-      namespace: volsync-system
+    - name: kopiur-repository
+      namespace: kopiur-system
   interval: 1h
   path: ./k8s/apps/common/vaultwarden/app
   prune: true

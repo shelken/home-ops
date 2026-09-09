@@ -8,12 +8,14 @@ metadata:
 spec:
   targetNamespace: *namespace
   components:
-    - ../../../../components/volsync
+    - ../../../../components/kopiur/backup
+  dependsOn:
+    - name: kopiur-repository
+      namespace: kopiur-system
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 1Gi
-  interval: 1h
+      KOPIUR_CAPACITY: 1Gi
   path: ./k8s/apps/common/slash/app
   prune: true
   retryInterval: 2m

@@ -8,10 +8,12 @@ metadata:
 spec:
   targetNamespace: *namespace
   components:
-    - ../../../../components/volsync
+    - ../../../../components/kopiur/backup
   dependsOn:
     - name: azure-store
       namespace: external-secrets
+    - name: kopiur-repository
+      namespace: kopiur-system
   postBuild:
     substitute:
       APP: *app
