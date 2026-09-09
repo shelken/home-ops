@@ -11,19 +11,19 @@ spec:
     labels:
       app.ooooo.space/need-main-pg: "true"
   components:
-    - ../../../../../components/volsync
+    - ../../../../../components/kopiur/backup
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 5Gi
-      VOLSYNC_CACHE_CAPACITY: 5Gi
+      KOPIUR_CAPACITY: 5Gi
+      KOPIUR_CACHE_CAPACITY: 5Gi
   dependsOn:
     - name: azure-store
       namespace: external-secrets
     - name: cloudnative-pg-cluster
       namespace: database
-    - name: volsync
-      namespace: volsync-system
+    - name: kopiur-repository
+      namespace: kopiur-system
   interval: 1h
   path: ./k8s/infra/common/security/pocket-id/app
   prune: true
