@@ -8,6 +8,9 @@ metadata:
 spec:
   credentialProjection:
     enabled: true
+  mover:
+    inheritSecurityContextFrom:
+      snapshot: {}
   policy:
     onMissingSnapshot: Continue
   source:
