@@ -31,8 +31,10 @@ spec:
       defaultDataLocality: best-effort
       defaultDataPath: /mnt/lima-longhorn # 默认是 /var/lib/longhorn
       defaultReplicaCount: "1"
-      # 该值控制 Longhorn instance-manager Pod 的 CPU request 百分比。
-      # 当前 2 节点集群的 KubeCPUOvercommit 由 N-1 容灾公式触发；从 12% 降到 8% 可减少 0.48 CPU request。
+      # 串行升级 Volume Engine，限制升级期间的额外 CPU、内存和 InstanceManager 开销。
+      # attached 卷完成 live upgrade 后仍需在维护窗口 detach 一次，旧 InstanceManager 才能自动回收。
+      concurrentAutomaticEngineUpgradePerNodeLimit: "1"
+      # 保留 instance-manager 的运行保障；历史峰值表明不应为消除容量告警继续下调。
       guaranteedInstanceManagerCPU: '{"v1":"8","v2":"8"}'
       # orphan replica data 不是业务状态，保留 5 分钟用于误判缓冲，之后由 Longhorn 自动清理。
       orphanResourceAutoDeletion: replica-data
