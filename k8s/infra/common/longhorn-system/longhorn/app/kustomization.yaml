@@ -7,3 +7,4 @@ resources:
   - prometheusrule.yaml
   - grafanadashboard.yaml
   - recurringjob.yaml
+  - networkpolicy.yaml

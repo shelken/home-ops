@@ -1,0 +1,35 @@
+---
+# Longhorn 1.12.1 起 networkPolicies.restrictInternalTraffic 默认为 true,chart 会为 longhorn-manager 等
+# 内部组件生成仅放行 Longhorn 自身组件的 ingress 策略(只看该键,无视 networkPolicies.enabled),
+# 导致 Prometheus 抓取 :9500/metrics 超时、longhorn_* 序列断档、TargetDown 持续 firing。
+# 上游明确拒绝回退该默认值,官方方案是由用户追加一条作用域收窄的放行策略:
+#   - https://github.com/longhorn/longhorn/issues/13740
+#   - https://longhorn.io/docs/1.12.1/monitoring/prometheus-and-grafana-setup/
+# NetworkPolicy 之间是 OR 语义,本条只需声明放行来源,无需复制 chart 的白名单。
+# 9500 同时承载 metrics 与 Longhorn REST API,因此用 namespaceSelector 与 podSelector 组合(AND)
+# 把来源收窄到本集群的 Prometheus Pod,而不是放开整个 observability namespace。
+# 上游提供原生放行值(networkPolicies.metricsScrapeSources)后可删除本文件:
+#   - https://github.com/longhorn/longhorn/issues/13947
+#   - https://github.com/longhorn/longhorn/pull/13948
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-prometheus-scrape-longhorn-manager
+spec:
+  podSelector:
+    matchLabels:
+      app: longhorn-manager
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: observability
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+              app.kubernetes.io/instance: kube-prometheus-stack
+      ports:
+        - protocol: TCP
+          port: 9500
