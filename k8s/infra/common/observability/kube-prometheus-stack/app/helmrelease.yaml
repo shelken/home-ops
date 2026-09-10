@@ -113,27 +113,6 @@ spec:
               namespace: network
       prometheusSpec:
         enableAdminAPI: false
-        initContainers:
-          - name: wal-converter
-            image: docker.io/prompp/prompp:0.7.8
-            command:
-              - /bin/prompptool
-              - walpp
-              - --working-dir=/prometheus
-            volumeMounts:
-              - name: prometheus-kube-prometheus-stack-db
-                mountPath: /prometheus
-                subPath: prometheus-db
-            securityContext:
-              runAsNonRoot: true
-              runAsUser: 64535
-              runAsGroup: 64535
-            resources:
-              requests:
-                cpu: 100m
-                memory: 512Mi
-              limits:
-                memory: 2Gi
         securityContext:
           runAsNonRoot: true
           runAsUser: 64535

@@ -30,7 +30,6 @@
         "/seafileltd/", // seafile
         "/yourselfhosted/slash/", // slash
         "/dani-garcia/vaultwarden/", // vaultwarden
-        "/prompp/prompp/", // 锁定 0.7.8 , 往上升级 0.7.10 等等都有bug
       ],
       enabled: false
     },
@@ -58,12 +57,6 @@
       description: "anubis 补充",
       matchPackageNames: ["/techarohq/anubis/"],
       sourceUrl: "https://github.com/TecharoHQ/anubis"
-    },
-    {
-      description: "prompp 补充",
-      matchPackageNames: ["/prompp/prompp/"],
-      sourceUrl: "https://github.com/deckhouse/prompp",
-      ignoreUnstable: false
     },
     {
       description: "envoy 补充",
