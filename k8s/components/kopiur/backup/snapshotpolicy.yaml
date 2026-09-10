@@ -17,6 +17,8 @@ spec:
     securityContext:
       runAsUser: ${KOPIUR_PUID:=1000}
       runAsGroup: ${KOPIUR_PGID:=1000}
+    # 让 mover Job 自回收；缺少这个字段时完成/失败的 Job 会一直留在集群里。
+    ttlSecondsAfterFinished: 3600
   repository:
     kind: ClusterRepository
     name: sakamoto
