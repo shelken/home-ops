@@ -28,4 +28,10 @@ spec:
   sources:
     - pvc:
         name: ${APP}
+  # 暂存卷是每次备份的临时中间卷：从源卷快照 clone 出来交给 mover 挂载读，用完即删。
+  # 留空会继承源卷的 longhorn 类（2 副本），每个快照都要等第二个副本跨节点同步完才算
+  # HA（VolumeCloneCopyCompleteAwaitingHealthy），并持续触发副本重建；临时卷用
+  # 1 副本的 longhorn-snapshot 即可。
+  staging:
+    storageClassName: ${KOPIUR_STAGING_STORAGECLASS:=longhorn-snapshot}
   volumeSnapshotClassName: ${KOPIUR_SNAPSHOTCLASS:=longhorn-snapclass}

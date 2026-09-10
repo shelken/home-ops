@@ -29,6 +29,8 @@ spec:
       # KOPIUR_CACHE_CAPACITY: 5Gi
       # KOPIUR_ACCESSMODES: ReadWriteOnce
       # KOPIUR_STORAGECLASS: longhorn
+      # KOPIUR_STAGING_STORAGECLASS: longhorn-snapshot  # 暂存克隆卷，须与源卷同一 CSI driver
+      # KOPIUR_SNAPSHOTCLASS: longhorn-snapclass
       # 若应用以非 1000 用户运行：
       # KOPIUR_PUID: "0"
       # KOPIUR_PGID: "0"
