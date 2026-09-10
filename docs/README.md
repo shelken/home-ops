@@ -30,7 +30,7 @@
 | 文档 | 用途 |
 |------|------|
 | [OpenEBS HostPath](./10-openebs-hostpath.md) | OpenEBS 卷固定到 sakamoto 的记录 |
-| [Volsync](./11-volsync.md) | PVC 备份与恢复记录 |
+| [Kopiur](./11-kopiur.md) | PVC 备份与恢复记录 |
 | [Tailscale](./12-tailscale.md) | Tailscale operator 和代理记录 |
 | [MinIO](./13-minio.md) | S3 存储和访问策略记录 |
 | [网络](./14-network.md) | IPv6、node-ip 等网络记录 |
