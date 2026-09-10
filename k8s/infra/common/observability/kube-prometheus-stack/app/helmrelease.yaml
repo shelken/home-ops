@@ -110,10 +110,6 @@ spec:
     kubelet:
       serviceMonitor:
         metricRelabelings:
-          # Helm 数组会整体替换，保留 chart 88.6.5 默认的基数削减规则。
-          - action: drop
-            sourceLabels: [__name__, le]
-            regex: (csi_operations|storage_operation_duration)_seconds_bucket;(0.25|2.5|15|25|120|600)(\.0)?
           # 控制面 kubelet /metrics 会重复输出已由 apiserver 采集的指标；
           # agent 节点不产生这两族，cadvisor/probes 也不经过此规则。
           - action: drop
