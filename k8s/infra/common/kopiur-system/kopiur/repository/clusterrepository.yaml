@@ -7,6 +7,8 @@ metadata:
 spec:
   allowedNamespaces:
     all: true
+  concurrency:
+    maxConcurrentJobs: 1
   credentialProjection:
     allowed: true
   backend:
