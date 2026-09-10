@@ -33,3 +33,16 @@ spec:
       retries: 3
   values:
     enableServiceLinks: false
+    resources:
+      operator:
+        requests:
+          cpu: 50m
+          memory: 256Mi
+      metricServer:
+        requests:
+          cpu: 50m
+          memory: 100Mi
+      webhooks:
+        requests:
+          cpu: 10m
+          memory: 50Mi

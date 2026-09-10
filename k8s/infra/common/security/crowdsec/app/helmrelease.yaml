@@ -163,6 +163,14 @@ spec:
         externalTrafficPolicy: Local
     appsec:
       enabled: true
+      # 保留 500m 突发上限，避免 chart 默认 500m request 长期占用调度预算。
+      resources:
+        requests:
+          cpu: 50m
+          memory: 100Mi
+        limits:
+          cpu: 500m
+          memory: 250Mi
       acquisitions:
         - source: appsec
           listen_addr: "0.0.0.0:7422"

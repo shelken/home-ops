@@ -38,3 +38,7 @@ spec:
     manager:
       devices:
         gpu: true
+    resources:
+      requests:
+        cpu: 25m
+        memory: 64Mi
