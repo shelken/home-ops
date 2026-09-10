@@ -17,8 +17,6 @@ spec:
     securityContext:
       runAsUser: ${KOPIUR_PUID:=1000}
       runAsGroup: ${KOPIUR_PGID:=1000}
-    # 显式锁定 mover Job 的 1 小时回收窗口，不依赖 controller 的隐式默认值。
-    ttlSecondsAfterFinished: 3600
   repository:
     kind: ClusterRepository
     name: sakamoto
