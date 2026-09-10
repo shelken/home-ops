@@ -94,15 +94,31 @@ spec:
         selector:
           component: apiserver
           provider: kubernetes
+    # k3s 的内置 Kubernetes 组件运行在同一进程并共享全局 metrics registry；
+    # 官方说明只需抓取一个端点，逐个抓取会产生重复序列。
+    # ref: https://docs.k3s.io/reference/metrics
+    # ref: https://github.com/k3s-io/k3s/issues/12917
+    # 上游 onedr0p/home-ops 使用 Talos，controller-manager/scheduler 是独立进程，
+    # 因此其分别抓取组件端点的配置不适用于本集群。保留 apiserver 作为内置组件
+    # 指标来源；保留 kubelet 端点以采集独立 agent 节点及 cadvisor/probes。
     kubeControllerManager:
-      enabled: true
-      endpoints: &endpoints
-        - 192.168.6.80
+      enabled: false
     kubeScheduler:
-      enabled: true
-      endpoints: *endpoints
+      enabled: false
     kubeProxy:
       enabled: false
+    kubelet:
+      serviceMonitor:
+        metricRelabelings:
+          # Helm 数组会整体替换，保留 chart 88.6.5 默认的基数削减规则。
+          - action: drop
+            sourceLabels: [__name__, le]
+            regex: (csi_operations|storage_operation_duration)_seconds_bucket;(0.25|2.5|15|25|120|600)(\.0)?
+          # 控制面 kubelet /metrics 会重复输出已由 apiserver 采集的指标；
+          # agent 节点不产生这两族，cadvisor/probes 也不经过此规则。
+          - action: drop
+            sourceLabels: [__name__]
+            regex: apiserver_.*|etcd_.*
     prometheus:
       route:
         main:
