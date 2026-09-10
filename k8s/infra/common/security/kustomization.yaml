@@ -10,6 +10,8 @@ resources:
   - pocket-id/ks.yaml
 
 patches:
+  # crowdsec 官方镜像以 root (UID 0) 运行且持久卷内文件权限为 0:0 (0600)，
+  # 需显式授权 kopiur 启动特权 mover (UID 0) 备份卷，防止权限不足与门禁拦截
   - target:
       kind: Namespace
     patch: |-
