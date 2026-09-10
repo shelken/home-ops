@@ -78,10 +78,18 @@ tasks:
           echo "错误: 删除 PVC 前必须传 CONFIRM=$APP"
           exit 1
         fi
-        for parent in infra apps; do
-          ready=$(kubectl get ks "$parent" -n flux-system -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}')
+        parent=$(kubectl get ks "$APP" -n "$NS" -o jsonpath='{.metadata.labels.kustomize\.toolkit\.fluxcd\.io/name}' 2>/dev/null || true)
+        case "$parent" in
+          infra|apps) ;;
+          *)
+            echo "错误: 无法确定 $NS/$APP 的 parent Kustomization（期望 infra 或 apps，实际 ${parent:-empty}）"
+            exit 1
+            ;;
+        esac
+        for gate_parent in infra apps; do
+          ready=$(kubectl get ks "$gate_parent" -n flux-system -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}')
           if [ "$ready" != "True" ]; then
-            echo "错误: flux-system/$parent 未 Ready，先修 parent gate"
+            echo "错误: flux-system/$gate_parent 未 Ready，先修 parent gate"
             exit 1
           fi
         done
@@ -118,12 +126,7 @@ tasks:
           exit 1
         fi
 
-        echo "▶ 4. 由 apps/infra parent 从 Git 重建 ks"
-        # 判断 app 位于 infra 还是 apps
-        parent="apps"
-        if kubectl get ks "$APP" -n "$NS" -o jsonpath='{.metadata.labels.kustomize\.toolkit\.fluxcd\.io/ks-name}' 2>/dev/null | grep -q "infra"; then
-          parent="infra"
-        fi
+        echo "▶ 4. 由 $parent parent 从 Git 重建 ks"
         flux reconcile ks "$parent" -n flux-system --timeout=5m
         for i in $(seq 1 30); do
           kubectl get ks "$APP" -n "$NS" >/dev/null 2>&1 && break
@@ -139,11 +142,12 @@ tasks:
         for i in $(seq 1 60); do
           pvc=$(kubectl get pvc "$APP" -n "$NS" -o jsonpath='{.status.phase}' 2>/dev/null || echo none)
           hr=$(kubectl get hr "$APP" -n "$NS" -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}' 2>/dev/null || echo none)
-          pod=$(kubectl get pod -n "$NS" -l app.kubernetes.io/name="$APP" --no-headers 2>/dev/null | awk '{print $3}' | head -1)
+          pod=$(kubectl get pod -n "$NS" -l app.kubernetes.io/name="$APP" -o jsonpath='{.items[0].status.phase}' 2>/dev/null || echo "?")
+          pod_ready=$(kubectl get pod -n "$NS" -l app.kubernetes.io/name="$APP" -o jsonpath='{.items[0].status.conditions[?(@.type=="Ready")].status}' 2>/dev/null || echo "?")
           restore=$(kubectl get restore "$APP" -n "$NS" -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}' 2>/dev/null || echo "?")
-          echo "  $(date +%H:%M:%S) restore=$restore pvc=$pvc hr=$hr pod=${pod:-?}"
-          if [ "$pvc" = "Bound" ] && [ "$hr" = "True" ]; then
-            echo "✔ restore finished: $APP.$NS PVC Bound, HR Ready"
+          echo "  $(date +%H:%M:%S) restore=$restore pvc=$pvc hr=$hr pod=$pod podReady=$pod_ready"
+          if [ "$restore" = "True" ] && [ "$pvc" = "Bound" ] && [ "$hr" = "True" ] && [ "$pod_ready" = "True" ]; then
+            echo "✔ restore finished: $APP.$NS Restore Ready, PVC Bound, HR and Pod Ready"
             kubectl get hr,pvc,pod -n "$NS" 2>/dev/null | grep -E "NAME|$APP" || true
             exit 0
           fi
