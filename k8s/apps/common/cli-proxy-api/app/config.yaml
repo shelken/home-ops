@@ -62,10 +62,11 @@ plugins:
       priority: 100
     codexcomp:
       enabled: true
+    echo-probe:
+      enabled: true
+      priority: 1
   store-sources:
-    - https://raw.githubusercontent.com/shelken/cpa-codex-autoban/main/registry.json
-    - https://raw.githubusercontent.com/shelken/cpa-plugin-codexcomp/master/registry.json
-
+    - https://raw.githubusercontent.com/shelken/cpa-plugins/main/registry.json
 # Proxy URL. Supports socks5/http/https protocols. Example: socks5://user:pass@192.168.1.1:1080/
 proxy-url: "socks5://sakamoto.lan:7890/"
 
