@@ -65,6 +65,8 @@ plugins:
     echo-probe:
       enabled: true
       priority: 1
+    workbuddy:
+      enabled: true
   store-sources:
     - https://raw.githubusercontent.com/shelken/cpa-plugins/main/registry.json
 # Proxy URL. Supports socks5/http/https protocols. Example: socks5://user:pass@192.168.1.1:1080/
