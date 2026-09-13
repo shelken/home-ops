@@ -40,7 +40,6 @@ Temporary Items
 
 kubeconfig
 _out/**
-.direnv/**
 .ansible/**
 .claude/settings.local.json
 

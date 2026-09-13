@@ -48,7 +48,7 @@ cannot find snapshot snapshot-77dbec3d-986a-4800-9fb2-dc29f1399b18 in the source
 
 ```bash
 kubectl delete replicationsource.volsync.backube -n default cli-proxy-api
-direnv exec . flux reconcile kustomization cli-proxy-api -n default --with-source
+flux reconcile kustomization cli-proxy-api -n default --with-source
 ```
 
 正确做法：
