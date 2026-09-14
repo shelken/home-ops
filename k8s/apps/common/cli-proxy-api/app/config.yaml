@@ -65,6 +65,8 @@ plugins:
     echo-probe:
       enabled: true
       priority: 1
+    qwenworkcn:
+      enabled: true
     workbuddy:
       enabled: true
   store-sources:
