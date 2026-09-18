@@ -20,7 +20,7 @@ spec:
             image:
               # 上游只发 latest/release 标签, 因此按摘要固定; 上游发布 semver 标签后改为 <version>@sha256:<digest>
               repository: ghcr.io/maxeaglet/commandcode-proxy
-              tag: latest@sha256:54c21f034d376e712e811ad7d6194327e9191e65bc688b9e88b02b4313bc92cb
+              tag: latest@sha256:423113c65eadb34f918c998fb5a35ee62b1bd94f3b555e31bb8bfca4ac9519a3
             env:
               TZ: ${TIMEZONE}
             probes:
