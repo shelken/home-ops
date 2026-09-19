@@ -60,15 +60,20 @@ plugins:
     cpa-codex-autoban:
       enabled: true
       priority: 100
+      store:
+        version: "0.2.4"
     codexcomp:
       enabled: true
-    echo-probe:
-      enabled: true
-      priority: 1
+      store:
+        version: "0.1.4"
     qwenworkcn:
       enabled: true
+      store:
+        version: "0.1.2"
     workbuddy:
       enabled: true
+      store:
+        version: "0.2.4"
   store-sources:
     - https://raw.githubusercontent.com/shelken/cpa-plugins/main/registry.json
 # Proxy URL. Supports socks5/http/https protocols. Example: socks5://user:pass@192.168.1.1:1080/
