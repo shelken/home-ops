@@ -113,6 +113,9 @@ antigravity:
     - "system_conventions"
     - "system-directive"
     - "system_directive"
+    # 上游 WAF 除标签外还匹配 RFC 2119 短语，命中即回假 429 RESOURCE_EXHAUSTED
+    # https://github.com/can1357/oh-my-pi/issues/11699
+    - "RFC 2119"
 
 # xAI provider behavior.
 xai:
