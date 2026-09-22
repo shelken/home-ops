@@ -73,12 +73,12 @@ plugins:
       enabled: true
       store:
         # renovate: datasource=github-releases depName=shelken/cpa-plugins extractVersion=^qwenworkcn/v(?<version>.+)$
-        version: 0.1.4
+        version: 0.1.5
     workbuddy:
       enabled: true
       store:
         # renovate: datasource=github-releases depName=shelken/cpa-plugins extractVersion=^workbuddy/v(?<version>.+)$
-        version: 0.2.4
+        version: 0.2.6
   store-sources:
     - https://raw.githubusercontent.com/shelken/cpa-plugins/main/registry.json
 # Proxy URL. Supports socks5/http/https protocols. Example: socks5://user:pass@192.168.1.1:1080/
