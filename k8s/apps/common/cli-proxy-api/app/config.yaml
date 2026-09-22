@@ -57,23 +57,28 @@ usage-statistics-enabled: true
 plugins:
   enabled: true
   configs:
+    # 版本跟插件各自的 Release: external 声明指向的上游仓, 本仓多插件仓则用 extractVersion 从 <id>/vX.Y.Z 标签里取版本
     cpa-codex-autoban:
       enabled: true
       priority: 100
       store:
-        version: "0.2.4"
+        # renovate: datasource=github-releases depName=shelken/cpa-codex-autoban
+        version: 0.2.4
     codexcomp:
       enabled: true
       store:
-        version: "0.1.4"
+        # renovate: datasource=github-releases depName=shelken/cpa-plugin-codexcomp
+        version: 0.1.4
     qwenworkcn:
       enabled: true
       store:
-        version: "0.1.2"
+        # renovate: datasource=github-releases depName=shelken/cpa-plugins extractVersion=^qwenworkcn/v(?<version>.+)$
+        version: 0.1.4
     workbuddy:
       enabled: true
       store:
-        version: "0.2.4"
+        # renovate: datasource=github-releases depName=shelken/cpa-plugins extractVersion=^workbuddy/v(?<version>.+)$
+        version: 0.2.4
   store-sources:
     - https://raw.githubusercontent.com/shelken/cpa-plugins/main/registry.json
 # Proxy URL. Supports socks5/http/https protocols. Example: socks5://user:pass@192.168.1.1:1080/
