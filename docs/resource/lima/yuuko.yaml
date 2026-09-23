@@ -1,5 +1,5 @@
 #ref: https://github.com/lima-vm/lima/blob/master/templates/default.yaml
-# Remote node at 192.168.0.x network, connected via ZeroTier VPN
+# Local node on the same LAN as the other k3s hosts
 
 env:
   http_proxy: ""
@@ -21,8 +21,11 @@ hostResolver:
   enabled: false
 
 # https://lima-vm.io/docs/config/network/vmnet/
-# Requires socket_vmnet to be installed on the host
-# Install: brew install socket_vmnet && sudo brew services start socket_vmnet
+# 桥接前置（缺一不可）：
+#   1. 宿主以 root 拥有方式安装 socket_vmnet 到 /opt/socket_vmnet，并写入 sudoers 与按网口建的 launchd daemon
+#      （brew install 的路径会被 Lima 拒绝，步骤见 socket_vmnet 仓库 README 的 Install 与 Bridged mode 两节）
+#   2. $LIMA_HOME/_config/networks.yaml 的 bridged.interface 指向宿主的**有线**网口
+#      （macOS 不支持用无线网卡做桥接，见知识库 lima-macos-bridged-network）
 networks:
   - lima: bridged
     interface: eth1

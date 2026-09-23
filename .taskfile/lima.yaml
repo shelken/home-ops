@@ -7,74 +7,148 @@ version: "3"
 # 关键事实：
 # - limactl start 在 VZ 已 Running 后仍会等 guest 内部 SSH（常见 192.168.5.15:22）
 # - limactl --timeout 只覆盖到 “Running”，盖不住内部 SSH 等待
-# - 业务可达判据只用桥接 IP: {{.SAKAMOTO_BRIDGE_IP}}:22（不要用 192.168.5.15）
+# - 业务可达判据只用桥接 IP: <BRIDGE_IP>:22（不要用 Lima 内网地址）
 # - limactl start 若因实例已 Running 立刻 exit 0，不能当成功
+#
+# 命名约定：Lima 实例名 = k8s 节点名（hosts.ini），宿主机名 = others.ini 的 endpoint 组成员。
+# 新增 Lima 节点时：在 vars 加一组 LIMA_<NAME>_* 即可，任务内部全部按变量取值。
+# 用法：task lima:status HOST=yuuko ｜ task lima:sync HOST=yuuko
 
 vars:
   INV: "{{.ROOT_DIR}}/.taskfile/scripts/inv.sh"
   K8S_INV: "{{.ROOT_DIR}}/ansible/inventory/hosts.ini"
-  # 多处共用 → inv；仅 lima 用 → 本地 inventory / 路径
-  SAKAMOTO_HOST:
-    sh: '"{{.INV}}" sakamoto'
-  SAKAMOTO_VM:
-    sh: 'ansible-inventory -i "{{.K8S_INV}}" --list | jq -r ".controllers.hosts[0]"'
-  SAKAMOTO_BRIDGE_IP:
-    sh: 'ansible-inventory -i "{{.K8S_INV}}" --host "$(ansible-inventory -i "{{.K8S_INV}}" --list | jq -r ".controllers.hosts[0]")" | jq -re .ansible_host'
-  SAKAMOTO_CONFIG: "{{.ROOT_DIR}}/docs/resource/lima/sakamoto.yaml"
   LIMA_START_TIMEOUT_SEC: "90"
 
+  # 每台 Lima 宿主机一组：HOST_NAME=others.ini endpoint 名，VM_NAME=实例名
+  # CONFIG_FILE=仓库内该实例的 lima.yaml（文件名按宿主机命名，不等于 VM_NAME）
+  LIMA_SAKAMOTO_HOST_NAME: sakamoto
+  LIMA_SAKAMOTO_VM_NAME: sakamoto-k8s
+  LIMA_SAKAMOTO_CONFIG_FILE: sakamoto.yaml
+  LIMA_YUUKO_HOST_NAME: yuuko
+  LIMA_YUUKO_VM_NAME: yuuko-k8s
+  LIMA_YUUKO_CONFIG_FILE: yuuko.yaml
+
 tasks:
+  # HOST=sakamoto|yuuko；VM 名按 HOST 取对应 *_VM_NAME
   sync:
     silent: true
-    desc: "同步 Lima 配置到 sakamoto 并重启 VM"
+    desc: "同步配置并重启（HOST=…）"
+    vars:
+      HOST_NAME: '{{.HOST | default "sakamoto"}}'
+      VM_NAME: '{{if eq .HOST_NAME "yuuko"}}{{.LIMA_YUUKO_VM_NAME}}{{else}}{{.LIMA_SAKAMOTO_VM_NAME}}{{end}}'
+      CONFIG_FILE: '{{if eq .HOST_NAME "yuuko"}}{{.LIMA_YUUKO_CONFIG_FILE}}{{else}}{{.LIMA_SAKAMOTO_CONFIG_FILE}}{{end}}'
     cmds:
-      - task: sync:config
-      - task: restart
+      - task: _sync:config
+        vars: { HOST_NAME: "{{.HOST_NAME}}", VM_NAME: "{{.VM_NAME}}", CONFIG_FILE: "{{.CONFIG_FILE}}" }
+      - task: _restart
+        vars: { HOST_NAME: "{{.HOST_NAME}}", VM_NAME: "{{.VM_NAME}}" }
 
-  sync:config:
-    internal: true
-    cmd: |
-      set -euo pipefail
-      echo "同步配置到 {{.SAKAMOTO_HOST}}..."
-      scp {{.SAKAMOTO_CONFIG}} {{.SAKAMOTO_HOST}}:~/.lima/{{.SAKAMOTO_VM}}/lima.yaml
-      echo "✓ 配置同步完成"
+  status:
+    silent: true
+    desc: "查看 Lima 实例状态（HOST=sakamoto|yuuko，默认 sakamoto）"
+    vars:
+      HOST_NAME: '{{.HOST | default "sakamoto"}}'
+      VM_NAME: '{{if eq .HOST_NAME "yuuko"}}{{.LIMA_YUUKO_VM_NAME}}{{else}}{{.LIMA_SAKAMOTO_VM_NAME}}{{end}}'
+      CONFIG_FILE: '{{if eq .HOST_NAME "yuuko"}}{{.LIMA_YUUKO_CONFIG_FILE}}{{else}}{{.LIMA_SAKAMOTO_CONFIG_FILE}}{{end}}'
+    cmds:
+      - task: _status
+        vars: { HOST_NAME: "{{.HOST_NAME}}", VM_NAME: "{{.VM_NAME}}" }
+
+  start:
+    silent: true
+    desc: "启动 Lima 实例（HOST=…）"
+    vars:
+      HOST_NAME: '{{.HOST | default "sakamoto"}}'
+      VM_NAME: '{{if eq .HOST_NAME "yuuko"}}{{.LIMA_YUUKO_VM_NAME}}{{else}}{{.LIMA_SAKAMOTO_VM_NAME}}{{end}}'
+      CONFIG_FILE: '{{if eq .HOST_NAME "yuuko"}}{{.LIMA_YUUKO_CONFIG_FILE}}{{else}}{{.LIMA_SAKAMOTO_CONFIG_FILE}}{{end}}'
+    cmds:
+      - task: _start
+        vars: { HOST_NAME: "{{.HOST_NAME}}", VM_NAME: "{{.VM_NAME}}" }
+
+  stop:
+    silent: true
+    desc: "停止 Lima 实例（HOST=…）"
+    vars:
+      HOST_NAME: '{{.HOST | default "sakamoto"}}'
+      VM_NAME: '{{if eq .HOST_NAME "yuuko"}}{{.LIMA_YUUKO_VM_NAME}}{{else}}{{.LIMA_SAKAMOTO_VM_NAME}}{{end}}'
+      CONFIG_FILE: '{{if eq .HOST_NAME "yuuko"}}{{.LIMA_YUUKO_CONFIG_FILE}}{{else}}{{.LIMA_SAKAMOTO_CONFIG_FILE}}{{end}}'
+    cmds:
+      - task: _stop
+        vars: { HOST_NAME: "{{.HOST_NAME}}", VM_NAME: "{{.VM_NAME}}" }
 
   restart:
     silent: true
-    desc: "重启 sakamoto-k8s VM"
+    desc: "重启 Lima 实例（HOST=…）"
+    vars:
+      HOST_NAME: '{{.HOST | default "sakamoto"}}'
+      VM_NAME: '{{if eq .HOST_NAME "yuuko"}}{{.LIMA_YUUKO_VM_NAME}}{{else}}{{.LIMA_SAKAMOTO_VM_NAME}}{{end}}'
+      CONFIG_FILE: '{{if eq .HOST_NAME "yuuko"}}{{.LIMA_YUUKO_CONFIG_FILE}}{{else}}{{.LIMA_SAKAMOTO_CONFIG_FILE}}{{end}}'
+    cmds:
+      - task: _restart
+        vars: { HOST_NAME: "{{.HOST_NAME}}", VM_NAME: "{{.VM_NAME}}" }
+
+  diff:
+    silent: true
+    desc: "对比运行配置与仓库差异（HOST=…）"
+    vars:
+      HOST_NAME: '{{.HOST | default "sakamoto"}}'
+      VM_NAME: '{{if eq .HOST_NAME "yuuko"}}{{.LIMA_YUUKO_VM_NAME}}{{else}}{{.LIMA_SAKAMOTO_VM_NAME}}{{end}}'
+      CONFIG_FILE: '{{if eq .HOST_NAME "yuuko"}}{{.LIMA_YUUKO_CONFIG_FILE}}{{else}}{{.LIMA_SAKAMOTO_CONFIG_FILE}}{{end}}'
+    cmds:
+      - task: _diff
+        vars: { HOST_NAME: "{{.HOST_NAME}}", VM_NAME: "{{.VM_NAME}}", CONFIG_FILE: "{{.CONFIG_FILE}}" }
+
+  _sync:config:
+    internal: true
+    vars:
+      HOST_NAME: "{{.HOST_NAME}}"
+      VM_NAME: "{{.VM_NAME}}"
+      CONFIG_FILE: "{{.CONFIG_FILE}}"
     cmd: |
       set -euo pipefail
-      echo "正在重启 {{.SAKAMOTO_VM}}..."
-      ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=40 {{.SAKAMOTO_HOST}} \
+      host="$({{.INV}} {{.HOST_NAME}})"
+      echo "同步配置到 ${host}..."
+      scp {{.ROOT_DIR}}/docs/resource/lima/{{.CONFIG_FILE}} "${host}:~/.lima/{{.VM_NAME}}/lima.yaml"
+      echo "✓ 配置同步完成"
+
+  _restart:
+    internal: true
+    cmd: |
+      set -euo pipefail
+      host="$({{.INV}} {{.HOST_NAME}})"
+      vm="{{.VM_NAME}}"
+      bridge_ip="$(ansible-inventory -i "{{.K8S_INV}}" --host "${vm}" | jq -re .ansible_host)"
+      echo "正在重启 ${vm}..."
+      ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=40 "${host}" \
         "set -euo pipefail
          # 1) 停机：普通 stop 失败则 force
-         if ! limactl stop {{.SAKAMOTO_VM}}; then
+         if ! limactl stop ${vm}; then
            echo 'WARN: limactl stop 失败，改用 --force'
-           limactl stop --force {{.SAKAMOTO_VM}} || true
+           limactl stop --force ${vm} || true
          fi
          limactl disk unlock longhorn || true
 
          # 2) 后台 start（可能卡在内部 SSH 探测）
-         rm -f /tmp/lima-start-{{.SAKAMOTO_VM}}.log /tmp/lima-start-{{.SAKAMOTO_VM}}.exit
-         ( limactl start --tty=false {{.SAKAMOTO_VM}} > /tmp/lima-start-{{.SAKAMOTO_VM}}.log 2>&1
-           echo \$? > /tmp/lima-start-{{.SAKAMOTO_VM}}.exit
+         rm -f /tmp/lima-start-${vm}.log /tmp/lima-start-${vm}.exit
+         ( limactl start --tty=false ${vm} > /tmp/lima-start-${vm}.log 2>&1
+           echo \$? > /tmp/lima-start-${vm}.exit
          ) &
          start_pid=\$!
 
          # 3) 唯一成功条件：桥接 IP SSH 通
          ok=0
          for i in \$(seq 1 {{.LIMA_START_TIMEOUT_SEC}}); do
-           if ping -c 1 -W 1 {{.SAKAMOTO_BRIDGE_IP}} >/dev/null 2>&1 \
-              && nc -z -w 1 {{.SAKAMOTO_BRIDGE_IP}} 22 >/dev/null 2>&1; then
+           if ping -c 1 -W 1 ${bridge_ip} >/dev/null 2>&1 \
+              && nc -z -w 1 ${bridge_ip} 22 >/dev/null 2>&1; then
              ok=1
              break
            fi
-           # start 进程已退出且非 0 → 直接失败（仍再给桥接探测 0 次机会上面已查过）
-           if [ -f /tmp/lima-start-{{.SAKAMOTO_VM}}.exit ]; then
-             code=\$(cat /tmp/lima-start-{{.SAKAMOTO_VM}}.exit)
+           # start 进程已退出且非 0 → 直接失败
+           if [ -f /tmp/lima-start-${vm}.exit ]; then
+             code=\$(cat /tmp/lima-start-${vm}.exit)
              if [ \"\$code\" != 0 ]; then
                echo 'limactl start failed:'
-               tail -80 /tmp/lima-start-{{.SAKAMOTO_VM}}.log || true
+               tail -80 /tmp/lima-start-${vm}.log || true
                exit \"\$code\"
              fi
              # exit 0 但桥接未通：继续等，不立刻成功
@@ -83,95 +157,120 @@ tasks:
          done
 
          if [ \"\$ok\" != 1 ]; then
-           echo 'ERROR: {{.LIMA_START_TIMEOUT_SEC}}s 内 {{.SAKAMOTO_BRIDGE_IP}}:22 未就绪'
+           echo 'ERROR: {{.LIMA_START_TIMEOUT_SEC}}s 内 ${bridge_ip}:22 未就绪'
            echo '--- limactl list ---'
            limactl list || true
            echo '--- start log ---'
-           tail -100 /tmp/lima-start-{{.SAKAMOTO_VM}}.log || true
+           tail -100 /tmp/lima-start-${vm}.log || true
            kill \$start_pid 2>/dev/null || true
            exit 1
          fi
 
-         if [ ! -f /tmp/lima-start-{{.SAKAMOTO_VM}}.exit ]; then
-           echo 'INFO: {{.SAKAMOTO_BRIDGE_IP}} 已通；结束等待 limactl 内部 SSH'
+         if [ ! -f /tmp/lima-start-${vm}.exit ]; then
+           echo 'INFO: ${bridge_ip} 已通；结束等待 limactl 内部 SSH'
            kill \$start_pid 2>/dev/null || true
          fi
          limactl list
         "
-      echo "✓ VM 已重启（{{.SAKAMOTO_BRIDGE_IP}}:22 可达）"
+      echo "✓ VM 已重启（${bridge_ip}:22 可达）"
 
-  stop:
-    silent: true
-    desc: "停止 sakamoto-k8s VM"
+  _stop:
+    internal: true
     cmd: |
       set -euo pipefail
-      ssh {{.SAKAMOTO_HOST}} "
-        limactl stop {{.SAKAMOTO_VM}} || limactl stop --force {{.SAKAMOTO_VM}}
+      host="$({{.INV}} {{.HOST_NAME}})"
+      ssh "${host}" "
+        limactl stop {{.VM_NAME}} || limactl stop --force {{.VM_NAME}}
       "
       echo "✓ VM 已停止"
 
-  start:
-    silent: true
-    desc: "启动 sakamoto-k8s VM（与 restart 相同就绪判据）"
+  _start:
+    internal: true
     cmd: |
       set -euo pipefail
-      ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=40 {{.SAKAMOTO_HOST}} \
+      host="$({{.INV}} {{.HOST_NAME}})"
+      vm="{{.VM_NAME}}"
+      bridge_ip="$(ansible-inventory -i "{{.K8S_INV}}" --host "${vm}" | jq -re .ansible_host)"
+      ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=40 "${host}" \
         "set -euo pipefail
          limactl disk unlock longhorn || true
-         rm -f /tmp/lima-start-{{.SAKAMOTO_VM}}.log /tmp/lima-start-{{.SAKAMOTO_VM}}.exit
-         ( limactl start --tty=false {{.SAKAMOTO_VM}} > /tmp/lima-start-{{.SAKAMOTO_VM}}.log 2>&1
-           echo \$? > /tmp/lima-start-{{.SAKAMOTO_VM}}.exit
+         rm -f /tmp/lima-start-${vm}.log /tmp/lima-start-${vm}.exit
+         ( limactl start --tty=false ${vm} > /tmp/lima-start-${vm}.log 2>&1
+           echo \$? > /tmp/lima-start-${vm}.exit
          ) &
          start_pid=\$!
          ok=0
          for i in \$(seq 1 {{.LIMA_START_TIMEOUT_SEC}}); do
-           if ping -c 1 -W 1 {{.SAKAMOTO_BRIDGE_IP}} >/dev/null 2>&1 \
-              && nc -z -w 1 {{.SAKAMOTO_BRIDGE_IP}} 22 >/dev/null 2>&1; then
+           if ping -c 1 -W 1 ${bridge_ip} >/dev/null 2>&1 \
+              && nc -z -w 1 ${bridge_ip} 22 >/dev/null 2>&1; then
              ok=1
              break
            fi
-           if [ -f /tmp/lima-start-{{.SAKAMOTO_VM}}.exit ]; then
-             code=\$(cat /tmp/lima-start-{{.SAKAMOTO_VM}}.exit)
+           if [ -f /tmp/lima-start-${vm}.exit ]; then
+             code=\$(cat /tmp/lima-start-${vm}.exit)
              if [ \"\$code\" != 0 ]; then
                echo 'limactl start failed:'
-               tail -80 /tmp/lima-start-{{.SAKAMOTO_VM}}.log || true
+               tail -80 /tmp/lima-start-${vm}.log || true
                exit \"\$code\"
              fi
            fi
            sleep 1
          done
          if [ \"\$ok\" != 1 ]; then
-           echo 'ERROR: {{.LIMA_START_TIMEOUT_SEC}}s 内 {{.SAKAMOTO_BRIDGE_IP}}:22 未就绪'
-           tail -100 /tmp/lima-start-{{.SAKAMOTO_VM}}.log || true
+           echo 'ERROR: {{.LIMA_START_TIMEOUT_SEC}}s 内 ${bridge_ip}:22 未就绪'
+           tail -100 /tmp/lima-start-${vm}.log || true
            kill \$start_pid 2>/dev/null || true
            exit 1
          fi
-         if [ ! -f /tmp/lima-start-{{.SAKAMOTO_VM}}.exit ]; then
+         if [ ! -f /tmp/lima-start-${vm}.exit ]; then
            kill \$start_pid 2>/dev/null || true
          fi
          limactl list
         "
-      echo "✓ VM 已启动（{{.SAKAMOTO_BRIDGE_IP}}:22 可达）"
+      echo "✓ VM 已启动（${bridge_ip}:22 可达）"
 
-  status:
-    silent: true
-    desc: "查看 sakamoto-k8s VM 状态"
-    cmd: |
-      ssh {{.SAKAMOTO_HOST}} "limactl list"
-      echo "--- bridge ---"
-      ping -c 1 -W 2 {{.SAKAMOTO_BRIDGE_IP}} >/dev/null 2>&1 && echo "{{.SAKAMOTO_BRIDGE_IP}} ping ok" || echo "{{.SAKAMOTO_BRIDGE_IP}} ping FAIL"
-
-  diff:
-    silent: true
-    desc: "对比运行中配置(旧)与仓库配置(新)的差异"
+  _status:
+    internal: true
     cmd: |
       set -euo pipefail
-      ssh {{.SAKAMOTO_HOST}} "cat ~/.lima/{{.SAKAMOTO_VM}}/lima.yaml" > /tmp/sakamoto-lima.yaml
+      host="$({{.INV}} {{.HOST_NAME}})"
+      vm="{{.VM_NAME}}"
+      bridge_ip="$(ansible-inventory -i "{{.K8S_INV}}" --host "${vm}" | jq -re .ansible_host)"
+      ssh "${host}" "limactl list"
+      echo "--- bridge ---"
+      ping -c 1 -W 2 "${bridge_ip}" >/dev/null 2>&1 && echo "${bridge_ip} ping ok" || echo "${bridge_ip} ping FAIL"
+
+  _diff:
+    internal: true
+    vars:
+      CONFIG_FILE: "{{.CONFIG_FILE}}"
+    cmd: |
+      set -euo pipefail
+      host="$({{.INV}} {{.HOST_NAME}})"
+      vm="{{.VM_NAME}}"
+      ssh "${host}" "cat ~/.lima/${vm}/lima.yaml" > /tmp/lima-vm-current.yaml
       if command -v delta >/dev/null 2>&1; then
-        git --no-pager diff --no-index --color=always -- /tmp/sakamoto-lima.yaml {{.SAKAMOTO_CONFIG}} \
+        git --no-pager diff --no-index --color=always -- /tmp/lima-vm-current.yaml {{.ROOT_DIR}}/docs/resource/lima/{{.CONFIG_FILE}} \
           | delta --paging=never \
           || true
       else
-        git --no-pager diff --no-index --color=always -- /tmp/sakamoto-lima.yaml {{.SAKAMOTO_CONFIG}} \
+        git --no-pager diff --no-index --color=always -- /tmp/lima-vm-current.yaml {{.ROOT_DIR}}/docs/resource/lima/{{.CONFIG_FILE}} \
           || true
       fi
+
+  status:all:
+    silent: true
+    desc: "查看全部 Lima 宿主与实例状态"
+    cmd: |
+      set -euo pipefail
+      for entry in {{.LIMA_SAKAMOTO_HOST_NAME}}:{{.LIMA_SAKAMOTO_VM_NAME}} {{.LIMA_YUUKO_HOST_NAME}}:{{.LIMA_YUUKO_VM_NAME}}; do
+        host_name="${entry%%:*}"
+        vm_name="${entry##*:}"
+        echo "=== ${vm_name} @ ${host_name} ==="
+        host="$({{.INV}} "${host_name}")"
+        bridge_ip="$(ansible-inventory -i "{{.K8S_INV}}" --host "${vm_name}" 2>/dev/null | jq -re .ansible_host 2>/dev/null || echo unreachable)"
+        ssh -o ConnectTimeout=5 "${host}" "limactl list | grep -E 'NAME|^${vm_name}'" || echo "(宿主不可达)"
+        if [ "${bridge_ip}" != "unreachable" ]; then
+          ping -c 1 -W 2 "${bridge_ip}" >/dev/null 2>&1 && echo "bridge ${bridge_ip} ok" || echo "bridge ${bridge_ip} FAIL"
+        fi
+      done
