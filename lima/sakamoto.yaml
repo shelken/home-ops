@@ -76,9 +76,11 @@ provision:
   - mode: system
     script: |
       #!/bin/bash
-      # 网络由 Ansible setup-dns.yaml 统一管理（50-node-network.yaml）。
-      # 这里只清理 cloud-init / Lima 历史遗留的 netplan，避免与 Ansible 冲突。
-      rm -f /etc/netplan/99-eth1.yaml /etc/netplan/90-eth1.yaml /etc/netplan/50-cloud-init.yaml
+      # 只清理 Lima 自己的历史遗留静态配置。
+      # 不准删 50-cloud-init.yaml：那是 Lima/cloud-init 生成的 eth0/eth1 寻址基线，
+      # 删除后 guest 所有网口失去 DHCP，Ansible 尚未接管前节点彻底失联。
+      # 网络最终由 Ansible 的 50-node-network.yaml 接管。
+      rm -f /etc/netplan/99-eth1.yaml /etc/netplan/90-eth1.yaml
       netplan apply || true
       # Lima cidata 20-rootless-base.sh 无条件 loginctl enable-linger，
       # 但本机 k3s 用 root containerd，不需要 rootless user manager 常驻。
