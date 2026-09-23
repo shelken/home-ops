@@ -6,3 +6,4 @@ nvidia_gpu: true
 k3s_node_labels:
   - "intel.feature.node.kubernetes.io/gpu=true"
   - "nvidia.com/gpu.present=true"
+  - "node.longhorn.io/create-default-disk=true"

@@ -1,6 +1,6 @@
 # lima
 
-[sakamoto 配置文件](/docs/resource/lima/sakamoto.yaml)
+[sakamoto 配置文件](/lima/sakamoto.yaml)
 
 ## 网络
 

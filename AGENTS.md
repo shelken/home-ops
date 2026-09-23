@@ -48,13 +48,15 @@ home-ops 是使用 Flux 管理 Kubernetes 集群与集群外服务的 GitOps 配
 - `scripts/`: 可重复运行的运维与维护脚本
 - `tests/`: 配置和脚本测试
 - `postmortems/`: 已解决复杂问题的尸检报告
-- `docs/resource/`: Lima 等基础设施资源配置
+- `lima/`: Lima 实例配置，由 `.taskfile/lima.yaml` 下发到宿主
 
 > **注意**: 发现路径或组件状态变化时，同步检查本索引和 `docs/ARCHITECTURE.md`。
 
 ### Lima VM 配置文件
 
-- `docs/resource/lima/sakamoto.yaml` - sakamoto-k8s 配置
+- `lima/sakamoto.yaml` - sakamoto-k8s 配置
+- `lima/yuuko.yaml` - yuuko-k8s 配置
+- `lima/recovery.yaml` - 单次恢复群晖磁盘数据用
 
 ## 项目约定
 
