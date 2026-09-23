@@ -129,8 +129,13 @@ tasks:
          limactl disk unlock longhorn || true
 
          # 2) 后台 start（可能卡在内部 SSH 探测）
-         rm -f /tmp/lima-start-${vm}.log /tmp/lima-start-${vm}.exit
-         ( limactl start --tty=false ${vm} > /tmp/lima-start-${vm}.log 2>&1
+         # 宿主的 rm 可能是 home-manager 包成的 trash，删不存在的文件会返回非 0，
+         # 配合 set -e 会中止整个脚本，故容错
+         rm -f /tmp/lima-start-${vm}.log /tmp/lima-start-${vm}.exit || true
+         # 子 shell 内关掉 errexit：否则 limactl start 失败会让子 shell 立刻退出，
+         # 下一行的退出码永远写不出来，轮询只能空等到超时
+         ( set +e
+           limactl start --tty=false ${vm} > /tmp/lima-start-${vm}.log 2>&1
            echo \$? > /tmp/lima-start-${vm}.exit
          ) &
          start_pid=\$!
@@ -143,7 +148,7 @@ tasks:
              ok=1
              break
            fi
-           # start 进程已退出且非 0 → 直接失败
+           # start 已结束且非 0 → 立即失败，不再空等
            if [ -f /tmp/lima-start-${vm}.exit ]; then
              code=\$(cat /tmp/lima-start-${vm}.exit)
              if [ \"\$code\" != 0 ]; then
@@ -152,6 +157,15 @@ tasks:
                exit \"\$code\"
              fi
              # exit 0 但桥接未通：继续等，不立刻成功
+           elif ! kill -0 \$start_pid 2>/dev/null; then
+             # 进程已消失但没留下退出码 → 同样按失败处理
+             echo 'limactl start 进程已退出，且未写出退出码:'
+             tail -80 /tmp/lima-start-${vm}.log || true
+             exit 1
+           fi
+           # 每 5 秒报一次进度，避免长时间静默
+           if [ \$(( i % 5 )) -eq 0 ]; then
+             echo \"  等待 ${vm} 桥接就绪 \${i}/{{.LIMA_START_TIMEOUT_SEC}}s\"
            fi
            sleep 1
          done
@@ -194,8 +208,11 @@ tasks:
       ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=40 "${host}" \
         "set -euo pipefail
          limactl disk unlock longhorn || true
-         rm -f /tmp/lima-start-${vm}.log /tmp/lima-start-${vm}.exit
-         ( limactl start --tty=false ${vm} > /tmp/lima-start-${vm}.log 2>&1
+         # 宿主 rm 可能是 home-manager 的 trash，删不存在的文件返回非 0，故容错
+         rm -f /tmp/lima-start-${vm}.log /tmp/lima-start-${vm}.exit || true
+         # 子 shell 内关掉 errexit，保证退出码一定被写出（详见 _restart 注释）
+         ( set +e
+           limactl start --tty=false ${vm} > /tmp/lima-start-${vm}.log 2>&1
            echo \$? > /tmp/lima-start-${vm}.exit
          ) &
          start_pid=\$!
@@ -213,6 +230,13 @@ tasks:
                tail -80 /tmp/lima-start-${vm}.log || true
                exit \"\$code\"
              fi
+           elif ! kill -0 \$start_pid 2>/dev/null; then
+             echo 'limactl start 进程已退出，且未写出退出码:'
+             tail -80 /tmp/lima-start-${vm}.log || true
+             exit 1
+           fi
+           if [ \$(( i % 5 )) -eq 0 ]; then
+             echo \"  等待 ${vm} 桥接就绪 \${i}/{{.LIMA_START_TIMEOUT_SEC}}s\"
            fi
            sleep 1
          done
