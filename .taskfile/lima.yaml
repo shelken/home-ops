@@ -17,7 +17,9 @@ version: "3"
 vars:
   INV: "{{.ROOT_DIR}}/.taskfile/scripts/inv.sh"
   K8S_INV: "{{.ROOT_DIR}}/ansible/inventory/hosts.ini"
-  LIMA_START_TIMEOUT_SEC: "90"
+  # 上限而非固定等待：桥接通或 start 退出即提前返回，只在 start 卡死时才吃满。
+  # 重建后首次启动要克隆镜像 + 建 40G 磁盘 + 跑完 cloud-init/provision，故给足。
+  LIMA_START_TIMEOUT_SEC: "300"
 
   # 每台 Lima 宿主机一组：HOST_NAME=others.ini endpoint 名，VM_NAME=实例名
   # CONFIG_FILE=仓库内该实例的 lima.yaml（文件名按宿主机命名，不等于 VM_NAME）
@@ -107,8 +109,13 @@ tasks:
     cmd: |
       set -euo pipefail
       host="$({{.INV}} {{.HOST_NAME}})"
-      echo "同步配置到 ${host}..."
-      scp {{.ROOT_DIR}}/lima/{{.CONFIG_FILE}} "${host}:~/.lima/{{.VM_NAME}}/lima.yaml"
+      vm="{{.VM_NAME}}"
+      # 幂等：实例目录可能不存在（重建流程先 limactl delete）。
+      # mkdir -p 对已存在目录是空操作；scp 覆盖写入。
+      # 不写死 ~ ：scp 走 SFTP 时服务端不保证展开 tilde，改为解析 $HOME。
+      dir="$(ssh "${host}" "mkdir -p \"\$HOME/.lima/${vm}\" && printf %s \"\$HOME/.lima/${vm}\"")"
+      echo "同步配置到 ${host}:${dir}/lima.yaml ..."
+      scp {{.ROOT_DIR}}/lima/{{.CONFIG_FILE}} "${host}:${dir}/lima.yaml"
       echo "✓ 配置同步完成"
 
   _restart:
