@@ -108,7 +108,7 @@ tasks:
       set -euo pipefail
       host="$({{.INV}} {{.HOST_NAME}})"
       echo "同步配置到 ${host}..."
-      scp {{.ROOT_DIR}}/docs/resource/lima/{{.CONFIG_FILE}} "${host}:~/.lima/{{.VM_NAME}}/lima.yaml"
+      scp {{.ROOT_DIR}}/lima/{{.CONFIG_FILE}} "${host}:~/.lima/{{.VM_NAME}}/lima.yaml"
       echo "✓ 配置同步完成"
 
   _restart:
@@ -250,11 +250,11 @@ tasks:
       vm="{{.VM_NAME}}"
       ssh "${host}" "cat ~/.lima/${vm}/lima.yaml" > /tmp/lima-vm-current.yaml
       if command -v delta >/dev/null 2>&1; then
-        git --no-pager diff --no-index --color=always -- /tmp/lima-vm-current.yaml {{.ROOT_DIR}}/docs/resource/lima/{{.CONFIG_FILE}} \
+        git --no-pager diff --no-index --color=always -- /tmp/lima-vm-current.yaml {{.ROOT_DIR}}/lima/{{.CONFIG_FILE}} \
           | delta --paging=never \
           || true
       else
-        git --no-pager diff --no-index --color=always -- /tmp/lima-vm-current.yaml {{.ROOT_DIR}}/docs/resource/lima/{{.CONFIG_FILE}} \
+        git --no-pager diff --no-index --color=always -- /tmp/lima-vm-current.yaml {{.ROOT_DIR}}/lima/{{.CONFIG_FILE}} \
           || true
       fi
 

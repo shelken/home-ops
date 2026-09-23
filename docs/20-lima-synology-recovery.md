@@ -19,7 +19,7 @@ lima-switch status
 
 ## 配置文件
 
-`docs/resource/lima/recovery.yaml`
+`lima/recovery.yaml`
 
 ```yaml
 vmType: "vz"
