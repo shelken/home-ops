@@ -1,5 +1,7 @@
 ---
 k3s_control_node: true
+# Longhorn 默认盘标签：helmrelease 的 createDefaultDiskLabeledNodes=true 后，
+# 只有带该标签的节点会建默认盘。controller 节点有独立数据盘（/mnt/lima-longhorn）。
 # ref: https://docs.k3s.io/cli/server
 k3s_server:
   cluster-cidr: "10.42.0.0/16"
@@ -45,6 +47,8 @@ k3s_server:
       "allowed-unsafe-sysctls=net.ipv6.*", # 给 tailscale 等使用
     ] # 镜像回收
   node-ip: "{{ ansible_host }}"
+  node-label:
+    - "node.longhorn.io/create-default-disk=true"
   secrets-encryption: true
   service-cidr: "10.43.0.0/16"
   tls-san:

@@ -31,6 +31,10 @@ spec:
       defaultDataLocality: best-effort
       defaultDataPath: /mnt/lima-longhorn # 默认是 /var/lib/longhorn
       defaultReplicaCount: "1"
+      # 仅在带 node.longhorn.io/create-default-disk=true 标签的节点建默认盘。
+      # 无独立数据盘的节点（如 yuuko-k8s）不带标签，避免默认盘落到 40G 根盘。
+      # 已在用节点不受影响：该设置只作用于节点首次被发现时的建盘动作。
+      createDefaultDiskLabeledNodes: "true"
       # 串行升级 Volume Engine，限制升级期间的额外 CPU、内存和 InstanceManager 开销。
       # attached 卷完成 live upgrade 后仍需在维护窗口 detach 一次，旧 InstanceManager 才能自动回收。
       concurrentAutomaticEngineUpgradePerNodeLimit: "1"
