@@ -21,6 +21,12 @@ graph TB
         end
     end
 
+    subgraph YUUKO["yuuko (Mac mini)"]
+        subgraph LIMA2["Lima VM"]
+            WORKER2["k3s worker<br/>yuuko-k8s"]
+        end
+    end
+
     VPS["VPS"]
 ```
 
@@ -37,6 +43,7 @@ graph LR
 
         subgraph VLAN6["VLAN 6 · 主内网<br/>192.168.6.0/24"]
             SAKAMOTO["sakamoto<br/>192.168.6.144"]
+            YUUKO_HOST["yuuko<br/>192.168.6.10"]
             PVE_NODE["PVE<br/>192.168.6.213"]
         end
 
@@ -48,6 +55,7 @@ graph LR
     subgraph K8S["k3s 集群"]
         CP["sakamoto-k8s<br/>192.168.6.80"]
         WORKER["homelab-1<br/>192.168.6.110"]
+        WORKER2["yuuko-k8s<br/>192.168.6.81"]
 
         subgraph LBIPAM["Cilium LB IPAM<br/>192.168.69.0/24"]
             K8SGW["k8s-gateway<br/>192.168.69.41"]
@@ -65,10 +73,13 @@ graph LR
     CP -->|"default gateway"| TVBox
     WORKER -->|"default gateway"| TVBox
     Router <--> SAKAMOTO
+    Router <--> YUUKO_HOST
     Router <--> PVE_NODE
     Router <-->|"eBGP"| CP
     Router <-->|"eBGP"| WORKER
+    Router <-->|"eBGP"| WORKER2
     SAKAMOTO --- CP
+    YUUKO_HOST --- WORKER2
     PVE_NODE --- WORKER
     CP <-->|"LAN"| WORKER
     IOT -->|"Multus"| CP
@@ -84,9 +95,10 @@ graph LR
 | TVBox ↔ router-mine | LAN (VLAN 6) | TVBox 是旁路由；自身默认路由仍指向 router-mine |
 | sakamoto ↔ router-mine | LAN (VLAN 6) | 192.168.6.0/24 |
 | PVE ↔ router-mine | LAN (VLAN 6) | 192.168.6.0/24 |
+| yuuko ↔ router-mine | LAN (VLAN 6) | 192.168.6.0/24，宿主有线桥接 |
 | IoT 设备 ↔ router-mine | LAN (VLAN 50) | 192.168.50.0/24 |
 | IoT 设备 → k3s pods | Multus CNI | VLAN 50 接入集群 |
-| sakamoto-k8s ↔ homelab-1 | LAN (VLAN 6) | k3s 节点间通信 |
+| sakamoto-k8s ↔ homelab-1 / yuuko-k8s | LAN (VLAN 6) | k3s 节点间通信 |
 | router-mine ↔ k3s 节点 | eBGP | Cilium 向 router-mine 通告 PodCIDR 和 LoadBalancerIP |
 | Cilium LB IPAM | 192.168.69.0/24 | k8s-gateway: 192.168.69.41；envoy-external: 192.168.69.45；envoy-internal: 192.168.69.46 |
 | VPS ↔ sakamoto-k8s | Tailscale | 100.97.0.0/16，VPS 通过 Tailscale 直连集群 subnet router |
@@ -102,6 +114,7 @@ graph TB
     subgraph K3S["k3s 集群 (Flux 编排)"]
         NODE_SAKA["sakamoto-k8s · control-plane"]
         NODE_H1["homelab-1 · worker"]
+        NODE_YUUKO["yuuko-k8s · worker"]
     end
 
     subgraph COMPOSE_SAKA["sakamoto · Docker Compose"]
