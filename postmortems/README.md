@@ -17,3 +17,5 @@
 - [015 · netplan file conflict disrupts control plane](./015-netplan-file-conflict-disrupts-control-plane.md)
 - [016 · cpa gatus docker mtu tailscale](./016-cpa-gatus-docker-mtu-tailscale.md)
 - [019 · lima dirty disk mkfs destroys longhorn](./019-lima-dirty-disk-mkfs-destroys-longhorn.md)
+- [020 · helmrelease retries exceeded stalled cascade](./020-helmrelease-retries-exceeded-stalled-cascade.md)
+- [021 · etcd arg duration string crashloop](./021-etcd-arg-duration-string-crashloop.md)
