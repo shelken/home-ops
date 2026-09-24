@@ -31,3 +31,13 @@ spec:
       requests:
         cpu: 10m
         memory: 50Mi
+    # 上游 Giantswarm 0.21.0 OCI index 虽然声明了 arm64，但其构建 Makefile.gen.go.mk 存在缺陷，
+    # 容器内部打包的实际二进制依然是 x86-64 (amd64)，在 arm64 节点执行报 exec format error。
+    # 官方 Issue #497 仍为 OPEN 状态。在此缺陷修复前，必须锁定仅调度至 amd64 节点。
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values: ["amd64"]
