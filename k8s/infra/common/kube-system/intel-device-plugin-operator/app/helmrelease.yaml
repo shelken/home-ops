@@ -49,8 +49,12 @@ spec:
               kind: MutatingWebhookConfiguration
               name: inteldeviceplugins-mutating-webhook-configuration
             patch: |
-              $patch: delete
               apiVersion: admissionregistration.k8s.io/v1
               kind: MutatingWebhookConfiguration
               metadata:
                 name: inteldeviceplugins-mutating-webhook-configuration
+              webhooks:
+                - name: fpga.mutator.webhooks.intel.com
+                  $patch: delete
+                - name: sgx.mutator.webhooks.intel.com
+                  $patch: delete
