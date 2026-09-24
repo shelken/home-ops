@@ -141,9 +141,10 @@ spec:
         resources:
           requests:
             cpu: 300m
-            memory: 1Gi
+            memory: 1.5Gi
           limits:
-            memory: 8Gi
+            # prompp 时代的历史残留已清理（7d 实测峰值 1690Mi），回落到常规水位
+            memory: 3Gi
         storageSpec:
           volumeClaimTemplate:
             spec:
