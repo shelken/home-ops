@@ -1,0 +1,27 @@
+---
+- name: 配置 journald 与日志限制
+  hosts: k8s
+  become: true
+  gather_facts: false
+  tasks:
+    - name: 创建 journald.conf.d 目录
+      ansible.builtin.file:
+        path: /etc/systemd/journald.conf.d
+        state: directory
+        mode: "0755"
+
+    - name: 写入 journald 限制配置（封顶 1G 且关闭向 syslog 双写）
+      ansible.builtin.copy:
+        dest: /etc/systemd/journald.conf.d/99-journald-limits.conf
+        content: |
+          [Journal]
+          SystemMaxUse=1G
+          ForwardToSyslog=no
+        mode: "0644"
+      notify: restart systemd-journald
+
+  handlers:
+    - name: restart systemd-journald
+      ansible.builtin.service:
+        name: systemd-journald
+        state: restarted

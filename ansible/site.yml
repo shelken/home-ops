@@ -33,6 +33,7 @@
 - import_playbook: playbooks/setup-time.yaml
 - import_playbook: playbooks/setup-sysctl.yaml
 - import_playbook: playbooks/setup-network.yaml
+- import_playbook: playbooks/setup-journald.yaml
 
 # - import_playbook: playbooks/install-nvidia.yaml
 
