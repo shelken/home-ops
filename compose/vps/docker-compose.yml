@@ -301,7 +301,7 @@ services:
         max-file: "3"
 
   derp:
-    image: fredliang/derper:v1.102.3
+    image: fredliang/derper:v1.102.4
     container_name: derp
     network_mode: host
     restart: always
