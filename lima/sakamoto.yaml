@@ -89,6 +89,21 @@ provision:
       # 关闭 linger 避免 systemd 255 mountinfo churn 堆积内存（见 postmortem 015、issue #1301）。
       loginctl disable-linger shelken 2>/dev/null || true
 
+      # 关闭 mDNS（issue #1471）：Lima cidata 的 06-enable-mdns-on-systemd.sh
+      # 每次开机对 resolvectl status 列出的**所有**网卡执行 resolvectl mdns <iface> yes，
+      # 而本 guest 有 30 个 link（含 cilium_host / lxc* / veth / VLAN 子接口）。
+      # guest 在本网段宣告 <hostname>.local 后，路由器 Avahi reflector
+      # （跨 br-lan.6 <-> br-lan.50，check-response-ttl=no）会把它反射回同一广播域，
+      # systemd-resolved 收到指向自身 IP 的记录后误判名字被占用，不断改名重播，
+      # 实测约 40 条冲突日志/10s，计数器已累积到十万级。
+      # systemd 的 mDNS 生效值 = min(per-link, global)，per-link 压不过 Lima 每次开机
+      # 的重放，故只有把全局位置为 no 才能从 AND 门源头关停。
+      # 本 provision 在 boot.Linux/*.sh 之后执行，写入后重启 resolved 即生效。
+      # 节点间与集群内通信用 IP 与 *.svc.cluster.local，不依赖 mDNS。
+      install -d -m 755 /etc/systemd/resolved.conf.d
+      printf '[Resolve]\nMulticastDNS=no\n' > /etc/systemd/resolved.conf.d/99-disable-mdns.conf
+      systemctl restart systemd-resolved 2>/dev/null || true
+
       # 注入 mio 的公钥。
       # 不能用 Lima 的 ssh.loadDotSSHPubKeys：它注入的是**宿主**的 ~/.ssh/*.pub，
       # 而宿主密钥与 mio 不是同一把，Ansible/ssh 从 mio 直连 guest 仍会被拒。
