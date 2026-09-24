@@ -2,8 +2,9 @@
 k3s_registration_address: 192.168.6.80
 
 # 网络
-k8s_lan_iface: eth1
-k8s_lan_route_metric: 100
+# Lima 节点的 LAN 接口与 route-metric 由 Lima 自身管理（见 docs/adr/0001-lima-network-ownership.md）：
+#   lima/<host>.yaml 的 networks[].interface/metric → cloud-init 的 50-cloud-init.yaml
+# 这里只保留 Ansible 仍负责的 VLAN 变量。
 k8s_vlan_parent: eth1
 k8s_vlan_ids:
   - 50

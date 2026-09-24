@@ -1,37 +1,11 @@
 ---
-# LAN 配置 — 按虚拟化类型自动推断
-# PVE KVM: cloud-init 原生管网（ipconfig → eth1）
-# Lima VZ: Ansible 写 netplan（route-metric 精细控制）
-
-- name: "Lima: 禁用 cloud-init 网络"
-  ansible.builtin.copy:
-    dest: /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
-    mode: "0644"
-    content: |
-      network: {config: disabled}
-  when: not is_pve
-  notify: Apply netplan
-
-- name: "Lima: 下发 netplan"
-  ansible.builtin.template:
-    src: templates/50-node-network.yaml.j2
-    dest: /etc/netplan/50-node-network.yaml
-    mode: "0600"
-  when: not is_pve
-  notify: Apply netplan
-
-- name: "Lima: 清理旧 netplan 残留"
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: absent
-  loop:
-    - /etc/netplan/50-cloud-init.yaml
-    - /etc/netplan/50-eth1-dhcp.yaml
-    - /etc/netplan/50-k8s-lan.yaml
-    - /etc/netplan/90-eth1.yaml
-    - /etc/netplan/90-k8s-lan.yaml
-  when: not is_pve
-  notify: Apply netplan
+# LAN 配置 — 只有 PVE 节点需要 Ansible 介入
+#
+# Lima 节点的 ethernets 配置完全归 Lima 与 cloud-init 管：
+#   - 接口命名：cloud-init 的 50-cloud-init.yaml（match macaddress + set-name eth0/eth1）
+#   - 寻址与 route-metric：Lima networks[].metric 生成（bridged=100，内置 SLIRP=200）
+# Ansible 只做 DNS（k8s-dns.yaml）与 VLAN（k8s-vlan.yaml），不碰 Lima 的 ethernets。
+# 理由见 docs/adr/0001-lima-network-ownership.md。
 
 - name: "PVE: 恢复 cloud-init 网络"
   ansible.builtin.file:

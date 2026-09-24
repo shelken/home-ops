@@ -2,15 +2,11 @@
 # K8s 节点网络（LAN / DNS / VLAN 统一入口）
 #
 # 平台分工：
-#   Lima — Ansible 写 netplan（route-metric 精细控制），cloud-init 网络禁用
+#   Lima — ethernets 全归 Lima/cloud-init（命名 + 寻址 + metric），Ansible 只做 DNS 与 VLAN
 #   PVE  — cloud-init 原生管网（ipconfig → name: eth1），Ansible 不写 netplan
 #   全部 — DNS 策略（systemd-networkd drop-in）+ VLAN（netplan）
 #
-# 变量来源：group_vars/k8s.yml + host_vars/<node>.yaml
-#   k8s_lan_iface       — LAN 接口名（group_vars，默认 eth1）
-#   k8s_lan_route_metric — LAN 路由优先级（group_vars，默认 100）
-#   k8s_mgmt_iface      — 管理口名（Lima host_vars，如 eth0）
-#   k8s_mgmt_route_metric — 管理口路由优先级（Lima host_vars，如 200）
+# 变量来源：group_vars/k8s/all.yml + host_vars/<node>.yaml
 #   k8s_vlan_parent     — VLAN 父接口（group_vars，默认 eth1）
 #   k8s_vlan_ids        — VLAN ID 列表（group_vars，默认 [50, 70]）
 #
