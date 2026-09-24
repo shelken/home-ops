@@ -22,8 +22,11 @@ k3s_server:
   etcd-arg:
     - "election-timeout=5000"
     - "heartbeat-interval=500"
-    - "warning-apply-duration=1s"
-    - "warning-unary-request-duration=1s"
+    # k3s ToConfigFile 经 yaml.v2 写入 etcd 配置文件，Duration 字段被序列化为
+    # 字符串导致 etcd JSON 反序列化失败（fatal: cannot unmarshal string into
+    # time.Duration），必须用纳秒整数；命令行 flag 形式 "=1s" 在此链路不可用
+    - "warning-apply-duration=1000000000"
+    - "warning-unary-request-duration=1000000000"
   etcd-disable-snapshots: true
   etcd-expose-metrics: true
   flannel-backend: "none" # quote
