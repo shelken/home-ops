@@ -1,7 +1,7 @@
 # BGP 路由配置 (BIRD)
 
-> **状态：已断开**。router-home 和 yuuko-k8s 现已离线，BGP 对等已注释。
-> 本文档保留作为历史参考。
+> **状态：本地站点正常**（sakamoto-k8s / homelab-1 / yuuko-k8s 与 router-mine eBGP）。
+> 跨地域部分（router-home 经 ZeroTier 中继）已断开，第 4 节起保留作历史参考。
 
 本文档记录了主路由器 (`router-mine`) 和远程路由器 (`router-home`) 的 BGP 配置，用于实现跨地域 Pod 网络互通。
 
@@ -53,13 +53,38 @@ opkg install bird2
 
 ## 配置文件
 
+配置文件放在仓库顶层 `router/`，与 `.taskfile/router.yaml` 的 `bgp:diff` / `bgp:sync` 对应，属工具配置而非文档。
+
 ### router-mine (本地路由器)
 
-[/etc/bird.conf](./resource/mine.conf)
+[/etc/bird.conf](../../router/mine.conf)
 
-### router-home (远程路由器)
+当前邻居（逐节点显式声明，无网段接受）：
 
-[/etc/bird.conf](./resource/home.conf)
+| 节点 | IP | ASN |
+| :--- | :--- | :--- |
+| sakamoto_k8s | 192.168.6.80 | 64514 |
+| homelab_1 | 192.168.6.110 | 64514 |
+| yuuko_k8s | 192.168.6.81 | 64514 |
+
+### 下发配置
+
+```bash
+# 对比路由器运行中的配置与仓库版本（只读）
+task router:bgp:diff
+
+# 展示差异 → 确认 → 校验 → 热加载
+task router:bgp:sync
+
+# 跳过确认（供脚本/agent 调用）
+task --yes router:bgp:sync
+```
+
+`bgp:sync` 先跑 `bird -p` 校验新配置，通过才替换 `/etc/bird.conf` 并执行 `birdc configure`（软重配，不中断既有会话）。校验失败则原文件不动。
+
+### router-home (远程路由器，已断开)
+
+[/etc/bird.conf](../../router/home.conf)
 
 
 ## 服务管理
