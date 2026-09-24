@@ -22,6 +22,7 @@ k3s_server:
   etcd-arg:
     - "election-timeout=5000"
     - "heartbeat-interval=500"
+    - "experimental-warning-apply-duration=1s"
   etcd-disable-snapshots: true
   etcd-expose-metrics: true
   flannel-backend: "none" # quote
