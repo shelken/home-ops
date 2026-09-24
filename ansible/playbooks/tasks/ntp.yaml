@@ -21,6 +21,17 @@
     backup: yes
   notify: restart chrony
 
+- name: 大偏移任何时候立即步进而非慢速 slew
+  # Lima VM 随 macOS 睡眠暂停后恢复，以及 RTC 异常启动（曾出现 2121 年），
+  # 时钟可瞬间偏差巨大；Ubuntu 默认 makestep 1 3 只覆盖启动后前 3 次更新。
+  # Go 运行时定时器走单调钟，步进墙钟不影响 etcd 选主（election-timeout 已上调至 5s）
+  ansible.builtin.lineinfile:
+    path: /etc/chrony/chrony.conf
+    regexp: '^makestep .*$'
+    line: 'makestep 1 -1'
+    backup: yes
+  notify: restart chrony
+
 - name: Ensure chrony is enabled and started
   ansible.builtin.service:
     name: chrony
