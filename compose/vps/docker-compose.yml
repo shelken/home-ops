@@ -378,7 +378,7 @@ services:
   #     replicas: 1
 
   anytls:
-    image: ghcr.io/sagernet/sing-box:v1.14.0
+    image: ghcr.io/sagernet/sing-box:v1.14.2
     container_name: anytls
     network_mode: host
     restart: always
