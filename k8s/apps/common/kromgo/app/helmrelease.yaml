@@ -55,6 +55,17 @@ spec:
               limits:
                 memory: 100Mi
     defaultPodOptions:
+      # 落点偏好：优先 node-type=lightweight 弹性节点（yuuko，可停机），
+      # 无该类节点在线时正常调度到常驻节点（echo 先例同款结构）
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: node-type
+                    operator: In
+                    values: [lightweight]
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
