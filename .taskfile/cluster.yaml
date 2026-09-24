@@ -15,7 +15,7 @@ tasks:
     silent: true
     desc: "查看 Lima / PVE worker / k3s nodes"
     cmds:
-      - task: :lima:status
+      - task: :lima:status:all
       - |
         set -euo pipefail
         echo
@@ -31,7 +31,7 @@ tasks:
             echo "${node}  ip=${ip}  vmid=${vmid}  $(ssh "${pve}" "qm status ${vmid}")"
           fi
         done < <(ansible-inventory -i "{{.INV_K8S}}" --list \
-          | jq -r '._meta.hostvars as $h | .workers.hosts[]? // empty | "\(.)\t\($h[.].ansible_host)"')
+          | jq -r '._meta.hostvars as $h | .workers.hosts[]? // empty | select(($h[.].lima_host // false) | not) | "\(.)\t\($h[.].ansible_host)"')
         echo
         echo "=== k3s nodes ==="
         kubectl get nodes -o wide --request-timeout=5s 2>/dev/null || echo "(API 不可达)"

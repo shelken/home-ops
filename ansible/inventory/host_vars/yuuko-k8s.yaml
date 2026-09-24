@@ -1,7 +1,9 @@
-# Remote node at 192.168.0.x network (connected via ZeroTier VPN)
-# Lima VM on M1 Mac Mini (yuuko)
+# Lima VM on M1 Mac Mini (yuuko), on the same LAN as the other k3s hosts
+# 桥接 MAC 52:55:55:37:34:57 在路由器上做了 DHCP 保留 → 192.168.6.81
+# lima_host: cluster-start/stop 按此走 Lima 分支而非 PVE qm
+lima_host: yuuko
 
 remote_node: false
 
-# 远程节点同样不写死 DNS，只拒绝 IPv6 DNS。
+# 本地节点沿用集群 registry 配置，只拒绝 IPv6 DNS。
 setup_dns: true
