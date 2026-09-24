@@ -9,7 +9,6 @@
       matchPackageNames: [
         "/rook/",
         "/homarr-labs/",
-        "/netbirdio/",
 
         "/toeverything/affine/", // affine
         "/cloudflare/cloudflared/", // cloudflare-tunnel

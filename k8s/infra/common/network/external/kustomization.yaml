@@ -7,4 +7,3 @@ resources:
   - caddy-external/ks.yaml
   - ss-rust/ks.yaml
   # - cloudflare-tunnel/ks.yaml
-  # - netbird/ks.yaml

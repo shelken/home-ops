@@ -30,7 +30,6 @@ macvlan 无法与宿主机的父接口通信，若 Pod IP 与节点在同一网�
 - tailscale (subnet-router, node-vps)
 - qbittorrent
 - caddy-external
-- netbird-router
 
 ### multus-iot
 
