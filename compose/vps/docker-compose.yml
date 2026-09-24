@@ -273,6 +273,33 @@ services:
     deploy:
       replicas: 1
 
+  sb-sync-server:
+    image: ghcr.io/shelken/proxy/sb-sync-server:v0.5.3
+    container_name: sb-sync-server
+    networks:
+      - homelab
+    restart: always
+    labels:
+      - homepage.group=VPS
+      - homepage.name=sb-sync
+      - homepage.icon=docker-moby.svg
+      - homepage.href=https://subs.${MAIN_DOMAIN}/healthz
+      - homepage.description=配置交付服务
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      TZ: Asia/Shanghai
+      PORT: 8080
+      SERVER_PRIVATE_KEY: ${SB_SYNC_SERVER_PRIVATE_KEY}
+    deploy:
+      replicas: 1
+    logging:
+      options:
+        max-size: "80m"
+        max-file: "3"
+
   derp:
     image: fredliang/derper:v1.102.3
     container_name: derp

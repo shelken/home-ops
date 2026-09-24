@@ -37,3 +37,6 @@ OPENLIST_ADMIN_USERNAME=azure://shelken-homelab/compose-vps/OPENLIST_ADMIN_USERN
 OPENLIST_ADMIN_PASSWORD=azure://shelken-homelab/compose-vps/OPENLIST_ADMIN_PASSWORD
 OPENLIST_S3_ACCESS_KEY_ID=azure://shelken-homelab/compose-vps/OPENLIST_S3_ACCESS_KEY_ID
 OPENLIST_S3_SECRET_ACCESS_KEY=azure://shelken-homelab/compose-vps/OPENLIST_S3_SECRET_ACCESS_KEY
+
+# ==================== sb-sync ====================
+SB_SYNC_SERVER_PRIVATE_KEY=azure://shelken-homelab/compose-vps/SB_SYNC_SERVER_PRIVATE_KEY

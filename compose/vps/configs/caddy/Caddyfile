@@ -133,6 +133,7 @@
     appsec
 
     import service_docker sub       sub-converter 25500 robots_ban
+    import service_docker subs      sb-sync-server 8080  robots_ban
     import service2       derp      to_host       8666  empty
     import service_docker dhp       dhp           5000 robots_ban
     import service_docker vdns      mosdns        9053 robots_ban

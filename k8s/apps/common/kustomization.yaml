@@ -33,7 +33,6 @@ resources:
   - qbittorrent/ks.yaml # 没流量了
   - qui/ks.yaml
   - plex/ks.yaml
-  - sb-sync-server/ks.yaml
   # - seafile/ks.yaml
   - shlink/ks.yaml
   # - slash/ks.yaml
