@@ -32,6 +32,15 @@ spec:
             env:
               TZ: ${TIMEZONE}
               MANAGEMENT_STATIC_PATH: &management /CLIProxyAPI/management
+              MANAGEMENT_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: cli-proxy-api-secret
+                    key: MANAGEMENT_PASSWORD
+            lifecycle:
+              postStart:
+                exec:
+                  command: ["/scripts/plugin-sync.pl"]
             # 注释为了不想在日志中出现大量这个接口
             # probes:
             #   liveness: &probes
@@ -145,6 +154,15 @@ spec:
               - identifier: app
                 port: *port
     persistence:
+      scripts:
+        type: configMap
+        name: cli-proxy-api-scripts
+        defaultMode: 0755
+        advancedMounts:
+          cli-proxy-api:
+            app:
+              - path: /scripts
+                readOnly: true
       auths:
         existingClaim: cli-proxy-api
         advancedMounts:

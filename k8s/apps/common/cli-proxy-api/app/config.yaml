@@ -64,21 +64,19 @@ plugins:
       store:
         # renovate: datasource=github-releases depName=shelken/cpa-codex-autoban
         version: 0.2.4
-    codexcomp:
-      enabled: true
-      store:
-        # renovate: datasource=github-releases depName=shelken/cpa-plugin-codexcomp
-        version: 0.1.4
+        source-url: https://raw.githubusercontent.com/shelken/cpa-plugins/main/registry.json
     qwenworkcn:
       enabled: true
       store:
         # renovate: datasource=github-releases depName=shelken/cpa-plugins extractVersion=^qwenworkcn/v(?<version>.+)$
         version: 0.1.5
+        source-url: https://raw.githubusercontent.com/shelken/cpa-plugins/main/registry.json
     workbuddy:
       enabled: true
       store:
         # renovate: datasource=github-releases depName=shelken/cpa-plugins extractVersion=^workbuddy/v(?<version>.+)$
         version: 0.2.6
+        source-url: https://raw.githubusercontent.com/shelken/cpa-plugins/main/registry.json
   store-sources:
     - https://raw.githubusercontent.com/shelken/cpa-plugins/main/registry.json
 # Proxy URL. Supports socks5/http/https protocols. Example: socks5://user:pass@192.168.1.1:1080/

@@ -11,3 +11,6 @@ configMapGenerator:
   - name: cli-proxy-api-config-tpl
     files:
       - config.yaml=./config.yaml
+  - name: cli-proxy-api-scripts
+    files:
+      - plugin-sync.pl=./resources/plugin-sync.pl
