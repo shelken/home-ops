@@ -5,8 +5,10 @@
 #   cd ansible
 #   ansible-playbook -i inventory/hosts.ini -i inventory/others.ini playbooks/cluster-start.yml
 #
-# 顺序: disk unlock → limactl start CP → 等 controllers k3s → qm start workers → 等 workers k3s
+# 顺序: disk unlock → limactl start CP → 等 controllers k3s → qm start PVE workers → limactl start Lima workers → 等全部 workers k3s
 # disk unlock: force stop / 崩溃后 in_use_by 锁可残留，不 unlock 则 start 失败
+#
+# Lima worker 识别：host_vars/<node>.yaml 带 lima_host（宿主名，在 others.ini endpoint 组）
 
 - name: Start control-plane Lima VM
   hosts: sakamoto
@@ -53,6 +55,17 @@
       retries: 60
       delay: 2
 
+- name: Collect Lima workers
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Build lima_workers (worker nodes whose host_vars define lima_host)
+      ansible.builtin.set_fact:
+        lima_workers: "{{ hostvars | dict2items
+          | selectattr('key', 'in', groups['workers'] | default([]))
+          | selectattr('value.lima_host', 'defined')
+          | map(attribute='key') | list }}"
+
 - name: Start worker VMs on PVE
   hosts: pve
   gather_facts: false
@@ -74,7 +87,37 @@
         qm start "${vmid}"
       args:
         executable: /bin/bash
-      loop: "{{ groups['workers'] | default([]) }}"
+      # Lima worker（host_vars 带 lima_host）由下一个 play 在其宿主上启动
+      loop: "{{ groups['workers'] | default([]) | difference(hostvars['localhost']['lima_workers'] | default([])) }}"
+      loop_control:
+        label: "{{ item }}"
+
+- name: Start Lima worker VMs on their hosts
+  hosts: endpoint
+  gather_facts: false
+  tasks:
+    - name: Start each Lima worker VM
+      ansible.builtin.shell: |
+        set -euo pipefail
+        vm="{{ item }}"
+        st="$(limactl list | awk -v vm="${vm}" '$1 == vm { print $2; exit }')"
+        if [ -z "${st}" ]; then
+          echo "ERROR: Lima instance ${vm} not found on $(hostname -s)" >&2
+          exit 1
+        fi
+        echo "{{ item }} ${st}"
+        if [ "${st}" = "Running" ]; then
+          echo "already running"
+          exit 0
+        fi
+        limactl start --tty=false "${vm}"
+      args:
+        executable: /bin/bash
+      # 本宿主上的 Lima 实例 = 所有 lima_worker 中 lima_host 指向本机的
+      loop: "{{ hostvars | dict2items
+                | selectattr('key', 'in', hostvars['localhost']['lima_workers'] | default([]))
+                | selectattr('value.lima_host', 'equalto', inventory_hostname)
+                | map(attribute='key') | list }}"
       loop_control:
         label: "{{ item }}"
 
