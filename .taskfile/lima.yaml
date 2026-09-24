@@ -135,7 +135,12 @@ tasks:
          fi
          limactl disk unlock longhorn || true
 
-         # 2) 后台 start（可能卡在内部 SSH 探测）
+         # 1.5) 等待宿主清理完成：优雅 stop 返回时旧 VZ XPC 服务与 socket_vmnet
+         # daemon 的释放有 1~2s 滞后，立即 start 会撞上窗口导致 VZ 创建失败
+         # （症状：首次 start 必失败，第二次成功；2026-09-24 实测）
+         sleep 5
+
+         # 2) 后台 start（可能卡在内部 SSH 探测），失败自动 force-stop 重试一次
          # 宿主的 rm 可能是 home-manager 包成的 trash，删不存在的文件会返回非 0，
          # 配合 set -e 会中止整个脚本，故容错
          rm -f /tmp/lima-start-${vm}.log /tmp/lima-start-${vm}.exit || true
@@ -146,6 +151,29 @@ tasks:
            echo \$? > /tmp/lima-start-${vm}.exit
          ) &
          start_pid=\$!
+
+         # 若 start 立刻失败（如清理竞态仍存在），force-stop 清理后重试一次
+         for w in \$(seq 1 10); do
+           [ -f /tmp/lima-start-${vm}.exit ] && break
+           kill -0 \$start_pid 2>/dev/null || break
+           sleep 1
+         done
+         if [ -f /tmp/lima-start-${vm}.exit ]; then
+           code=\$(cat /tmp/lima-start-${vm}.exit)
+           if [ \"\$code\" != 0 ]; then
+             echo \"WARN: limactl start 失败(exit=\$code)，force-stop 后重试一次\"
+             tail -20 /tmp/lima-start-${vm}.log || true
+             limactl stop --force ${vm} || true
+             limactl disk unlock longhorn || true
+             sleep 5
+             rm -f /tmp/lima-start-${vm}.log /tmp/lima-start-${vm}.exit || true
+             ( set +e
+               limactl start --tty=false ${vm} > /tmp/lima-start-${vm}.log 2>&1
+               echo \$? > /tmp/lima-start-${vm}.exit
+             ) &
+             start_pid=\$!
+           fi
+         fi
 
          # 3) 唯一成功条件：桥接 IP SSH 通
          ok=0

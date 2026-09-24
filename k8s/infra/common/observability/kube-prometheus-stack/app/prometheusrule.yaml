@@ -3,6 +3,52 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
+  name: node-health-rules
+spec:
+  groups:
+    - name: node-health.rules
+      rules:
+        # 2026-09-24 控制面 VM 宿主（macOS）内存压缩/换页风暴导致 etcd fsync
+        # 延迟飙至 26s，全集群控制器 leader election 失败集体重启。
+        # 宿主不在集群内无法直接观测，fsync 延迟是其最可靠的下游代理信号。
+        - alert: ControlPlaneEtcdWalFsyncSlow
+          expr: |
+            histogram_quantile(0.99, sum by(le, instance) (rate(etcd_disk_wal_fsync_duration_seconds_bucket{job="kube-etcd-nodes"}[5m]))) > 2
+          for: 2m
+          annotations:
+            summary: >-
+              etcd WAL fsync p99 on {{ $labels.instance }} 为 {{ $value | printf "%.2f" }}s；
+              疑似 VM 宿主内存压力或磁盘争用，控制器即将发生 leader election 失败
+          labels:
+            severity: warning
+        # VM 内存预算过紧时 guest 内 swap 开始消耗，是 OOM 与控制面卡顿前兆
+        - alert: ControlPlaneNodeSwapUsage
+          expr: |
+            (node_memory_SwapTotal_bytes - node_memory_SwapFree_bytes) / 1024 / 1024 > 256
+          for: 5m
+          annotations:
+            summary: >-
+              节点 {{ $labels.kubernetes_node }} swap 已使用 {{ $value | printf "%.0f" }}MiB；
+              节点内存预算过紧
+          labels:
+            severity: warning
+        # kubelet image GC 高水位阈值为 55%，超限且无法释放时意味着结构性磁盘不足
+        - alert: NodeImageFilesystemOverKubeletThreshold
+          expr: |
+            max by(kubernetes_node) (1 - node_filesystem_avail_bytes{kubernetes_node!="",fstype!~"tmpfs|nsfs|squashfs|overlay"} / node_filesystem_size_bytes{kubernetes_node!="",fstype!~"tmpfs|nsfs|squashfs|overlay"}) * 100 > 55
+          for: 15m
+          annotations:
+            summary: >-
+              节点 {{ $labels.kubernetes_node }} 根盘使用率 {{ $value | printf "%.1f" }}%
+              已超过 kubelet image GC 阈值 55%
+          labels:
+            severity: warning
+
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
   name: openwrt-rules
 spec:
   groups:

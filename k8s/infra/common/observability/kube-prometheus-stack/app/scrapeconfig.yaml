@@ -69,3 +69,23 @@ spec:
       labels:
         job: *name
   metricsPath: /metrics
+
+---
+# k3s 内嵌 etcd 并非 pod，chart 的 kubeEtcd ServiceMonitor 抓不到；
+# 唯一控制面节点 sakamoto-k8s 已开启 etcd-expose-metrics
+# （ansible/inventory/group_vars/controllers/main.yaml），指标暴露在 :2381，
+# 集群内 Pod 实测可达、无需认证
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/scrapeconfig_v1alpha1.json
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: &name kube-etcd-nodes
+spec:
+  staticConfigs:
+    - targets:
+        - 192.168.6.80:2381
+      labels:
+        job: *name
+        kubernetes_node: sakamoto-k8s
+  metricsPath: /metrics
+  scrapeInterval: 30s
