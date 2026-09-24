@@ -11,14 +11,19 @@
         mode: "0755"
 
     - name: 写入 journald 限制配置（封顶 1G 且关闭向 syslog 双写）
+      # 必须与 rsyslog 包自带的 /usr/lib/systemd/journald.conf.d/syslog.conf 同名：
+      # systemd drop-in 按文件名字典序解析、后者覆盖前者，"s" 排在 "9" 之后，
+      # 99-* 命名会被 vendor 的 ForwardToSyslog=yes 覆盖；
+      # 同名文件在 /etc 下则完全屏蔽 /usr/lib 版本
       ansible.builtin.copy:
-        dest: /etc/systemd/journald.conf.d/99-journald-limits.conf
+        dest: /etc/systemd/journald.conf.d/syslog.conf
         content: |
           [Journal]
           SystemMaxUse=1G
           ForwardToSyslog=no
         mode: "0644"
       notify: restart systemd-journald
+
 
   handlers:
     - name: restart systemd-journald
