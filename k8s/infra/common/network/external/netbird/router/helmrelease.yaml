@@ -68,9 +68,9 @@ spec:
               preference:
                 matchExpressions:
                   - key: kubernetes.io/hostname
-                    operator: NotIn
+                    operator: In
                     values:
-                      - sakamoto-k8s
+                      - homelab-1
       # securityContext:
       #   runAsNonRoot: false
       #   # runAsUser: 65534

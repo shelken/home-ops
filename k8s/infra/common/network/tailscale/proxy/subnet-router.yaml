@@ -47,9 +47,9 @@ spec:
               preference: # 必须包含 preference 字段
                 matchExpressions:
                   - key: kubernetes.io/hostname
-                    operator: NotIn
+                    operator: In
                     values:
-                      - sakamoto-k8s
+                      - homelab-1
       securityContext:
         sysctls:
           - name: net.ipv6.conf.eth1.accept_ra
