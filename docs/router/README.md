@@ -60,6 +60,15 @@ birdc show protocols
 ip route | grep 10.42
 ```
 
+## 配置下发
+
+路由器配置存放在仓库顶层 `router/`，由 `.taskfile/router.yaml` 下发：
+
+```bash
+task router:bgp:diff   # 对比路由器运行配置与仓库版本
+task router:bgp:sync   # 展示差异 → 确认 → 校验 → 热加载
+```
+
 ## 相关文档
 
 - [跨地域节点互联架构](../17-add-remote-node.md) - 完整的 BGP 全互联方案（含 Cilium 配置）

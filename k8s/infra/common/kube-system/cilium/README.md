@@ -1,32 +1,29 @@
 ## BGP Configuration
 
-> **状态：已断开**。router-home 和 yuuko-k8s 现已离线，BGP 对等已注释。
-> 本文档保留作为历史参考。
-
-```mermaid
-graph TD
-    subgraph "Remote Site (Home)"
-        R_Home[Router: Home<br/>LAN: 192.168.0.1<br/>ZT: 192.168.191.10<br/>AS: 64515]
-    end
-
-    subgraph "Local Site (Mine)"
-        R_Mine[Router: Mine<br/>LAN: 192.168.6.1<br/>ZT: 192.168.191.12<br/>AS: 64513]
-        Sakamoto[Node: sakamoto<br/>IP: 192.168.6.80<br/>AS: 64514]
-    end
-
-    %% Connections
-    Yuuko -- "eBGP (LAN)" --> R_Home
-    R_Home -- "eBGP (ZeroTier)" --> R_Mine
-    R_Mine -- "eBGP (LAN)" --> Sakamoto
-```
+> **状态：本地站点正常**（sakamoto-k8s / homelab-1 / yuuko-k8s 与 router-mine eBGP）。
+> 跨地域部分（router-home 经 ZeroTier 中继）已断开。
 
 ### router-mine (192.168.6.1)
 
-[/etc/bird.conf](../../../../../docs/router/resource/mine.conf)
+[/etc/bird.conf](../../../../../router/mine.conf)
 
-### router-home (192.168.191.10)
+逐节点显式 neighbor（无网段接受），节点：sakamoto-k8s / homelab-1 / yuuko-k8s。
 
-[/etc/bird.conf](../../../../../docs/router/resource/home.conf)
+```mermaid
+graph TD
+    R_Mine[Router: Mine<br/>LAN: 192.168.6.1<br/>AS: 64513]
+    Saka[Node: sakamoto-k8s<br/>192.168.6.80<br/>AS: 64514]
+    H1[Node: homelab-1<br/>192.168.6.110<br/>AS: 64514]
+    Yuuko[Node: yuuko-k8s<br/>192.168.6.81<br/>AS: 64514]
+
+    R_Mine -- "eBGP (LAN)" --> Saka
+    R_Mine -- "eBGP (LAN)" --> H1
+    R_Mine -- "eBGP (LAN)" --> Yuuko
+```
+
+### router-home (192.168.191.10，已断开)
+
+[/etc/bird.conf](../../../../../router/home.conf)
 
 ### Firewall Configuration
 

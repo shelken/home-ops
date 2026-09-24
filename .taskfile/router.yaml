@@ -2,13 +2,61 @@
 version: "3"
 
 vars:
-  # 仅 router 使用 → 不进 inv.sh
+  # bgp:diff / bgp:sync 复用 → 不进 inv.sh
   ROUTER_SSH:
     sh: |
       ansible-inventory -i {{.ROOT_DIR}}/ansible/inventory/others.ini --host router-mine \
         | jq -re '.ansible_user + "@" + .ansible_host'
+  BIRD_CONF: "{{.ROOT_DIR}}/router/mine.conf"
 
 tasks:
+  bgp:diff:
+    silent: true
+    desc: "对比路由器运行中的 BIRD 配置与仓库版本"
+    cmds:
+      - task: _bgp:diff
+
+  _bgp:diff:
+    internal: true
+    silent: true
+    cmd: |
+      set -euo pipefail
+      tmp="$(mktemp -t router-bird.conf)"
+      trap 'rm -f "${tmp}"' EXIT
+
+      ssh -n -o BatchMode=yes -o ConnectTimeout=5 {{ .ROUTER_SSH }} 'cat /etc/bird.conf' > "${tmp}"
+
+      if git --no-pager diff --no-index --quiet -- "${tmp}" {{ .BIRD_CONF }}; then
+        echo "路由器配置与仓库一致，无差异"
+        exit 0
+      fi
+
+      # 左=路由器当前，右=仓库版本
+      if command -v delta >/dev/null 2>&1; then
+        git --no-pager diff --no-index --color=always -- "${tmp}" {{ .BIRD_CONF }} | delta --paging=never || true
+      else
+        git --no-pager diff --no-index --color=always -- "${tmp}" {{ .BIRD_CONF }} || true
+      fi
+
+  bgp:sync:
+    desc: "同步 BIRD 配置到路由器（先展示差异，确认后校验并热加载）"
+    # deps 先于 prompt 执行：确认发生在看到差异之后
+    deps: [_bgp:diff]
+    prompt: 将仓库版本下发到路由器 /etc/bird.conf 并热加载？
+    cmds:
+      - |
+        set -euo pipefail
+        scp -q -o BatchMode=yes {{ .BIRD_CONF }} {{ .ROUTER_SSH }}:/tmp/bird.conf.new
+        ssh -n -o BatchMode=yes -o ConnectTimeout=5 {{ .ROUTER_SSH }} '
+          set -e
+          # 校验不过则清理临时文件并退出，/etc/bird.conf 保持原样
+          trap "rm -f /tmp/bird.conf.new" EXIT
+          bird -p -c /tmp/bird.conf.new || { echo "配置校验失败，/etc/bird.conf 未改动"; exit 1; }
+          mv /tmp/bird.conf.new /etc/bird.conf
+          birdc configure
+          birdc show protocols
+        '
+
   run:
     internal: true
     silent: true
