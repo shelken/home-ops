@@ -75,7 +75,7 @@ plugins:
       enabled: true
       store:
         # renovate: datasource=github-releases depName=shelken/cpa-plugins extractVersion=^workbuddy/v(?<version>.+)$
-        version: 0.2.6
+        version: 0.2.7
         source-url: https://raw.githubusercontent.com/shelken/cpa-plugins/main/registry.json
   store-sources:
     - https://raw.githubusercontent.com/shelken/cpa-plugins/main/registry.json
