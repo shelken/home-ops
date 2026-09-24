@@ -15,6 +15,8 @@ vars:
 
 tasks:
   # ==================== sakamoto ====================
+  # Tip: 若仅修改了 configs 挂载的配置文件（如 Caddyfile），Docker Compose 默认不会重建容器或重载配置，
+  # 需传 -- --force-recreate 触发容器重建，或进容器执行原生 reload。
   deploy:sakamoto:
     desc: "部署到 sakamoto (可选参数: -- --force-recreate)"
     cmds:
@@ -43,6 +45,8 @@ tasks:
     cmd: ssh {{.SAKAMOTO_HOST}} "cd {{.SAKAMOTO_COMPOSE_DIR}} && docker compose logs -f --tail=100"
 
   # ==================== VPS ====================
+  # Tip: 若仅修改了 configs 挂载的配置文件（如 Caddyfile），Docker Compose 默认不会重建容器或重载配置，
+  # 需传 -- --force-recreate 触发容器重建，或进容器执行原生 reload。
   deploy:vps:
     desc: "部署到 VPS (可选参数: -- --force-recreate)"
     cmds:
