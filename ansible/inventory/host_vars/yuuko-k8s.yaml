@@ -7,3 +7,9 @@ remote_node: false
 
 # 本地节点沿用集群 registry 配置，只拒绝 IPv6 DNS。
 setup_dns: true
+
+# 声明式节点标签（节点重建后 install-k3s 自动恢复）。
+# lightweight = 轻量弹性节点：可停机、不参与 Longhorn 存储（#1432），
+# 供业务 preferred 亲和与 generic-device-plugin 等 DS 的 NotIn 排除引用。
+k3s_node_labels:
+  - "node-type=lightweight"
