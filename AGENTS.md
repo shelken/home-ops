@@ -66,6 +66,7 @@ home-ops 是使用 Flux 管理 Kubernetes 集群与集群外服务的 GitOps 配
 - 需要容器镜像时，使用crane寻找镜像固定化镜像版本（semver@digest），配合renovate的更新
 - 遇到失败的helmrelease，不要reconcile，直接删除hr，然后`flux reconcile ks`
 - SSH执行命令时优先使用IP地址而非主机名（参考[ansible节点信息](ansible/inventory/hosts.ini)）
+- 手动DNS(非external-dns管理的)在本地的`{code-dir}/MyRepo/dnscontrol`中; 任何手动dns变更必须经过用户确认,展示变化范围
 
 ## 常用命令/脚本
 
