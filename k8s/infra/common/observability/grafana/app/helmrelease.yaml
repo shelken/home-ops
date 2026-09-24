@@ -10,6 +10,17 @@ spec:
     name: grafana-operator
   values:
     # ref: https://github.com/grafana/grafana-operator/blob/master/deploy/helm/grafana-operator/values.yaml
+    # 落点偏好：优先 node-type=lightweight 弹性节点（yuuko，可停机），
+    # 无该类节点在线时正常调度到常驻节点（echo 先例同款结构）
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+                - key: node-type
+                  operator: In
+                  values: [lightweight]
     replicas: 1
     dashboard:
       enabled: true
