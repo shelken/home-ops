@@ -6,7 +6,9 @@ env:
   no_proxy: ""
 
 cpus: 8
-memory: 14G
+# 宿主仅 16GiB，14G 配额曾与 OrbStack 等进程叠加，触发 macOS 大规模内存压缩/换页，
+# 拖垮 etcd 延迟导致控制器集体重启（2026-09-24 04:32 UTC 事故）
+memory: 10G
 disk: 80G
 
 # 映射到vm中的目录为`/mnt/lima-longhorn`
