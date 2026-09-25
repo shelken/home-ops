@@ -32,6 +32,39 @@
     backup: yes
   notify: restart chrony
 
+- name: Check if lima-guestagent exists
+  ansible.builtin.stat:
+    path: /usr/local/bin/lima-guestagent
+  register: lima_guestagent
+
+- name: Prevent lima-guestagent from writing system clock
+  # guestagent 每 10s 与宿主对时，偏差 >100ms 直接 settimeofday；
+  # 该调用清除内核 NTP 同步状态（STA_UNSYNC + maxerror 16s），
+  # 与 chrony 互相毒化形成振荡，触发 NodeClockNotSynchronising。
+  # 只剥离 CAP_SYS_TIME，保留端口转发等其余功能。
+  when: lima_guestagent.stat.exists
+  block:
+    - name: Create lima-guestagent drop-in directory
+      ansible.builtin.file:
+        path: /etc/systemd/system/lima-guestagent.service.d
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Deploy lima-guestagent capability drop-in
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/lima-guestagent.service.d/90-no-sys-time.conf
+        content: |
+          [Service]
+          CapabilityBoundingSet=~CAP_SYS_TIME
+        owner: root
+        group: root
+        mode: "0644"
+      notify:
+        - restart lima-guestagent
+        - reset chrony frequency state
+
 - name: Ensure chrony is enabled and started
   ansible.builtin.service:
     name: chrony

@@ -12,3 +12,18 @@
       ansible.builtin.service:
         name: chrony
         state: restarted
+
+    - name: restart lima-guestagent
+      # agent 重启必须先于频率重置，避免 chrony 重新学习期间被再次步进
+      ansible.builtin.systemd:
+        name: lima-guestagent
+        state: restarted
+        daemon_reload: true
+
+    - name: reset chrony frequency state
+      # 被步进污染的频率估计无法靠测量自愈，清空 drift 从 0 重新收敛
+      ansible.builtin.shell: |
+        systemctl stop chrony
+        rm -f /var/lib/chrony/chrony.drift
+        systemctl start chrony
+      changed_when: true
