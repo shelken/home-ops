@@ -19,3 +19,4 @@
 - [019 · lima dirty disk mkfs destroys longhorn](./019-lima-dirty-disk-mkfs-destroys-longhorn.md)
 - [020 · helmrelease retries exceeded stalled cascade](./020-helmrelease-retries-exceeded-stalled-cascade.md)
 - [021 · etcd arg duration string crashloop](./021-etcd-arg-duration-string-crashloop.md)
+- [022 · lima guestagent chrony clock oscillation](./022-lima-guestagent-chrony-clock-oscillation.md)
