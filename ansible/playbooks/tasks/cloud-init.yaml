@@ -1,0 +1,19 @@
+---
+- name: 检查是否为 Lima guest
+  ansible.builtin.stat:
+    path: /usr/local/bin/lima-guestagent
+  register: lima_guestagent
+
+- name: 保留 SSH host key，避免每次重启重新生成
+  # Lima 每次启动都生成新的 cloud-init instance-id（刻意让 provision
+  # 每次开机重跑），cloud-init 因此把每次开机当首次开机，默认
+  # ssh_deletekeys: true 会删掉重建全部 host key，known_hosts 随之失效。
+  # 仅覆盖删除行为，不影响 provision 每次重跑；重建走新磁盘不受影响。
+  when: lima_guestagent.stat.exists
+  ansible.builtin.copy:
+    dest: /etc/cloud/cloud.cfg.d/99-keep-ssh-host-keys.cfg
+    content: |
+      ssh_deletekeys: false
+    owner: root
+    group: root
+    mode: "0644"

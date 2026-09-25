@@ -1,0 +1,8 @@
+---
+- name: 加固 cloud-init
+  hosts: k8s
+  become: true
+  gather_facts: true
+  tasks:
+    - name: 保留 Lima guest 的 SSH host key
+      ansible.builtin.include_tasks: tasks/cloud-init.yaml
