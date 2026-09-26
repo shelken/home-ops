@@ -9,6 +9,12 @@ services:
       # 集群里 auth-dir "~/.cli-proxy-api" 实际落在 /.cli-proxy-api, HOME=/ 复现同一行为
       HOME: /
       TZ: Asia/Shanghai
+      # 管理页静态资源解压路径, 与集群一致; 不设则回退 /config/static 而 /config 不可写
+      MANAGEMENT_STATIC_PATH: /CLIProxyAPI/management
+    tmpfs:
+      # /CLIProxyAPI 根目录 root 属主不可写, 与集群一样用 tmpfs 提供可写挂载点
+      - /CLIProxyAPI/management
+      - /CLIProxyAPI/logs
     ports:
       - "127.0.0.1:8317:8317" # api + management
       - "127.0.0.1:8085:8085" # gemini 登录回调
