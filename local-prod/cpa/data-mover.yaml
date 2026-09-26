@@ -1,0 +1,27 @@
+# 临时数据搬运 pod: checkout/checkin 时挂载 cpa PVC 与 Mac 传 tar 流, 用完即删
+# uid/fsGroup 与 cpa 一致(1000), 文件属主不会漂移; RWO 卷在原 workload 停止后才能挂载
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cpa-data-mover
+  namespace: default
+  labels:
+    app: cpa-data-mover
+spec:
+  restartPolicy: Never
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+  containers:
+    - name: mover
+      image: alpine:3
+      command: ["sh", "-c", "sleep infinity"]
+      volumeMounts:
+        - name: data
+          mountPath: /data
+  volumes:
+    - name: data
+      persistentVolumeClaim:
+        claimName: cli-proxy-api
