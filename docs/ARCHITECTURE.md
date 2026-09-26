@@ -505,3 +505,20 @@ graph TB
 - **SOPs 解密**：所有子 Kustomization 自动获得 SOPs age 解密能力。
 - **等待策略**：`infra` 层 `wait: true`（等待所有子资源就绪），`apps` 层 `wait: false`（快速同步，不等待）。
 - **HelmRelease**：最终通过 `app-template` chart（OCIRepository）或直接 Helm chart 部署 Pod。
+- **外部服务注册**：运行在集群外的服务经 selector-less Service + EndpointSlice 注册为普通集群 Service（后端 IP 走 cluster-settings 注入，机制取舍见 [ADR-0002](../docs/adr/0002-external-service-endpointslice.md)），按需挂 envoy-internal HTTPRoute 与 gatus 探活
+
+## 9. 集群外服务接入
+
+首个实例:yuuko 上的 oMLX(Qwen3-ASR)注册为 `stt-voice`(default ns,端口 8900);宿主侧安装与配置由 nix-config 管理(`shelken.homelab.omlx`),home-ops 仅注册端点,`task omlx:*` 仅启停与观察
+
+```mermaid
+graph LR
+    POD["集群内 Pod"] -->|"stt-voice.default.svc:8900"| SVC["Service stt-voice"]
+    LAN["LAN 客户端"] -->|"stt-voice.MAIN_DOMAIN"| GW["envoy-internal"]
+    GW --> SVC
+    SVC --> ES["EndpointSlice ${YUUKO_IP}"]
+    ES -->|"LAN :8900"| OMLX["yuuko oMLX<br/>Qwen3-ASR / MLX"]
+    GATUS["Gatus outside"] -->|"tcp://yuuko.lan:8900"| OMLX
+```
+
+规格、文件树、task 行为与宿主侧事实见 [omlx/README.md](../omlx/README.md)
