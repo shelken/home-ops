@@ -1,0 +1,98 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+# cpa 本地离线运行: 数据所有权 REMOTE(集群) / LOCAL(Mac) 切换
+# 用法: task -d local-prod/cpa <task>; 详见同目录 README.md
+vars:
+  NS: default
+  DEPLOY: cli-proxy-api
+  MOVER: cpa-data-mover
+  LABEL: app.kubernetes.io/name=cli-proxy-api
+
+tasks:
+  status:
+    desc: 查看数据所有权与两侧运行状态(只读)
+    silent: true
+    cmds:
+      - |
+        echo "=== 所有权 ==="
+        cat .state 2>/dev/null || echo "未知(无 .state)"
+        echo "=== 集群侧 ==="
+        flux get helmrelease {{.DEPLOY}} -n {{.NS}} 2>/dev/null | awk 'NR==1 || /cli-proxy-api/'
+        kubectl get deploy {{.DEPLOY}} -n {{.NS}} 2>/dev/null
+        echo "=== 本地侧 ==="
+        docker compose ps 2>/dev/null || true
+        if [ -d data ]; then du -sh data/* 2>/dev/null; else echo "无本地数据副本"; fi
+
+  checkout:
+    desc: "REMOTE→LOCAL: 停集群端, PVC 拉到本地, 本地接管服务"
+    preconditions:
+      - sh: '[ "$(cat .state 2>/dev/null)" != "LOCAL" ]'
+        msg: 已是 LOCAL, 重复 checkout 会覆盖本地未写回数据
+    cmds:
+      - flux suspend helmrelease {{.DEPLOY}} -n {{.NS}}
+      - kubectl scale deploy {{.DEPLOY}} -n {{.NS}} --replicas=0
+      # 等旧 pod 全部退出, 确认 PVC 无业务进程在写
+      - |
+        for i in $(seq 1 30); do
+          [ -z "$(kubectl get pods -n {{.NS}} -l {{.LABEL}} --no-headers 2>/dev/null)" ] && break
+          sleep 2
+        done
+        if kubectl get pods -n {{.NS}} -l {{.LABEL}} --no-headers 2>/dev/null | grep -q .; then
+          echo "旧 pod 未在 60s 内退出, 中止"; exit 1
+        fi
+      - kubectl apply -f data-mover.yaml
+      - kubectl wait pod/{{.MOVER}} -n {{.NS}} --for=condition=Ready --timeout=120s
+      # 整 PVC 镜像到本地(先清本地, 保证真镜像语义)
+      - rm -rf data && mkdir -p data
+      - kubectl exec {{.MOVER}} -n {{.NS}} -- tar -C /data -cf - . | tar -C data -xf -
+      - |
+        if [ -z "$(ls -A data)" ]; then echo "PVC 拉取结果为空, 中止"; exit 1; fi
+        du -sh data
+      - mkdir -p config
+      - kubectl get secret {{.DEPLOY}}-secret -n {{.NS}} -o jsonpath='{.data.config\.yaml}' | base64 -d > config/config.yaml
+      - kubectl delete pod {{.MOVER}} -n {{.NS}}
+      - task: local-up
+      - echo "LOCAL $(date -Iseconds)" > .state
+      - 'echo "checkout 完成: 数据所有权 = LOCAL, 客户端请把 cpa 端点切到 http://localhost:8317"'
+
+  checkin:
+    desc: "LOCAL→REMOTE: 本地停, 备份远端现状, 写回数据, 恢复集群"
+    preconditions:
+      - sh: '[ "$(cat .state 2>/dev/null)" = "LOCAL" ]'
+        msg: .state 不是 LOCAL, 先跑 task status 确认所有权
+      - sh: '[ "$(kubectl get deploy {{.DEPLOY}} -n {{.NS}} -o jsonpath={.spec.replicas})" = "0" ]'
+        msg: 集群 cpa 正在运行, 拒绝写回(双写风险)
+      - sh: flux get helmrelease {{.DEPLOY}} -n {{.NS}} | awk 'NR>1{print $3}' | grep -qx True
+        msg: helmrelease 未 suspend, 数据所有权存疑, 拒绝写回
+    cmds:
+      - docker compose down
+      # 写回前把远端现状拉回本地留底, 写回失败可从这里恢复
+      - |
+        TS=$(date +%Y%m%d-%H%M%S)
+        mkdir -p backup/$TS
+        kubectl apply -f data-mover.yaml
+        kubectl wait pod/{{.MOVER}} -n {{.NS}} --for=condition=Ready --timeout=120s
+        kubectl exec {{.MOVER}} -n {{.NS}} -- tar -C /data -cf - . | tar -C backup/$TS -xf -
+        echo "远端现状已备份到 backup/$TS"
+      # 清空远端再整目录写入, 本地删过的文件远端也删(真镜像)
+      - kubectl exec {{.MOVER}} -n {{.NS}} -- find /data -mindepth 1 -delete
+      - tar -C data -cf - . | kubectl exec -i {{.MOVER}} -n {{.NS}} -- tar -xf - -C /data
+      - kubectl delete pod {{.MOVER}} -n {{.NS}}
+      - flux resume helmrelease {{.DEPLOY}} -n {{.NS}}
+      - kubectl scale deploy {{.DEPLOY}} -n {{.NS}} --replicas=1
+      - kubectl rollout status deploy/{{.DEPLOY}} -n {{.NS}} --timeout=180s
+      - echo "REMOTE $(date -Iseconds)" > .state
+      - 'echo "checkin 完成: 数据所有权 = REMOTE, 记得把客户端端点切回集群入口"'
+
+  local-up:
+    desc: 本地启动 cpa 容器(需先 checkout 拿到 data/config)
+    cmds:
+      - cmd: '[ -f config/config.yaml ] || { echo "缺 config/config.yaml, 先跑 task checkout"; exit 1; }'
+      - mkdir -p data/for-run data/plugins
+      - docker compose up -d
+
+  local-down:
+    desc: 停本地 cpa 容器
+    cmds:
+      - docker compose down

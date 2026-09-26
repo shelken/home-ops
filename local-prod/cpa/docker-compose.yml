@@ -1,0 +1,28 @@
+services:
+  cpa:
+    # 与集群完全同版本同 digest, 避免 token/config 格式漂移
+    image: eceasy/cli-proxy-api:v7.2.159@sha256:18f370d73b4db26c9709dda603169714e9349aa38451ccf55599864fe64678a2
+    container_name: cli-proxy-api-local
+    user: "1000:1000"
+    command: ["/CLIProxyAPI/CLIProxyAPI", "--config", "/config/config.yaml"]
+    environment:
+      # 集群里 auth-dir "~/.cli-proxy-api" 实际落在 /.cli-proxy-api, HOME=/ 复现同一行为
+      HOME: /
+      TZ: Asia/Shanghai
+      # 管理页静态资源解压路径, 与集群一致; 不设则回退 /config/static 而 /config 不可写
+      MANAGEMENT_STATIC_PATH: /CLIProxyAPI/management
+    tmpfs:
+      # /CLIProxyAPI 根目录 root 属主不可写, 与集群一样用 tmpfs 提供可写挂载点
+      - /CLIProxyAPI/management
+      - /CLIProxyAPI/logs
+    ports:
+      - "127.0.0.1:8317:8317" # api + management
+      - "127.0.0.1:8085:8085" # gemini 登录回调
+      - "127.0.0.1:1455:1455" # codex 登录回调
+      - "127.0.0.1:51121:51121" # antigravity 登录回调
+    volumes:
+      - ./config/config.yaml:/config/config.yaml:ro
+      - ./data/for-run:/.cli-proxy-api
+      - ./data/plugins:/CLIProxyAPI/plugins
+    # 禁止开机自启: 回家后误起本地实例会造成 token 双写分叉
+    restart: "no"
