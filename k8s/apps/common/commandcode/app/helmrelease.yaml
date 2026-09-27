@@ -81,7 +81,7 @@ spec:
           gethomepage.dev/name: *app
           gethomepage.dev/icon: kubernetes-dashboard.svg
         hostnames:
-          - "{{ .Release.Name }}.int.${MAIN_DOMAIN}"
+          - "{{ .Release.Name }}.${INTERNAL_DOMAIN}"
         parentRefs:
           - name: envoy-internal
             namespace: network

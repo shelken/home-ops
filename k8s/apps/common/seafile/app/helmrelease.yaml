@@ -56,7 +56,7 @@ spec:
               TZ: ${TIMEZONE}
               TIME_ZONE: ${TIMEZONE}
               NON_ROOT: "true"
-              SEAFILE_SERVER_HOSTNAME: "seafile.int.${MAIN_DOMAIN}"
+              SEAFILE_SERVER_HOSTNAME: "seafile.${INTERNAL_DOMAIN}"
               SEAFILE_SERVER_PROTOCOL: "https"
               SEAF_SERVER_STORAGE_TYPE: "disk"
 
@@ -138,8 +138,8 @@ spec:
           gethomepage.dev/description: 文件同步
           gatus.home-operations.com/endpoint: |-
             # 切换external时取消注释
-            # url: https://{{ .Release.Name }}.int.${MAIN_DOMAIN}/api2/ping/
-        hostnames: ["{{ .Release.Name }}.int.${MAIN_DOMAIN}"]
+            # url: https://{{ .Release.Name }}.${INTERNAL_DOMAIN}/api2/ping/
+        hostnames: ["{{ .Release.Name }}.${INTERNAL_DOMAIN}"]
         parentRefs:
           - name: envoy-internal
             namespace: network

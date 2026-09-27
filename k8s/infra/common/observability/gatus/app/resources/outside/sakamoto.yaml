@@ -29,7 +29,7 @@ endpoints:
     url: "tcp://sakamoto.lan:9000"
   - name: minio-domain
     group: sakamoto
-    url: https://minio.int.${MAIN_DOMAIN}/minio/health/live
+    url: https://minio.${INTERNAL_DOMAIN}/minio/health/live
     interval: 1m
     ui:
       hide-hostname: true

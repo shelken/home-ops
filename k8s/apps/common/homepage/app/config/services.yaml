@@ -49,7 +49,7 @@
           url: http://gatus.observability.svc.cluster.local:80
     - Prometheus:
         icon: prometheus.png
-        href: https://prometheus.int.${MAIN_DOMAIN}
+        href: https://prometheus.${INTERNAL_DOMAIN}
         description:
         widget:
           type: prometheus
@@ -58,7 +58,7 @@
 - 存储:
     - Minio:
         icon: minio-light.png
-        href: https://minio-ui.int.${MAIN_DOMAIN}
+        href: https://minio-ui.${INTERNAL_DOMAIN}
         description:
 
 - 文章:

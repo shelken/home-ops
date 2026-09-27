@@ -85,7 +85,7 @@ spec:
           gethomepage.dev/icon: frigate.svg
           gethomepage.dev/description: ""
           gethomepage.dev/app: *app
-        hostnames: ["{{ .Release.Name }}.int.${MAIN_DOMAIN}"]
+        hostnames: ["{{ .Release.Name }}.${INTERNAL_DOMAIN}"]
         parentRefs:
           - name: envoy-internal
             namespace: network

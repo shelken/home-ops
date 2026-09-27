@@ -11,7 +11,7 @@ spec:
     kind: ClusterIssuer
   commonName: ${MAIN_DOMAIN}
   # int 子域为 MAIN_DOMAIN 的三级通配，单级 *.{MAIN_DOMAIN} 不覆盖，DNS-01 在同一 zone 下签发
-  dnsNames: ["${MAIN_DOMAIN}", "*.${MAIN_DOMAIN}", "*.int.${MAIN_DOMAIN}"]
+  dnsNames: ["${MAIN_DOMAIN}", "*.${MAIN_DOMAIN}", "*.${INTERNAL_DOMAIN}"]
 
 ---
 apiVersion: cert-manager.io/v1

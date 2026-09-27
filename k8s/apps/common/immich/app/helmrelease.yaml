@@ -125,7 +125,7 @@ spec:
               immich-machine-learning
             )
         hostnames:
-          - photo.int.${MAIN_DOMAIN}
+          - photo.${INTERNAL_DOMAIN}
         parentRefs:
           - name: envoy-internal
             namespace: network

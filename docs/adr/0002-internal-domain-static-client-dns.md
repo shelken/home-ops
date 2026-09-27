@@ -1,6 +1,6 @@
 # 内部域分层，SFM 客户端使用静态 DNS 应答
 
-内部入口统一迁入 `int.${MAIN_DOMAIN}`，公网入口保持原域名。使用 SFM 的客户端由 sing-box 本地应答内部名称，业务连接绕过 sing-box TUN 后交给系统的 LAN 或 Tailscale 路由，避免解析依赖家庭 DNS，也避免绑定外部 Tailscale 的动态 utun 名称
+内部入口统一迁入独立内部域 `${INTERNAL_DOMAIN}`（如 `int.<MAIN_DOMAIN>`），公网入口保持原域名。使用 SFM 的客户端由 sing-box 本地应答内部名称，业务连接绕过 sing-box TUN 后交给系统的 LAN 或 Tailscale 路由，避免解析依赖家庭 DNS，也避免绑定外部 Tailscale 的动态 utun 名称
 
 此决策保持远程订阅合并流程、独立 SFM 和独立 Tailscale 客户端，不增加本机更新脚本或第二个 Tailscale 节点身份。决策已确认，部署与端到端验证尚未完成
 

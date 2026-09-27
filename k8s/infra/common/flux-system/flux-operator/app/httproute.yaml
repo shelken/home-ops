@@ -12,7 +12,7 @@ metadata:
     gethomepage.dev/description: Flux Operator
 spec:
   hostnames:
-    - flux.int.${MAIN_DOMAIN}
+    - flux.${INTERNAL_DOMAIN}
   parentRefs:
     - name: envoy-internal
       namespace: network

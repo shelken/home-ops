@@ -91,7 +91,7 @@ spec:
           gethomepage.dev/name: metatube
           gethomepage.dev/icon: kubernetes-dashboard.svg
           gethomepage.dev/description: ""
-        hostnames: ["{{ .Release.Name }}.int.${MAIN_DOMAIN}"]
+        hostnames: ["{{ .Release.Name }}.${INTERNAL_DOMAIN}"]
         parentRefs:
           - name: envoy-internal
             namespace: network

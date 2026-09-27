@@ -130,8 +130,8 @@ spec:
           gethomepage.dev/description: ""
           gethomepage.dev/app: *app
         hostnames:
-          - hass.int.${MAIN_DOMAIN}
-          - "{{ .Release.Name }}.int.${MAIN_DOMAIN}"
+          - hass.${INTERNAL_DOMAIN}
+          - "{{ .Release.Name }}.${INTERNAL_DOMAIN}"
         parentRefs:
           - name: envoy-internal
             namespace: network
@@ -147,7 +147,7 @@ spec:
           gethomepage.dev/icon: code-server.png
           gethomepage.dev/description: ""
           gethomepage.dev/app: *app
-        hostnames: ["hass-code.int.${MAIN_DOMAIN}"]
+        hostnames: ["hass-code.${INTERNAL_DOMAIN}"]
         parentRefs:
           - name: envoy-internal
             namespace: network
