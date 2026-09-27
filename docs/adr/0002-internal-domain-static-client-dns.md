@@ -35,33 +35,6 @@
 - 内外入口继续使用同一证书 Secret，内部 wildcard 的加入不构成私钥或权限隔离
 - 远程订阅服务拿不到客户端动态接口状态，因此不在订阅内保存 utun 名称；不引入运行期模板替换
 
-## 前置与手动步骤（Flux 无法自动完成）
-
-改动分属三层，只有第一层受 Flux 变量注入覆盖：
-
-| 层 | 路径 | 域名变量来源 | 生效方式 |
-|---|---|---|---|
-| Flux | `k8s/**` | `cluster-secrets` → `postBuild.substituteFrom`（`k8s/clusters/staging/{infra,apps}.yml` 的 patch） | 合并即自动 |
-| Compose | `compose/sakamoto/**` | `.env.tpl` → compose 环境变量 | **手动**：`task sync:sakamoto` / `task deploy:sakamoto` |
-| Ansible | `ansible/**` | 无变量，字面量 | **手动**：ansible playbook 执行 |
-
-### 必须提前处理（合入前）
-
-1. **`cluster-secrets` 增加 `INTERNAL_DOMAIN`** —— sops 加密，需手动 `sops` 编辑，必须在引用它的任何 Flux 资源合并前完成；否则 substitution 只注入已存在的键，引用会原样保留字面量
-2. **客户端解析策略先就位** —— 订阅侧对内部域的解析规则必须先于入口迁移生效，否则切换瞬间 SFM 客户端无法解析新名
-3. **实证集群外内部名称今天的解析来源** —— `dig @<ROUTER_IP> <CLUSTER_EXTERNAL_SERVICE>.<MAIN_DOMAIN>`，确认现有记录形态，避免与迁移后的记录双写冲突
-4. **确认 `k8s-gateway` 对 `*.int` 子域的解析路径** —— 其 `domain` 只声明主域，集群内消费者（CloudNative-PG objectstore、kopiur）改用内部名后需先验证解析可达
-
-### 必须手动处理（Flux 之外）
-
-1. **`cluster-secrets` 的 `INTERNAL_DOMAIN`** —— sops 加密内容，无法由 CI 生成
-2. **`compose/sakamoto` 的 Caddyfile** —— 不受 Flux 变量注入；`env.MAIN_DOMAIN` 来自 compose 环境，改域名后必须重新同步/部署该 compose 项目
-3. **`ansible/playbooks/resource/registries.yaml`** —— 字面量镜像地址，随 ansible playbook 执行生效
-4. **路由器的 dnsmasq 记录** —— 通配与集群外精确记录需在 OpenWrt 上手动写入
-5. **证书冷启动导入链** —— `certificates/import/externalsecret.yaml` 的 `alt-names` 注解需与 `export/certificate.yaml` 的 `dnsNames` 同步，否则从 Key Vault 恢复时新通配不在证书内
-6. **pocket-id（OIDC issuer）下游应用的 issuer 配置** —— 属运行时数据，不在本仓库
-7. **Tailscale 控制台的整域 split 路由与 OpenWrt 旧记录** —— 迁移完成后手动清理；`upsert-only` 不会随 Git 回滚删除记录
-
 ## 迁移顺序
 
 1. 在隔离验证环境确认固定版本 sing-box 的通配 A 应答、精确记录优先级、空 AAAA/HTTPS 应答与合并后规则顺序
