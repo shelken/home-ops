@@ -43,7 +43,7 @@ graph LR
 
         subgraph VLAN6["VLAN 6 · 主内网<br/>192.168.6.0/24"]
             SAKAMOTO["sakamoto<br/>192.168.6.144"]
-            YUUKO_HOST["yuuko<br/>192.168.6.10"]
+            YUUKO_HOST["yuuko<br/>192.168.6.11"]
             PVE_NODE["PVE<br/>192.168.6.213"]
         end
 
