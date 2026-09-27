@@ -79,7 +79,7 @@ spec:
           gethomepage.dev/name: dozzle
           gethomepage.dev/icon: dozzle.svg
           gethomepage.dev/description: ""
-        hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
+        hostnames: ["{{ .Release.Name }}.int.${MAIN_DOMAIN}"]
         parentRefs:
           - name: envoy-internal
             namespace: network

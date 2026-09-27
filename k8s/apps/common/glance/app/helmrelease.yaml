@@ -61,7 +61,7 @@ spec:
           gethomepage.dev/icon: glance.svg
           gethomepage.dev/description: "个人起始页"
         hostnames:
-          - glance.${MAIN_DOMAIN}
+          - glance.int.${MAIN_DOMAIN}
         parentRefs:
           - name: envoy-internal
             namespace: network

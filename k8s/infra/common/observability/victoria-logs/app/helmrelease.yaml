@@ -22,7 +22,7 @@ spec:
       route:
         enabled: true
         hostnames:
-          - victoria-logs.${MAIN_DOMAIN}
+          - victoria-logs.int.${MAIN_DOMAIN}
         parentRefs:
           - name: envoy-internal
             namespace: network

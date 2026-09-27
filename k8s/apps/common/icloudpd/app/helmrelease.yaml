@@ -97,7 +97,7 @@ spec:
           gethomepage.dev/icon: icloud.svg
           gethomepage.dev/description: "同步 iCloud 照片"
         hostnames:
-          - "{{ .Release.Name }}.${MAIN_DOMAIN}"
+          - "{{ .Release.Name }}.int.${MAIN_DOMAIN}"
         parentRefs:
           - name: envoy-internal
             namespace: network

@@ -81,7 +81,7 @@ spec:
               shlink-web
             )
         hostnames:
-          - "s-web.${MAIN_DOMAIN}"
+          - "s-web.int.${MAIN_DOMAIN}"
         parentRefs:
           - name: envoy-internal
             namespace: network

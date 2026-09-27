@@ -53,7 +53,7 @@ spec:
               TZ: ${TIMEZONE}
               NODE_ENV: production
               AFFINE_INDEXER_ENABLED: false
-              AFFINE_SERVER_EXTERNAL_URL: "https://affine.${MAIN_DOMAIN}"
+              AFFINE_SERVER_EXTERNAL_URL: "https://affine.int.${MAIN_DOMAIN}"
               AFFINE_SERVER_HTTPS: "true"
               CONFIG_LOCATION: /root/.affine/config
               UPLOAD_LOCATION: /root/.affine/storage
@@ -106,7 +106,7 @@ spec:
           gethomepage.dev/name: Affine
           gethomepage.dev/icon: affine.svg
           gethomepage.dev/description: 知识库
-        hostnames: ["affine.${MAIN_DOMAIN}"]
+        hostnames: ["affine.int.${MAIN_DOMAIN}"]
         parentRefs:
           - name: envoy-internal
             namespace: network

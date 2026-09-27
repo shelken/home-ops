@@ -54,7 +54,7 @@ spec:
                   secretKeyRef:
                     name: karakeep-secret
                     key: NEXTAUTH_SECRET
-              NEXTAUTH_URL: https://karakeep.${MAIN_DOMAIN}
+              NEXTAUTH_URL: https://karakeep.int.${MAIN_DOMAIN}
               # OpenAI Config
               # ref：https://docs.karakeep.app/configuration/#inference-configs-for-automatic-tagging
               INFERENCE_LANG: chinese
@@ -220,7 +220,7 @@ spec:
           gethomepage.dev/name: Karakeep
           gethomepage.dev/app: karakeep
         hostnames:
-          - karakeep.${MAIN_DOMAIN}
+          - karakeep.int.${MAIN_DOMAIN}
         parentRefs:
           - name: envoy-internal
             namespace: network
