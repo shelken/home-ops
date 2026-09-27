@@ -8,6 +8,8 @@ vars:
       ansible-inventory -i {{.ROOT_DIR}}/ansible/inventory/others.ini --host router-mine \
         | jq -re '.ansible_user + "@" + .ansible_host'
   BIRD_CONF: "{{.ROOT_DIR}}/router/mine.conf"
+  DNS_HOSTS: "{{.ROOT_DIR}}/router/dnsmasq-int.hosts"
+  DNS_HOSTS_DST: "/etc/dnsmasq.d/int.hosts"
 
 tasks:
   bgp:diff:
@@ -55,6 +57,80 @@ tasks:
           mv /tmp/bird.conf.new /etc/bird.conf
           birdc configure
           birdc show protocols
+        '
+
+  dns:diff:
+    silent: true
+    desc: "对比路由器 /etc/dnsmasq.d/int.hosts 与仓库版本"
+    cmds:
+      - task: _dns:diff
+
+  _dns:diff:
+    internal: true
+    silent: true
+    cmd: |
+      set -euo pipefail
+      tmp="$(mktemp -t router-int.hosts)"
+      trap 'rm -f "${tmp}"' EXIT
+
+      # 首次下发前路由器上没有该文件，cat 失败按空文件处理
+      ssh -n -o BatchMode=yes -o ConnectTimeout=5 {{ .ROUTER_SSH }} 'cat {{ .DNS_HOSTS_DST }} 2>/dev/null || true' > "${tmp}"
+
+      if git --no-pager diff --no-index --quiet -- "${tmp}" {{ .DNS_HOSTS }}; then
+        echo "路由器记录与仓库一致，无差异"
+        exit 0
+      fi
+
+      # 左=路由器当前，右=仓库版本
+      if command -v delta >/dev/null 2>&1; then
+        git --no-pager diff --no-index --color=always -- "${tmp}" {{ .DNS_HOSTS }} | delta --paging=never || true
+      else
+        git --no-pager diff --no-index --color=always -- "${tmp}" {{ .DNS_HOSTS }} || true
+      fi
+
+  dns:sync:
+    desc: "同步内网域记录到路由器（先展示差异，确认后落地并重载 dnsmasq）"
+    # deps 先于 prompt 执行：确认发生在看到差异之后
+    deps: [_dns:diff]
+    prompt: 将仓库版本下发到路由器 {{ .DNS_HOSTS_DST }} 并重启 dnsmasq？
+    cmds:
+      # hosts 文件没有语法校验器，下发前先挡掉错行
+      - |
+        set -euo pipefail
+        bad="$(grep -vE '^[[:space:]]*(#|$)' {{ .DNS_HOSTS }} | grep -vE '^[0-9]{1,3}(\.[0-9]{1,3}){3}[[:space:]]+[A-Za-z0-9.-]+$' || true)"
+        if [ -n "${bad}" ]; then
+          printf '格式不合法的行（只允许 "# 注释"、空行、"<ipv4> <fqdn>"）：\n%s\n' "${bad}"
+          exit 1
+        fi
+      - |
+        set -euo pipefail
+        scp -q -o BatchMode=yes {{ .DNS_HOSTS }} {{ .ROUTER_SSH }}:/tmp/int.hosts.new
+        ssh -n -o BatchMode=yes -o ConnectTimeout=5 {{ .ROUTER_SSH }} '
+          set -e
+          trap "rm -f /tmp/int.hosts.new" EXIT
+          # 先把文件放好再碰 UCI：uci commit 会触发 ucitrack 重载 dnsmasq，
+          # 若此时 addnhosts 指向的路径还不存在，dnsmasq 会启动失败，整网解析中断
+          mkdir -p "$(dirname {{ .DNS_HOSTS_DST }})"
+          mv /tmp/int.hosts.new {{ .DNS_HOSTS_DST }}
+          # addnhosts 是 list 语义，写成单个 option 会被 dnsmasq 忽略（openwrt#17511），必须 add_list
+          uci show dhcp | grep -q "addnhosts=.*{{ .DNS_HOSTS_DST }}" || {
+            echo "路由器未注册 addnhosts（文件已就位，dnsmasq 未重启，解析未受影响）。先做一次性准备："
+            echo "  uci add_list dhcp.@dnsmasq[0].addnhosts='"'"'{{ .DNS_HOSTS_DST }}'"'"'"
+            echo "  uci commit dhcp"
+            exit 1
+          }
+          # 内容变更走 reload：init 的 reload_service 会发 SIGHUP，dnsmasq 据此重读 --addn-hosts。
+          # 实测 procd 仍会重建部分实例（pidof 有变动），所以验证查询带重试
+          /etc/init.d/dnsmasq reload
+          # 落地后用路由器自己查第一个名字，确认 dnsmasq 真的读到了该文件；查询带重试，不用死等
+          name="$(awk "!/^#/ && NF {print \$2; exit}" {{ .DNS_HOSTS_DST }})"
+          i=0
+          until out="$(nslookup "${name}" 127.0.0.1 2>&1)" && echo "${out}" | grep -q "Address"; do
+            i=$((i + 1))
+            [ "${i}" -ge 10 ] && { echo "${out}"; echo "dnsmasq 未在 10 次查询内返回 ${name}"; exit 1; }
+            sleep 1
+          done
+          echo "${out}"
         '
 
   run:
