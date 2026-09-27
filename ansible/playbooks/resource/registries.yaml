@@ -1,3 +1,6 @@
+# ⚠️ 手动步骤：本文件不受 Flux 变量注入，镜像地址为字面量。
+# 改域名后必须重跑 ansible playbook（tasks/k3s-registry.yaml 写入 /etc/rancher/k3s/registries.yaml），
+# 且 k3s 需重启才会应用新的镜像端点。
 mirrors:
   docker.io:
     endpoint:

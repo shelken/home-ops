@@ -1,4 +1,7 @@
 {
+  # ⚠️ 手动步骤：本文件不受 Flux 变量注入，MAIN_DOMAIN 来自 compose 环境变量。
+  # 改域名后必须重新部署：task sync:sakamoto（或 task deploy:sakamoto）；改 *.int 站点后
+  # Caddy 会为新通配重新签发证书，首次访问有签发放开销。
   admin 0.0.0.0:2019
   log {
     format console
