@@ -15,10 +15,7 @@
 (with-tls) {
   tls {
     dns cloudflare {env.CLOUDFLARE_API_TOKEN}
-    # 本机（含容器）到公网的 UDP:53 会被透明劫持到国内解析器（实测最终应答方为中国移动 183.232.250.151，
-    # 连发往 1.2.3.4、192.0.2.1 这类地址的 :53 也能拿到应答），而国内解析器对刚写入的挑战记录存在分钟级缓存，
-    # certmagic 的传播检查因此永远拿不到新值、只能等到 2 分钟超时。certmagic 不支持 DoH，
-    # 故关闭本地检查：DNS-01 由 LE 从公网侧直查 CF 权威完成校验，本地只用延迟覆盖 CF 边缘的发布时差。
+    # 本机 :53 不可信、certmagic 不支持 DoH：改由 LE 从公网侧直查 CF 权威校验，延迟用于等 CF 边缘发布
     propagation_timeout -1
     propagation_delay 30s
   }
