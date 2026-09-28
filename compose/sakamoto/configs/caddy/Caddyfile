@@ -15,6 +15,12 @@
 (with-tls) {
   tls {
     dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    # 本机（含容器）到公网的 UDP:53 会被透明劫持到国内解析器（实测最终应答方为中国移动 183.232.250.151，
+    # 连发往 1.2.3.4、192.0.2.1 这类地址的 :53 也能拿到应答），而国内解析器对刚写入的挑战记录存在分钟级缓存，
+    # certmagic 的传播检查因此永远拿不到新值、只能等到 2 分钟超时。certmagic 不支持 DoH，
+    # 故关闭本地检查：DNS-01 由 LE 从公网侧直查 CF 权威完成校验，本地只用延迟覆盖 CF 边缘的发布时差。
+    propagation_timeout -1
+    propagation_delay 30s
   }
 }
 
@@ -61,8 +67,9 @@
   tls_insecure_skip_verify
 }
 
+# 0: 名称 1: to 2/3: 传输参数 4: 域名后缀
 (internal-access) {
-  @{args[0]} host {args[0]}.{env.MAIN_DOMAIN}
+  @{args[0]} host {args[0]}.{args[4]}
   handle @{args[0]} {
     @deny header X-Forwarded-For *
     handle @deny {
@@ -73,20 +80,31 @@
   }
 }
 
-*.{env.MAIN_DOMAIN} {
-  import with-tls
+# 站点清单只有一份，后缀由调用方传入：切换期内新名与旧名共用
+(internal-sites) {
+  import internal-access minio-ui     http://127.0.0.1:9001       empty empty {args[0]}
+  import internal-access minio        http://127.0.0.1:9000       empty empty {args[0]}
+  import internal-access nvidia-dls   https://127.0.0.1:5100      empty skip-tls-verify {args[0]}
+  import internal-access pve-mine     https://192.168.6.213:8006  empty skip-tls-verify {args[0]}
 
-  import internal-access minio-ui     http://127.0.0.1:9001       empty empty
-  import internal-access minio        http://127.0.0.1:9000       empty empty
-  import internal-access nvidia-dls   https://127.0.0.1:5100      empty skip-tls-verify
-  import internal-access pve-mine     https://192.168.6.213:8006  empty skip-tls-verify
-
-  import internal-access ghcr-mirror        http://127.0.0.1:5001  empty empty
-  import internal-access quay-mirror        http://127.0.0.1:5002  empty empty
-  import internal-access mirror-gcr-mirror  http://127.0.0.1:5003  empty empty
-  import internal-access k8s-mirror         http://127.0.0.1:5005  empty empty
+  import internal-access ghcr-mirror        http://127.0.0.1:5001  empty empty {args[0]}
+  import internal-access quay-mirror        http://127.0.0.1:5002  empty empty {args[0]}
+  import internal-access mirror-gcr-mirror  http://127.0.0.1:5003  empty empty {args[0]}
+  import internal-access k8s-mirror         http://127.0.0.1:5005  empty empty {args[0]}
 
   handle {
     abort
   }
+}
+
+# 目标状态：内部名
+*.int.{env.MAIN_DOMAIN} {
+  import with-tls
+  import internal-sites int.{env.MAIN_DOMAIN}
+}
+
+# 切换期：旧名继续可用，消费者全部切到 int. 之后删除本块
+*.{env.MAIN_DOMAIN} {
+  import with-tls
+  import internal-sites {env.MAIN_DOMAIN}
 }
