@@ -9,6 +9,7 @@ spec:
     - name: longhorn
       namespace: longhorn-system
   interval: 1h
+  retryInterval: 2m
   path: ./k8s/infra/common/observability/victoria-logs/app
   prune: true
   sourceRef:

@@ -4,7 +4,9 @@ crds:
   enabled: true
 replicaCount: 1
 # cert-manager涉及初始化，不要有涉及到变量注入，必须在flux完成之后才有可能。
-dns01RecursiveNameservers: https://cloudflare-dns.com/dns-query,https://223.5.5.5:443/dns-query,https://223.6.6.6:443/dns-query
+# DNS-01 自检解析器：首选 1.1.1.1（IP 直连 DoH，稳定且 TTL 120s，换发等待从 ~30min 降到 ~2min）；
+# cloudflare-dns.com 域名形式有间歇超时；223.5.5.5/223.6.6.6 属国内解析器，做兜底（负缓存可达 30min）。
+dns01RecursiveNameservers: https://1.1.1.1/dns-query,https://cloudflare-dns.com/dns-query,https://223.5.5.5:443/dns-query,https://223.6.6.6:443/dns-query
 dns01RecursiveNameserversOnly: true
 prometheus:
   enabled: true

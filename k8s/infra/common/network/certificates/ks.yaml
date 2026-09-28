@@ -6,6 +6,7 @@ metadata:
   name: certificates-import
 spec:
   interval: 1h
+  retryInterval: 2m
   path: ./k8s/infra/common/network/certificates/import
   prune: true
   sourceRef:
@@ -23,6 +24,7 @@ metadata:
   name: certificates-export
 spec:
   interval: 1h
+  retryInterval: 2m
   path: ./k8s/infra/common/network/certificates/export
   prune: true
   sourceRef:

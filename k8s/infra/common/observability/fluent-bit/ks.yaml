@@ -6,6 +6,7 @@ metadata:
   name: fluent-bit
 spec:
   interval: 1h
+  retryInterval: 2m
   path: ./k8s/infra/common/observability/fluent-bit/app
   prune: true
   sourceRef:
