@@ -22,7 +22,11 @@ spec:
     name: flux-system
   path: ./k8s/infra/staging
   prune: true
-  wait: true
+  # Ready 只代表清单 apply 完成；不递归等待全部孙级健康。
+  # 2025-10-25 加 wait:true 是为集群重建期的顺序需求，稳态下它把任意孙级失败放大成
+  # app 层全局冻结（2026-09-28 certificates 竞态冻结 apps 14 分钟；postmortem 020 数周）。
+  # apps 与 infra 的真实依赖（CRD/控制器存在）由子级自身 dependsOn + retryInterval 表达。
+  wait: false
   patches:
     - # Add Sops decryption to child Kustomizations
       patch: |-
