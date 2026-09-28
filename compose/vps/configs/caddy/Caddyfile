@@ -26,6 +26,10 @@
 (with-tls) {
    tls {
         dns cloudflare {$CLOUDFLARE_API_TOKEN}
+        # 传播检查不在本地做：容器/主机的 UDP:53 会被透明劫持到国内解析器（分钟级缓存），
+        # certmagic 也不支持 DoH，故由 LE 从公网侧直查 CF 权威校验，这里只用延迟覆盖发布时差。
+        propagation_timeout -1
+        propagation_delay 30s
     }
 }
 
