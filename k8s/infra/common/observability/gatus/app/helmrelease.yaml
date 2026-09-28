@@ -54,6 +54,7 @@ spec:
             env:
               TZ: ${TIMEZONE}
               MAIN_DOMAIN: ${MAIN_DOMAIN}
+              INTERNAL_DOMAIN: ${INTERNAL_DOMAIN}
               ROUTER_IP: ${ROUTER_IP}
               MAIN_VPS_IP: ${MAIN_VPS_IP}
               GATUS_CONFIG_PATH: /config
