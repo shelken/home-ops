@@ -1,0 +1,21 @@
+# int.ooooo.space 的集群外记录：sakamoto 上 Caddy 反代的入口（192.168.6.144）。
+#
+# 为什么落在路由器：这些名字在集群存在之前就要求可解析（k3s 节点拉镜像、CloudNative-PG
+# 写 minio 备份都要用），不能由集群侧 external-dns 提供；int 下集群服务的记录仍由
+# openwrt-dns 那套 external-dns 精确推送，这里不覆盖也不兜底。
+#
+# 名字集合是 compose/sakamoto/configs/caddy/Caddyfile 里 internal-access 行的投影：
+# 那边加一个站点，这里加一行。域名在本层是字面量（无 Flux 注入，同
+# ansible/playbooks/resource/registries.yaml）。
+#
+# 生效：下发到路由器 /etc/dnsmasq.d/int.hosts，由 uci 的 dhcp.@dnsmasq[0].addnhosts 读取。
+# 下发：task router:dns:diff 比对，task router:dns:sync 落地。
+
+192.168.6.144 minio-ui.int.ooooo.space
+192.168.6.144 minio.int.ooooo.space
+192.168.6.144 nvidia-dls.int.ooooo.space
+192.168.6.144 pve-mine.int.ooooo.space
+192.168.6.144 ghcr-mirror.int.ooooo.space
+192.168.6.144 quay-mirror.int.ooooo.space
+192.168.6.144 mirror-gcr-mirror.int.ooooo.space
+192.168.6.144 k8s-mirror.int.ooooo.space

@@ -42,7 +42,7 @@ spec:
               UI_CONFIG_DISABLED: "true"
               # ref: https://pocket-id.org/docs/configuration/environment-variables
               ANALYTICS_DISABLED: "true"
-              APP_URL: https://oidc.${MAIN_DOMAIN}
+              APP_URL: https://oidc.${INTERNAL_DOMAIN}
               DB_PROVIDER: postgres
               ENCRYPTION_KEY_FILE: /encryption/ENCRYPTION_KEY
               GEOLITE_DB_PATH: /data/GeoLite2-City.mmdb
@@ -100,7 +100,7 @@ spec:
           gethomepage.dev/description: ""
           gethomepage.dev/app: *app
         hostnames:
-          - oidc.${MAIN_DOMAIN}
+          - oidc.${INTERNAL_DOMAIN}
         parentRefs:
           - name: envoy-internal
             namespace: network

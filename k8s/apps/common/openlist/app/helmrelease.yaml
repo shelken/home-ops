@@ -142,7 +142,7 @@ spec:
                 port: 8923
       s3:
         # for lan backup
-        hostnames: ["drive-s3.${MAIN_DOMAIN}"]
+        hostnames: ["drive-s3.${INTERNAL_DOMAIN}"]
         parentRefs:
           - name: envoy-internal
             namespace: network

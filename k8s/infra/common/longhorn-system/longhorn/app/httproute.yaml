@@ -16,7 +16,7 @@ spec:
     - name: envoy-internal
       namespace: network
   hostnames:
-    - longhorn.${MAIN_DOMAIN}
+    - longhorn.${INTERNAL_DOMAIN}
   rules:
     - backendRefs:
         - name: longhorn-frontend

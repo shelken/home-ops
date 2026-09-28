@@ -249,6 +249,24 @@ graph LR
     TS_Subnet --> Envoy_Internal
 ```
 
+### 内网记录归属
+
+内网 DNS 记录有两个来源，都落进路由器 dnsmasq 的同一张 hosts 表
+
+- 集群内服务：HTTPRoute hostname 由集群里的 openwrt-dns（external-dns webhook）经 LuCI RPC 写成路由器 `/etc/config/dhcp` 的 `config cname`，dnsmasq 启动时展开到 `/tmp/hosts/dhcp.<cfg>`，再以 `--addn-hosts` 读入
+- 集群外服务（sakamoto 上的 minio、镜像代理等）：仓库 `router/dnsmasq-int.hosts` 声明，`task router:dns:diff` 比对、`task router:dns:sync` 下发到路由器 `/etc/dnsmasq.d/int.hosts`，通过 UCI `addnhosts` 注册。两个坑：`addnhosts` 是 list 语义，必须 `add_list`；被指向的路径要先存在，否则 `uci commit` 触发的 ucitrack 重载会让 dnsmasq 启动失败、整网解析中断
+- 同名不能同时出现在两处：dnsmasq 对重复名字会返回多个地址并按查询轮换，不报错也不提示
+
+查现网实际生效的记录
+
+```bash
+ssh router-mine "uci show dhcp | grep -E '=domain|=cname'"
+ssh router-mine "cat /tmp/hosts/dhcp.*"
+ssh router-mine "cat /etc/dnsmasq.d/int.hosts"
+```
+
+内网入口迁入独立子域的分层决策见 [内网域决策](./adr/0002-internal-domain-static-client-dns.md)
+
 ### 入口一览
 
 | # | 入口 | 协议 | DNS 链 | 终点 | 状态 |
@@ -259,6 +277,8 @@ graph LR
 | 4 | Tailscale | 内网 | 直连 → subnet router | 集群服务 | ✅ 活跃 |
 | ~5~ | Cloudflare Tunnel | — | — | — | ❌ 已停用 |
 | ~6~ | NetBird | — | — | — | ❌ 已停用 |
+
+> 内网 DNS 里除集群服务外还有集群外内部服务（sakamoto 上的 minio、镜像代理、PVE 面板等），它们解析到 192.168.6.144，不经 envoy
 
 ---
 

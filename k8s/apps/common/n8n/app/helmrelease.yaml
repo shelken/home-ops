@@ -38,7 +38,7 @@ spec:
               N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: false
               N8N_PROTOCOL: "https"
               N8N_PORT: &port 8080
-              N8N_HOST: &hostName "{{ .Release.Name }}.${MAIN_DOMAIN}"
+              N8N_HOST: &hostName "{{ .Release.Name }}.${INTERNAL_DOMAIN}"
               N8N_LOG_LEVEL: info
               N8N_LOG_OUTPUT: console
               N8N_PROXY_HOPS: 1
@@ -76,7 +76,7 @@ spec:
           gethomepage.dev/name: n8n
           gethomepage.dev/icon: n8n.svg
           gethomepage.dev/description: ""
-        hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
+        hostnames: ["{{ .Release.Name }}.${INTERNAL_DOMAIN}"]
         parentRefs:
           - name: envoy-internal
             namespace: network

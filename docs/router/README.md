@@ -67,6 +67,17 @@ ip route | grep 10.42
 ```bash
 task router:bgp:diff   # 对比路由器运行配置与仓库版本
 task router:bgp:sync   # 展示差异 → 确认 → 校验 → 热加载
+task router:dns:diff   # 对比路由器 /etc/dnsmasq.d/int.hosts 与仓库版本
+task router:dns:sync   # 展示差异 → 确认 → 落地 → 重载 dnsmasq（SIGHUP 重读记录文件）
+```
+
+`router/dnsmasq-int.hosts` 是内网域 `int.<MAIN_DOMAIN>` 的集群外记录，指向 sakamoto 上的入口。
+首次下发前需在路由器上注册一次。两个约束：`addnhosts` 是 list 语义，必须用 `add_list`；
+被指向的路径必须先存在 —— 否则 `uci commit` 触发的 ucitrack 重载会让 dnsmasq 启动失败，整网解析中断。
+
+```bash
+ssh router-mine "mkdir -p /etc/dnsmasq.d && touch /etc/dnsmasq.d/int.hosts \
+  && uci add_list dhcp.@dnsmasq[0].addnhosts='/etc/dnsmasq.d/int.hosts' && uci commit dhcp"
 ```
 
 ## 相关文档

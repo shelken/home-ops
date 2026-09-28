@@ -84,7 +84,7 @@ spec:
     route:
       app:
         hostnames:
-          - "ollama.${MAIN_DOMAIN}"
+          - "ollama.${INTERNAL_DOMAIN}"
         parentRefs:
           - name: envoy-internal
             namespace: network

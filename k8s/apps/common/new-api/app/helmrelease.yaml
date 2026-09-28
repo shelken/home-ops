@@ -82,7 +82,7 @@ spec:
           gethomepage.dev/name: new-api
           gethomepage.dev/icon: kubernetes-dashboard.svg
           gethomepage.dev/description: ""
-        hostnames: ["chat-api.${MAIN_DOMAIN}"]
+        hostnames: ["chat-api.${INTERNAL_DOMAIN}"]
         parentRefs:
           - name: envoy-internal
             namespace: network

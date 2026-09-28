@@ -129,7 +129,7 @@ spec:
           gethomepage.dev/icon: go2rtc.png
           gethomepage.dev/description: ""
           gethomepage.dev/app: *app
-        hostnames: ["{{ .Release.Name }}.${MAIN_DOMAIN}"]
+        hostnames: ["{{ .Release.Name }}.${INTERNAL_DOMAIN}"]
         parentRefs:
           - name: envoy-internal
             namespace: network

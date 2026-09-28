@@ -8,7 +8,7 @@ spec:
     data:
       compression: bzip2
     destinationPath: s3://cloudnative-pg/
-    endpointURL: https://minio.${MAIN_DOMAIN}
+    endpointURL: https://minio.${INTERNAL_DOMAIN}
     s3Credentials:
       accessKeyId:
         name: cloudnative-pg-secret

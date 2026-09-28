@@ -62,7 +62,7 @@ spec:
           gethomepage.dev/name: librespeed
           gethomepage.dev/icon: librespeed.svg
           gethomepage.dev/description: ""
-        hostnames: ["speedtest.${MAIN_DOMAIN}"]
+        hostnames: ["speedtest.${INTERNAL_DOMAIN}"]
         parentRefs:
           - name: envoy-internal
             namespace: network
