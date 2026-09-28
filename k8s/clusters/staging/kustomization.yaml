@@ -3,5 +3,6 @@ kind: Kustomization
 resources:
 # - flux-system
 - repos.yaml
+- secrets.yml
 - infra.yml
 - apps.yml
