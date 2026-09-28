@@ -50,6 +50,9 @@ spec:
                 name: cluster-secrets
               - kind: ConfigMap
                 name: cluster-settings
+          # postBuild 依赖本 namespace 的 cluster-secrets/cluster-settings 先由本父级更新；
+          # 新增变量时子级会先失败，1m 重试让其在父级更新后自愈，而不是等到 interval 才恢复
+          retryInterval: 1m
       target:
         group: kustomize.toolkit.fluxcd.io
         kind: Kustomization
