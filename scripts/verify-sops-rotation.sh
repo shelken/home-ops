@@ -102,7 +102,7 @@ echo -e "\n${BLUE}--> 5. 验证 SOPS 接收者信封是否对齐${NC}"
 assert_cmd "secret.sops.yaml 包含 &home-ops 接收者" grep -q "$pub_home_ops" "$secret_file"
 assert_cmd "secret.sops.yaml 包含 &admin_mio 接收者" grep -q "$pub_admin_mio" "$secret_file"
 
-cluster_secret_file="$ROOT_DIR/k8s/components/common/cluster-vars/cluster-secret.sops.yaml"
+cluster_secret_file="$ROOT_DIR/k8s/components/common/sops/cluster-secret.sops.yaml"
 assert_cmd "cluster-secret.sops.yaml 包含 &home-ops 接收者" grep -q "$pub_home_ops" "$cluster_secret_file"
 assert_cmd "cluster-secret.sops.yaml 包含 &admin_mio 接收者" grep -q "$pub_admin_mio" "$cluster_secret_file"
 
