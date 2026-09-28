@@ -514,7 +514,7 @@ graph TB
 |---|-------------|------|---------|------|
 | 0 | `flux-system` GitRepository | 由 bootstrap 创建 | — | 监听代码仓库，触发所有同步 |
 | 1 | `flux-repositories` | `repos.yaml` → `k8s/clusters/common/repos/` | — | 预注册 Helm chart 源（app-template 等） |
-| 2 | `infra` | `infra.yml` → `k8s/infra/staging/` | — | 基础设施先部署，`wait: false`（Ready = 清单已应用，不递归等待孙级健康） |
+| 2 | `infra` | `infra.yml` → `k8s/infra/staging/` | — | 基础设施先部署，`wait: false` |
 | 3 | 各 infra 子 Kustomization | `k8s/infra/common/{category}/<app>/ks.yaml` | infra 层父级 | 网络、存储、数据库、监控等 |
 | 4 | `apps` | `apps.yml` → `k8s/apps/staging/` | infra 完成 | 应用层后部署，`wait: false` |
 | 5 | 各 apps 子 Kustomization | `k8s/apps/common/<app>/ks.yaml` | apps 层父级 | 普通业务应用 |
@@ -523,6 +523,6 @@ graph TB
 
 - **变量注入**：所有子 Kustomization 自动获得 `cluster-secrets`（Secret）和 `cluster-settings`（ConfigMap）中的 postBuild 变量。可通过标签 `substitution.flux/disabled: "true"` 跳过。
 - **SOPs 解密**：所有子 Kustomization 自动获得 SOPs age 解密能力。
-- **等待策略**：`infra` 与 `apps` 层均为 `wait: false`。`apps` 通过 `dependsOn: infra` 保证排在 infra 之后（依赖的是 infra 的 apply 完成，而非全部孙级健康）。历史教训：infra 曾用 `wait: true` 换取顺序，导致任意 infra 孙级失败即冻结整个 app 层（见 [024](../postmortems/024-flux-wait-recursion-retry-gap-freezes-apps.md)）。
-- **失败重试**：子级 Kustomization 必须显式声明 `retryInterval`（默认按 `interval` 重试，通常 1h）。巡检：`bash scripts/verify-ks-retry-interval.sh`。
+- **等待策略**：两层均 `wait: false`，顺序由 `apps.dependsOn: infra` 保证（成因见 [024](../postmortems/024-flux-wait-recursion-retry-gap-freezes-apps.md)）
+- **失败重试**：子级须声明 `retryInterval`，巡检 `scripts/verify-ks-retry-interval.sh`
 - **HelmRelease**：最终通过 `app-template` chart（OCIRepository）或直接 Helm chart 部署 Pod。
