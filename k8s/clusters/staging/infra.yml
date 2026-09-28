@@ -50,10 +50,6 @@ spec:
                 name: cluster-secrets
               - kind: ConfigMap
                 name: cluster-settings
-          # 子级 postBuild 依赖本 namespace 的 cluster-secrets/cluster-settings，父级应用与
-          # 子级首次 reconcile 之间存在竞态；统一 2m 重试让失败的子级快速自愈。
-          # 未设置时退回 interval(=1h)，一次竞态失败就卡住整条 infra→apps 链一小时
-          retryInterval: 2m
       target:
         group: kustomize.toolkit.fluxcd.io
         kind: Kustomization
