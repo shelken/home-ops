@@ -95,6 +95,12 @@ for placeholder in $placeholders_wrapped; do
 		final_value="$secret_value"
 	fi
 
+	# jq 取不到键时返回字符串 null，若静默写进产物会得到看似合法但错误的配置
+	if [ "$final_value" = "null" ]; then
+		echo "渲染失败：$placeholder 在密钥里取不到值（jq 返回 null）" >&2
+		exit 1
+	fi
+
 	yaml_content=$(echo "$yaml_content" | sed "s|$placeholder|$final_value|g")
 done
 
@@ -110,6 +116,12 @@ for placeholder in $placeholders_raw; do
 		final_value=$(echo "$secret_value" | jq --arg key "$json_key" -r '.[$key]')
 	else
 		final_value="$secret_value"
+	fi
+
+	# jq 取不到键时返回字符串 null，若静默写进产物会得到看似合法但错误的配置
+	if [ "$final_value" = "null" ]; then
+		echo "渲染失败：$placeholder 在密钥里取不到值（jq 返回 null）" >&2
+		exit 1
 	fi
 
 	yaml_content=$(echo "$yaml_content" | sed "s|$placeholder|$final_value|g")
