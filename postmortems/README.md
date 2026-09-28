@@ -21,3 +21,4 @@
 - [021 · etcd arg duration string crashloop](./021-etcd-arg-duration-string-crashloop.md)
 - [022 · lima guestagent chrony clock oscillation](./022-lima-guestagent-chrony-clock-oscillation.md)
 - [023 · mac clock ntp direct diagnosis pitfalls](./023-mac-clock-ntp-direct-diagnosis-pitfalls.md)
+- [024 · flux wait recursion retry gap freezes apps](./024-flux-wait-recursion-retry-gap-freezes-apps.md)
