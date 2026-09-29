@@ -1,3 +1,5 @@
+config-version: 8
+
 # Server host/interface to bind to. Default is empty ("") to bind all interfaces (IPv4 + IPv6).
 # Use "127.0.0.1" or "localhost" to restrict access to local machine only.
 host: ""
@@ -12,7 +14,7 @@ tls:
   key: ""
 
 # Management API settings
-remote-management:
+management:
   # Whether to allow remote (non-localhost) management access.
   # When false, only localhost can access management endpoints (a key is still required).
   allow-remote: false
@@ -36,10 +38,12 @@ remote-management:
 auth-dir: "~/.cli-proxy-api"
 
 # API keys for authentication
-api-keys:
-  - "your-api-key-1"
-  - "your-api-key-2"
-  - "your-api-key-3"
+access:
+  # API keys for authentication
+  api-keys:
+    - "your-api-key-1"
+    - "your-api-key-2"
+    - "your-api-key-3"
 
 # Enable debug logging
 debug: false
@@ -207,11 +211,11 @@ video-result-auth-cache-ttl: "3h"
 # auth-auto-refresh-workers: 16
 
 # Quota exceeded behavior
-quota-exceeded:
-  switch-project: true # Whether to automatically switch to another project when a quota is exceeded
-  switch-preview-model: true # Whether to automatically switch to a preview model when a quota is exceeded
-  antigravity-credits: true # Whether to use credits as last-resort fallback when all free-tier auths are exhausted for Claude models
-
+# Compatibility-only quota switches have no new v8 counterpart.
+# quota-exceeded:
+#   switch-project: true
+#   switch-preview-model: true
+#   antigravity-credits: true # in v8: oauth.providers.antigravity.antigravity-credits
 # Routing strategy for selecting credentials when multiple match.
 routing:
   strategy: "round-robin" # round-robin (default), weighted-round-robin, fill-first

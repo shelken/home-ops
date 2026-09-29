@@ -1,3 +1,5 @@
+config-version: 8
+
 # Server host/interface to bind to. Default is empty ("") to bind all interfaces (IPv4 + IPv6).
 # Use "127.0.0.1" or "localhost" to restrict access to local machine only.
 host: ""
@@ -12,7 +14,7 @@ tls:
   key: ""
 
 # Management API settings
-remote-management:
+management:
   # Whether to allow remote (non-localhost) management access.
   # When false, only localhost can access management endpoints (a key is still required).
   allow-remote: true
@@ -33,11 +35,12 @@ auth-dir: "~/.cli-proxy-api"
 
 # API keys for authentication
 # openssl rand -base64 64 | tr -dc 'A-Za-z0-9' | head -c 32; echo
-api-keys:
-  - {{ .client_api_key_mio }}
-  - {{ .client_api_key_alma }}
-  - {{ .client_api_key_zed }}
-  - {{ .client_api_key_phone17 }}
+access:
+  api-keys:
+    - {{ .client_api_key_mio }}
+    - {{ .client_api_key_alma }}
+    - {{ .client_api_key_zed }}
+    - {{ .client_api_key_phone17 }}
 
 # Enable debug logging
 debug: true
@@ -96,11 +99,10 @@ request-retry: 3
 # Maximum wait time in seconds for a cooled-down credential before triggering a retry.
 max-retry-interval: 30
 
-# Quota exceeded behavior
-quota-exceeded:
-  switch-project: true # Whether to automatically switch to another project when a quota is exceeded
-  switch-preview-model: true # Whether to automatically switch to a preview model when a quota is exceeded
-
+# Quota exceeded behavior (v8 中已废弃 switch-project / switch-preview-model)
+# quota-exceeded:
+#   switch-project: true
+#   switch-preview-model: true
 # Routing strategy for selecting credentials when multiple match.
 routing:
   strategy: "fill-first" # round-robin (default), fill-first
