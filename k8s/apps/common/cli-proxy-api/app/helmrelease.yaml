@@ -24,6 +24,20 @@ spec:
             securityContext:
               runAsUser: 1000
               runAsGroup: 1000
+          # 管理面板跟随上游最新 Release, 新版本可能要求更高的后端管理接口 (v1.25.0 起强制 v8);
+          # 固定种子版本 + config.yaml disable-auto-update-panel, 面板版本与后端镜像经 renovate 分组联动升级
+          seed-panel:
+            image:
+              repository: docker.io/curlimages/curl
+              tag: 8.22.0@sha256:58adaa4e8dca9c988bae2aba4ab3434a0bb2da16bbe3f92dec39ec7785166777
+            command:
+              - sh
+              - -c
+              # renovate: datasource=github-releases depName=router-for-me/Cli-Proxy-API-Management-Center
+              - curl -fsSL --retry 3 -o /CLIProxyAPI/management/management.html https://github.com/router-for-me/Cli-Proxy-API-Management-Center/releases/download/v1.25.0/management.html || echo 'seed-panel download failed, panel falls back to latest on first access'
+            securityContext:
+              runAsUser: 1000
+              runAsGroup: 1000
         containers:
           app:
             image: *image
