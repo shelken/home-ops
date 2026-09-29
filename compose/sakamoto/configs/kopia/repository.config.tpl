@@ -4,7 +4,7 @@
     "config": {
       "bucket": "kopia",
       "prefix": "main/",
-      "endpoint": "azure://shelken-homelab/compose-sakamoto/OPENLIST_S3_ENDPOINT",
+      "endpoint": "drive-s3.int.{{azure://shelken-homelab/compose-sakamoto/MAIN_DOMAIN}}",
       "accessKeyID": "azure://shelken-homelab/compose-sakamoto/OPENLIST_S3_ACCESS_KEY_ID",
       "secretAccessKey": "azure://shelken-homelab/compose-sakamoto/OPENLIST_S3_SECRET_ACCESS_KEY"
     }

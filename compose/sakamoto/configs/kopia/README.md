@@ -13,9 +13,9 @@
 
 | 文件 | 说明 |
 |------|------|
-| `repository.config.tpl` | 云端存储库连接配置模板，使用 azure:// 占位符 |
+| `repository.config.tpl` | 云端存储库连接配置模板，使用 azure:// 占位符；endpoint 由固定前缀 `drive-s3.int.` + `MAIN_DOMAIN` 渲染 |
 | `policy.json` | 云端备份策略配置（VPS 通过符号链接共享此文件） |
-| `local/repository.config.tpl` | 本地存储库连接配置（文件系统类型） |
+| `local/repository.config.tpl` | 本地存储库连接配置（文件系统类型，无占位符，渲染时原样直通） |
 | `local/policy.json` | 本地备份策略配置（白名单路径 + 排除规则） |
 
 ## 云端备份 (kopia)
