@@ -29,13 +29,14 @@ task -d local-prod/cpa checkin         # 完成后所有权 = REMOTE, 集群 cpa
 |---|---|
 | 单写入端 | 任何时刻只有集群或本地一侧在写 token, 由 `.state` + 前置检查强制 |
 | Gatus | 外出期间外部探测会持续 503 告警, 已知并接受 |
-| 回滚 | checkin 写回前远端现状自动备份到 `backup/<时间戳>/`; 集群侧另有 kopiur(VolSync/Kopia) 定期备份 |
-| 中断恢复 | checkout 失败: 重跑 `checkout` 即可(前置只挡重复 LOCAL); checkin 失败: 本地 `data/` 与 `backup/` 均完好, 重跑 `checkin` |
+| 回滚 | checkin 写回前远端现状自动备份到 `~/.local/state/cpa-local/backup/<时间戳>/`; 集群侧另有 kopiur(VolSync/Kopia) 定期备份 |
+| 中断恢复 | checkout 失败: 重跑 `checkout` 即可(前置只挡重复 LOCAL); checkin 失败: `~/.local/state/cpa-local/` 下 `data/` 与 `backup/` 均完好, 重跑 `checkin` |
 | 端口 | 本地 8317(api) + 8085/1455/51121(各上游登录回调), 均只绑 127.0.0.1 |
 | 插件 | 60M plugins 随 PVC 一起带走, 离线可用 |
 
 ## 文件说明
 
-- `data/` `config/` `backup/` `.state` 均已 gitignore, 不进 git
+- `data/` `config/` `backup/` `panel/` `.state` 均已 gitignore, 不进 git
+- `panel/management.html` 是手动放置的管理面板(派生物), 持久 bind 进容器, 重启不丢且不随 checkout/checkin 进出 PVC
 - `data/auths/` 是集群里挂到 `/root/.cli-proxy-api` 的历史遗留子目录(cpa 实际用 `data/for-run/`), 随镜像写回, 不挂载进本地容器
 - `config/config.yaml` 每次 checkout 从集群 secret 重新拉取, 含 provider keys, 不要提交

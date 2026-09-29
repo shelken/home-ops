@@ -9,11 +9,10 @@ services:
       # 集群里 auth-dir "~/.cli-proxy-api" 实际落在 /.cli-proxy-api, HOME=/ 复现同一行为
       HOME: /
       TZ: Asia/Shanghai
-      # 管理页静态资源解压路径, 与集群一致; 不设则回退 /config/static 而 /config 不可写
+      # 管理页静态资源路径; 本地用持久 bind (见 volumes), 集群用 tmpfs + seed-panel initContainer
       MANAGEMENT_STATIC_PATH: /CLIProxyAPI/management
     tmpfs:
       # /CLIProxyAPI 根目录 root 属主不可写, 与集群一样用 tmpfs 提供可写挂载点
-      - /CLIProxyAPI/management
       - /CLIProxyAPI/logs
     ports:
       - "127.0.0.1:8317:8317" # api + management
@@ -21,8 +20,12 @@ services:
       - "127.0.0.1:1455:1455" # codex 登录回调
       - "127.0.0.1:51121:51121" # antigravity 登录回调
     volumes:
-      - ./config/config.yaml:/config/config.yaml:ro
-      - ./data/for-run:/.cli-proxy-api
-      - ./data/plugins:/CLIProxyAPI/plugins
+      # 运行时状态统一在 ~/.local/state/cpa-local(XDG state), 绝不放进 git worktree
+      - ~/.local/state/cpa-local/config/config.yaml:/config/config.yaml:ro
+      - ~/.local/state/cpa-local/data/for-run:/.cli-proxy-api
+      - ~/.local/state/cpa-local/data/plugins:/CLIProxyAPI/plugins
+      # 面板手动放置(v1.24.2, 最后兼容 v0 管理接口的版本), 持久不依赖代理下载;
+      # 不在 data/ 内避免被 checkin 镜像上 PVC; 升级到 v8 后可删除恢复跟随最新版
+      - ~/.local/state/cpa-local/panel:/CLIProxyAPI/management
     # 禁止开机自启: 回家后误起本地实例会造成 token 双写分叉
     restart: "no"
