@@ -52,7 +52,7 @@ tasks:
         if [ -z "$(ls -A {{.STATE}}/data)" ]; then echo "PVC 拉取结果为空, 中止"; exit 1; fi
         du -sh {{.STATE}}/data
       - mkdir -p {{.STATE}}/config
-      - kubectl get secret {{.DEPLOY}}-secret -n {{.NS}} -o jsonpath='{.data.config\.yaml}' | base64 -d > {{.STATE}}/config/config.yaml
+      - kubectl get secret {{.DEPLOY}}-secret -n {{.NS}} -o jsonpath='{.data.config\.yaml}' | base64 -d > {{.STATE}}/config/config.yaml && chmod 600 {{.STATE}}/config/config.yaml
       - kubectl delete pod {{.MOVER}} -n {{.NS}}
       - task: local-up
       - echo "LOCAL $(date -Iseconds)" > {{.STATE}}/.state
@@ -80,6 +80,12 @@ tasks:
       # 清空远端再整目录写入, 本地删过的文件远端也删(真镜像)
       - kubectl exec {{.MOVER}} -n {{.NS}} -- find /data -mindepth 1 -delete
       - tar -C {{.STATE}}/data -cf - . | kubectl exec -i {{.MOVER}} -n {{.NS}} -- tar -xf - -C /data
+      # 写回校验: 远端文件数必须与本地一致, 否则中止(不 resume, 集群不带残缺数据启动)
+      - |
+        LOCAL_N=$(find {{.STATE}}/data | wc -l | tr -d ' ')
+        REMOTE_N=$(kubectl exec {{.MOVER}} -n {{.NS}} -- find /data | wc -l | tr -d ' ')
+        echo "写回校验: 本地 $LOCAL_N / 远端 $REMOTE_N 个条目"
+        [ "$LOCAL_N" = "$REMOTE_N" ] || { echo "写回校验失败, 中止; 远端未恢复, 排查后重跑 checkin"; exit 1; }
       - kubectl delete pod {{.MOVER}} -n {{.NS}}
       - flux resume helmrelease {{.DEPLOY}} -n {{.NS}}
       - kubectl scale deploy {{.DEPLOY}} -n {{.NS}} --replicas=1
