@@ -142,5 +142,18 @@
         commitMessageTopic: "{{{groupName}}} group",
       },
     },
+    {
+      description: "Utility Helper Images Group",
+      groupName: "Utility Images",
+      matchDatasources: ["docker"],
+      matchPackageNames: [
+        "/library/busybox/",
+        "/busybox/",
+        "/curlimages/curl/",
+      ],
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
   ],
 }

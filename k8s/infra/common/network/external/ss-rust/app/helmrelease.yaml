@@ -78,8 +78,8 @@ spec:
                 memory: 64Mi
           ip-selector:
             image:
-              repository: busybox
-              tag: stable
+              repository: docker.io/library/busybox
+              tag: 1.38.0@sha256:fd7dc98638c8e305f4dc34e979f1c0fdfdcaeb0fbf8fcff77ae834b6da3d7e6e
             env:
               TZ: ${TIMEZONE}
               MAIN_VPS_IP_V6: ${MAIN_VPS_IP_V6}
