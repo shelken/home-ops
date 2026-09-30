@@ -274,7 +274,7 @@ services:
       replicas: 1
 
   sbtools-server:
-    image: ghcr.io/shelken/proxy/sbtools-server:v0.6.1
+    image: ghcr.io/shelken/proxy/sbtools-server:v0.7.0
     container_name: sbtools-server
     networks:
       - homelab
