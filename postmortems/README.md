@@ -22,3 +22,4 @@
 - [022 · lima guestagent chrony clock oscillation](./022-lima-guestagent-chrony-clock-oscillation.md)
 - [023 · mac clock ntp direct diagnosis pitfalls](./023-mac-clock-ntp-direct-diagnosis-pitfalls.md)
 - [024 · flux wait recursion retry gap freezes apps](./024-flux-wait-recursion-retry-gap-freezes-apps.md)
+- [025 · longhorn downgrade deadlock](./025-longhorn-downgrade-deadlock.md)
