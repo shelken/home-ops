@@ -273,15 +273,15 @@ services:
     deploy:
       replicas: 1
 
-  sb-sync-server:
-    image: ghcr.io/shelken/proxy/sb-sync-server:v0.5.3
-    container_name: sb-sync-server
+  sbtools-server:
+    image: ghcr.io/shelken/proxy/sbtools-server:v0.6.1
+    container_name: sbtools-server
     networks:
       - homelab
     restart: always
     labels:
       - homepage.group=VPS
-      - homepage.name=sb-sync
+      - homepage.name=sbtools
       - homepage.icon=docker-moby.svg
       - homepage.href=https://subs.${MAIN_DOMAIN}/healthz
       - homepage.description=配置交付服务
