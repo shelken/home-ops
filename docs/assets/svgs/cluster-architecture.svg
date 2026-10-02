@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 940" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 975" width="100%" height="100%">
   <defs>
     <!-- 背景底色 -->
     <!-- 背景底色 (Catppuccin Macchiato: Crust #181926 到 Mantle #1e2030) -->
@@ -95,63 +95,33 @@
         fill: #181926;
         stroke-width: 1.5;
       }
-      /* 连续运动的平滑能量光束线段 (Catppuccin Macchiato 柔和纯粹光束) */
-      .beam-ingress {
-        stroke: #91d7e3;
+      /* 运动光束：配合 pathLength=100 归一化，所有链路共用同一标尺，避免逐条手调 dashoffset */
+      .beam {
         stroke-width: 2.5;
-        stroke-linecap: round;
-        stroke-dasharray: 140 1000;
-        animation: animIngress 4.5s linear infinite;
+        stroke-dasharray: 6 94;
+        animation: beamFlow 3.4s linear infinite;
       }
-      @keyframes animIngress {
-        from { stroke-dashoffset: 1140; }
+      @keyframes beamFlow {
+        from { stroke-dashoffset: 100; }
         to { stroke-dashoffset: 0; }
       }
-
-      .beam-v6 {
-        stroke: #8bd5ca;
-        stroke-width: 2.5;
-        stroke-linecap: round;
-        stroke-dasharray: 110 800;
-        animation: animV6 3.5s linear infinite;
-      }
-      @keyframes animV6 {
-        from { stroke-dashoffset: 910; }
-        to { stroke-dashoffset: 0; }
-      }
-
-      .beam-lan {
-        stroke: #f5a97f;
-        stroke-width: 2.5;
-        stroke-linecap: round;
-        stroke-dasharray: 120 900;
-        animation: animLan 4s linear infinite;
-      }
-      @keyframes animLan {
-        from { stroke-dashoffset: 1020; }
-        to { stroke-dashoffset: 0; }
-      }
-
-      .beam-backup {
-        stroke: #a6da95;
-        stroke-width: 2.5;
-        stroke-linecap: round;
-        stroke-dasharray: 150 1100;
-        animation: animBackup 5.5s linear infinite;
-      }
-      @keyframes animBackup {
-        from { stroke-dashoffset: 1250; }
-        to { stroke-dashoffset: 0; }
+      /* 灾备长链路放慢，避免视觉过快 */
+      .beam-slow { animation-duration: 7s; }
+      /* 控制面信令（eBGP / DNS 同步）：虚线 + 流动 */
+      .signal {
+        stroke-width: 1.8;
+        stroke-dasharray: 5 5;
+        animation: beamFlow 2.4s linear infinite;
       }
     </style>
   </defs>
 
   <!-- ================= 背景层 ================= -->
-  <rect width="1440" height="940" fill="url(#bg-grad)" />
-  <rect width="1440" height="940" fill="url(#grid-dots)" />
+  <rect width="1440" height="975" fill="url(#bg-grad)" />
+  <rect width="1440" height="975" fill="url(#grid-dots)" />
 
   <!-- ================= 顶栏 HEADER ================= -->
-  <g transform="translate(48, 28)">
+  <g transform="translate(48, 16)">
     <text x="0" y="20" font-size="16" font-weight="700" letter-spacing="0.5" fill="#cad3f5">HOMELAB CLUSTER TOPOLOGY</text>
     <text x="0" y="38" font-size="11" font-weight="400" fill="#8087a2">系统层级依赖 · 真实因果链路 · 数据流向全景</text>
 
@@ -182,95 +152,106 @@
 
   <!-- ================= 实体面板层（先完整渲染所有卡片面板） ================= -->
 
-  <!-- ===== 模块 1：公网边缘与 VPS (左侧列，x: 48 ~ 320, 宽度 272) ===== -->
+  <!-- ===== 模块 1：公网入口与 VPS 边缘 (左侧列，x: 48 ~ 320, 宽度 272) ===== -->
   <g transform="translate(48, 85)">
     <!-- 1.1 互联网源头 -->
     <g transform="translate(0, 0)">
       <rect width="100" height="54" rx="5" fill="#1e2030" stroke="#363a4f" stroke-width="1" />
       <use href="#ico-cloud" x="12" y="8" />
       <text x="38" y="24" font-size="11" font-weight="600" fill="#cad3f5">Internet</text>
-      <text x="38" y="38" class="font-mono" font-size="8" fill="#8087a2">Public WAN</text>
+      <text x="38" y="38" class="font-mono" font-size="8" fill="#8087a2">公网客户端</text>
     </g>
 
     <!-- 1.2 Cloudflare 双栈解析 -->
     <g transform="translate(112, 0)">
       <rect width="160" height="54" rx="5" fill="#1e2030" stroke="#363a4f" stroke-width="1" />
       <text x="12" y="20" font-size="10.5" font-weight="600" fill="#cad3f5">Cloudflare DNS</text>
-      <text x="12" y="34" class="font-mono" font-size="8" fill="#91d7e3">A *. → VPS IP</text>
-      <text x="12" y="46" class="font-mono" font-size="8" fill="#8bd5ca">AAAA *. → IPv6 DDNS</text>
+      <text x="12" y="34" class="font-mono" font-size="8" fill="#91d7e3">A * → VPS 公网 IP</text>
+      <text x="12" y="46" class="font-mono" font-size="8" fill="#8bd5ca">AAAA * → 集群 v6</text>
     </g>
 
-    <!-- 1.3 VPS 边缘服务器 -->
+    <!-- 1.3 VPS 边缘服务器（公网独立宿主，唯一 v4 入口） -->
     <g transform="translate(0, 68)">
-      <rect width="272" height="280" rx="6" fill="url(#panel-bg)" stroke="#494d64" stroke-width="1" filter="url(#card-shadow)" />
+      <rect width="272" height="412" rx="6" fill="url(#panel-bg)" stroke="#494d64" stroke-width="1" filter="url(#card-shadow)" />
 
       <use href="#ico-server" x="14" y="14" />
       <text x="40" y="26" font-size="12" font-weight="700" fill="#cad3f5">VPS Edge Server</text>
-      <text x="40" y="42" class="font-mono" font-size="8.5" fill="#8087a2">Public IP · Docker Compose</text>
+      <text x="40" y="42" class="font-mono" font-size="8.5" fill="#8087a2">公网独立主机 · Docker Compose</text>
 
-      <!-- Caddy 443 + CrowdSec WAF -->
+      <!-- 公网入口 -->
       <g transform="translate(14, 56)">
-        <rect width="244" height="50" rx="4" fill="#181926" stroke="#ed8796" stroke-width="0.8" />
-        <text x="10" y="20" font-size="10.5" font-weight="600" fill="#cad3f5">Caddy (443) + CrowdSec WAF</text>
-        <text x="10" y="36" class="font-mono" font-size="8" fill="#ee99a0">TLS 证书终结 · L7 恶意流量拦截</text>
+        <rect width="244" height="46" rx="4" fill="#181926" stroke="#ed8796" stroke-width="0.8" />
+        <text x="10" y="19" font-size="10" font-weight="600" fill="#cad3f5">Caddy :443 + CrowdSec</text>
+        <text x="10" y="34" class="font-mono" font-size="7.5" fill="#ee99a0">TLS 终结 · L7 WAF · 唯一 v4 入口</text>
       </g>
 
-      <!-- 代理与分流服务 (左右双列卡片，严格独立 translate) -->
-      <g transform="translate(14, 114)">
+      <!-- 本地 Docker 服务（172.20.0.0/16） -->
+      <g transform="translate(14, 110)">
         <g transform="translate(0, 0)">
-          <rect width="118" height="46" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
-          <text x="10" y="18" font-size="9" font-weight="600" fill="#cad3f5">Hysteria2 / AnyTLS</text>
-          <text x="10" y="32" class="font-mono" font-size="7.5" fill="#a5adcb">no-obfs 供 daed 客户端</text>
+          <rect width="118" height="52" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
+          <text x="10" y="19" font-size="9" font-weight="600" fill="#cad3f5">mosdns :9053</text>
+          <text x="10" y="33" class="font-mono" font-size="7.5" fill="#a5adcb">vdns 内网分流解析</text>
         </g>
         <g transform="translate(126, 0)">
-          <rect width="118" height="46" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
-          <text x="10" y="18" font-size="9" font-weight="600" fill="#cad3f5">mosdns / DERP</text>
-          <text x="10" y="32" class="font-mono" font-size="7.5" fill="#a5adcb">分流解析与中继打洞</text>
+          <rect width="118" height="52" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
+          <text x="10" y="19" font-size="9" font-weight="600" fill="#cad3f5">sub-converter</text>
+          <text x="10" y="33" class="font-mono" font-size="7.5" fill="#a5adcb">sub 订阅转换 :25500</text>
         </g>
       </g>
-
-      <!-- 存储与监控 -->
-      <g transform="translate(14, 168)">
+      <g transform="translate(14, 170)">
         <g transform="translate(0, 0)">
-          <rect width="118" height="46" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
-          <text x="10" y="18" font-size="9" font-weight="600" fill="#cad3f5">OpenList S3</text>
-          <text x="10" y="32" class="font-mono" font-size="7.5" fill="#91d7e3">本地 S3 转换网关</text>
+          <rect width="118" height="52" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
+          <text x="10" y="19" font-size="9" font-weight="600" fill="#cad3f5">sbtools-server</text>
+          <text x="10" y="33" class="font-mono" font-size="7.5" fill="#a5adcb">subs 域名 :8080</text>
         </g>
         <g transform="translate(126, 0)">
-          <rect width="118" height="46" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
-          <text x="10" y="18" font-size="9" font-weight="600" fill="#cad3f5">Kopia Agent</text>
-          <text x="10" y="32" class="font-mono" font-size="7.5" fill="#a6da95">4h 定期加密快照</text>
+          <rect width="118" height="52" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
+          <text x="10" y="19" font-size="9" font-weight="600" fill="#cad3f5">dhp :5000</text>
+          <text x="10" y="33" class="font-mono" font-size="7.5" fill="#a5adcb">镜像 pull-through</text>
         </g>
       </g>
-
-      <!-- 遥测外发 -->
-      <g transform="translate(14, 222)">
-        <rect width="244" height="44" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
-        <text x="10" y="18" font-size="9" font-weight="600" fill="#cad3f5">node-exporter:9100 · Fluent Bit</text>
-        <text x="10" y="32" class="font-mono" font-size="7.5" fill="#8087a2">经 ts-node-vps 代理安全暴露给集群 Prometheus</text>
+      <g transform="translate(14, 230)">
+        <g transform="translate(0, 0)">
+          <rect width="118" height="52" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
+          <text x="10" y="19" font-size="9" font-weight="600" fill="#cad3f5">anytls :5444</text>
+          <text x="10" y="33" class="font-mono" font-size="7.5" fill="#a5adcb">sing-box 代理出口</text>
+        </g>
+        <g transform="translate(126, 0)">
+          <rect width="118" height="52" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
+          <text x="10" y="19" font-size="9" font-weight="600" fill="#cad3f5">hysteria2</text>
+          <text x="10" y="33" class="font-mono" font-size="7.5" fill="#a5adcb">含 no-obfs 供 daed</text>
+        </g>
       </g>
-    </g>
-
-    <!-- 1.4 Tailscale 虚拟网格穿透节点 -->
-    <g transform="translate(0, 362)">
-      <rect width="272" height="72" rx="5" fill="#1e2030" stroke="#c6a0f6" stroke-width="1" />
-      <use href="#ico-tunnel" x="12" y="16" />
-      <text x="38" y="24" font-size="11" font-weight="700" fill="#cad3f5">Tailscale Overlay Mesh</text>
-      <text x="38" y="40" class="font-mono" font-size="8.5" fill="#c6a0f6">IP: 100.97.0.0/16 (WireGuard 虚拟通道)</text>
-      <text x="38" y="56" class="font-mono" font-size="7.5" fill="#8087a2">将公网 VPS 流量安全直通家庭集群内网网关</text>
+      <g transform="translate(14, 290)">
+        <g transform="translate(0, 0)">
+          <rect width="118" height="52" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
+          <text x="10" y="19" font-size="9" font-weight="600" fill="#cad3f5">OpenList S3</text>
+          <text x="10" y="33" class="font-mono" font-size="7.5" fill="#91d7e3">网盘转 S3 网关</text>
+        </g>
+        <g transform="translate(126, 0)">
+          <rect width="118" height="52" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
+          <text x="10" y="19" font-size="9" font-weight="600" fill="#cad3f5">Kopia Agent</text>
+          <text x="10" y="33" class="font-mono" font-size="7.5" fill="#a6da95">compose 1h / vps 4h</text>
+        </g>
+      </g>
+      <g transform="translate(14, 350)">
+        <rect width="244" height="46" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
+        <text x="10" y="19" font-size="9" font-weight="600" fill="#cad3f5">Fluent Bit · node-exporter · DERP</text>
+        <text x="10" y="34" class="font-mono" font-size="7.5" fill="#8087a2">日志 · 遥测 · 中继 :8666 经 ts-node-vps 暴露</text>
+      </g>
     </g>
   </g>
 
 
-  <!-- ===== 模块 2：KUBERNETES 集群核心 (中央区，x: 348 ~ 1048, 宽度 700) ===== -->
-  <g transform="translate(348, 85)">
+  <!-- ===== 模块 2：KUBERNETES 集群核心 (中央区，x: 340 ~ 1040, 宽度 700) ===== -->
+  <g transform="translate(340, 85)">
     <!-- K8s 集群底框 -->
     <rect width="700" height="480" rx="8" fill="url(#k8s-mesh-bg)" stroke="#8aadf4" stroke-opacity="0.35" stroke-width="1" filter="url(#card-shadow)" />
 
     <!-- 顶部集群标识与 GitOps 引擎 -->
     <g transform="translate(20, 16)">
       <use href="#ico-k8s" x="0" y="2" />
-      <text x="26" y="16" font-size="13" font-weight="700" fill="#cad3f5">Kubernetes (k3s) Cluster Fabric</text>
+      <text x="26" y="16" font-size="13" font-weight="700" fill="#cad3f5">k3s Cluster Fabric</text>
       <text x="266" y="16" class="font-mono" font-size="9" fill="#8087a2">Flux v2 GitOps · Cilium eBPF CNI</text>
 
       <g transform="translate(480, -2)">
@@ -280,30 +261,38 @@
       </g>
     </g>
 
-    <!-- 2.1 网关层 (三网关并排) -->
+    <!-- 2.1 网关层 (4 个入口 / 解析单元并排) -->
     <g transform="translate(20, 52)">
       <!-- envoy-external -->
       <g transform="translate(0, 0)">
-        <rect width="212" height="54" rx="4" fill="#181926" stroke="#7dc4e4" stroke-width="1" />
-        <text x="10" y="18" font-size="10.5" font-weight="700" fill="#cad3f5">envoy-external (公网入口)</text>
-        <text x="10" y="32" class="font-mono" font-size="8" fill="#7dc4e4">LB: 192.168.69.45 · 80/443</text>
-        <text x="10" y="44" font-size="7.5" fill="#91d7e3">GeoIP 过滤: 仅限 CN/HK 与 VPS</text>
+        <rect width="157" height="54" rx="4" fill="#181926" stroke="#7dc4e4" stroke-width="1" />
+        <text x="10" y="17" font-size="10" font-weight="700" fill="#cad3f5">envoy-external</text>
+        <text x="10" y="31" class="font-mono" font-size="7.5" fill="#7dc4e4">LB 192.168.69.45 · 80/443</text>
+        <text x="10" y="45" font-size="7.5" fill="#91d7e3">GeoIP → HTTPRoute → Pods</text>
       </g>
 
       <!-- caddy-external -->
-      <g transform="translate(224, 0)">
-        <rect width="212" height="54" rx="4" fill="#181926" stroke="#8bd5ca" stroke-width="1" />
-        <text x="10" y="18" font-size="10.5" font-weight="700" fill="#cad3f5">caddy-external (v6 DDNS)</text>
-        <text x="10" y="32" class="font-mono" font-size="8" fill="#8bd5ca">集群直通公网 IPv6 入口</text>
-        <text x="10" y="44" font-size="7.5" fill="#a6da95">自动更新 Cloudflare AAAA 记录</text>
+      <g transform="translate(165, 0)">
+        <rect width="157" height="54" rx="4" fill="#181926" stroke="#8bd5ca" stroke-width="1" />
+        <text x="10" y="17" font-size="10" font-weight="700" fill="#cad3f5">caddy-external</text>
+        <text x="10" y="31" class="font-mono" font-size="7.5" fill="#8bd5ca">集群公网 v6 入口</text>
+        <text x="10" y="45" font-size="7.5" fill="#a6da95">更新 Cloudflare AAAA</text>
+      </g>
+
+      <!-- k8s-gateway -->
+      <g transform="translate(330, 0)">
+        <rect width="157" height="54" rx="4" fill="#181926" stroke="#8aadf4" stroke-width="1" />
+        <text x="10" y="17" font-size="10" font-weight="700" fill="#cad3f5">k8s-gateway</text>
+        <text x="10" y="31" class="font-mono" font-size="7.5" fill="#8aadf4">LB 192.168.69.41</text>
+        <text x="10" y="45" font-size="7.5" fill="#b8c0e0">内网权威 DNS → LB IP</text>
       </g>
 
       <!-- envoy-internal -->
-      <g transform="translate(448, 0)">
-        <rect width="212" height="54" rx="4" fill="#181926" stroke="#eed49f" stroke-width="1" />
-        <text x="10" y="18" font-size="10.5" font-weight="700" fill="#cad3f5">envoy-internal (内网入口)</text>
-        <text x="10" y="32" class="font-mono" font-size="8" fill="#eed49f">LB: 192.168.69.46 · 内网总线</text>
-        <text x="10" y="44" font-size="7.5" fill="#f5a97f">openwrt-dns 经 RPC 同步 CNAME</text>
+      <g transform="translate(495, 0)">
+        <rect width="157" height="54" rx="4" fill="#181926" stroke="#eed49f" stroke-width="1" />
+        <text x="10" y="17" font-size="10" font-weight="700" fill="#cad3f5">envoy-internal</text>
+        <text x="10" y="31" class="font-mono" font-size="7.5" fill="#eed49f">LB 192.168.69.46</text>
+        <text x="10" y="45" font-size="7.5" fill="#f5a97f">LAN / Tailscale 入口</text>
       </g>
     </g>
 
@@ -345,8 +334,8 @@
         </g>
       </g>
 
-      <!-- 节点 2: homelab-1 -->
-      <g transform="translate(224, 0)">
+      <!-- 节点：homelab-1（靠右列，面向家庭网络与 Tailscale 出口） -->
+      <g transform="translate(448, 0)">
         <rect width="212" height="295" rx="5" fill="#181926" stroke="#494d64" stroke-width="1" />
 
         <use href="#ico-server" x="10" y="10" />
@@ -381,8 +370,8 @@
         </g>
       </g>
 
-      <!-- 节点 3: yuuko-k8s -->
-      <g transform="translate(448, 0)">
+      <!-- 节点：yuuko-k8s -->
+      <g transform="translate(224, 0)">
         <rect width="212" height="295" rx="5" fill="#181926" stroke="#494d64" stroke-width="1" />
 
         <use href="#ico-server" x="10" y="10" />
@@ -431,15 +420,23 @@
       <rect width="660" height="26" rx="4" fill="#181926" stroke="#363a4f" stroke-width="1" />
       <circle cx="14" cy="13" r="3" fill="#a6da95" />
       <text x="26" y="17" font-size="9.5" font-weight="600" fill="#cad3f5">集群级组件</text>
-      <text x="96" y="17" class="font-mono" font-size="7.5" fill="#8087a2">Flux / SOPS / External Secrets · Longhorn · CNPG postgres ×2 · Dragonfly ×2 · VictoriaLogs · OpenList S3 · Kopiur</text>
+      <text x="96" y="17" class="font-mono" font-size="7.5" fill="#8087a2">Flux / SOPS / External Secrets · Longhorn · CNPG ×2 · Dragonfly ×2 · VictoriaLogs · OpenList S3 · openwrt-dns · Kopiur</text>
     </g>
   </g>
 
 
-  <!-- ===== 模块 3：家庭物理网络 (右侧列，x: 1072 ~ 1364, 宽度 292) ===== -->
+  <!-- ===== 模块 3：家庭物理网络与 sakamoto 宿主服务 (右侧列，x: 1072 ~ 1364, 宽度 292) ===== -->
   <g transform="translate(1072, 85)">
-    <!-- 3.1 主路由器 router-mine -->
+    <!-- 3.1 F50 MiFi：家庭唯一 WAN 出口 -->
     <g transform="translate(0, 0)">
+      <rect width="292" height="54" rx="5" fill="#1e2030" stroke="#91d7e3" stroke-width="1" />
+      <use href="#ico-cloud" x="12" y="8" />
+      <text x="38" y="24" font-size="11" font-weight="700" fill="#cad3f5">F50 MiFi (ZTE)</text>
+      <text x="38" y="38" class="font-mono" font-size="8" fill="#8087a2">WAN 移动数据 · zte-mifi-healer</text>
+    </g>
+
+    <!-- 3.2 主路由器 router-mine -->
+    <g transform="translate(0, 60)">
       <rect width="292" height="135" rx="5" fill="#181926" stroke="#eed49f" stroke-width="0.8" />
       <use href="#ico-router" x="12" y="10" />
       <text x="36" y="22" font-size="11" font-weight="700" fill="#eed49f">router-mine (OpenWrt)</text>
@@ -447,187 +444,212 @@
 
       <g transform="translate(10, 36)">
         <rect width="272" height="26" rx="3" fill="#1e2030" />
-        <text x="8" y="17" class="font-mono" font-size="8" fill="#cad3f5">DHCP / DNS: dnsmasq 内网权威解析</text>
+        <text x="8" y="17" class="font-mono" font-size="8" fill="#cad3f5">DHCP / DNS 权威 · 上游 F50 WAN</text>
       </g>
       <g transform="translate(10, 68)">
         <rect width="272" height="26" rx="3" fill="#1e2030" />
         <circle cx="8" cy="13" r="2" fill="#eed49f" />
-        <text x="16" y="17" class="font-mono" font-size="8" fill="#eed49f">eBGP 对等体: 学习集群 Pod 与 LB 网段</text>
+        <text x="16" y="17" class="font-mono" font-size="8" fill="#eed49f">eBGP AS 64513: 3 节点对等体</text>
       </g>
       <g transform="translate(10, 100)">
         <rect width="272" height="24" rx="3" fill="#1e2030" />
-        <text x="8" y="16" class="font-mono" font-size="7.5" fill="#8087a2">LuCI RPC: openwrt-dns 自动同步 CNAME</text>
+        <text x="8" y="16" class="font-mono" font-size="7.5" fill="#8087a2">LuCI RPC: openwrt-dns 同步 CNAME</text>
       </g>
     </g>
 
-    <!-- 3.2 旁路由 TVBox 与 IoT -->
-    <g transform="translate(0, 147)">
-      <rect width="292" height="115" rx="5" fill="#181926" stroke="#f5a97f" stroke-width="0.8" />
-      <text x="12" y="20" font-size="10.5" font-weight="700" fill="#f5a97f">TVBox / HK1 Box (daed)</text>
-      <text x="200" y="20" class="font-mono" font-size="8.5" fill="#8087a2">192.168.6.3</text>
+    <!-- 3.3 旁路由 TVBox 与 IoT -->
+    <g transform="translate(0, 203)">
+      <rect width="292" height="100" rx="5" fill="#181926" stroke="#f5a97f" stroke-width="0.8" />
+      <text x="12" y="18" font-size="10" font-weight="700" fill="#f5a97f">TVBox / HK1 Box (daed)</text>
+      <text x="200" y="18" class="font-mono" font-size="8" fill="#8087a2">192.168.6.3</text>
 
-      <g transform="translate(10, 30)">
-        <rect width="272" height="34" rx="3" fill="#1e2030" />
-        <text x="8" y="15" font-size="8.5" font-weight="600" fill="#cad3f5">eBPF 透明路由智能分流</text>
-        <text x="8" y="26" class="font-mono" font-size="7.5" fill="#b8c0e0">53 端口精准重定向 · 国内直连 / 国外代理</text>
+      <g transform="translate(10, 26)">
+        <rect width="272" height="32" rx="3" fill="#1e2030" />
+        <text x="8" y="14" font-size="8.5" font-weight="600" fill="#cad3f5">eBPF 透明分流 · 默认路由 → router-mine</text>
+        <text x="8" y="26" class="font-mono" font-size="7.5" fill="#b8c0e0">53 端口重定向 · 国内直连 / 国外代理</text>
       </g>
-      <g transform="translate(10, 70)">
-        <rect width="272" height="34" rx="3" fill="#1e2030" />
-        <text x="8" y="15" font-size="8.5" font-weight="600" fill="#ee99a0">IoT 智能家居设备 (VLAN 50)</text>
-        <text x="8" y="26" class="font-mono" font-size="7.5" fill="#ed8796">物理隔离安全子网 · 经 Multus 接入集群</text>
+      <g transform="translate(10, 64)">
+        <rect width="272" height="32" rx="3" fill="#1e2030" />
+        <text x="8" y="14" font-size="8.5" font-weight="600" fill="#ee99a0">IoT 智能家居 (VLAN 50)</text>
+        <text x="8" y="26" class="font-mono" font-size="7.5" fill="#ed8796">192.168.50.0/24 · Multus 接入集群</text>
       </g>
     </g>
 
-    <!-- 3.3 sakamoto 宿主机服务 -->
-    <g transform="translate(0, 274)">
-      <rect width="292" height="200" rx="5" fill="#181926" stroke="#7dc4e4" stroke-width="0.8" />
+    <!-- 3.4 sakamoto 宿主机服务 -->
+    <g transform="translate(0, 316)">
+      <rect width="292" height="164" rx="5" fill="#181926" stroke="#7dc4e4" stroke-width="0.8" />
       <text x="12" y="20" font-size="11" font-weight="700" fill="#7dc4e4">sakamoto Host Services</text>
-      <text x="195" y="20" class="font-mono" font-size="8.5" fill="#8087a2">192.168.6.144</text>
+      <text x="200" y="20" class="font-mono" font-size="8" fill="#8087a2">192.168.6.144</text>
+      <text x="12" y="34" class="font-mono" font-size="7.5" fill="#8087a2">宿主 Compose（另有 Nvidia DLS · dockerproxy）</text>
 
-      <!-- MinIO S3 -->
-      <g transform="translate(10, 32)">
-        <rect width="272" height="48" rx="4" fill="#1e2030" stroke="#a6da95" stroke-width="0.8" />
-        <text x="8" y="18" font-size="9.5" font-weight="600" fill="#a6da95">MinIO S3 对象存储 (:9000)</text>
-        <text x="8" y="32" class="font-mono" font-size="7.5" fill="#b8c0e0">Kopiur 与 CNPG 归档中心 · 本地高速 S3 API</text>
+      <g transform="translate(10, 42)">
+        <rect width="272" height="40" rx="4" fill="#1e2030" stroke="#a6da95" stroke-width="0.8" />
+        <text x="8" y="17" font-size="9.5" font-weight="600" fill="#a6da95">MinIO 本地 S3 (:9000)</text>
+        <text x="8" y="31" class="font-mono" font-size="7.5" fill="#b8c0e0">Kopiur 与 CNPG 归档落点</text>
       </g>
-
-      <!-- 镜像加速 -->
-      <g transform="translate(10, 86)">
-        <rect width="272" height="46" rx="4" fill="#1e2030" stroke="#363a4f" stroke-width="0.8" />
-        <text x="8" y="18" font-size="9" font-weight="600" fill="#91d7e3">Registry Cache (4 Mirrors)</text>
-        <text x="8" y="32" class="font-mono" font-size="7.5" fill="#8087a2">GHCR · Quay · GCR · K8s 本地缓存加速</text>
+      <g transform="translate(10, 88)">
+        <rect width="272" height="36" rx="4" fill="#1e2030" stroke="#363a4f" stroke-width="0.8" />
+        <text x="8" y="15" font-size="9" font-weight="600" fill="#91d7e3">Registry Cache × 4</text>
+        <text x="8" y="28" class="font-mono" font-size="7.5" fill="#8087a2">ghcr · quay · mirror.gcr.io · registry.k8s.io</text>
       </g>
-
-      <!-- Caddy LAN & Kopia 本地守护 -->
-      <g transform="translate(10, 138)">
-        <rect width="272" height="50" rx="4" fill="#1e2030" stroke="#363a4f" stroke-width="0.8" />
-        <text x="8" y="18" font-size="9" font-weight="600" fill="#cad3f5">Caddy LAN &amp; Kopia Local</text>
-        <text x="8" y="32" class="font-mono" font-size="7.5" fill="#b8c0e0">sakamoto.lan:2019 指标暴露</text>
-        <text x="8" y="44" class="font-mono" font-size="7.5" fill="#8087a2">kopia-local 本地冷备守护进程</text>
+      <g transform="translate(10, 130)">
+        <rect width="272" height="28" rx="4" fill="#1e2030" stroke="#363a4f" stroke-width="0.8" />
+        <text x="8" y="18" class="font-mono" font-size="7.5" fill="#b8c0e0">Caddy LAN :2019 · Kopia Local 本地冷备</text>
       </g>
     </g>
   </g>
 
 
-  <!-- ===== 模块 4：3-2-1 数据容灾与归档终点 (底部大层，y: 590 ~ 845) ===== -->
+  <!-- ===== 模块 4：3-2-1 数据容灾与归档 (底部大层，y: 590 ~ 845) ===== -->
   <g transform="translate(48, 590)">
     <rect width="1316" height="255" rx="8" fill="url(#panel-bg)" stroke="#a6da95" stroke-opacity="0.35" stroke-width="1" filter="url(#card-shadow)" />
 
     <!-- 标头 -->
     <use href="#ico-vault" x="18" y="14" />
     <text x="44" y="28" font-size="12" font-weight="700" letter-spacing="0.5" fill="#a6da95">3-2-1 DISASTER RECOVERY PIPELINE</text>
-    <text x="320" y="28" class="font-mono" font-size="8.5" fill="#8bd5ca">End-to-End Encrypted Snapshots &amp; Air-Gapped Offsite</text>
+    <text x="800" y="28" class="font-mono" font-size="8.5" fill="#8bd5ca">端到端加密快照 · 3 副本 / 2 介质 / 1 离线</text>
 
-    <!-- 4.1 备份调度 -->
+    <!-- 4.1 副本源 -->
     <g transform="translate(18, 48)">
-      <rect width="400" height="190" rx="5" fill="#181926" stroke="#a6da95" stroke-width="0.8" />
-      <text x="14" y="20" font-size="11" font-weight="700" fill="#a6da95">备份引擎调度</text>
+      <rect width="550" height="150" rx="5" fill="#181926" stroke="#a6da95" stroke-width="0.8" />
+      <text x="14" y="20" font-size="11" font-weight="700" fill="#a6da95">副本源</text>
 
       <g transform="translate(12, 32)">
-        <rect width="376" height="44" rx="3" fill="#1e2030" />
-        <text x="10" y="17" font-size="9" font-weight="600" fill="#a6da95">Kopiur PVC 快照</text>
-        <text x="10" y="31" class="font-mono" font-size="7.5" fill="#8087a2">每小时 Longhorn VolumeSnapshot ➔ Kopia mover 推送 sakamoto MinIO</text>
+        <rect width="526" height="34" rx="3" fill="#1e2030" />
+        <text x="10" y="14" font-size="8.5" font-weight="600" fill="#a6da95">集群 PVC / CNPG PostgreSQL</text>
+        <text x="10" y="27" class="font-mono" font-size="7.5" fill="#8087a2">Kopiur · Longhorn VolumeSnapshot · 每小时快照</text>
       </g>
-
-      <g transform="translate(12, 82)">
-        <rect width="376" height="44" rx="3" fill="#1e2030" />
-        <text x="10" y="17" font-size="9" font-weight="600" fill="#a6da95">CNPG Barman Cloud</text>
-        <text x="10" y="31" class="font-mono" font-size="7.5" fill="#8087a2">PostgreSQL WAL 实时流推送 ➔ 支持 PITR 任意时间点还原</text>
+      <g transform="translate(12, 72)">
+        <rect width="526" height="34" rx="3" fill="#1e2030" />
+        <text x="10" y="14" font-size="8.5" font-weight="600" fill="#a6da95">VPS Compose / 主机数据</text>
+        <text x="10" y="27" class="font-mono" font-size="7.5" fill="#8087a2">VPS Kopia · compose 1h · vps 4h</text>
       </g>
-
-      <g transform="translate(12, 132)">
-        <rect width="376" height="46" rx="3" fill="#1e2030" stroke="#7dc4e4" stroke-width="0.8" />
-        <text x="10" y="17" font-size="9" font-weight="600" fill="#7dc4e4">OpenList S3 Gateway</text>
-        <text x="10" y="31" class="font-mono" font-size="7.5" fill="#8087a2">将网盘统一转为 S3 协议 ➔ 为 Kopia 提供高速直通通道</text>
+      <g transform="translate(12, 112)">
+        <rect width="526" height="34" rx="3" fill="#1e2030" />
+        <text x="10" y="14" font-size="8.5" font-weight="600" fill="#a6da95">sakamoto /Volumes 用户数据</text>
+        <text x="10" y="27" class="font-mono" font-size="7.5" fill="#8087a2">Kopia Local · 每小时快照</text>
       </g>
     </g>
 
-    <!-- 4.2 最终归档介质 -->
-    <g transform="translate(436, 48)">
-      <g transform="translate(0, 0)">
-        <rect width="860" height="85" rx="5" fill="#181926" stroke="#a6da95" stroke-width="0.8" />
-        <text x="16" y="22" font-size="11.5" font-weight="700" fill="#a6da95">189 Cloud (天翼云盘 · 异地冷备份)</text>
-        <text x="16" y="36" class="font-mono" font-size="8" fill="#8087a2">Offsite Remote S3 Target · 经由 OpenList S3 Gateway 统一上传</text>
-
-        <g transform="translate(16, 44)">
-          <g transform="translate(0, 0)">
-            <rect width="405" height="32" rx="3" fill="#1e2030" />
-            <text x="10" y="20" class="font-mono" font-size="8" fill="#cad3f5">Kopia 快照源: MinIO 数据 (每 6 小时)</text>
-          </g>
-          <g transform="translate(420, 0)">
-            <rect width="405" height="32" rx="3" fill="#1e2030" />
-            <text x="10" y="20" class="font-mono" font-size="8" fill="#cad3f5">Kopia 快照源: Compose 数据 1h · VPS 数据 4h</text>
-          </g>
-        </g>
+    <!-- 4.2 归档介质（与副本源逐行对齐，连线为直线） -->
+    <g transform="translate(652, 48)">
+      <!-- 异地介质 -->
+      <g transform="translate(0, 20)">
+        <rect width="642" height="82" rx="5" fill="#181926" stroke="#a6da95" stroke-width="0.8" />
+        <text x="12" y="20" font-size="11" font-weight="700" fill="#a6da95">189 云盘 · 天翼云</text>
+        <text x="188" y="20" class="font-mono" font-size="7.5" fill="#8087a2">异地 offsite S3 · air-gapped 之外的唯一异地点</text>
+        <text x="12" y="40" class="font-mono" font-size="7.5" fill="#cad3f5">接收: 集群快照（经 MinIO @sakamoto 中转）· VPS Compose / 主机数据</text>
+        <text x="12" y="56" class="font-mono" font-size="7.5" fill="#8bd5ca">经 OpenList S3 Gateway 统一转为 S3 协议上传</text>
+        <text x="12" y="72" class="font-mono" font-size="7.5" fill="#8087a2">Kopia 端到端加密 · 防本地物理损毁</text>
       </g>
-
-      <g transform="translate(0, 95)">
-        <rect width="860" height="95" rx="5" fill="#181926" stroke="#a6da95" stroke-width="0.8" />
-
-        <g transform="translate(16, 16)">
-          <g transform="translate(0, 0)">
-            <rect width="405" height="66" rx="4" fill="#1e2030" stroke="#a6da95" stroke-width="0.8" />
-            <text x="10" y="20" font-size="10.5" font-weight="700" fill="#a6da95">External USB HDD (物理隔离离线冷备)</text>
-            <text x="10" y="36" class="font-mono" font-size="7.5" fill="#8087a2">物理直连挂载于 sakamoto 宿主机</text>
-            <text x="10" y="50" class="font-mono" font-size="7.5" fill="#a6da95">Kopia Local 每小时快照用户数据 · 隔离防勒索底线</text>
-          </g>
-
-          <g transform="translate(420, 0)">
-            <rect width="405" height="66" rx="4" fill="#1e2030" stroke="#363a4f" stroke-width="0.8" />
-            <text x="10" y="18" class="font-mono" font-size="8.5" font-weight="600" fill="#a6da95">3-2-1 BACKUP COMPLIANCE AUDIT</text>
-            <text x="10" y="34" class="font-mono" font-size="7.5" fill="#b8c0e0">• 3 份副本: 本地实时持久卷 + MinIO 暂存 + 最终冷备</text>
-            <text x="10" y="48" class="font-mono" font-size="7.5" fill="#b8c0e0">• 2 种介质: 节点内部磁盘阵列 + 外部机械移动硬盘</text>
-          </g>
-        </g>
+      <!-- 离线介质 -->
+      <g transform="translate(0, 110)">
+        <rect width="642" height="82" rx="5" fill="#181926" stroke="#a6da95" stroke-width="0.8" />
+        <text x="12" y="20" font-size="11" font-weight="700" fill="#a6da95">External USB HDD</text>
+        <text x="160" y="20" class="font-mono" font-size="7.5" fill="#8087a2">物理离线冷备 · 直连挂载于 sakamoto 宿主机</text>
+        <text x="12" y="40" class="font-mono" font-size="7.5" fill="#cad3f5">接收: sakamoto /Volumes 用户数据 · Kopia Local 每小时快照</text>
+        <text x="12" y="56" class="font-mono" font-size="7.5" fill="#a6da95">隔离防勒索的最后一道底线</text>
+        <text x="12" y="72" class="font-mono" font-size="7.5" fill="#8087a2">3 副本 · 2 介质 · 1 离线</text>
       </g>
     </g>
   </g>
 
 
-  <!-- ================= 顶层走廊连线系统 (TOP CORRIDORS & MOVING BEAMS) ================= -->
-  <!-- 这一层置于所有面板矩形之后，绝对不会被任何卡片遮挡，且 100% 走在卡片间的空白走廊上！ -->
+  <!-- ================= 连线层：一条边 = 一个关系，端点一律吸附卡片边缘 ================= -->
+  <!-- 走廊分配：左侧 x=324（VPS↔集群）/ 右侧 x=1050,1058,1066（集群↔家庭网络）/ 顶部 y=66,76 -->
   <g id="connections-layer">
 
-    <!-- ===== 链路 1：公网入站路径 (Internet ➔ VPS Caddy ➔ Tailscale ➔ Envoy-External ➔ Pods) ===== -->
-    <!-- 严格走 x=334 空白走廊，100% 不穿透任何卡片与文字 -->
-    <path id="path-ingress" d="M 98 139 L 98 153 M 320 195 L 334 195 L 334 478 L 320 478 M 320 495 L 334 495 L 334 164 L 368 164 M 474 191 L 474 203" class="wire track" />
-    <path d="M 98 139 L 98 153 M 320 195 L 334 195 L 334 478 L 320 478 M 320 495 L 334 495 L 334 164 L 368 164 M 474 191 L 474 203" class="wire beam-ingress" />
-    <circle cx="98" cy="139" r="3" class="pin" stroke="#91d7e3" />
-    <circle cx="320" cy="195" r="3" class="pin" stroke="#91d7e3" />
-    <circle cx="320" cy="478" r="3" class="pin" stroke="#c6a0f6" />
-    <circle cx="320" cy="495" r="3" class="pin" stroke="#c6a0f6" />
-    <circle cx="368" cy="164" r="3" class="pin" stroke="#7dc4e4" />
-    <circle cx="474" cy="203" r="3" class="pin" stroke="#8aadf4" />
+    <!-- ① DNS 查询：Internet → Cloudflare -->
+    <path d="M 148 112 L 160 112" class="wire track" />
+    <path d="M 148 112 L 160 112" class="wire signal" stroke="#8087a2" pathLength="100" />
+    <circle cx="148" cy="112" r="3" class="pin" stroke="#8087a2" />
+    <circle cx="160" cy="112" r="3" class="pin" stroke="#8087a2" />
 
-    <!-- ===== 链路 2：IPv6 直通路径 (Cloudflare AAAA ➔ 走廊 ➔ caddy-external ➔ envoy-external) ===== -->
-    <!-- 走 x=334 走廊进网关层，完全避开顶部文字 -->
-    <path id="path-v6" d="M 272 112 L 334 112 L 334 145 L 348 145 M 592 164 L 580 164" class="wire track" />
-    <path d="M 272 112 L 334 112 L 334 145 L 348 145 M 592 164 L 580 164" class="wire beam-v6" />
-    <circle cx="272" cy="112" r="3" class="pin" stroke="#8bd5ca" />
-    <circle cx="348" cy="145" r="3" class="pin" stroke="#8bd5ca" />
-    <circle cx="592" cy="164" r="3" class="pin" stroke="#8bd5ca" />
+    <!-- ② 公网 v4：Cloudflare A → VPS Caddy（唯一 v4 入口） -->
+    <path d="M 240 139 L 240 153" class="wire track" />
+    <path d="M 240 139 L 240 153" class="wire beam" stroke="#91d7e3" pathLength="100" />
+    <circle cx="240" cy="139" r="3" class="pin" stroke="#91d7e3" />
+    <circle cx="240" cy="153" r="3" class="pin" stroke="#91d7e3" />
 
-    <!-- ===== 链路 3：内网分流与旁路由路径 (TVBox daed ➔ Corridor ➔ router-mine ➔ Envoy-Internal) ===== -->
-    <path id="path-lan" d="M 1072 278 L 1060 278 L 1060 152 L 1072 152 M 1072 120 L 1060 120 L 1060 164 L 1028 164" class="wire track" />
-    <path d="M 1072 278 L 1060 278 L 1060 152 L 1072 152 M 1072 120 L 1060 120 L 1060 164 L 1028 164" class="wire beam-lan" />
-    <circle cx="1072" cy="278" r="3" class="pin" stroke="#f5a97f" />
-    <circle cx="1072" cy="152" r="3" class="pin" stroke="#f5a97f" />
-    <circle cx="1028" cy="164" r="3" class="pin" stroke="#eed49f" />
+    <!-- ③ 公网 v6：Cloudflare AAAA → caddy-external（集群 v6 入口） -->
+    <path d="M 300 85 L 300 76 L 570 76 L 570 137" class="wire track" />
+    <path d="M 300 85 L 300 76 L 570 76 L 570 137" class="wire beam" stroke="#8bd5ca" pathLength="100" />
+    <circle cx="300" cy="85" r="3" class="pin" stroke="#8bd5ca" />
+    <circle cx="570" cy="137" r="3" class="pin" stroke="#8bd5ca" />
 
-    <!-- ===== 链路 4：Cilium eBGP 路由宣告 (Cilium Fabric ➔ Corridor ➔ router-mine) ===== -->
-    <path id="path-bgp" d="M 1016 528 L 1060 528 L 1060 186 L 1072 186" class="wire track" stroke-dasharray="3 3" />
-    <circle cx="1048" cy="528" r="3" class="pin" stroke="#eed49f" />
-    <circle cx="1072" cy="186" r="3" class="pin" stroke="#eed49f" />
+    <!-- ④ 家庭出网：Internet → F50 WAN（移动数据，出口细节见 F50 卡片） -->
+    <path d="M 74 85 L 74 66 L 1220 66 L 1220 85" class="wire track" />
+    <path d="M 74 85 L 74 66 L 1220 66 L 1220 85" class="wire beam" stroke="#91d7e3" pathLength="100" />
+    <circle cx="74" cy="85" r="3" class="pin" stroke="#91d7e3" />
+    <circle cx="1220" cy="85" r="3" class="pin" stroke="#91d7e3" />
 
-    <!-- ===== 链路 5：多级容灾备份归档流水线 (集群 PVC/DB ➔ sakamoto MinIO ➔ 189云盘 & USB) ===== -->
-    <path id="path-backup" d="M 698 566 L 698 578 L 1060 578 L 1060 405 L 1072 405 M 1072 445 L 1060 445 L 1060 638 L 466 638 M 466 676 L 484 676 M 466 755 L 484 755" class="wire track" />
-    <path d="M 698 566 L 698 578 L 1060 578 L 1060 405 L 1072 405 M 1072 445 L 1060 445 L 1060 638 L 466 638 M 466 676 L 484 676 M 466 755 L 484 755" class="wire beam-backup" />
-    <circle cx="698" cy="566" r="3" class="pin" stroke="#a6da95" />
-    <circle cx="1072" cy="405" r="3" class="pin" stroke="#a6da95" />
-    <circle cx="466" cy="638" r="3" class="pin" stroke="#a6da95" />
-    <circle cx="484" cy="676" r="3" class="pin" stroke="#a6da95" />
-    <circle cx="484" cy="755" r="3" class="pin" stroke="#a6da95" />
+    <!-- ⑤ F50 → router-mine（默认路由出口） -->
+    <path d="M 1220 139 L 1220 145" class="wire track" />
+    <path d="M 1220 139 L 1220 145" class="wire beam" stroke="#91d7e3" pathLength="100" />
+    <circle cx="1220" cy="139" r="3" class="pin" stroke="#91d7e3" />
+    <circle cx="1220" cy="145" r="3" class="pin" stroke="#91d7e3" />
 
+    <!-- ⑥ VPS Caddy → envoy-external（唯一跨公网段：Tailscale 隧道，subnet router 位于 homelab-1） -->
+    <path d="M 320 300 L 324 300 L 324 164 L 360 164" class="wire track" />
+    <path d="M 320 300 L 324 300 L 324 164 L 360 164" class="wire beam" stroke="#c6a0f6" pathLength="100" />
+    <circle cx="320" cy="300" r="3" class="pin" stroke="#c6a0f6" />
+    <circle cx="360" cy="164" r="3" class="pin" stroke="#7dc4e4" />
+    <text x="335" y="300" class="font-mono" font-size="7" fill="#c6a0f6" text-anchor="middle" transform="rotate(-90 335 300)">Tailscale 隧道 · subnet router @homelab-1 通告 .6/.10/.69</text>
+
+    <!-- ⑦ caddy-external → envoy-external（v6 落地后集群内一跳） -->
+    <path d="M 525 164 L 517 164" class="wire track" />
+    <path d="M 525 164 L 517 164" class="wire beam" stroke="#8bd5ca" pathLength="100" />
+    <circle cx="525" cy="164" r="3" class="pin" stroke="#8bd5ca" />
+    <circle cx="517" cy="164" r="3" class="pin" stroke="#7dc4e4" />
+
+    <!-- ⑧ 内网入口：router-mine DNS → envoy-internal -->
+    <path d="M 1072 210 L 1066 210 L 1066 164 L 1012 164" class="wire track" />
+    <path d="M 1072 210 L 1066 210 L 1066 164 L 1012 164" class="wire beam" stroke="#f5a97f" pathLength="100" />
+    <circle cx="1072" cy="210" r="3" class="pin" stroke="#f5a97f" />
+    <circle cx="1012" cy="164" r="3" class="pin" stroke="#eed49f" />
+
+    <!-- ⑨ eBGP ×3：3 节点 ⇄ router-mine（节点级对等，通告 PodCIDR 与 LB 网段） -->
+    <path d="M 1072 262 L 1050 262 L 1050 240 L 1020 240" class="wire track" />
+    <path d="M 1072 262 L 1050 262 L 1050 240 L 1020 240" class="wire signal" stroke="#eed49f" pathLength="100" />
+    <circle cx="1072" cy="262" r="3" class="pin" stroke="#eed49f" />
+    <circle cx="1020" cy="240" r="3" class="pin" stroke="#eed49f" />
+
+    <!-- ⑩ IoT VLAN 50 → homelab-1（Multus 直通 home-assistant） -->
+    <path d="M 1072 300 L 1020 300" class="wire track" />
+    <path d="M 1072 300 L 1020 300" class="wire beam" stroke="#f5a97f" pathLength="100" />
+    <circle cx="1072" cy="300" r="3" class="pin" stroke="#f5a97f" />
+    <circle cx="1020" cy="300" r="3" class="pin" stroke="#f5a97f" />
+
+    <!-- ⑪ 内网 DNS 同步：openwrt-dns（集群）→ router-mine dnsmasq -->
+    <path d="M 1020 548 L 1058 548 L 1058 280 L 1075 280" class="wire track" />
+    <path d="M 1020 548 L 1058 548 L 1058 280 L 1075 280" class="wire signal" stroke="#8aadf4" pathLength="100" />
+    <circle cx="1020" cy="548" r="3" class="pin" stroke="#8aadf4" />
+    <circle cx="1075" cy="280" r="3" class="pin" stroke="#8aadf4" />
+
+    <!-- ⑫ 集群 → 容灾：Kopiur 每小时快照落 MinIO -->
+    <path d="M 380 565 L 380 670" class="wire track" />
+    <path d="M 380 565 L 380 670" class="wire beam beam-slow" stroke="#a6da95" pathLength="100" />
+    <circle cx="380" cy="565" r="3" class="pin" stroke="#a6da95" />
+    <circle cx="380" cy="670" r="3" class="pin" stroke="#a6da95" />
+    <text x="392" y="617" class="font-mono" font-size="7" fill="#a6da95" text-anchor="middle" transform="rotate(-90 392 617)">Kopiur 每小时快照</text>
+
+    <!-- ⑬ 副本源 → 归档介质（逐行直连，无折返） -->
+    <path d="M 604 687 L 700 687" class="wire track" />
+    <path d="M 604 687 L 700 687" class="wire beam beam-slow" stroke="#a6da95" pathLength="100" />
+    <circle cx="604" cy="687" r="3" class="pin" stroke="#a6da95" />
+    <circle cx="700" cy="687" r="3" class="pin" stroke="#a6da95" />
+
+    <!-- ⑭ VPS 数据 → 189 云盘（异地） -->
+    <path d="M 604 727 L 700 727" class="wire track" />
+    <path d="M 604 727 L 700 727" class="wire beam beam-slow" stroke="#a6da95" pathLength="100" />
+    <circle cx="604" cy="727" r="3" class="pin" stroke="#a6da95" />
+    <circle cx="700" cy="727" r="3" class="pin" stroke="#a6da95" />
+
+    <!-- ⑮ sakamoto /Volumes → USB HDD（离线） -->
+    <path d="M 604 767 L 700 767" class="wire track" />
+    <path d="M 604 767 L 700 767" class="wire beam beam-slow" stroke="#a6da95" pathLength="100" />
+    <circle cx="604" cy="767" r="3" class="pin" stroke="#a6da95" />
+    <circle cx="700" cy="767" r="3" class="pin" stroke="#a6da95" />
   </g>
 
 
@@ -635,28 +657,40 @@
   <g transform="translate(48, 885)">
     <line x1="0" y1="0" x2="1344" y2="0" stroke="#363a4f" stroke-width="1" />
 
-    <!-- 1. 公网入站 -->
+    <!-- 1. 公网 v4 -->
     <g transform="translate(0, 20)">
       <line x1="0" y1="0" x2="26" y2="0" stroke="#91d7e3" stroke-width="2.5" stroke-linecap="round" />
-      <text x="34" y="3.5" class="font-mono" font-size="8.5" fill="#cad3f5">公网入口流: Internet ➔ VPS Caddy ➔ Tailscale ➔ Envoy-External ➔ Pods</text>
+      <text x="34" y="3.5" class="font-mono" font-size="8.5" fill="#cad3f5">公网 v4 入口: Internet ➔ CF A ➔ VPS Caddy+WAF ➔ Tailscale ➔ envoy-external</text>
     </g>
 
-    <!-- 2. IPv6 直达 -->
+    <!-- 2. 公网 v6 -->
     <g transform="translate(700, 20)">
       <line x1="0" y1="0" x2="26" y2="0" stroke="#8bd5ca" stroke-width="2.5" stroke-linecap="round" />
-      <text x="34" y="3.5" class="font-mono" font-size="8.5" fill="#cad3f5">IPv6 直达流: Cloudflare AAAA ➔ caddy-external DDNS 直通网关</text>
+      <text x="34" y="3.5" class="font-mono" font-size="8.5" fill="#cad3f5">公网 v6 入口: Internet ➔ CF AAAA ➔ caddy-external ➔ envoy-external</text>
     </g>
 
     <!-- 3. 内网分流 -->
     <g transform="translate(0, 40)">
       <line x1="0" y1="0" x2="26" y2="0" stroke="#f5a97f" stroke-width="2.5" stroke-linecap="round" />
-      <text x="34" y="3.5" class="font-mono" font-size="8.5" fill="#cad3f5">局域网分流: LAN ➔ TVBox daed ➔ router-mine ➔ Envoy-Internal</text>
+      <text x="34" y="3.5" class="font-mono" font-size="8.5" fill="#cad3f5">内网分流: LAN ➔ TVBox daed ➔ router-mine DNS ➔ envoy-internal</text>
     </g>
 
     <!-- 4. 容灾归档 -->
     <g transform="translate(700, 40)">
       <line x1="0" y1="0" x2="26" y2="0" stroke="#a6da95" stroke-width="2.5" stroke-linecap="round" />
-      <text x="34" y="3.5" class="font-mono" font-size="8.5" fill="#cad3f5">3-2-1 灾备流: PVC/DB ➔ MinIO ➔ 189云盘 / USB冷备</text>
+      <text x="34" y="3.5" class="font-mono" font-size="8.5" fill="#cad3f5">3-2-1 灾备流: 集群 PVC/DB ➔ MinIO ➔ 189云盘 · /Volumes ➔ USB HDD</text>
+    </g>
+
+    <!-- 5. eBGP 控制面 -->
+    <g transform="translate(0, 60)">
+      <line x1="0" y1="0" x2="26" y2="0" stroke="#eed49f" stroke-width="2" stroke-dasharray="5 5" stroke-linecap="round" />
+      <text x="34" y="3.5" class="font-mono" font-size="8.5" fill="#cad3f5">eBGP 路由宣告: 3 节点 ⇄ router-mine (AS 64514 ⇄ 64513) 通告 PodCIDR + LB</text>
+    </g>
+
+    <!-- 6. Tailscale 隧道 -->
+    <g transform="translate(700, 60)">
+      <line x1="0" y1="0" x2="26" y2="0" stroke="#c6a0f6" stroke-width="2.5" stroke-linecap="round" />
+      <text x="34" y="3.5" class="font-mono" font-size="8.5" fill="#cad3f5">Tailscale 隧道: VPS ⇄ subnet router @homelab-1 通告 .6/.10/.69</text>
     </g>
   </g>
 </svg>
