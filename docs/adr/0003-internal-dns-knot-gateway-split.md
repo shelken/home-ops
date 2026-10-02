@@ -1,6 +1,6 @@
 # 内部 DNS 生命周期：路由器 Knot 权威与 k8s-gateway 动态覆盖分工
 
-#1477 的根因是 internal external-dns 以 `upsert-only` + `registry: noop` 写路由器 UCI，资源下线后内网记录永不删除。决策：内部域的精确生命周期交由路由器 Knot 承担（原生 RFC2136、TXT ownership、`policy: sync`），dnsmasq 只负责把内部域转给 Knot；主域的公网同名内网直达保留现有 k8s-gateway 动态覆盖，其 fallthrough 明确指向公网递归并配有序备用。域名分层边界见 [ADR-0002](./0002-internal-domain-static-client-dns.md)。决策已确认，实施尚未开始
+#1477 的根因是 internal external-dns 以 `upsert-only` + `registry: noop` 写路由器 UCI，资源下线后内网记录永不删除。决策：内部域的精确生命周期交由路由器 Knot 承担（原生 RFC2136、TXT ownership、`policy: sync`），dnsmasq 只负责把内部域转给 Knot；主域的公网同名内网直达保留现有 k8s-gateway 动态覆盖，其 fallthrough 明确指向公网递归并配有序备用。内部域在两条链路上的后端不同：家庭 LAN 经主路由交 Knot，VPS 与远程链路维持 k8s-gateway；集群外内部服务（镜像、备份等）在远程链路上必须继续可解析，因此 k8s-gateway 未匹配的内部域名称仍需交回主路由，不走公网递归。域名分层边界见 [ADR-0002](./0002-internal-domain-static-client-dns.md)。决策已确认，实施尚未开始
 
 ## Considered Options
 
@@ -14,3 +14,4 @@
 - 家庭主路由从 `all-servers` 改为有序查询，防止公网备用与内网答案竞速
 - SFM 客户端保持静态内部域应答，精确删除不覆盖 SFM 本地应答
 - 第二域名不纳入此分工
+- 同一内部域由两个后端应答（LAN 的 Knot、远程链路的 k8s-gateway），两者都源自同一批集群资源，各链路的一致性分别验证
