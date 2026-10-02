@@ -3,6 +3,8 @@
 > 本文件描述整个 homelab 的物理部署、服务分布、网络入口、
 > 监控采集和备份链路。所有敏感信息已替换为占位符。
 
+![集群全景架构动态图](./assets/svgs/cluster-architecture.svg)
+
 ---
 
 ## 1. 物理部署
@@ -27,7 +29,8 @@ graph TB
         end
     end
 
-    VPS["VPS"]
+    VPS["VPS<br/>公网入口 · Docker Compose"]
+    VPS -.->|"Tailscale"| WORKER
 ```
 
 ## 2. 网络拓扑
@@ -82,8 +85,8 @@ graph LR
     YUUKO_HOST --- WORKER2
     PVE_NODE --- WORKER
     CP <-->|"LAN"| WORKER
-    IOT -->|"Multus"| CP
-    VPS <-->|"Tailscale"| CP
+    IOT -->|"Multus (VLAN 50)"| WORKER
+    VPS <-->|"Tailscale"| WORKER
 ```
 
 ### 连接方式
@@ -97,11 +100,11 @@ graph LR
 | PVE ↔ router-mine | LAN (VLAN 6) | 192.168.6.0/24 |
 | yuuko ↔ router-mine | LAN (VLAN 6) | 192.168.6.0/24，宿主有线桥接 |
 | IoT 设备 ↔ router-mine | LAN (VLAN 50) | 192.168.50.0/24 |
-| IoT 设备 → k3s pods | Multus CNI | VLAN 50 接入集群 |
+| IoT 设备 → k3s pods | Multus CNI | VLAN 50 由 multus-iot 直通 Pod（home-assistant 192.168.50.51），调度偏好 homelab-1 |
 | sakamoto-k8s ↔ homelab-1 / yuuko-k8s | LAN (VLAN 6) | k3s 节点间通信 |
 | router-mine ↔ k3s 节点 | eBGP | Cilium 向 router-mine 通告 PodCIDR 和 LoadBalancerIP |
 | Cilium LB IPAM | 192.168.69.0/24 | k8s-gateway: 192.168.69.41；envoy-external: 192.168.69.45；envoy-internal: 192.168.69.46 |
-| VPS ↔ sakamoto-k8s | Tailscale | 100.97.0.0/16，VPS 通过 Tailscale 直连集群 subnet router |
+| VPS ↔ homelab-1 | Tailscale | 100.97.0.0/16，subnet router 由 operator Connector `ts-router` 承载（调度偏好 homelab-1），通告 192.168.6.0/24、192.168.10.0/24、192.168.69.0/24 |
 
 ---
 
@@ -118,25 +121,27 @@ graph TB
     end
 
     subgraph COMPOSE_SAKA["sakamoto · Docker Compose"]
-        CD_SAKA["Caddy (内部代理)
-MinIO (S3 存储)
-Registry Mirrors × 4
-Kopia + Kopia Local (备份)
-Nvidia DLS"]
+        CD_SAKA["Caddy (内部代理 :2019)
+MinIO (S3 存储 :9000)
+Registry Mirrors × 4 (ghcr / quay / mirror.gcr.io / registry.k8s.io)
+Kopia (云端) + Kopia Local (备份)
+Nvidia DLS
+dockerproxy (docker-socket-proxy :2575)"]
     end
 
     subgraph COMPOSE_VPS["VPS · Docker Compose"]
         CD_VPS["Caddy (公网入口 + TLS)
-CrowdSec (WAF)
-dnsmasq (本机 DNS)
-mosdns (DNS)
-Hysteria2 / Hysteria2 no-obfs / Xray (代理)
-DERP (Tailscale 中继)
+CrowdSec (WAF + AppSec)
+dnsmasq (本机 DNS) / mosdns (DNS)
+hysteria2 / hysteria2-no-obfs (供 daed)
+anytls (sing-box :5444)
+DERP (中继，宿主机 :8666)
 OpenList (S3 网关)
 Kopia (备份源)
 Fluent Bit (日志采集)
-Docker Registry Proxy
-sub-converter (订阅转换)"]
+dhp (Docker Registry pull-through)
+sub-converter / sbtools-server (订阅转换 · subs 域名)
+node-exporter / dockerproxy"]
     end
 ```
 
@@ -275,8 +280,8 @@ ssh router-mine "cat /etc/dnsmasq.d/int.hosts"
 | 2 | caddy-external (v6) | 公网 | AAAA `*` → 集群 v6 | envoy-external | ✅ 活跃 |
 | 3 | envoy-internal | 内网 | 客户端 DNS → TVBox daed → router-mine DNS (openwrt-dns 同步) → LB | envoy-internal | ✅ 活跃 |
 | 4 | Tailscale | 内网 | 直连 → subnet router | 集群服务 | ✅ 活跃 |
-| ~5~ | Cloudflare Tunnel | — | — | — | ❌ 已停用 |
-| ~6~ | NetBird | — | — | — | ❌ 已停用 |
+| ~5~ | Cloudflare Tunnel | 无 | 无 | 无 | ❌ 已停用 |
+| ~6~ | NetBird | 无 | 无 | 无 | ❌ 已停用 |
 
 > 内网 DNS 里除集群服务外还有集群外内部服务（sakamoto 上的 minio、镜像代理、PVE 面板等），它们解析到 192.168.6.144，不经 envoy
 
@@ -290,16 +295,17 @@ graph TB
         Caddy["VPS Caddy（443）"]
 
         subgraph LOCAL["Docker 本地服务<br/>172.20.0.0/16"]
-            mosdns["vdns → mosdns"]
-            subconv["sub → sub-converter"]
-            derp["derp → DERP"]
-            dhp["dhp → registry-proxy"]
+            mosdns["vdns → mosdns:9053"]
+            subconv["sub → sub-converter:25500"]
+            sbtools["subs → sbtools-server:8080"]
+            dhp["dhp → dhp:5000"]
         end
 
-        subgraph HOST["Host 网络模式"]
-            hysteria2["hysteria2"]
-            hysteria2_no_obfs["hysteria2-no-obfs<br/>daed 兼容入口"]
-            xray["xray"]
+        subgraph HOST["Host 网络模式（宿主机端口）"]
+            hysteria2["hysteria2 :10357"]
+            hysteria2_no_obfs["hysteria2-no-obfs :10358<br/>daed 兼容入口"]
+            anytls["anytls :5444"]
+            derp["DERP :8666<br/>Caddy 经 172.20.0.1 回打"]
         end
     end
 
@@ -311,18 +317,23 @@ graph TB
     Caddy -->|"cpa"| Envoy_CPA
     Caddy -->|"*（默认）"| Envoy
     Caddy --> mosdns
+    Caddy --> subconv
+    Caddy --> sbtools
+    Caddy --> dhp
+    Caddy -->|"to_host"| derp
 ```
 
 | 域名 | 路由目标 | 说明 |
 |------|---------|------|
 | `*`（默认） | → Tailscale → envoy-external | 大部分服务 |
 | `cpa` | → Tailscale → envoy-external（CPA SNI） | CPA 协议专用 |
-| `sub` | → 本地 sub-converter | 订阅转换 |
-| `derp` | → 本地 DERP | Tailscale 中继 |
-| `dhp` | → 本地 registry-proxy | Docker 镜像代理 |
-| `vdns` | → 本地 mosdns | DNS 服务 |
+| `sub` | → 本地 sub-converter:25500 | 订阅转换 |
+| `subs` | → 本地 sbtools-server:8080 | 配置交付服务 |
+| `derp` | → 宿主机 :8666（Caddy 经 172.20.0.1 回打） | Tailscale 中继 |
+| `dhp` | → 本地 dhp:5000 | Docker 镜像 pull-through 代理 |
+| `vdns` | → 本地 mosdns:9053 | DNS 服务 |
 
-> hysteria2、hysteria2-no-obfs、xray、dnsmasq 不经过 Caddy，
+> hysteria2、hysteria2-no-obfs、anytls、dnsmasq 不经过 Caddy，
 > 直接使用宿主机端口；no-obfs Hysteria2 供 daed 客户端使用。
 
 ---
@@ -384,14 +395,15 @@ graph TB
     subgraph K8S["k3s 集群"]
         PVC["PVC (Longhorn)"]
         PG["PostgreSQL (CNPG)"]
-        Volsync["Volsync"]
+        Kopiur["Kopiur<br/>Kopia mover + VolumeSnapshot"]
         Barman["Barman Cloud"]
         Cluster_OpenList["OpenList (集群 S3)"]
     end
 
     subgraph SAKA_BACKUP["sakamoto"]
-        MinIO["MinIO (S3)<br/>:9000"]
+        MinIO["MinIO (S3)<br/>:9000 · bucket kopiur"]
         COMPOSE_Data["Compose 数据"]
+        USER_Data["用户数据<br/>/Volumes/sakamoto-data"]
         SAKA_Kopia["Kopia（云端）"]
         SAKA_Kopia_Local["Kopia（本地）"]
         USB_HDD["外接 USB HDD"]
@@ -405,9 +417,9 @@ graph TB
 
     Cloud["189 天翼云盘"]
 
-    PVC --> Volsync
+    PVC --> Kopiur
     PG --> Barman
-    Volsync --> MinIO
+    Kopiur --> MinIO
     Barman --> MinIO
 
     MinIO --> SAKA_Kopia
@@ -415,8 +427,7 @@ graph TB
     SAKA_Kopia --> Cluster_OpenList
     Cluster_OpenList --> Cloud
 
-    MinIO --> SAKA_Kopia_Local
-    COMPOSE_Data --> SAKA_Kopia_Local
+    USER_Data --> SAKA_Kopia_Local
     SAKA_Kopia_Local --> USB_HDD
 
     VPS_Data --> VPS_Kopia
@@ -428,14 +439,15 @@ graph TB
 
 | 链路 | 备份源 | 存储后端 | 目标 | 调度 |
 |------|--------|---------|------|------|
-| k8s PVC | Longhorn 快照 | Volsync → MinIO (sakamoto S3) | 189 云盘 | 每小时 |
+| k8s PVC | Longhorn VolumeSnapshot | Kopiur（Kopia mover）→ MinIO (sakamoto S3, bucket kopiur) | 189 云盘 | 每小时 |
 | PostgreSQL | CNPG 集群 | Barman → MinIO (sakamoto S3) | 189 云盘 | 按 WAL 归档 |
 | sakamoto MinIO | MinIO 数据 | Kopia → OpenList (集群 S3) | 189 云盘 | 6 小时 |
 | sakamoto Compose | Compose 数据 | Kopia → OpenList (集群 S3) | 189 云盘 | 1 小时 |
-| sakamoto 本地 | 用户数据 | Kopia Local → 外接 USB HDD | 本地 | 12 小时 |
+| sakamoto 本地 | 用户数据 (`/Volumes/sakamoto-data`) | Kopia Local → 外接 USB HDD | 本地 | 每小时 |
 | VPS 服务数据 | VPS 数据 | Kopia → OpenList (VPS 本地 S3) | 189 云盘 | 4 小时 |
 
 > Kopia 仓库配置通过 `.env.tpl` 从外部密钥管理注入，不提交到 Git。
+> 189 云盘是 OpenList 的运行时存储配置，不在 Git 内声明。
 
 ---
 
@@ -451,7 +463,7 @@ graph TB
     end
 
     subgraph SOURCE["GitRepository: flux-system"]
-        SRC_MONITOR["监听 main 分支变更, interval: 1m"]
+        SRC_MONITOR["监听 main 分支变更, interval: 1h"]
     end
 
     subgraph INFRA_LAYER["infra.yml (Flux Kustomization)"]
@@ -463,14 +475,14 @@ graph TB
     end
 
     subgraph KUSTOMIZE_INFRA["kustomize build -> 生成子级 Flux CRD"]
-        IN_CAT["k8s/infra/staging/kustomization.yaml<br/>imports: ../common/{network, database}"]
+        IN_CAT["k8s/infra/staging/kustomization.yaml<br/>resources: ../common/ 下 13 个 category<br/>(network · database · observability · storage · security · …)"]
         IN_CATEGORY["k8s/infra/common/{category}/kustomization.yaml"]
-        IN_CHILD["category/ks.yaml<br/>(caddy-external, ss-rust)"]
+        IN_CHILD["k8s/infra/common/{category}/{app}/ks.yaml<br/>(network/external/caddy-external, ss-rust)"]
         IN_CAT --> IN_CATEGORY --> IN_CHILD
     end
 
     subgraph KUSTOMIZE_APPS["kustomize build -> 生成子级 Flux CRD"]
-        AP_CAT["k8s/apps/staging/kustomization.yaml<br/>imports: ../common/"]
+        AP_CAT["k8s/apps/staging/kustomization.yaml<br/>resources: namespace.yaml + ../common"]
         AP_LAYER["k8s/apps/common/kustomization.yaml"]
         AP_CHILD["app/ks.yaml<br/>(echo, homepage)"]
         AP_CAT --> AP_LAYER --> AP_CHILD
@@ -483,8 +495,9 @@ graph TB
     end
 
     subgraph CLUSTER["k3s 集群部署结果"]
-        HELM["HelmRelease -> app-template<br/>Helm Chart (OCIRepository)"]
-        OBJ["Secret / ConfigMap / Service<br/>chart template 生成"]
+        HELM["HelmRelease -> app-template chart<br/>(OCIRepository)"]
+        WORKLOAD["Deployment / StatefulSet / DaemonSet<br/>app-template controllers 生成"]
+        OBJ["Secret / ConfigMap / Service"]
         POD["Pod"]
     end
 
@@ -499,12 +512,13 @@ graph TB
     INFRA_LAYER --> IN_CAT
     APPS_LAYER --> AP_CAT
 
-    IN_CHILD -.->|path: ./{app}/| APP_DIR
-    AP_CHILD -.->|path: ./{app}/| APP_DIR
+    IN_CHILD -.->|path: ./#123;app#125;/| APP_DIR
+    AP_CHILD -.->|path: ./#123;app#125;/| APP_DIR
 
     DIR_HR --> HELM
     DIR_ES --> OBJ
-    HELM --> POD
+    HELM --> WORKLOAD
+    WORKLOAD --> POD
     HELM --> OBJ
 ```
 
@@ -512,9 +526,9 @@ graph TB
 
 | 层 | Kustomization | 入口 | 等待上游 | 说明 |
 |---|-------------|------|---------|------|
-| 0 | `flux-system` GitRepository | 由 bootstrap 创建 | — | 监听代码仓库，触发所有同步 |
-| 1 | `flux-repositories` | `repos.yaml` → `k8s/clusters/common/repos/` | — | 预注册 Helm chart 源（app-template 等） |
-| 2 | `infra` | `infra.yml` → `k8s/infra/staging/` | — | 基础设施先部署，`wait: false` |
+| 0 | `flux-system` GitRepository | 由 bootstrap 创建 | 无 | 监听代码仓库，触发所有同步 |
+| 1 | `flux-repositories` | `repos.yaml` → `k8s/clusters/common/repos/` | 无 | 预注册 Helm chart 源（app-template 等） |
+| 2 | `infra` | `infra.yml` → `k8s/infra/staging/` | 无 | 基础设施先部署，`wait: false` |
 | 3 | 各 infra 子 Kustomization | `k8s/infra/common/{category}/<app>/ks.yaml` | infra 层父级 | 网络、存储、数据库、监控等 |
 | 4 | `apps` | `apps.yml` → `k8s/apps/staging/` | infra 完成 | 应用层后部署，`wait: false` |
 | 5 | 各 apps 子 Kustomization | `k8s/apps/common/<app>/ks.yaml` | apps 层父级 | 普通业务应用 |
@@ -522,7 +536,7 @@ graph TB
 ### 关键机制
 
 - **变量注入**：所有子 Kustomization 自动获得 `cluster-secrets`（Secret）和 `cluster-settings`（ConfigMap）中的 postBuild 变量。可通过标签 `substitution.flux/disabled: "true"` 跳过。
-- **SOPs 解密**：所有子 Kustomization 自动获得 SOPs age 解密能力。
+- **SOPS 解密**：所有子 Kustomization 自动获得 SOPS age 解密能力。
 - **等待策略**：两层均 `wait: false`，顺序由 `apps.dependsOn: infra` 保证（成因见 [024](../postmortems/024-flux-wait-recursion-retry-gap-freezes-apps.md)）
 - **失败重试**：子级须声明 `retryInterval`，巡检 `scripts/verify-ks-retry-interval.sh`
 - **HelmRelease**：最终通过 `app-template` chart（OCIRepository）或直接 Helm chart 部署 Pod。
