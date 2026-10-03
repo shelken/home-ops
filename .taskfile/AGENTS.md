@@ -12,6 +12,7 @@
 
 - **禁止硬编码**内网 IP、内网主机名、SSH `user@host`、节点名、VMID 等身份类参数；必须从已有定义读取，或运行时动态解析
 - **已有定义优先**：`ansible/inventory/`（`hosts.ini` / `others.ini` 分组）、对应 GitOps 声明（如 HelmRelease 的 LB IPAM）；不要另起一份平行清单
+- **顶层 `sh:` 变量对整个 Taskfile 生效**（实测：同文件任意 task 运行都会执行它）。零成本的解析（inventory 查询之类）留顶层；`sops`、`yq` 这类昂贵或可能失败的解析放进真正需要它的 task，或放进 `internal: true` 的子任务让多个入口共用一份声明，否则无关动作（如 `router:restart-firewall`）也会被它拖住
 - **共享抽取门槛**：同一取值在 **两处及以上** 被引用，才进入 `.taskfile/scripts/` 共享（如 `inv.sh`）；**只出现一次** 的留在当前 taskfile / 脚本本地，不预埋“以后可能用”的通用接口
 - **最少代码**：先证明用更少代码能达到目的；能一行 inventory/kubectl/yq 解决的，不写多层封装；共享脚本保持小 CLI，避免 source 样板与未使用的子命令
 - **幂等与安全**：启停类任务对已达目标状态应跳过（如 VM 已 stopped/running）；破坏性步骤（drain、强制 stop）允许失败继续或有明确回退，不把「全库存 hosts: all」式假设带进运维脚本的数据源选择

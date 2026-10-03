@@ -36,17 +36,16 @@ home-ops 是使用 Flux 管理 Kubernetes 集群与集群外服务的 GitOps 配
 
 **网络与集群外服务**
 - `k8s/infra/common/network/`: 内外 DNS、入口网关、Multus、证书、Tailscale 和网络自愈组件
-- `docs/router/`: OpenWrt 路由器配置文档与资源
-- `compose/sakamoto/`: sakamoto Docker Compose 服务及配置
-- `compose/vps/`: VPS Docker Compose 服务及配置
+- `router/`: 路由器声明式配置源（BIRD / dnsmasq），由 `.taskfile/router.yaml` 下发
+- `compose/sakamoto/`、`compose/vps/`: 集群外 Docker Compose 服务及配置（部署约定见 `compose/AGENTS.md`）
+- `docs/router/`: 路由器配置文档
 
 **引导、自动化与维护**
 - `bootstrap/`: 集群引导配置
-- `ansible/`: 节点清单与配置自动化
-- `.taskfile/`: Task 子任务定义
+- `ansible/`: 节点清单与配置自动化（写 playbook 前读 `ansible/AGENTS.md`）
+- `.taskfile/`: Task 子任务定义（新增 task 前读 `.taskfile/AGENTS.md`）
 - `.renovate/`: Renovate 分组、规则和自定义管理器
 - `scripts/`: 可重复运行的运维与维护脚本
-- `tests/`: 配置和脚本测试
 - `postmortems/`: 已解决复杂问题的尸检报告
 - `lima/`: Lima 实例配置，由 `.taskfile/lima.yaml` 下发到宿主
 

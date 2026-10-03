@@ -95,10 +95,8 @@ section wwan_link
 iw dev "$WWAN_IF" link 2>/dev/null || true
 iw dev "$WWAN_IF" station dump 2>/dev/null || true
 
-section passwall_ports
-pidof sing-box 2>/dev/null || true
-pidof chinadns-ng 2>/dev/null || true
-netstat -lntup 2>/dev/null | grep -E '127\.0\.0\.1:15353|:15355|:53 ' || true
+section local_dns_listeners
+netstat -lntup 2>/dev/null | grep -E ':53 ' || true
 
 if [ -n "$WWAN_GW" ]; then
   section ping_wwan_gateway
@@ -144,6 +142,6 @@ fi
 section recent_wireless_log
 logread | grep -Ei 'phy0-sta0|phy1-sta0|wpa_supplicant|BEACON-LOSS|deauth|disassoc|disconnect|network.interface.wwan' | tail -n 120 || true
 
-section recent_passwall_log
-logread | grep -Ei 'passwall|sing-box|chinadns-ng|dnsmasq' | tail -n 120 || true
+section recent_dns_log
+logread | grep -Ei 'dnsmasq' | tail -n 120 || true
 EOF
