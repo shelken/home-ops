@@ -20,7 +20,17 @@ dnsmasq 的 `confdir` 必须指向持久目录——默认的 `/tmp/dnsmasq.d` �
 task router:dns:bootstrap
 ```
 
-这是唯一一次 UCI 变更；此后所有规则都由仓库文件声明。
+这一步同时清掉三处会让切换失败的旧状态，所以不要拆开手工做：
+
+- `/etc/dnsmasq.d/int.hosts` 会被移出 confdir：`--conf-dir` **不带后缀过滤**，hosts 文件留在里面会被
+  当作配置文件解析，dnsmasq 直接启动失败，整网断解析
+- UCI 的旧 `addnhosts` 注册被删除：它与 `20-hosts.conf` 的 `addn-hosts` 指向同一批名字，
+  重复注册会让同一个名字返回多个地址
+- UCI 的 `allservers` 被删除：它让所有上游同时被问，与声明里的 `strict-order` 相冲，
+  公网答案会和内网答案竞速（内网名可能在公网拿到 NXDOMAIN 而抢先返回）
+
+这是唯一一次 UCI 变更；此后所有规则都由仓库文件声明。紧跟 `task router:dns:sync` 下发声明——
+在它跑完之前，自举记录（`/etc/dnsmasq-hosts/int.hosts`）暂时不可解析。
 
 ## 下发
 
