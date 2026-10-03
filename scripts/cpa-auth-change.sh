@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 set -euo pipefail
 NS=default
 LABEL=app.kubernetes.io/name=cli-proxy-api

@@ -26,7 +26,7 @@ else
 
     # 导入策略（幂等：先删除当前主机的路径策略，再导入）
     echo "清理旧的路径策略..."
-    kopia policy list 2>/dev/null | grep "shelken@${CURRENT_HOST}:/" | awk '{print $1}' | while read target; do
+    kopia policy list 2>/dev/null | grep "shelken@${CURRENT_HOST}:/" | awk '{print $1}' | while read -r target; do
         echo "  删除: $target"
         kopia policy remove "$target" 2>/dev/null || true
     done
