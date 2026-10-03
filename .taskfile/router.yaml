@@ -70,11 +70,35 @@ tasks:
         vars: {action: diff}
 
   dns:bootstrap:
-    desc: "一次性把 dnsmasq 的 confdir 指向持久目录（其后规则全部由文件声明）"
-    prompt: 设置 dhcp.@dnsmasq[0].confdir={{ .DNS_CONF_DIR }} 并重启 dnsmasq？
-    cmd: >-
-      ssh -o BatchMode=yes -o ConnectTimeout=5 {{ .ROUTER_SSH }}
-      "uci set dhcp.@dnsmasq[0].confdir='{{ .DNS_CONF_DIR }}'; uci commit dhcp; /etc/init.d/dnsmasq restart"
+    desc: "一次性把 dnsmasq 切到仓库声明的 confdir（含清掉旧式 UCI hosts 与 allservers）"
+    prompt: 把 dnsmasq 切到 {{ .DNS_CONF_DIR }} 并重启？
+    cmd: |
+      set -euo pipefail
+      ssh -n -o BatchMode=yes -o ConnectTimeout=5 {{ .ROUTER_SSH }} '
+        set -e
+
+        # confdir 必须是纯配置文件目录：hosts 文件留在里面会被当配置解析，dnsmasq 起不来、整网断解析
+        if [ -f {{ .DNS_CONF_DIR }}/int.hosts ]; then
+          mkdir -p "$(dirname {{ .DNS_HOSTS_DST }})"
+          mv {{ .DNS_CONF_DIR }}/int.hosts {{ .DNS_HOSTS_DST }}
+          echo "旧 hosts 已移出 confdir：{{ .DNS_CONF_DIR }}/int.hosts -> {{ .DNS_HOSTS_DST }}"
+        fi
+        mkdir -p {{ .DNS_CONF_DIR }}
+
+        # 旧 addnhosts 指向 confdir 内，与 20-hosts.conf 的 addn-hosts 指向同一批名字，重复注册会产生多个地址
+        uci -q delete_list dhcp.@dnsmasq[0].addnhosts || uci -q delete dhcp.@dnsmasq[0].addnhosts || true
+
+        # allservers 让所有上游同时被问，与声明里的 strict-order 相冲：公网答案会和内网答案竞速
+        uci -q delete dhcp.@dnsmasq[0].allservers || true
+
+        uci set dhcp.@dnsmasq[0].confdir={{ .DNS_CONF_DIR }}
+        uci commit dhcp
+        /etc/init.d/dnsmasq restart
+
+        pidof dnsmasq >/dev/null || { echo "dnsmasq 没起来：检查 {{ .DNS_CONF_DIR }} 里是否混入了非配置文件"; exit 1; }
+        nslookup openwrt.org 127.0.0.1 >/dev/null 2>&1 || { echo "本机解析失败：先看 logread | grep dnsmasq，不要继续"; exit 1; }
+        echo "dnsmasq 已切到 {{ .DNS_CONF_DIR }}；下一步 task router:dns:sync 下发声明"
+      '
 
   dns:sync:
     desc: "下发 dnsmasq 声明到路由器（先展示差异，确认后落地并重载）"
