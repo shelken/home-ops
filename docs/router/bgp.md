@@ -53,11 +53,11 @@ opkg install bird2
 
 ## 配置文件
 
-配置文件放在仓库顶层 `router/`，与 `.taskfile/router.yaml` 的 `bgp:diff` / `bgp:sync` 对应，属工具配置而非文档。
+配置文件放在仓库顶层 `router/bird/`，与 `.taskfile/router.yaml` 的 `bgp:diff` / `bgp:sync` 对应，属工具配置而非文档。
 
 ### router-mine (本地路由器)
 
-[/etc/bird.conf](../../router/mine.conf)
+[/etc/bird.conf](../../router/bird/mine.conf)
 
 当前邻居（逐节点显式声明，无网段接受）：
 
@@ -84,7 +84,7 @@ task --yes router:bgp:sync
 
 ### router-home (远程路由器，已断开)
 
-[/etc/bird.conf](../../router/home.conf)
+[/etc/bird.conf](../../router/bird/home.conf)
 
 
 ## 服务管理

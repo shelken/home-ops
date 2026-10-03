@@ -262,8 +262,8 @@ graph LR
 集群服务的记录不落进路由器，路由器只按域转发：
 
 - 主域与内部域：由集群里的 k8s-gateway 按当前 HTTPRoute/Service/Ingress 与 Gateway status 应答；主域下集群内没有的名称由 gateway 转发公网递归
-- 集群外自举服务（宿主机上的 minio、镜像代理等）：仓库 `router/dnsmasq-int.hosts` 声明，`task router:dns:diff` 比对、`task router:dns:sync` 下发，由 `router/dnsmasq.d/20-hosts.conf` 的 `addn-hosts` 引用
-- 分流规则以文件声明在 `router/dnsmasq.d/`，下发后等于路由器 `/etc/dnsmasq.d` 的内容；规则不再通过 `uci set` / `add_list` 逐条修改
+- 集群外自举服务（宿主机上的 minio、镜像代理等）：仓库 `router/dnsmasq/dnsmasq-int.hosts` 声明，`task router:dns:diff` 比对、`task router:dns:sync` 下发，由 `router/dnsmasq/conf.d/20-hosts.conf` 的 `addn-hosts` 引用
+- 分流规则以文件声明在 `router/dnsmasq/conf.d/`，下发后等于路由器 `/etc/dnsmasq.d` 的内容；规则不再通过 `uci set` / `add_list` 逐条修改
 - 本地 hosts 与自举记录优先于转发规则：名字在本机有答案时不会去问上游
 - 同名不要同时出现在两处：dnsmasq 对重复名字会返回多个地址并按查询轮换，不报错也不提示
 

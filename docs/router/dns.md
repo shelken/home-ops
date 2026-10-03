@@ -1,14 +1,14 @@
 # 路由器 DNS 配置
 
-路由器 dnsmasq 的分流规则以文件声明在 `router/dnsmasq.d/`，下发后等于路由器 `/etc/dnsmasq.d` 的内容。规则不再用 `uci set` / `add_list` 逐条修改。
+路由器 dnsmasq 的分流规则以文件声明在 `router/dnsmasq/conf.d/`，下发后等于路由器 `/etc/dnsmasq.d` 的内容。规则不再用 `uci set` / `add_list` 逐条修改。
 
 ## 职责
 
 | 文件 | 内容 |
 | :--- | :--- |
-| `router/dnsmasq.d/10-upstream.conf` | 主域与内部域都交集群里的 k8s-gateway；`strict-order` 之后按序回落公网 |
-| `router/dnsmasq.d/20-hosts.conf` | 引用集群外自举记录 `/etc/dnsmasq-hosts/int.hosts` |
-| `router/dnsmasq-int.hosts` | 集群外入口的精确记录（sakamoto 上的 minio、镜像代理等） |
+| `router/dnsmasq/conf.d/10-upstream.conf` | 主域与内部域都交集群里的 k8s-gateway；`strict-order` 之后按序回落公网 |
+| `router/dnsmasq/conf.d/20-hosts.conf` | 引用集群外自举记录 `/etc/dnsmasq-hosts/int.hosts` |
+| `router/dnsmasq/dnsmasq-int.hosts` | 集群外入口的精确记录（sakamoto 上的 minio、镜像代理等） |
 
 集群内服务的记录不写在路由器：k8s-gateway 按当前集群资源应答，主域下集群内没有的名称由它转发公网递归。后端选择的理由见 [内网 DNS 后端](../adr/0003-internal-dns-via-gateway.md)。
 
