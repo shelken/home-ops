@@ -8,22 +8,11 @@ vars:
       ansible-inventory -i {{.ROOT_DIR}}/ansible/inventory/others.ini --host router-mine \
         | jq -re '.ansible_user + "@" + .ansible_host'
   BIRD_CONF: "{{.ROOT_DIR}}/router/bird/mine.conf"
-  DNS_HOSTS: "{{.ROOT_DIR}}/router/dnsmasq/dnsmasq-int.hosts"
+  # 路由器上的落地路径只在这里声明一次；脚本按 env 消费，不再各留一份
   DNS_CONF_DIR: "/etc/dnsmasq.d"
   DNS_HOSTS_DST: "/etc/dnsmasq-hosts/int.hosts"
   # gateway 不可用时的顺序回落；gateway 自己的公网递归走 DoT
   DNS_FALLBACK: "223.5.5.5"
-  DNS_DOMAINS:
-    sh: |
-      set -euo pipefail
-      sops -d {{.ROOT_DIR}}/k8s/components/common/sops/cluster-secret.sops.yaml \
-        | yq -o=json '.stringData | {"MAIN_DOMAIN": .MAIN_DOMAIN, "INTERNAL_DOMAIN": .INTERNAL_DOMAIN}'
-  MAIN_DOMAIN: '{{(fromJson .DNS_DOMAINS).MAIN_DOMAIN}}'
-  INTERNAL_DOMAIN: '{{(fromJson .DNS_DOMAINS).INTERNAL_DOMAIN}}'
-  DNS_GATEWAY:
-    sh: >-
-      yq ea -r 'select(.kind == "HelmRelease") | .spec.values.service.annotations."lbipam.cilium.io/ips"'
-      {{.ROOT_DIR}}/k8s/infra/common/network/internal/k8s-gateway/app/helmrelease.yaml
 
 tasks:
   bgp:diff:
@@ -76,14 +65,9 @@ tasks:
   dns:diff:
     silent: true
     desc: "对比路由器 dnsmasq 声明（conf 目录与自举 hosts）与仓库版本"
-    dir: "{{.ROOT_DIR}}"
-    env: &dns-env
-      ROUTER_SSH: "{{.ROUTER_SSH}}"
-      MAIN_DOMAIN: "{{.MAIN_DOMAIN}}"
-      INTERNAL_DOMAIN: "{{.INTERNAL_DOMAIN}}"
-      DNS_GATEWAY: "{{.DNS_GATEWAY}}"
-      DNS_FALLBACK: "{{.DNS_FALLBACK}}"
-    cmd: python3 router/dnsmasq/declare.py diff
+    cmds:
+      - task: _dns:declare
+        vars: {action: diff}
 
   dns:bootstrap:
     desc: "一次性把 dnsmasq 的 confdir 指向持久目录（其后规则全部由文件声明）"
@@ -97,9 +81,37 @@ tasks:
     # deps 先于 prompt 执行：确认发生在看到差异之后
     deps: [dns:diff]
     prompt: 将仓库声明下发到路由器并重载 dnsmasq？
+    cmds:
+      - task: _dns:declare
+        vars: {action: sync}
+
+  _dns:declare:
+    internal: true
     dir: "{{.ROOT_DIR}}"
-    env: *dns-env
-    cmd: python3 router/dnsmasq/declare.py sync
+    requires:
+      vars: ["action"]
+    # 顶层 sh 变量对同文件所有 task 生效，因此只在真正需要它的 task 里解析
+    vars:
+      DNS_DOMAINS:
+        sh: |
+          set -euo pipefail
+          sops -d {{.ROOT_DIR}}/k8s/components/common/sops/cluster-secret.sops.yaml \
+            | yq -o=json '.stringData | {"MAIN_DOMAIN": .MAIN_DOMAIN, "INTERNAL_DOMAIN": .INTERNAL_DOMAIN}'
+      MAIN_DOMAIN: '{{(fromJson .DNS_DOMAINS).MAIN_DOMAIN}}'
+      INTERNAL_DOMAIN: '{{(fromJson .DNS_DOMAINS).INTERNAL_DOMAIN}}'
+      DNS_GATEWAY:
+        sh: >-
+          yq ea -r 'select(.kind == "HelmRelease") | .spec.values.service.annotations."lbipam.cilium.io/ips"'
+          {{.ROOT_DIR}}/k8s/infra/common/network/internal/k8s-gateway/app/helmrelease.yaml
+    env:
+      ROUTER_SSH: "{{.ROUTER_SSH}}"
+      DNS_CONF_DIR: "{{.DNS_CONF_DIR}}"
+      DNS_HOSTS_DST: "{{.DNS_HOSTS_DST}}"
+      MAIN_DOMAIN: "{{.MAIN_DOMAIN}}"
+      INTERNAL_DOMAIN: "{{.INTERNAL_DOMAIN}}"
+      DNS_GATEWAY: "{{.DNS_GATEWAY}}"
+      DNS_FALLBACK: "{{.DNS_FALLBACK}}"
+    cmd: python3 router/dnsmasq/declare.py {{.action}}
 
   run:
     internal: true

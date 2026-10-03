@@ -19,8 +19,9 @@ HERE = pathlib.Path(__file__).resolve().parent
 CONF_SRC = HERE / "conf.d"
 HOSTS_SRC = HERE / "dnsmasq-int.hosts"
 
-CONF_DST = "/etc/dnsmasq.d"
-HOSTS_DST = "/etc/dnsmasq-hosts/int.hosts"
+# 远端落地路径由 taskfile 经 env 传入：同一路径在仓库里只声明一次
+CONF_DST = os.environ["DNS_CONF_DIR"]
+HOSTS_DST = os.environ["DNS_HOSTS_DST"]
 CONF_SUFFIX = ".conf"
 
 SSH_OPTS = ["-o", "BatchMode=yes", "-o", "ConnectTimeout=5"]
