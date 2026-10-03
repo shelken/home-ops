@@ -67,7 +67,7 @@ curl -sG 'http://<VL_ENDPOINT>/select/logsql/query' \
 
 # 只看某个动作接收端
 curl -sG 'http://<VL_ENDPOINT>/select/logsql/query' \
-  --data-urlencode 'query=_stream:{k_namespace_name="network",k_pod_name=~"passwall-healer.*"} "passwall" _time:[<START_UTC>,<END_UTC>] | fields _time,_msg' \
+  --data-urlencode 'query=_stream:{k_namespace_name="network",k_pod_name=~"zte-mifi-healer.*"} _time:[<START_UTC>,<END_UTC>] | fields _time,_msg' \
   --data-urlencode 'limit=200'
 ```
 
@@ -256,12 +256,11 @@ grep '<ALERTNAME>'
 
 - `Notify attempt failed`：看是 TLS handshake timeout、connection reset、500，还是路由错误。
 - `Notify success`：只能证明 **Alertmanager 已经发出**，不能证明 webhook 接收端真的执行成功。
-- 必须对照接收端日志，例如 `passwall-healer`、`zte-mifi-healer`、通知机器人等。
+- 必须对照接收端日志，例如 `zte-mifi-healer`、通知机器人等。
 
 接收端对照示例：
 
 ```bash
-kubectl -n network logs deploy/passwall-healer --since=24h
 kubectl -n network logs deploy/zte-mifi-healer --since=24h
 ```
 
@@ -300,22 +299,22 @@ python3 scripts/monitoring-log-report.py \
   --vl-endpoint <VL_ENDPOINT> \
   --vl-section 'name=gatus,namespace=observability,pod=gatus.*' \
   --kubectl-section 'name=alertmanager,namespace=observability,selector=app.kubernetes.io/name=alertmanager,container=alertmanager' \
-  --vl-section 'name=receiver,namespace=network,pod=passwall-healer.*'
+  --vl-section 'name=receiver,namespace=network,pod=zte-mifi-healer.*'
 
 # 再按自己需要过滤
 python3 scripts/monitoring-log-report.py \
   --hours 6 \
   --vl-endpoint <VL_ENDPOINT> \
   --vl-section 'name=gatus,namespace=observability,pod=gatus.*' \
-  --vl-section 'name=receiver,namespace=network,pod=passwall-healer.*' \
-  | rg 'router-dns-proxy|success=false|passwall'
+  --vl-section 'name=receiver,namespace=network,pod=zte-mifi-healer.*' \
+  | rg 'router-generate-204|success=false|f50'
 
 # 只看某一段入口也可以
 python3 scripts/monitoring-log-report.py \
   --hours 24 \
   --vl-endpoint <VL_ENDPOINT> \
   --skip-kubectl \
-  --vl-section 'name=receiver,namespace=network,pod=passwall-healer.*'
+  --vl-section 'name=receiver,namespace=network,pod=zte-mifi-healer.*'
 ```
 
 这个脚本的职责只有两件事：
@@ -334,29 +333,25 @@ ssh <ROUTER_HOST> 'iw dev; iw dev <STA_IF> link; iw dev <STA_IF> station dump'
 ssh <ROUTER_HOST> 'ping -c 10 -W 1 -I <WWAN_IF> <WWAN_GW>; ping -c 10 -W 2 -I <WWAN_IF> <TEST_IP>'
 ssh <ROUTER_HOST> 'ping -c 10 -W 1 -I <WAN_IF> <WAN_GW>; ping -c 10 -W 2 -I <WAN_IF> <TEST_IP>'
 ssh <ROUTER_HOST> 'nslookup <PROXY_DOMAIN> 127.0.0.1; nslookup <DIRECT_DOMAIN> 127.0.0.1'
-ssh <ROUTER_HOST> 'logread | grep -Ei "BEACON-LOSS|wpa_supplicant|passwall|sing-box|chinadns-ng|dnsmasq" | tail -n 120'
+ssh <ROUTER_HOST> 'logread | grep -Ei "BEACON-LOSS|wpa_supplicant|dnsmasq" | tail -n 120'
 ```
 
-### 7.4 代理 DNS 链路固定检查项
+### 7.4 路由器 DNS 固定检查项
 
-如果是 Passwall / chinadns-ng / sing-box：
-
-```text
-53 -> 15355 -> 15353
-```
-
-检查点：
+路由器只跑 dnsmasq（53），主域与内部域都转给集群的 k8s-gateway，本机不再有代理 DNS 链：
 
 ```bash
-ssh <ROUTER_HOST> 'netstat -lntup 2>/dev/null | grep -E "127\.0\.0\.1:15353|:15355|:53 "'
-ssh <ROUTER_HOST> 'pidof sing-box; pidof chinadns-ng'
+ssh <ROUTER_HOST> 'netstat -lntup 2>/dev/null | grep -E ":53 "'
+ssh <ROUTER_HOST> 'uci show dhcp | grep -E "=server|confdir|addnhosts"'
 ```
 
 判定经验：
 
-- `53` 正常、`15355` 正常，不代表 `15353` 正常。
-- 直连域名能解析，不代表代理域名正常。
-- 普通公网 RTT 正常，不代表代理 DNS 正常。
+- 谁在听 53：应该只有 dnsmasq，出现别的监听者就是配置漂移
+- 集群不可用时，首次查询要等上游超时，之后靠 `strict-order` 回落公网
+- 自举记录（`/etc/dnsmasq-hosts/int.hosts`）不依赖集群，集群挂了它也仍应能解析
+
+分流规则与自举记录见 `docs/router/dns.md`；后端选择的权衡见 `docs/adr/0003-internal-dns-via-gateway.md`。
 
 ### 7.5 Wi‑Fi 中继 / WWAN 的判定经验
 

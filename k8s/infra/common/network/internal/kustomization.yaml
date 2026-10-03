@@ -4,5 +4,4 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - k8s-gateway/ks.yaml
-  # - passwall-healer/ks.yaml # 当前已经转向 daed 进行代理故关闭
   - zte-mifi-healer/ks.yaml

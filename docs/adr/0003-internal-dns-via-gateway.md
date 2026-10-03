@@ -15,5 +15,5 @@
 - gateway 的 `ttl` 从 1 提到 60，dnsmasq 与客户端据此缓存，避免每次查询都跨网络
 - 路由器不再承载任何集群记录；`/etc/dnsmasq.d` 只放分流规则与自举 hosts 的引用，`int.hosts` 移到该目录之外，避免被 dnsmasq 当作配置文件解析
 - `confdir` 是唯一的一次性引导（`task router:dns:bootstrap`），此后所有规则都由仓库文件声明，不再出现分散的 UCI 变更
-- passwall-healer 的 LuCI 凭据拆为独立 ExternalSecret，不再依赖已删除的控制器的 secret
+- 控制器的 LuCI 凭据随之移除：它的消费者只有 openwrt-dns 与已停用的 passwall-healer，两者都不再存在
 - 集群外自举入口仍由 `router/dnsmasq/dnsmasq-int.hosts` 声明，不依赖集群可用性
