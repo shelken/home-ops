@@ -157,7 +157,8 @@ ExternalDNS 自动管理各服务子域名的记录
 
 VPS 本机 DNS:
   127.0.0.1 -> dnsmasq
-               MAIN_DOMAIN -> k8s-gateway 192.168.69.41
+               INTERNAL_DOMAIN -> k8s-gateway，无公网备用
+               MAIN_DOMAIN 其他名称 -> k8s-gateway，公网上游有序备用
                其他域名 -> 公网 DNS
 ```
 
@@ -213,59 +214,44 @@ CN / HK + VPS IP"]
 
 ### 内网入口与旁路由 DNS
 
+以下描述仓库声明的目标链路，路由器配置、TSIG 与存量清理需按 [DNS 下发指南](./router/dns.md) 完成；现网是否切换以运行配置与分链查询为准
+
 ```mermaid
 graph LR
-    subgraph LAN["家庭内网<br/>192.168.6.0/24"]
-        Client["局域网设备"]
-        TVBox["TVBox 旁路由<br/>daed"]
-        Router["router-mine<br/>DHCP + 内网 DNS 权威"]
-    end
-
-    subgraph DNSPATH["DNS 分流"]
-        DaeDNS["daed DNS routing<br/>dport(53) -> direct"]
-        RouterDNS["router-mine DNS<br/>内网域名"]
-        ForeignDNS["DoH over proxy<br/>国外域名"]
-        CNDNS["国内 DNS<br/>国内域名"]
-    end
-
-    subgraph TS["Tailscale<br/>100.97.0.0/16"]
-        TS_Client["Tailscale 客户端"]
-        TS_Subnet["subnet router"]
-    end
-
-    subgraph K8S["k3s 集群"]
-        OpenwrtDNS["openwrt-dns<br/>(External-DNS webhook)"]
-        Envoy_Internal["envoy-internal"]
-    end
-
-    Client -->|"DNS"| TVBox
-    TVBox --> DaeDNS
-    DaeDNS --> RouterDNS
-    DaeDNS --> ForeignDNS
-    DaeDNS --> CNDNS
-    OpenwrtDNS -->|"同步 DNS 记录"| RouterDNS
-    RouterDNS -->|"A/CNAME → LB IP"| Envoy_Internal
-    TS_Client --> TS_Subnet
-    TS_Subnet --> Envoy_Internal
+    Client["家庭客户端"] --> Side["旁路由 DNS 分流"]
+    Side --> Router["主路由 dnsmasq"]
+    Router -->|"精确自举 hosts"| Bootstrap["集群外入口"]
+    Router -->|"主域与内部域"| Knot["路由器 Knot 权威"]
+    Knot -->|"主域集群内没有的名称"| Public["公网递归"]
+    VPS["VPS dnsmasq"] -->|"内部域与主域"| Gateway["k8s-gateway"]
+    VPS -->|"主域上游不可用，备用"| Public
+    Gateway -->|"未匹配内部域"| Router
+    Gateway -->|"未匹配其他名称"| Public
+    ExternalDNS["集群 ExternalDNS"] -->|"RFC2136 + TXT ownership + sync"| Knot
+    Resources["HTTPRoute / Service / Ingress"] --> ExternalDNS
+    Resources --> Gateway
 ```
 
 ### 内网记录归属
 
-内网 DNS 记录有两个来源，都落进路由器 dnsmasq 的同一张 hosts 表
+- 主域与内部域的动态记录：`openwrt-dns` 目录中的 ExternalDNS 通过原生 RFC2136 写入路由器 Knot 的两个 zone；TXT 标记本实例 ownership，`sync` 随资源变更撤销旧记录，不再经 LuCI RPC 写 UCI
+- 主域集群内没有的名称：由主域 zone 的 `mod-dnsproxy`（`catch-nxdomain: on`）转发公网递归，不用权威 NXDOMAIN 遮蔽公网记录
+- 集群外自举入口：保留 `router/dnsmasq-int.hosts`，由 `task router:dns:diff` / `task router:dns:sync` 下发到 dnsmasq 的精确 hosts，不由 TXT registry 接管
+- VPS 与远程链路仍经 k8s-gateway；未匹配的集群外内部名称由 gateway 交回主路由，主路由该域只交 Knot。此远程链路依赖集群，不等同于家庭 LAN 的自举保证
+- SFM 保留已有本地静态应答，Knot 的精确删除不改变其客户端应答契约
 
-- 集群内服务：HTTPRoute hostname 由集群里的 openwrt-dns（external-dns webhook）经 LuCI RPC 写成路由器 `/etc/config/dhcp` 的 `config cname`，dnsmasq 启动时展开到 `/tmp/hosts/dhcp.<cfg>`，再以 `--addn-hosts` 读入
-- 集群外服务（sakamoto 上的 minio、镜像代理等）：仓库 `router/dnsmasq-int.hosts` 声明，`task router:dns:diff` 比对、`task router:dns:sync` 下发到路由器 `/etc/dnsmasq.d/int.hosts`，通过 UCI `addnhosts` 注册。两个坑：`addnhosts` 是 list 语义，必须 `add_list`；被指向的路径要先存在，否则 `uci commit` 触发的 ucitrack 重载会让 dnsmasq 启动失败、整网解析中断
-- 同名不能同时出现在两处：dnsmasq 对重复名字会返回多个地址并按查询轮换，不报错也不提示
+dnsmasq 本地 UCI 或 hosts 会优先遮蔽上游答案。存量清理使用实时集群资源与 UCI 比对，按展示的精确条目确认后执行；主域手工条目逐个确认消费者，第二域名不纳入清理
 
-查现网实际生效的记录
+查询当前声明与运行配置
 
 ```bash
-ssh router-mine "uci show dhcp | grep -E '=domain|=cname'"
-ssh router-mine "cat /tmp/hosts/dhcp.*"
-ssh router-mine "cat /etc/dnsmasq.d/int.hosts"
+kubectl -n flux-system get kustomizations infra apps
+kubectl -n network get helmreleases k8s-gateway external-dns-openwrt
+kubectl -n network get configmap k8s-gateway -o jsonpath='{.data.Corefile}'
+task router:dns:diff
 ```
 
-内网入口迁入独立子域的分层决策见 [内网域决策](./adr/0002-internal-domain-static-client-dns.md)
+域名分层与后端分工见 [ADR-0002](./adr/0002-internal-domain-static-client-dns.md) 和 [ADR-0003](./adr/0003-internal-dns-knot-gateway-split.md)，迁移、清理与回退见 [DNS 下发指南](./router/dns.md)
 
 ### 入口一览
 
@@ -273,12 +259,12 @@ ssh router-mine "cat /etc/dnsmasq.d/int.hosts"
 |---|------|------|--------|------|------|
 | 1 | VPS Caddy (v4) | 公网 | A `*` → VPS → Tailscale | envoy-external | ✅ 活跃 |
 | 2 | caddy-external (v6) | 公网 | AAAA `*` → 集群 v6 | envoy-external | ✅ 活跃 |
-| 3 | envoy-internal | 内网 | 客户端 DNS → TVBox daed → router-mine DNS (openwrt-dns 同步) → LB | envoy-internal | ✅ 活跃 |
+| 3 | envoy-internal | 内网 | 客户端 DNS → 旁路由 → 主路由 dnsmasq → 本机 Knot → LB | envoy-internal | 按 DNS 下发指南核验 |
 | 4 | Tailscale | 内网 | 直连 → subnet router | 集群服务 | ✅ 活跃 |
 | ~5~ | Cloudflare Tunnel | — | — | — | ❌ 已停用 |
 | ~6~ | NetBird | — | — | — | ❌ 已停用 |
 
-> 内网 DNS 里除集群服务外还有集群外内部服务（sakamoto 上的 minio、镜像代理、PVE 面板等），它们解析到 192.168.6.144，不经 envoy
+> 集群外内部服务使用各自的精确入口记录，不经 Envoy；家庭 LAN 的镜像与备份自举不依赖集群 DNS
 
 ---
 

@@ -10,6 +10,27 @@ vars:
   BIRD_CONF: "{{.ROOT_DIR}}/router/mine.conf"
   DNS_HOSTS: "{{.ROOT_DIR}}/router/dnsmasq-int.hosts"
   DNS_HOSTS_DST: "/etc/dnsmasq.d/int.hosts"
+  DNS_DOMAINS:
+    sh: |
+      set -euo pipefail
+      sops -d {{.ROOT_DIR}}/k8s/components/common/sops/cluster-secret.sops.yaml \
+        | yq -o=json '.stringData | {"MAIN_DOMAIN": .MAIN_DOMAIN, "INTERNAL_DOMAIN": .INTERNAL_DOMAIN, "SECOND_DOMAIN": .SECOND_DOMAIN}'
+  MAIN_DOMAIN: '{{(fromJson .DNS_DOMAINS).MAIN_DOMAIN}}'
+  INTERNAL_DOMAIN: '{{(fromJson .DNS_DOMAINS).INTERNAL_DOMAIN}}'
+  SECOND_DOMAIN: '{{(fromJson .DNS_DOMAINS).SECOND_DOMAIN}}'
+  ROUTER_IP:
+    sh: ansible-inventory -i {{.ROOT_DIR}}/ansible/inventory/others.ini --host router-mine | jq -re '.ansible_host'
+  # 与 k8s-gateway 共用同一组公网递归地址，避免出现第二处硬编码
+  DNS_UPSTREAM:
+    sh: >-
+      yq ea -r 'select(.kind == "HelmRelease") | [.spec.values.extraZonePlugins[]
+      | select(.name == "forward") | .parameters | select(test("^\\. "))
+      | sub("^\\. "; "")] | .[0]'
+      {{.ROOT_DIR}}/k8s/infra/common/network/internal/k8s-gateway/app/helmrelease.yaml
+  AZURE_VAULT:
+    sh: >-
+      yq -r '.spec.provider.azurekv.vaultUrl | sub("https://"; "") | split(".") | .[0]'
+      {{.ROOT_DIR}}/k8s/infra/common/external-secrets/external-secrets/azure/clustersecretstore.yaml
 
 tasks:
   bgp:diff:
@@ -89,7 +110,7 @@ tasks:
       fi
 
   dns:sync:
-    desc: "同步内网域记录到路由器（先展示差异，确认后落地并重载 dnsmasq）"
+    desc: "同步集群外自举 hosts（先显示差异，确认后重载 dnsmasq）"
     # deps 先于 prompt 执行：确认发生在看到差异之后
     deps: [_dns:diff]
     prompt: 将仓库版本下发到路由器 {{ .DNS_HOSTS_DST }} 并重启 dnsmasq？
@@ -132,6 +153,156 @@ tasks:
           done
           echo "${out}"
         '
+
+  knot:install:
+    desc: 安装当前路由器固件源中的 Knot
+    prompt: 更新包索引并安装 Knot（不切换 DNS 分流）？
+    cmd: ssh -n -o BatchMode=yes -o ConnectTimeout=5 {{.ROUTER_SSH}} 'opkg update && opkg install knot'
+
+  _knot:render:
+    internal: true
+    silent: true
+    requires:
+      vars: [OUT]
+    env:
+      ROUTER_IP: "{{.ROUTER_IP}}"
+      MAIN_DOMAIN: "{{.MAIN_DOMAIN}}"
+      INTERNAL_DOMAIN: "{{.INTERNAL_DOMAIN}}"
+      AZURE_VAULT: "{{.AZURE_VAULT}}"
+      DNS_UPSTREAM: "{{.DNS_UPSTREAM}}"
+    cmd: |
+      set -euo pipefail
+      umask 077
+      tmp="$(mktemp)"
+      trap 'rm -f "$tmp"' EXIT
+      envsubst '${ROUTER_IP} ${MAIN_DOMAIN} ${INTERNAL_DOMAIN} ${AZURE_VAULT} ${DNS_UPSTREAM}' < "{{.ROOT_DIR}}/router/knot/knot.conf.tpl" > "$tmp"
+      python3 "{{.ROOT_DIR}}/scripts/azure-inject.py" print "$tmp" > "{{.OUT}}"
+
+  knot:diff:
+    silent: true
+    desc: 对比路由器 Knot 配置（密钥脱敏）
+    cmd: |
+      set -euo pipefail
+      umask 077
+      tmp="$(mktemp -d)"
+      trap 'rm -rf "$tmp"' EXIT
+      task router:_knot:render OUT="$tmp/new"
+      ssh -n -o BatchMode=yes -o ConnectTimeout=5 {{.ROUTER_SSH}} 'cat /etc/knot/knot.conf' > "$tmp/old"
+      for file in old new; do
+        awk '{sub(/secret:.*/, "secret: <redacted>"); print}' "$tmp/$file" > "$tmp/$file.redacted"
+      done
+      diff -u "$tmp/old.redacted" "$tmp/new.redacted" || [ "$?" -eq 1 ]
+      echo "TSIG 不显示；sync 会将同一 KeyVault 密钥下发到路由器。"
+
+  knot:sync:
+    silent: true
+    desc: 校验并下发 Knot，初始化空 zone 并启用服务
+    deps: [knot:diff]
+    prompt: 下发 Knot 配置并重启 Knot（不修改 dnsmasq 分流）？
+    cmd: |
+      set -euo pipefail
+      umask 077
+      tmp="$(mktemp -d)"
+      trap 'rm -rf "$tmp"' EXIT
+      task router:_knot:render OUT="$tmp/knot.conf"
+      remote="/tmp/knot.conf.$$"
+      scp -q -o BatchMode=yes "$tmp/knot.conf" "{{.ROUTER_SSH}}:$remote"
+      ssh -o BatchMode=yes -o ConnectTimeout=5 {{.ROUTER_SSH}} "NEW='$remote' MAIN='{{.MAIN_DOMAIN}}' ZONE='{{.INTERNAL_DOMAIN}}' ROUTER_IP='{{.ROUTER_IP}}' sh -s" <<'REMOTE'
+      set -eu
+      mkdir -p /etc/knot/state /var/run/knot
+      chown knot:knot /etc/knot/state /var/run/knot
+      chmod 700 /etc/knot/state /var/run/knot
+      trap 'rm -f "$NEW"' EXIT
+      knotc -c "$NEW" conf-check
+      backup=/etc/knot/knot.conf.prev
+      cp -p /etc/knot/knot.conf "$backup" 2>/dev/null || backup=''
+      running=0
+      /etc/init.d/knotd status >/dev/null 2>&1 && running=1
+      trap 'code=$?; rm -f "$NEW"; if [ "$code" -ne 0 ]; then if [ -n "$backup" ]; then cp -p "$backup" /etc/knot/knot.conf; fi; if [ "$running" -eq 1 ]; then /etc/init.d/knotd restart; else /etc/init.d/knotd stop; fi; fi' EXIT
+      chown root:knot "$NEW"
+      chmod 640 "$NEW"
+      mv "$NEW" /etc/knot/knot.conf
+      /etc/init.d/knotd restart
+      i=0
+      until knotc status >/dev/null 2>&1; do
+        i=$((i + 1)); [ "$i" -lt 10 ] || exit 1; sleep 1
+      done
+      for zone in "$MAIN" "$ZONE"; do
+        if ! knotc zone-read "$zone" @ SOA >/dev/null 2>&1; then
+          knotc zone-begin "$zone"
+          knotc zone-set "$zone" @ 60 SOA "ns.$zone." "hostmaster.$zone." 1 3600 600 86400 60
+          knotc zone-set "$zone" @ 60 NS "ns.$zone."
+          knotc zone-set "$zone" ns 60 A "$ROUTER_IP"
+          knotc zone-commit "$zone"
+        fi
+        knotc zone-read "$zone" @ SOA
+      done
+      /etc/init.d/knotd enable
+      echo "Knot 已就绪；旧配置备份：${backup:-无}。dnsmasq 尚未切换。"
+      REMOTE
+
+  dns:split:diff:
+    silent: true
+    desc: 展示 dnsmasq 当前分流与目标规则
+    cmd: |
+      set -euo pipefail
+      echo "当前 dnsmasq（未显示的其他配置保持不变）："
+      current="$(ssh -n -o BatchMode=yes -o ConnectTimeout=5 {{.ROUTER_SSH}} 'uci show dhcp.@dnsmasq[0]')"
+      printf '%s\n' "$current" | grep -E '\.(allservers|strictorder|server|min_ttl)=' || [ "$?" -eq 1 ]
+      printf '目标：\nserver=/{{.MAIN_DOMAIN}}/127.0.0.1#5354\nserver=/{{.INTERNAL_DOMAIN}}/127.0.0.1#5354\n'
+
+  dns:split:sync:
+    silent: true
+    desc: 确认后切换 DNS 分流（先验证 Knot 与 gateway）
+    deps: [dns:split:diff]
+    prompt: 按展示规则修改 dnsmasq 分流并重启（其他域规则保持不变）？
+    cmd: |
+      set -euo pipefail
+      test -n "$(dig +short @{{.ROUTER_IP}} -p 5354 {{.MAIN_DOMAIN}} SOA)"
+      test -n "$(dig +short @{{.ROUTER_IP}} -p 5354 {{.INTERNAL_DOMAIN}} SOA)"
+      kubectl -n network get configmap k8s-gateway -o jsonpath='{.data.Corefile}' \
+        | grep -F 'forward {{.INTERNAL_DOMAIN}} {{.ROUTER_IP}}'
+      ssh -o BatchMode=yes -o ConnectTimeout=5 {{.ROUTER_SSH}} "MAIN='{{.MAIN_DOMAIN}}' ZONE='{{.INTERNAL_DOMAIN}}' sh -s" <<'REMOTE'
+      set -eu
+      test -n "$MAIN"
+      test -n "$ZONE"
+      test -z "$(uci changes dhcp)"
+      backup="$(mktemp /etc/config/dhcp.dns-backup.XXXXXX)"
+      cp /etc/config/dhcp "$backup"
+      trap 'code=$?; if [ "$code" -ne 0 ]; then uci revert dhcp; cp "$backup" /etc/config/dhcp; /etc/init.d/dnsmasq restart; fi' EXIT
+      for server in $(uci -q get dhcp.@dnsmasq[0].server || true); do
+        case "$server" in
+          /"$MAIN"/*|/"$ZONE"/*)
+            rest="${server#/*/}"
+            case "$rest" in */*) echo "存在多域混合规则，先拆分该规则：$server"; exit 1 ;; esac
+            uci del_list "dhcp.@dnsmasq[0].server=$server" ;;
+        esac
+      done
+      uci add_list "dhcp.@dnsmasq[0].server=/$MAIN/127.0.0.1#5354"
+      uci add_list "dhcp.@dnsmasq[0].server=/$ZONE/127.0.0.1#5354"
+      uci commit dhcp
+      /etc/init.d/dnsmasq restart
+      /etc/init.d/dnsmasq status
+      echo "DNS 分流已切换；回退备份：$backup。旧 UCI 记录尚未删除。"
+      REMOTE
+
+  dns:cleanup-list:
+    silent: true
+    desc: 实时比对集群名称与旧 UCI A/CNAME（只读）
+    dir: "{{.ROOT_DIR}}"
+    env: &cleanup-env
+      ROUTER_SSH: "{{.ROUTER_SSH}}"
+      MAIN_DOMAIN: "{{.MAIN_DOMAIN}}"
+      INTERNAL_DOMAIN: "{{.INTERNAL_DOMAIN}}"
+      SECOND_DOMAIN: "{{.SECOND_DOMAIN}}"
+    cmd: python3 router/knot/uci-cleanup.py list
+
+  dns:cleanup:
+    silent: true
+    desc: 删除显式选择的 UCI 段（-- 段名...，展示清单后确认）
+    dir: "{{.ROOT_DIR}}"
+    env: *cleanup-env
+    cmd: python3 router/knot/uci-cleanup.py delete {{.CLI_ARGS}}
 
   run:
     internal: true

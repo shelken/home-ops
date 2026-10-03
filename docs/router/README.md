@@ -18,6 +18,7 @@
 | [VLAN 配置](./vlan.md) | VLAN 网络划分，包括主网 (VLAN 6) 和 IoT 网 (VLAN 50) |
 | [mDNS 配置](./mdns.md) | Avahi mDNS 反射，实现跨 VLAN 服务发现 |
 | [BGP 配置](./bgp.md) | BIRD BGP 路由，实现跨地域 Pod 网络互通 |
+| [DNS 生命周期](./dns.md) | Knot 权威、RFC2136、DNS 分流、存量确认清理与回退 |
 
 ## 网络架构概览
 
@@ -71,7 +72,7 @@ task router:dns:diff   # 对比路由器 /etc/dnsmasq.d/int.hosts 与仓库版�
 task router:dns:sync   # 展示差异 → 确认 → 落地 → 重载 dnsmasq（SIGHUP 重读记录文件）
 ```
 
-`router/dnsmasq-int.hosts` 是内网域 `int.<MAIN_DOMAIN>` 的集群外记录，指向 sakamoto 上的入口。
+`router/dnsmasq-int.hosts` 是内部域的集群外自举记录，指向各自的集群外入口；动态记录与转发规则按 [DNS 生命周期指南](./dns.md) 单独下发。
 首次下发前需在路由器上注册一次。两个约束：`addnhosts` 是 list 语义，必须用 `add_list`；
 被指向的路径必须先存在 —— 否则 `uci commit` 触发的 ucitrack 重载会让 dnsmasq 启动失败，整网解析中断。
 

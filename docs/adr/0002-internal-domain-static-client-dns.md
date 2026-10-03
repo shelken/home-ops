@@ -19,7 +19,7 @@
 
 - `MAIN_DOMAIN` 不变，新增 `INTERNAL_DOMAIN` 表示选定的内部后缀
 - Cloudflare ExternalDNS 配置不变，不新增内部域排除规则，不发布内部服务地址
-- OpenWrt ExternalDNS 的 sources、domain filter、registry 和同步策略不变；随入口 hostname 更新记录
+- OpenWrt ExternalDNS 的 sources、domain filter、registry 和同步策略不变；随入口 hostname 更新记录（内部域随后移出 `domainFilters`，见 [ADR-0003](./0003-internal-dns-knot-gateway-split.md)）
 - 现有主域 Certificate 增加内部 wildcard，保留现有 Secret 与签发、导出、恢复导入链；同步相关证书名称注解，不新建分发体系
 - 内部 HTTPRoute、Gateway 的内部 DNS 目标及其消费者同步迁移；同一应用的公网入口保持原域名
 - 集群外内部服务同步迁移其入口、证书覆盖及消费者；不为了统一 IP 将这些服务搬到 Envoy 后面

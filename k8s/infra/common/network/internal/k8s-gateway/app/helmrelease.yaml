@@ -34,12 +34,29 @@ spec:
   values:
     # ref：https://github.com/k8s-gateway/k8s_gateway/blob/master/charts/k8s-gateway/values.yaml
     fullnameOverride: k8s-gateway
-    domain: "${MAIN_DOMAIN}"
+    domain: "${MAIN_DOMAIN} ${INTERNAL_DOMAIN}"
     ttl: 1
     fallthrough:
       enabled: true
+    extraZonePlugins:
+      - name: log
+      - name: errors
+      - name: health
+        configBlock: |-
+          lameduck 5s
+      - name: ready
+      - name: prometheus
+        parameters: 0.0.0.0:9153
+      - name: forward
+        parameters: "${INTERNAL_DOMAIN} ${ROUTER_IP}"
+      - name: forward
+        parameters: ". 223.5.5.5 119.29.29.29"
+      - name: loop
+      - name: reload
+      - name: loadbalance
     service:
       type: LoadBalancer
+      useTcp: true
       port: 53
       annotations:
         lbipam.cilium.io/ips: "192.168.69.41"

@@ -30,7 +30,7 @@ spec:
               AUTH_PASSWORD:
                 valueFrom:
                   secretKeyRef:
-                    name: openwrt-dns-secret
+                    name: passwall-healer-secret
                     key: AUTH_PASSWORD
             probes:
               liveness: &probes
