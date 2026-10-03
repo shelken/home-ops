@@ -28,7 +28,7 @@ spec:
           app:
             image:
               repository: ghcr.io/immich-app/immich-machine-learning
-              tag: v3.1.0-cuda@sha256:82d3f6a093455964508052e0b3bc55a91075b48b65be35e78b40774a72c1ebb3
+              tag: v3.2.4-cuda@sha256:b9fdebfe7f07ff71f77e9d67d509d83c5e055da486a07c12080669c82a80c65e
             # ref：https://immich.app/docs/install/environment-variables/#machine-learning
             env:
               TZ: ${TIMEZONE}
