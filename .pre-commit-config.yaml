@@ -28,6 +28,12 @@ repos:
         language: system
         types: [yaml]
 
+      - id: markdown-relative-links
+        name: markdown-relative-links
+        entry: python3 scripts/check-markdown-links.py
+        language: system
+        types: [markdown]
+
       - id: gitleaks
         name: gitleaks
         entry: gitleaks protect --staged --config gitleaks.toml --redact -v
