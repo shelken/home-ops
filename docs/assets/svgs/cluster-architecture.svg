@@ -130,7 +130,7 @@
       <g transform="translate(0, 0)">
         <rect width="116" height="26" rx="4" fill="#1e2030" stroke="#363a4f" stroke-width="1" />
         <circle cx="12" cy="13" r="2.5" fill="#a6da95" />
-        <text x="22" y="17" class="font-mono" font-size="9" fill="#cad3f5">3 NODES READY</text>
+        <text x="22" y="17" class="font-mono" font-size="9" fill="#cad3f5">K3S · 3 NODES</text>
       </g>
       <g transform="translate(126, 0)">
         <rect width="116" height="26" rx="4" fill="#1e2030" stroke="#363a4f" stroke-width="1" />
@@ -159,15 +159,15 @@
       <rect width="100" height="54" rx="5" fill="#1e2030" stroke="#363a4f" stroke-width="1" />
       <use href="#ico-cloud" x="12" y="8" />
       <text x="38" y="24" font-size="11" font-weight="600" fill="#cad3f5">Internet</text>
-      <text x="38" y="38" class="font-mono" font-size="8" fill="#8087a2">公网客户端</text>
+      <text x="38" y="38" class="font-mono" font-size="9" fill="#8087a2">公网客户端</text>
     </g>
 
     <!-- 1.2 Cloudflare 双栈解析 -->
     <g transform="translate(112, 0)">
       <rect width="160" height="54" rx="5" fill="#1e2030" stroke="#363a4f" stroke-width="1" />
       <text x="12" y="20" font-size="10.5" font-weight="600" fill="#cad3f5">Cloudflare DNS</text>
-      <text x="12" y="34" class="font-mono" font-size="8" fill="#91d7e3">A * → VPS 公网 IP</text>
-      <text x="12" y="46" class="font-mono" font-size="8" fill="#8bd5ca">AAAA * → 集群 v6</text>
+      <text x="12" y="34" class="font-mono" font-size="9" fill="#91d7e3">A * → VPS 公网 IP</text>
+      <text x="12" y="47" class="font-mono" font-size="9" fill="#8bd5ca">AAAA * → 集群 v6</text>
     </g>
 
     <!-- 1.3 VPS 边缘服务器（公网独立宿主，唯一 v4 入口） -->
@@ -176,68 +176,69 @@
 
       <use href="#ico-server" x="14" y="14" />
       <text x="40" y="26" font-size="12" font-weight="700" fill="#cad3f5">VPS Edge Server</text>
-      <text x="40" y="42" class="font-mono" font-size="8.5" fill="#8087a2">公网独立主机 · Docker Compose</text>
+      <text x="40" y="42" class="font-mono" font-size="9" fill="#8087a2">公网独立主机 · Docker Compose</text>
 
       <!-- 公网入口 -->
       <g transform="translate(14, 56)">
         <rect width="244" height="46" rx="4" fill="#181926" stroke="#ed8796" stroke-width="0.8" />
-        <text x="10" y="19" font-size="10" font-weight="600" fill="#cad3f5">Caddy :443 + CrowdSec</text>
-        <text x="10" y="34" class="font-mono" font-size="7.5" fill="#ee99a0">TLS 终结 · L7 WAF · 唯一 v4 入口</text>
+        <text x="10" y="19" font-size="10.5" font-weight="600" fill="#cad3f5">Caddy :443 + CrowdSec</text>
+        <text x="10" y="34" class="font-mono" font-size="9" fill="#ee99a0">TLS 终结 · L7 WAF · 唯一 v4 入口</text>
       </g>
 
       <!-- 本地 Docker 服务（172.20.0.0/16） -->
       <g transform="translate(14, 110)">
         <g transform="translate(0, 0)">
           <rect width="118" height="52" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
-          <text x="10" y="19" font-size="9" font-weight="600" fill="#cad3f5">mosdns :9053</text>
-          <text x="10" y="33" class="font-mono" font-size="7.5" fill="#a5adcb">vdns 内网分流解析</text>
+          <text x="10" y="20" font-size="9.5" font-weight="600" fill="#cad3f5">mosdns · dnsmasq</text>
+          <text x="10" y="36" class="font-mono" font-size="9" fill="#a5adcb">DNS :9053 / :5353</text>
         </g>
         <g transform="translate(126, 0)">
           <rect width="118" height="52" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
-          <text x="10" y="19" font-size="9" font-weight="600" fill="#cad3f5">sub-converter</text>
-          <text x="10" y="33" class="font-mono" font-size="7.5" fill="#a5adcb">sub 订阅转换 :25500</text>
+          <text x="10" y="20" font-size="9.5" font-weight="600" fill="#cad3f5">sub-converter</text>
+          <text x="10" y="36" class="font-mono" font-size="9" fill="#a5adcb">订阅转换 :25500</text>
         </g>
       </g>
       <g transform="translate(14, 170)">
         <g transform="translate(0, 0)">
           <rect width="118" height="52" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
-          <text x="10" y="19" font-size="9" font-weight="600" fill="#cad3f5">sbtools-server</text>
-          <text x="10" y="33" class="font-mono" font-size="7.5" fill="#a5adcb">subs 域名 :8080</text>
+          <text x="10" y="20" font-size="9.5" font-weight="600" fill="#cad3f5">sbtools-server</text>
+          <text x="10" y="36" class="font-mono" font-size="9" fill="#a5adcb">subs 域名 :8080</text>
         </g>
         <g transform="translate(126, 0)">
           <rect width="118" height="52" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
-          <text x="10" y="19" font-size="9" font-weight="600" fill="#cad3f5">dhp :5000</text>
-          <text x="10" y="33" class="font-mono" font-size="7.5" fill="#a5adcb">镜像 pull-through</text>
+          <text x="10" y="20" font-size="9.5" font-weight="600" fill="#cad3f5">dhp :5000</text>
+          <text x="10" y="36" class="font-mono" font-size="9" fill="#a5adcb">镜像 pull-through</text>
         </g>
       </g>
       <g transform="translate(14, 230)">
         <g transform="translate(0, 0)">
           <rect width="118" height="52" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
-          <text x="10" y="19" font-size="9" font-weight="600" fill="#cad3f5">anytls :5444</text>
-          <text x="10" y="33" class="font-mono" font-size="7.5" fill="#a5adcb">sing-box 代理出口</text>
+          <text x="10" y="20" font-size="9.5" font-weight="600" fill="#cad3f5">anytls :5444</text>
+          <text x="10" y="36" class="font-mono" font-size="9" fill="#a5adcb">sing-box 代理出口</text>
         </g>
         <g transform="translate(126, 0)">
           <rect width="118" height="52" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
-          <text x="10" y="19" font-size="9" font-weight="600" fill="#cad3f5">hysteria2</text>
-          <text x="10" y="33" class="font-mono" font-size="7.5" fill="#a5adcb">含 no-obfs 供 daed</text>
+          <text x="10" y="20" font-size="9.5" font-weight="600" fill="#cad3f5">hysteria2</text>
+          <text x="10" y="36" class="font-mono" font-size="9" fill="#a5adcb">:10357 / :10358</text>
         </g>
       </g>
       <g transform="translate(14, 290)">
         <g transform="translate(0, 0)">
           <rect width="118" height="52" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
-          <text x="10" y="19" font-size="9" font-weight="600" fill="#cad3f5">OpenList S3</text>
-          <text x="10" y="33" class="font-mono" font-size="7.5" fill="#91d7e3">网盘转 S3 网关</text>
+          <text x="10" y="20" font-size="9.5" font-weight="600" fill="#cad3f5">OpenList S3</text>
+          <text x="10" y="36" class="font-mono" font-size="9" fill="#91d7e3">网盘 → S3 网关</text>
         </g>
         <g transform="translate(126, 0)">
           <rect width="118" height="52" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
-          <text x="10" y="19" font-size="9" font-weight="600" fill="#cad3f5">Kopia Agent</text>
-          <text x="10" y="33" class="font-mono" font-size="7.5" fill="#a6da95">compose 1h / vps 4h</text>
+          <text x="10" y="20" font-size="9.5" font-weight="600" fill="#cad3f5">Kopia Agent</text>
+          <text x="10" y="36" class="font-mono" font-size="9" fill="#a6da95">1h / 4h → 189</text>
         </g>
       </g>
       <g transform="translate(14, 350)">
         <rect width="244" height="46" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
-        <text x="10" y="19" font-size="9" font-weight="600" fill="#cad3f5">Fluent Bit · node-exporter · DERP</text>
-        <text x="10" y="34" class="font-mono" font-size="7.5" fill="#8087a2">日志 · 遥测 · 中继 :8666 经 ts-node-vps 暴露</text>
+        <text x="10" y="16" font-size="9.5" font-weight="600" fill="#cad3f5">Fluent Bit · DERP · dockerproxy</text>
+        <text x="10" y="30" class="font-mono" font-size="9" fill="#8087a2">日志 · :8666 公网 · :2575 Docker</text>
+        <text x="10" y="42" class="font-mono" font-size="9" fill="#8087a2">node-exporter · 遥测</text>
       </g>
     </g>
   </g>
@@ -257,7 +258,7 @@
       <g transform="translate(480, -2)">
         <rect width="180" height="26" rx="4" fill="#1e2030" stroke="#8aadf4" stroke-width="0.8" />
         <circle cx="10" cy="13" r="2.5" fill="#8aadf4" />
-        <text x="18" y="16.5" class="font-mono" font-size="8.5" fill="#cad3f5">Flux: infra ➔ apps (wait: false)</text>
+        <text x="18" y="16.5" class="font-mono" font-size="9" fill="#cad3f5">Flux: infra ➔ apps</text>
       </g>
     </g>
 
@@ -266,141 +267,136 @@
       <!-- envoy-external -->
       <g transform="translate(0, 0)">
         <rect width="157" height="54" rx="4" fill="#181926" stroke="#7dc4e4" stroke-width="1" />
-        <text x="10" y="17" font-size="10" font-weight="700" fill="#cad3f5">envoy-external</text>
-        <text x="10" y="31" class="font-mono" font-size="7.5" fill="#7dc4e4">LB 192.168.69.45 · 80/443</text>
-        <text x="10" y="45" font-size="7.5" fill="#91d7e3">GeoIP → HTTPRoute → Pods</text>
+        <text x="10" y="17" font-size="10.5" font-weight="700" fill="#cad3f5">envoy-external</text>
+        <text x="10" y="32" class="font-mono" font-size="9" fill="#7dc4e4">LB 192.168.69.45 · 80/443</text>
+        <text x="10" y="46" font-size="9" fill="#91d7e3">GeoIP → HTTPRoute → Pods</text>
       </g>
 
       <!-- caddy-external -->
       <g transform="translate(165, 0)">
         <rect width="157" height="54" rx="4" fill="#181926" stroke="#8bd5ca" stroke-width="1" />
-        <text x="10" y="17" font-size="10" font-weight="700" fill="#cad3f5">caddy-external</text>
-        <text x="10" y="31" class="font-mono" font-size="7.5" fill="#8bd5ca">集群公网 v6 入口</text>
-        <text x="10" y="45" font-size="7.5" fill="#a6da95">更新 Cloudflare AAAA</text>
+        <text x="10" y="17" font-size="10.5" font-weight="700" fill="#cad3f5">caddy-external</text>
+        <text x="10" y="32" class="font-mono" font-size="9" fill="#8bd5ca">集群公网 v6 入口</text>
+        <text x="10" y="46" font-size="9" fill="#a6da95">更新 Cloudflare AAAA</text>
       </g>
 
       <!-- k8s-gateway -->
       <g transform="translate(330, 0)">
         <rect width="157" height="54" rx="4" fill="#181926" stroke="#8aadf4" stroke-width="1" />
-        <text x="10" y="17" font-size="10" font-weight="700" fill="#cad3f5">k8s-gateway</text>
-        <text x="10" y="31" class="font-mono" font-size="7.5" fill="#8aadf4">LB 192.168.69.41</text>
-        <text x="10" y="45" font-size="7.5" fill="#b8c0e0">内网权威 DNS → LB IP</text>
+        <text x="10" y="17" font-size="10.5" font-weight="700" fill="#cad3f5">k8s-gateway</text>
+        <text x="10" y="32" class="font-mono" font-size="9" fill="#8aadf4">LB 192.168.69.41 · :53</text>
+        <text x="10" y="46" font-size="9" fill="#b8c0e0">内网权威 DNS → LB IP</text>
       </g>
 
       <!-- envoy-internal -->
       <g transform="translate(495, 0)">
         <rect width="157" height="54" rx="4" fill="#181926" stroke="#eed49f" stroke-width="1" />
-        <text x="10" y="17" font-size="10" font-weight="700" fill="#cad3f5">envoy-internal</text>
-        <text x="10" y="31" class="font-mono" font-size="7.5" fill="#eed49f">LB 192.168.69.46</text>
-        <text x="10" y="45" font-size="7.5" fill="#f5a97f">LAN / Tailscale 入口</text>
+        <text x="10" y="17" font-size="10.5" font-weight="700" fill="#cad3f5">envoy-internal</text>
+        <text x="10" y="32" class="font-mono" font-size="9" fill="#eed49f">LB 192.168.69.46</text>
+        <text x="10" y="46" font-size="9" fill="#f5a97f">LAN / Tailscale 入口</text>
       </g>
     </g>
 
     <!-- 2.2 计算节点矩阵 (3 大节点卡片) -->
     <g transform="translate(20, 118)">
-      <!-- 节点 1: sakamoto-k8s -->
+      <!-- 节点 1: 控制面节点（真名以占位符名替代） -->
       <g transform="translate(0, 0)">
         <rect width="212" height="295" rx="5" fill="#181926" stroke="#494d64" stroke-width="1" />
 
         <use href="#ico-server" x="10" y="10" />
-        <text x="32" y="22" font-size="11" font-weight="700" fill="#cad3f5">sakamoto-k8s</text>
+        <text x="32" y="22" font-size="11" font-weight="700" fill="#cad3f5">控制面节点</text>
         <circle cx="196" cy="18" r="2.5" fill="#a6da95" />
-        <text x="10" y="38" class="font-mono" font-size="7.5" fill="#b8c0e0">Control-Plane · arm64</text>
-        <text x="10" y="49" class="font-mono" font-size="7.5" fill="#8087a2">192.168.6.80 · Lima VM</text>
+        <text x="10" y="40" class="font-mono" font-size="9" fill="#b8c0e0">Control-Plane · arm64</text>
+        <text x="10" y="53" class="font-mono" font-size="9" fill="#8087a2">192.168.6.80 · Lima VM</text>
 
-        <g transform="translate(8, 58)">
+        <g transform="translate(8, 62)">
           <rect width="196" height="44" rx="3" fill="#1e2030" stroke="#363a4f" stroke-width="0.8" />
-          <text x="8" y="16" font-size="8.5" font-weight="600" fill="#cad3f5">k3s Control-Plane · etcd</text>
-          <text x="8" y="30" class="font-mono" font-size="7.5" fill="#8087a2">k3s registration address 192.168.6.80</text>
+          <text x="8" y="18" font-size="9.5" font-weight="600" fill="#cad3f5">k3s Control-Plane · etcd</text>
+          <text x="8" y="34" class="font-mono" font-size="9" fill="#8087a2">registration 192.168.6.80</text>
         </g>
-        <g transform="translate(8, 106)">
+        <g transform="translate(8, 110)">
           <rect width="196" height="44" rx="3" fill="#1e2030" stroke="#7dc4e4" stroke-width="0.8" />
-          <text x="8" y="16" font-size="8.5" font-weight="600" fill="#cad3f5">Prometheus 指标库</text>
-          <text x="8" y="30" class="font-mono" font-size="7.5" fill="#7dc4e4">硬亲和 sakamoto-k8s（70Gi PVC）</text>
+          <text x="8" y="18" font-size="9.5" font-weight="600" fill="#cad3f5">Prometheus 指标库</text>
+          <text x="8" y="34" class="font-mono" font-size="9" fill="#7dc4e4">硬亲和本节点 · 70Gi PVC</text>
         </g>
-        <g transform="translate(8, 154)">
+        <g transform="translate(8, 158)">
           <rect width="196" height="44" rx="3" fill="#1e2030" stroke="#363a4f" stroke-width="0.8" />
-          <text x="8" y="16" font-size="8.5" font-weight="600" fill="#cad3f5">CNPG immich-db</text>
-          <text x="8" y="30" class="font-mono" font-size="7.5" fill="#8087a2">硬亲和 sakamoto-k8s</text>
+          <text x="8" y="18" font-size="9.5" font-weight="600" fill="#cad3f5">CNPG immich-db</text>
+          <text x="8" y="34" class="font-mono" font-size="9" fill="#8087a2">硬亲和本节点</text>
         </g>
-        <g transform="translate(8, 202)">
+        <g transform="translate(8, 206)">
           <rect width="196" height="44" rx="3" fill="#1e2030" stroke="#a6da95" stroke-width="0.8" />
-          <text x="8" y="16" font-size="8.5" font-weight="600" fill="#cad3f5">Longhorn 数据盘节点</text>
-          <text x="8" y="30" class="font-mono" font-size="7.5" fill="#a6da95">create-default-disk=true</text>
+          <text x="8" y="18" font-size="9.5" font-weight="600" fill="#cad3f5">Longhorn 数据盘节点</text>
+          <text x="8" y="34" class="font-mono" font-size="9" fill="#a6da95">create-default-disk=true</text>
         </g>
-        <g transform="translate(8, 254)">
-          <rect width="196" height="32" rx="3" fill="#1e2030" />
-          <text x="6" y="20" class="font-mono" font-size="7.5" fill="#6e738d">CONTROL-PLANE · ARM64 · LIMA</text>
+        <g transform="translate(8, 256)">
+          <rect width="196" height="28" rx="3" fill="#1e2030" />
+          <text x="6" y="19" class="font-mono" font-size="9" fill="#6e738d">CONTROL-PLANE · ARM64 · LIMA</text>
         </g>
       </g>
 
-      <!-- 节点：homelab-1（靠右列，面向家庭网络与 Tailscale 出口） -->
+      <!-- 节点：工作节点 B（靠右列，面向家庭网络与 Tailscale 出口） -->
       <g transform="translate(448, 0)">
         <rect width="212" height="295" rx="5" fill="#181926" stroke="#494d64" stroke-width="1" />
 
         <use href="#ico-server" x="10" y="10" />
-        <text x="32" y="22" font-size="11" font-weight="700" fill="#cad3f5">homelab-1</text>
+        <text x="32" y="22" font-size="11" font-weight="700" fill="#cad3f5">工作节点 B</text>
         <circle cx="196" cy="18" r="2.5" fill="#a6da95" />
-        <text x="10" y="38" class="font-mono" font-size="7.5" fill="#b8c0e0">Worker Node · amd64</text>
-        <text x="10" y="49" class="font-mono" font-size="7.5" fill="#8087a2">192.168.6.110 · PVE VM</text>
+        <text x="10" y="40" class="font-mono" font-size="9" fill="#b8c0e0">Worker Node · amd64</text>
+        <text x="10" y="53" class="font-mono" font-size="9" fill="#8087a2">192.168.6.110 · PVE VM</text>
 
-        <g transform="translate(8, 58)">
+        <g transform="translate(8, 62)">
           <rect width="196" height="52" rx="3" fill="#1e2030" stroke="#ef9f76" stroke-width="0.8" />
-          <text x="8" y="16" font-size="8.5" font-weight="600" fill="#cad3f5">Multus VLAN 50 直通 Pod</text>
-          <text x="8" y="30" class="font-mono" font-size="7.5" fill="#f5a97f">home-assistant 192.168.50.51 (eth1.50)</text>
-          <text x="8" y="42" class="font-mono" font-size="7.5" fill="#8087a2">调度偏好 homelab-1</text>
+          <text x="8" y="20" font-size="9.5" font-weight="600" fill="#cad3f5">Multus VLAN 50 直通</text>
+          <text x="8" y="38" class="font-mono" font-size="9" fill="#f5a97f">home-assistant 192.168.50.51</text>
         </g>
         <g transform="translate(8, 116)">
           <rect width="196" height="52" rx="3" fill="#1e2030" stroke="#c6a0f6" stroke-width="0.8" />
-          <text x="8" y="16" font-size="8.5" font-weight="600" fill="#cad3f5">Tailscale Connector (ts-router)</text>
-          <text x="8" y="30" class="font-mono" font-size="7.5" fill="#c6a0f6">通告 .6.0/24 · .10.0/24 · .69.0/24</text>
-          <text x="8" y="42" class="font-mono" font-size="7.5" fill="#8087a2">ts-node-vps 代理 9100/2019/2575</text>
+          <text x="8" y="20" font-size="9.5" font-weight="600" fill="#cad3f5">Tailscale Connector</text>
+          <text x="8" y="38" class="font-mono" font-size="9" fill="#c6a0f6">通告 .6/.10/.69 · exit node</text>
         </g>
         <g transform="translate(8, 174)">
           <rect width="196" height="44" rx="3" fill="#1e2030" stroke="#a6da95" stroke-width="0.8" />
-          <text x="8" y="16" font-size="8.5" font-weight="600" fill="#cad3f5">Longhorn 数据盘节点</text>
-          <text x="8" y="30" class="font-mono" font-size="7.5" fill="#a6da95">create-default-disk=true</text>
+          <text x="8" y="18" font-size="9.5" font-weight="600" fill="#cad3f5">Longhorn 数据盘节点</text>
+          <text x="8" y="34" class="font-mono" font-size="9" fill="#a6da95">create-default-disk=true</text>
         </g>
         <g transform="translate(8, 224)">
           <rect width="196" height="62" rx="3" fill="#1e2030" />
-          <text x="6" y="16" class="font-mono" font-size="7.5" fill="#7dc4e4">WORKER · AMD64 · PVE VM</text>
-          <text x="6" y="32" font-size="7" fill="#6e738d">VLAN 50 直通与 Tailscale 出口落点</text>
-          <text x="6" y="44" font-size="7" fill="#6e738d">Longhorn 数据盘节点之一</text>
-          <text x="6" y="56" font-size="7" fill="#6e738d">CNPG / Dragonfly 副本按反亲和分布</text>
+          <text x="6" y="20" class="font-mono" font-size="9" fill="#7dc4e4">WORKER · AMD64 · PVE VM</text>
+          <text x="6" y="40" font-size="9" fill="#6e738d">VLAN 50 / Tailscale 出口落点</text>
         </g>
       </g>
 
-      <!-- 节点：yuuko-k8s -->
+      <!-- 节点：工作节点 A（轻量化） -->
       <g transform="translate(224, 0)">
         <rect width="212" height="295" rx="5" fill="#181926" stroke="#494d64" stroke-width="1" />
 
         <use href="#ico-server" x="10" y="10" />
-        <text x="32" y="22" font-size="11" font-weight="700" fill="#cad3f5">yuuko-k8s</text>
+        <text x="32" y="22" font-size="11" font-weight="700" fill="#cad3f5">工作节点 A</text>
         <circle cx="196" cy="18" r="2.5" fill="#a6da95" />
-        <text x="10" y="38" class="font-mono" font-size="7.5" fill="#b8c0e0">Worker Node · arm64</text>
-        <text x="10" y="49" class="font-mono" font-size="7.5" fill="#8087a2">192.168.6.81 · Mac mini Lima</text>
+        <text x="10" y="40" class="font-mono" font-size="9" fill="#b8c0e0">Worker Node · arm64</text>
+        <text x="10" y="53" class="font-mono" font-size="9" fill="#8087a2">192.168.6.81 · Mac mini Lima</text>
 
-        <g transform="translate(8, 58)">
+        <g transform="translate(8, 62)">
           <rect width="196" height="46" rx="3" fill="#1e2030" stroke="#363a4f" stroke-width="0.8" />
-          <text x="8" y="16" font-size="8.5" font-weight="600" fill="#cad3f5">Homepage · Gatus</text>
-          <text x="8" y="30" class="font-mono" font-size="7.5" fill="#91d7e3">node-type=lightweight 亲和</text>
+          <text x="8" y="19" font-size="9.5" font-weight="600" fill="#cad3f5">Homepage · Gatus</text>
+          <text x="8" y="36" class="font-mono" font-size="9" fill="#91d7e3">node-type=lightweight</text>
         </g>
-        <g transform="translate(8, 110)">
+        <g transform="translate(8, 114)">
           <rect width="196" height="58" rx="3" fill="#1e2030" stroke="#363a4f" stroke-width="0.8" />
-          <text x="8" y="16" font-size="8.5" font-weight="600" fill="#cad3f5">无 Longhorn 数据盘</text>
-          <text x="8" y="30" class="font-mono" font-size="7.5" fill="#8087a2">无附加磁盘，不承载卷副本</text>
-          <text x="8" y="44" class="font-mono" font-size="7.5" fill="#8087a2">副本仅落 sakamoto-k8s / homelab-1</text>
+          <text x="8" y="19" font-size="9.5" font-weight="600" fill="#cad3f5">无 Longhorn 数据盘</text>
+          <text x="8" y="36" class="font-mono" font-size="9" fill="#8087a2">无附加磁盘，不承载卷副本</text>
+          <text x="8" y="50" class="font-mono" font-size="9" fill="#8087a2">副本仅落两个数据盘节点</text>
         </g>
-        <g transform="translate(8, 174)">
+        <g transform="translate(8, 178)">
           <rect width="196" height="46" rx="3" fill="#1e2030" stroke="#363a4f" stroke-width="0.8" />
-          <text x="8" y="16" font-size="8.5" font-weight="600" fill="#cad3f5">无节点亲和的负载</text>
-          <text x="8" y="30" class="font-mono" font-size="7.5" fill="#8087a2">落点由调度器决定，可能漂移</text>
+          <text x="8" y="19" font-size="9.5" font-weight="600" fill="#cad3f5">无节点亲和的负载</text>
+          <text x="8" y="36" class="font-mono" font-size="9" fill="#8087a2">落点由调度器决定</text>
         </g>
-        <g transform="translate(8, 226)">
-          <rect width="196" height="60" rx="3" fill="#1e2030" />
-          <text x="6" y="16" class="font-mono" font-size="7.5" fill="#6e738d">LIGHTWEIGHT · ARM64 · LIMA</text>
-          <text x="6" y="32" font-size="7" fill="#5b6078">Mac mini Lima VM，无独占存储盘</text>
-          <text x="6" y="44" font-size="7" fill="#5b6078">承载展示型业务与轻量化探针</text>
+        <g transform="translate(8, 230)">
+          <rect width="196" height="56" rx="3" fill="#1e2030" />
+          <text x="6" y="22" class="font-mono" font-size="9" fill="#6e738d">LIGHTWEIGHT · ARM64 · LIMA</text>
+          <text x="6" y="42" font-size="9" fill="#5b6078">Mac mini Lima VM · 轻量业务</text>
         </g>
       </g>
     </g>
@@ -409,92 +405,92 @@
     <g transform="translate(20, 418)">
       <rect width="660" height="26" rx="4" fill="#181926" stroke="#363a4f" stroke-width="1" />
       <circle cx="14" cy="13" r="3" fill="#7dc4e4" />
-      <text x="26" y="17" font-size="9.5" font-weight="600" fill="#cad3f5">Cilium eBPF CNI Mesh</text>
-      <text x="170" y="17" class="font-mono" font-size="7.5" fill="#8087a2">3 节点均为 BGP Speaker (AS 64514) ➔ router-mine · LB 192.168.69.0/24</text>
+      <text x="26" y="17.5" font-size="10" font-weight="600" fill="#cad3f5">Cilium eBPF CNI Mesh</text>
+      <text x="170" y="17.5" class="font-mono" font-size="9" fill="#8087a2">3 节点均为 BGP Speaker (AS 64514) ➔ 主路由 · LB 192.168.69.0/24</text>
       <g transform="translate(524, 1)">
         <rect width="128" height="24" rx="3" fill="#1e2030" stroke="#eed49f" stroke-width="0.8" />
-        <text x="10" y="16" class="font-mono" font-size="8" fill="#eed49f">BGP Peer: 192.168.6.1</text>
+        <text x="10" y="16.5" class="font-mono" font-size="9" fill="#eed49f">BGP Peer 192.168.6.1</text>
       </g>
     </g>
     <g transform="translate(20, 450)">
       <rect width="660" height="26" rx="4" fill="#181926" stroke="#363a4f" stroke-width="1" />
       <circle cx="14" cy="13" r="3" fill="#a6da95" />
-      <text x="26" y="17" font-size="9.5" font-weight="600" fill="#cad3f5">集群级组件</text>
-      <text x="96" y="17" class="font-mono" font-size="7.5" fill="#8087a2">Flux / SOPS / External Secrets · Longhorn · CNPG ×2 · Dragonfly ×2 · VictoriaLogs · OpenList S3 · openwrt-dns · Kopiur</text>
+      <text x="26" y="17.5" font-size="10" font-weight="600" fill="#cad3f5">集群级组件</text>
+      <text x="106" y="17.5" class="font-mono" font-size="9" fill="#8087a2">Flux / SOPS / ESO · Longhorn · CNPG ×2 · Dragonfly ×2 · VictoriaLogs · OpenList · Kopiur</text>
     </g>
   </g>
 
 
-  <!-- ===== 模块 3：家庭物理网络与 sakamoto 宿主服务 (右侧列，x: 1072 ~ 1364, 宽度 292) ===== -->
+  <!-- ===== 模块 3：家庭物理网络与宿主机服务 (右侧列，x: 1072 ~ 1364, 宽度 292) ===== -->
   <g transform="translate(1072, 85)">
     <!-- 3.1 F50 MiFi：家庭唯一 WAN 出口 -->
     <g transform="translate(0, 0)">
       <rect width="292" height="54" rx="5" fill="#1e2030" stroke="#91d7e3" stroke-width="1" />
       <use href="#ico-cloud" x="12" y="8" />
       <text x="38" y="24" font-size="11" font-weight="700" fill="#cad3f5">F50 MiFi (ZTE)</text>
-      <text x="38" y="38" class="font-mono" font-size="8" fill="#8087a2">WAN 移动数据 · zte-mifi-healer</text>
+      <text x="38" y="40" class="font-mono" font-size="9" fill="#8087a2">WAN 移动数据 · zte-mifi-healer</text>
     </g>
 
-    <!-- 3.2 主路由器 router-mine -->
+    <!-- 3.2 主路由器 -->
     <g transform="translate(0, 60)">
       <rect width="292" height="135" rx="5" fill="#181926" stroke="#eed49f" stroke-width="0.8" />
       <use href="#ico-router" x="12" y="10" />
-      <text x="36" y="22" font-size="11" font-weight="700" fill="#eed49f">router-mine (OpenWrt)</text>
-      <text x="200" y="22" class="font-mono" font-size="8.5" fill="#8087a2">192.168.6.1</text>
+      <text x="36" y="22" font-size="11" font-weight="700" fill="#eed49f">主路由 (OpenWrt)</text>
+      <text x="200" y="22" class="font-mono" font-size="9" fill="#8087a2">192.168.6.1</text>
 
       <g transform="translate(10, 36)">
         <rect width="272" height="26" rx="3" fill="#1e2030" />
-        <text x="8" y="17" class="font-mono" font-size="8" fill="#cad3f5">DHCP / DNS 权威 · 上游 F50 WAN</text>
+        <text x="8" y="18" class="font-mono" font-size="9" fill="#cad3f5">DHCP / DNS 权威 · 上游 F50 出网</text>
       </g>
       <g transform="translate(10, 68)">
         <rect width="272" height="26" rx="3" fill="#1e2030" />
         <circle cx="8" cy="13" r="2" fill="#eed49f" />
-        <text x="16" y="17" class="font-mono" font-size="8" fill="#eed49f">eBGP AS 64513: 3 节点对等体</text>
+        <text x="16" y="18" class="font-mono" font-size="9" fill="#eed49f">eBGP AS 64513: 3 节点对等体</text>
       </g>
       <g transform="translate(10, 100)">
         <rect width="272" height="24" rx="3" fill="#1e2030" />
-        <text x="8" y="16" class="font-mono" font-size="7.5" fill="#8087a2">LuCI RPC: openwrt-dns 同步 CNAME</text>
+        <text x="8" y="17" class="font-mono" font-size="9" fill="#8087a2">LuCI RPC: openwrt-dns 同步 CNAME</text>
       </g>
     </g>
 
-    <!-- 3.3 旁路由 TVBox 与 IoT -->
+    <!-- 3.3 旁路由与 IoT -->
     <g transform="translate(0, 203)">
       <rect width="292" height="100" rx="5" fill="#181926" stroke="#f5a97f" stroke-width="0.8" />
-      <text x="12" y="18" font-size="10" font-weight="700" fill="#f5a97f">TVBox / HK1 Box (daed)</text>
-      <text x="200" y="18" class="font-mono" font-size="8" fill="#8087a2">192.168.6.3</text>
+      <text x="12" y="19" font-size="10.5" font-weight="700" fill="#f5a97f">旁路由 (daed)</text>
+      <text x="200" y="19" class="font-mono" font-size="9" fill="#8087a2">192.168.6.3</text>
 
       <g transform="translate(10, 26)">
         <rect width="272" height="32" rx="3" fill="#1e2030" />
-        <text x="8" y="14" font-size="8.5" font-weight="600" fill="#cad3f5">eBPF 透明分流 · 默认路由 → router-mine</text>
-        <text x="8" y="26" class="font-mono" font-size="7.5" fill="#b8c0e0">53 端口重定向 · 国内直连 / 国外代理</text>
+        <text x="8" y="15" font-size="9.5" font-weight="600" fill="#cad3f5">eBPF 透明分流 · 默认路由 → 主路由</text>
+        <text x="8" y="28" class="font-mono" font-size="9" fill="#b8c0e0">53 端口重定向 · 国内直连 / 国外代理</text>
       </g>
       <g transform="translate(10, 64)">
         <rect width="272" height="32" rx="3" fill="#1e2030" />
-        <text x="8" y="14" font-size="8.5" font-weight="600" fill="#ee99a0">IoT 智能家居 (VLAN 50)</text>
-        <text x="8" y="26" class="font-mono" font-size="7.5" fill="#ed8796">192.168.50.0/24 · Multus 接入集群</text>
+        <text x="8" y="15" font-size="9.5" font-weight="600" fill="#ee99a0">IoT 智能家居 (VLAN 50)</text>
+        <text x="8" y="28" class="font-mono" font-size="9" fill="#ed8796">192.168.50.0/24 · Multus 接入</text>
       </g>
     </g>
 
-    <!-- 3.4 sakamoto 宿主机服务 -->
+    <!-- 3.4 宿主机服务 -->
     <g transform="translate(0, 316)">
-      <rect width="292" height="164" rx="5" fill="#181926" stroke="#7dc4e4" stroke-width="0.8" />
-      <text x="12" y="20" font-size="11" font-weight="700" fill="#7dc4e4">sakamoto Host Services</text>
-      <text x="200" y="20" class="font-mono" font-size="8" fill="#8087a2">192.168.6.144</text>
-      <text x="12" y="34" class="font-mono" font-size="7.5" fill="#8087a2">宿主 Compose（另有 Nvidia DLS · dockerproxy）</text>
+      <rect width="292" height="178" rx="5" fill="#181926" stroke="#7dc4e4" stroke-width="0.8" />
+      <text x="12" y="22" font-size="11" font-weight="700" fill="#7dc4e4">宿主机 Compose 服务</text>
+      <text x="216" y="22" class="font-mono" font-size="9" fill="#8087a2">192.168.6.144</text>
 
       <g transform="translate(10, 42)">
-        <rect width="272" height="40" rx="4" fill="#1e2030" stroke="#a6da95" stroke-width="0.8" />
-        <text x="8" y="17" font-size="9.5" font-weight="600" fill="#a6da95">MinIO 本地 S3 (:9000)</text>
-        <text x="8" y="31" class="font-mono" font-size="7.5" fill="#b8c0e0">Kopiur 与 CNPG 归档落点</text>
+        <rect width="272" height="44" rx="4" fill="#1e2030" stroke="#a6da95" stroke-width="0.8" />
+        <text x="8" y="18" font-size="9.5" font-weight="600" fill="#a6da95">MinIO 本地 S3 (:9000)</text>
+        <text x="8" y="34" class="font-mono" font-size="9" fill="#b8c0e0">bucket kopiur · cloudnative-pg</text>
       </g>
-      <g transform="translate(10, 88)">
-        <rect width="272" height="36" rx="4" fill="#1e2030" stroke="#363a4f" stroke-width="0.8" />
-        <text x="8" y="15" font-size="9" font-weight="600" fill="#91d7e3">Registry Cache × 4</text>
-        <text x="8" y="28" class="font-mono" font-size="7.5" fill="#8087a2">ghcr · quay · mirror.gcr.io · registry.k8s.io</text>
+      <g transform="translate(10, 92)">
+        <rect width="272" height="40" rx="4" fill="#1e2030" stroke="#363a4f" stroke-width="0.8" />
+        <text x="8" y="17" font-size="9.5" font-weight="600" fill="#91d7e3">Registry Cache × 4</text>
+        <text x="8" y="32" class="font-mono" font-size="9" fill="#8087a2">k3s 节点经 *.int 域名 pull</text>
       </g>
-      <g transform="translate(10, 130)">
-        <rect width="272" height="28" rx="4" fill="#1e2030" stroke="#363a4f" stroke-width="0.8" />
-        <text x="8" y="18" class="font-mono" font-size="7.5" fill="#b8c0e0">Caddy LAN :2019 · Kopia Local 本地冷备</text>
+      <g transform="translate(10, 138)">
+        <rect width="272" height="32" rx="4" fill="#1e2030" stroke="#363a4f" stroke-width="0.8" />
+        <text x="8" y="14" class="font-mono" font-size="9" fill="#b8c0e0">Kopia :51515 云端 / :51516 本地</text>
+        <text x="8" y="26" class="font-mono" font-size="9" fill="#a6da95">→ 集群 OpenList → 189 / → USB HDD</text>
       </g>
     </g>
   </g>
@@ -507,7 +503,7 @@
     <!-- 标头 -->
     <use href="#ico-vault" x="18" y="14" />
     <text x="44" y="28" font-size="12" font-weight="700" letter-spacing="0.5" fill="#a6da95">3-2-1 DISASTER RECOVERY PIPELINE</text>
-    <text x="800" y="28" class="font-mono" font-size="8.5" fill="#8bd5ca">端到端加密快照 · 3 副本 / 2 介质 / 1 离线</text>
+    <text x="800" y="28" class="font-mono" font-size="9" fill="#8bd5ca">端到端加密快照 · 3 副本 / 2 介质 / 1 离线</text>
 
     <!-- 4.1 副本源 -->
     <g transform="translate(18, 48)">
@@ -516,18 +512,18 @@
 
       <g transform="translate(12, 32)">
         <rect width="526" height="34" rx="3" fill="#1e2030" />
-        <text x="10" y="14" font-size="8.5" font-weight="600" fill="#a6da95">集群 PVC / CNPG PostgreSQL</text>
-        <text x="10" y="27" class="font-mono" font-size="7.5" fill="#8087a2">Kopiur · Longhorn VolumeSnapshot · 每小时快照</text>
+        <text x="10" y="15" font-size="9.5" font-weight="600" fill="#a6da95">集群 PVC（Kopiur）· CNPG PostgreSQL</text>
+        <text x="10" y="29" class="font-mono" font-size="9" fill="#8087a2">PVC: VolumeSnapshot 每小时 · CNPG: Barman WAL</text>
       </g>
       <g transform="translate(12, 72)">
         <rect width="526" height="34" rx="3" fill="#1e2030" />
-        <text x="10" y="14" font-size="8.5" font-weight="600" fill="#a6da95">VPS Compose / 主机数据</text>
-        <text x="10" y="27" class="font-mono" font-size="7.5" fill="#8087a2">VPS Kopia · compose 1h · vps 4h</text>
+        <text x="10" y="15" font-size="9.5" font-weight="600" fill="#a6da95">VPS Compose / 主机数据</text>
+        <text x="10" y="29" class="font-mono" font-size="9" fill="#8087a2">Kopia compose 1h · VPS 数据 4h</text>
       </g>
       <g transform="translate(12, 112)">
         <rect width="526" height="34" rx="3" fill="#1e2030" />
-        <text x="10" y="14" font-size="8.5" font-weight="600" fill="#a6da95">sakamoto /Volumes 用户数据</text>
-        <text x="10" y="27" class="font-mono" font-size="7.5" fill="#8087a2">Kopia Local · 每小时快照</text>
+        <text x="10" y="15" font-size="9.5" font-weight="600" fill="#a6da95">宿主机 /Volumes 用户数据</text>
+        <text x="10" y="29" class="font-mono" font-size="9" fill="#8087a2">Kopia Local 每小时</text>
       </g>
     </g>
 
@@ -536,20 +532,19 @@
       <!-- 异地介质 -->
       <g transform="translate(0, 20)">
         <rect width="642" height="82" rx="5" fill="#181926" stroke="#a6da95" stroke-width="0.8" />
-        <text x="12" y="20" font-size="11" font-weight="700" fill="#a6da95">189 云盘 · 天翼云</text>
-        <text x="188" y="20" class="font-mono" font-size="7.5" fill="#8087a2">异地 offsite S3 · air-gapped 之外的唯一异地点</text>
-        <text x="12" y="40" class="font-mono" font-size="7.5" fill="#cad3f5">接收: 集群快照（经 MinIO @sakamoto 中转）· VPS Compose / 主机数据</text>
-        <text x="12" y="56" class="font-mono" font-size="7.5" fill="#8bd5ca">经 OpenList S3 Gateway 统一转为 S3 协议上传</text>
-        <text x="12" y="72" class="font-mono" font-size="7.5" fill="#8087a2">Kopia 端到端加密 · 防本地物理损毁</text>
+        <text x="12" y="22" font-size="11" font-weight="700" fill="#a6da95">189 云盘 · 天翼云</text>
+        <text x="188" y="22" class="font-mono" font-size="9" fill="#8087a2">异地 offsite S3 · 唯一的场外副本</text>
+        <text x="12" y="42" class="font-mono" font-size="9" fill="#cad3f5">接收: 集群 PVC/CNPG（经宿主机 MinIO）· VPS Compose 1h / 数据 4h · 宿主机 Compose 1h / MinIO 6h</text>
+        <text x="12" y="59" class="font-mono" font-size="9" fill="#8bd5ca">经集群 OpenList 与 VPS 本地 OpenList 两个 S3 网关上传</text>
+        <text x="12" y="76" class="font-mono" font-size="9" fill="#8087a2">bucket kopiur / cloudnative-pg · 端到端加密 · 防本地物理损毁</text>
       </g>
       <!-- 离线介质 -->
       <g transform="translate(0, 110)">
         <rect width="642" height="82" rx="5" fill="#181926" stroke="#a6da95" stroke-width="0.8" />
-        <text x="12" y="20" font-size="11" font-weight="700" fill="#a6da95">External USB HDD</text>
-        <text x="160" y="20" class="font-mono" font-size="7.5" fill="#8087a2">物理离线冷备 · 直连挂载于 sakamoto 宿主机</text>
-        <text x="12" y="40" class="font-mono" font-size="7.5" fill="#cad3f5">接收: sakamoto /Volumes 用户数据 · Kopia Local 每小时快照</text>
-        <text x="12" y="56" class="font-mono" font-size="7.5" fill="#a6da95">隔离防勒索的最后一道底线</text>
-        <text x="12" y="72" class="font-mono" font-size="7.5" fill="#8087a2">3 副本 · 2 介质 · 1 离线</text>
+        <text x="12" y="22" font-size="11" font-weight="700" fill="#a6da95">External USB HDD</text>
+        <text x="160" y="22" class="font-mono" font-size="9" fill="#8087a2">物理离线冷备 · 直连挂载于宿主机</text>
+        <text x="12" y="42" class="font-mono" font-size="9" fill="#cad3f5">接收: 宿主机 /Volumes 用户数据 · Kopia Local 每小时快照</text>
+        <text x="12" y="59" class="font-mono" font-size="9" fill="#a6da95">隔离防勒索的最后一道底线 · filesystem 仓库可直接挂载取回</text>
       </g>
     </g>
   </g>
@@ -577,24 +572,24 @@
     <circle cx="300" cy="85" r="3" class="pin" stroke="#8bd5ca" />
     <circle cx="570" cy="137" r="3" class="pin" stroke="#8bd5ca" />
 
-    <!-- ④ 家庭出网：Internet → F50 WAN（移动数据，出口细节见 F50 卡片） -->
-    <path d="M 74 85 L 74 66 L 1220 66 L 1220 85" class="wire track" />
-    <path d="M 74 85 L 74 66 L 1220 66 L 1220 85" class="wire beam" stroke="#91d7e3" pathLength="100" />
-    <circle cx="74" cy="85" r="3" class="pin" stroke="#91d7e3" />
-    <circle cx="1220" cy="85" r="3" class="pin" stroke="#91d7e3" />
+    <!-- ④ 家庭出网：F50 → Internet（WAN 上行，移动数据） -->
+    <path d="M 1220 85 L 1220 66 L 74 66 L 74 85" class="wire track" />
+    <path d="M 1220 85 L 1220 66 L 74 66 L 74 85" class="wire beam" stroke="#f5bde6" pathLength="100" />
+    <circle cx="1220" cy="85" r="3" class="pin" stroke="#f5bde6" />
+    <circle cx="74" cy="85" r="3" class="pin" stroke="#f5bde6" />
 
-    <!-- ⑤ F50 → router-mine（默认路由出口） -->
-    <path d="M 1220 139 L 1220 145" class="wire track" />
-    <path d="M 1220 139 L 1220 145" class="wire beam" stroke="#91d7e3" pathLength="100" />
-    <circle cx="1220" cy="139" r="3" class="pin" stroke="#91d7e3" />
-    <circle cx="1220" cy="145" r="3" class="pin" stroke="#91d7e3" />
+    <!-- ⑤ 主路由 → F50（默认路由出口） -->
+    <path d="M 1220 145 L 1220 139" class="wire track" />
+    <path d="M 1220 145 L 1220 139" class="wire beam" stroke="#f5bde6" pathLength="100" />
+    <circle cx="1220" cy="145" r="3" class="pin" stroke="#f5bde6" />
+    <circle cx="1220" cy="139" r="3" class="pin" stroke="#f5bde6" />
 
-    <!-- ⑥ VPS Caddy → envoy-external（唯一跨公网段：Tailscale 隧道，subnet router 位于 homelab-1） -->
+    <!-- ⑥ VPS Caddy → envoy-external（唯一跨公网段：Tailscale 隧道，subnet router 位于工作节点 B） -->
     <path d="M 320 300 L 324 300 L 324 164 L 360 164" class="wire track" />
     <path d="M 320 300 L 324 300 L 324 164 L 360 164" class="wire beam" stroke="#c6a0f6" pathLength="100" />
     <circle cx="320" cy="300" r="3" class="pin" stroke="#c6a0f6" />
     <circle cx="360" cy="164" r="3" class="pin" stroke="#7dc4e4" />
-    <text x="335" y="300" class="font-mono" font-size="7" fill="#c6a0f6" text-anchor="middle" transform="rotate(-90 335 300)">Tailscale 隧道 · subnet router @homelab-1 通告 .6/.10/.69</text>
+    <text x="335" y="300" class="font-mono" font-size="9" fill="#c6a0f6" text-anchor="middle" transform="rotate(-90 335 300)">Tailscale 隧道 · subnet router + exit node @工作节点 B 通告 .6/.10/.69</text>
 
     <!-- ⑦ caddy-external → envoy-external（v6 落地后集群内一跳） -->
     <path d="M 525 164 L 517 164" class="wire track" />
@@ -602,36 +597,36 @@
     <circle cx="525" cy="164" r="3" class="pin" stroke="#8bd5ca" />
     <circle cx="517" cy="164" r="3" class="pin" stroke="#7dc4e4" />
 
-    <!-- ⑧ 内网入口：router-mine DNS → envoy-internal -->
+    <!-- ⑧ 内网入口：主路由 DNS → envoy-internal -->
     <path d="M 1072 210 L 1066 210 L 1066 164 L 1012 164" class="wire track" />
     <path d="M 1072 210 L 1066 210 L 1066 164 L 1012 164" class="wire beam" stroke="#f5a97f" pathLength="100" />
     <circle cx="1072" cy="210" r="3" class="pin" stroke="#f5a97f" />
     <circle cx="1012" cy="164" r="3" class="pin" stroke="#eed49f" />
 
-    <!-- ⑨ eBGP ×3：3 节点 ⇄ router-mine（节点级对等，通告 PodCIDR 与 LB 网段） -->
+    <!-- ⑨ eBGP ×3：3 节点 ⇄ 主路由（节点级对等，通告 PodCIDR 与 LB 网段） -->
     <path d="M 1072 262 L 1050 262 L 1050 240 L 1020 240" class="wire track" />
     <path d="M 1072 262 L 1050 262 L 1050 240 L 1020 240" class="wire signal" stroke="#eed49f" pathLength="100" />
     <circle cx="1072" cy="262" r="3" class="pin" stroke="#eed49f" />
     <circle cx="1020" cy="240" r="3" class="pin" stroke="#eed49f" />
 
-    <!-- ⑩ IoT VLAN 50 → homelab-1（Multus 直通 home-assistant） -->
+    <!-- ⑩ IoT VLAN 50 → 工作节点 B（Multus 直通 home-assistant） -->
     <path d="M 1072 300 L 1020 300" class="wire track" />
     <path d="M 1072 300 L 1020 300" class="wire beam" stroke="#f5a97f" pathLength="100" />
     <circle cx="1072" cy="300" r="3" class="pin" stroke="#f5a97f" />
     <circle cx="1020" cy="300" r="3" class="pin" stroke="#f5a97f" />
 
-    <!-- ⑪ 内网 DNS 同步：openwrt-dns（集群）→ router-mine dnsmasq -->
+    <!-- ⑪ 内网 DNS 同步：openwrt-dns（集群）→ 主路由 dnsmasq -->
     <path d="M 1020 548 L 1058 548 L 1058 280 L 1075 280" class="wire track" />
-    <path d="M 1020 548 L 1058 548 L 1058 280 L 1075 280" class="wire signal" stroke="#8aadf4" pathLength="100" />
-    <circle cx="1020" cy="548" r="3" class="pin" stroke="#8aadf4" />
-    <circle cx="1075" cy="280" r="3" class="pin" stroke="#8aadf4" />
+    <path d="M 1020 548 L 1058 548 L 1058 280 L 1075 280" class="wire signal" stroke="#8087a2" pathLength="100" />
+    <circle cx="1020" cy="548" r="3" class="pin" stroke="#8087a2" />
+    <circle cx="1075" cy="280" r="3" class="pin" stroke="#8087a2" />
 
     <!-- ⑫ 集群 → 容灾：Kopiur 每小时快照落 MinIO -->
     <path d="M 380 565 L 380 670" class="wire track" />
     <path d="M 380 565 L 380 670" class="wire beam beam-slow" stroke="#a6da95" pathLength="100" />
     <circle cx="380" cy="565" r="3" class="pin" stroke="#a6da95" />
     <circle cx="380" cy="670" r="3" class="pin" stroke="#a6da95" />
-    <text x="392" y="617" class="font-mono" font-size="7" fill="#a6da95" text-anchor="middle" transform="rotate(-90 392 617)">Kopiur 每小时快照</text>
+    <text x="392" y="617" class="font-mono" font-size="9" fill="#a6da95" text-anchor="middle" transform="rotate(-90 392 617)">Kopiur 每小时快照</text>
 
     <!-- ⑬ 副本源 → 归档介质（逐行直连，无折返） -->
     <path d="M 604 687 L 700 687" class="wire track" />
@@ -645,11 +640,23 @@
     <circle cx="604" cy="727" r="3" class="pin" stroke="#a6da95" />
     <circle cx="700" cy="727" r="3" class="pin" stroke="#a6da95" />
 
-    <!-- ⑮ sakamoto /Volumes → USB HDD（离线） -->
+    <!-- ⑮ 宿主机 /Volumes → USB HDD（离线） -->
     <path d="M 604 767 L 700 767" class="wire track" />
     <path d="M 604 767 L 700 767" class="wire beam beam-slow" stroke="#a6da95" pathLength="100" />
     <circle cx="604" cy="767" r="3" class="pin" stroke="#a6da95" />
     <circle cx="700" cy="767" r="3" class="pin" stroke="#a6da95" />
+
+    <!-- ⑯ 工作节点 → 旁路由（节点默认网关 = daed 旁路由，实测 default via 192.168.6.3） -->
+    <path d="M 1020 330 L 1072 330" class="wire track" />
+    <path d="M 1020 330 L 1072 330" class="wire beam" stroke="#f5bde6" pathLength="100" />
+    <circle cx="1020" cy="330" r="3" class="pin" stroke="#f5bde6" />
+    <circle cx="1072" cy="330" r="3" class="pin" stroke="#f5bde6" />
+
+    <!-- ⑰ 旁路由 → 主路由（daed 分流后交给主路由出网） -->
+    <path d="M 1220 288 L 1220 280" class="wire track" />
+    <path d="M 1220 288 L 1220 280" class="wire beam" stroke="#f5bde6" pathLength="100" />
+    <circle cx="1220" cy="288" r="3" class="pin" stroke="#f5bde6" />
+    <circle cx="1220" cy="280" r="3" class="pin" stroke="#f5bde6" />
   </g>
 
 
@@ -660,37 +667,49 @@
     <!-- 1. 公网 v4 -->
     <g transform="translate(0, 20)">
       <line x1="0" y1="0" x2="26" y2="0" stroke="#91d7e3" stroke-width="2.5" stroke-linecap="round" />
-      <text x="34" y="3.5" class="font-mono" font-size="8.5" fill="#cad3f5">公网 v4 入口: Internet ➔ CF A ➔ VPS Caddy+WAF ➔ Tailscale ➔ envoy-external</text>
+      <text x="34" y="3.5" class="font-mono" font-size="9" fill="#cad3f5">公网 v4 入口: Internet ➔ CF A ➔ VPS Caddy+WAF ➔ Tailscale ➔ envoy-external</text>
     </g>
 
     <!-- 2. 公网 v6 -->
     <g transform="translate(700, 20)">
       <line x1="0" y1="0" x2="26" y2="0" stroke="#8bd5ca" stroke-width="2.5" stroke-linecap="round" />
-      <text x="34" y="3.5" class="font-mono" font-size="8.5" fill="#cad3f5">公网 v6 入口: Internet ➔ CF AAAA ➔ caddy-external ➔ envoy-external</text>
+      <text x="34" y="3.5" class="font-mono" font-size="9" fill="#cad3f5">公网 v6 入口: Internet ➔ CF AAAA ➔ caddy-external ➔ envoy-external</text>
     </g>
 
     <!-- 3. 内网分流 -->
     <g transform="translate(0, 40)">
       <line x1="0" y1="0" x2="26" y2="0" stroke="#f5a97f" stroke-width="2.5" stroke-linecap="round" />
-      <text x="34" y="3.5" class="font-mono" font-size="8.5" fill="#cad3f5">内网分流: LAN ➔ TVBox daed ➔ router-mine DNS ➔ envoy-internal</text>
+      <text x="34" y="3.5" class="font-mono" font-size="9" fill="#cad3f5">内网分流: LAN ➔ 旁路由 daed ➔ 主路由 DNS ➔ envoy-internal</text>
     </g>
 
-    <!-- 4. 容灾归档 -->
+    <!-- 4. 家庭出网 WAN -->
     <g transform="translate(700, 40)">
-      <line x1="0" y1="0" x2="26" y2="0" stroke="#a6da95" stroke-width="2.5" stroke-linecap="round" />
-      <text x="34" y="3.5" class="font-mono" font-size="8.5" fill="#cad3f5">3-2-1 灾备流: 集群 PVC/DB ➔ MinIO ➔ 189云盘 · /Volumes ➔ USB HDD</text>
+      <line x1="0" y1="0" x2="26" y2="0" stroke="#f5bde6" stroke-width="2.5" stroke-linecap="round" />
+      <text x="34" y="3.5" class="font-mono" font-size="9" fill="#cad3f5">家庭出网 WAN 上行: 节点/主机 ➔ 旁路由 daed ➔ 主路由 ➔ F50 ➔ Internet</text>
     </g>
 
     <!-- 5. eBGP 控制面 -->
     <g transform="translate(0, 60)">
       <line x1="0" y1="0" x2="26" y2="0" stroke="#eed49f" stroke-width="2" stroke-dasharray="5 5" stroke-linecap="round" />
-      <text x="34" y="3.5" class="font-mono" font-size="8.5" fill="#cad3f5">eBGP 路由宣告: 3 节点 ⇄ router-mine (AS 64514 ⇄ 64513) 通告 PodCIDR + LB</text>
+      <text x="34" y="3.5" class="font-mono" font-size="9" fill="#cad3f5">eBGP 路由宣告: 3 节点 ⇄ 主路由 (AS 64514 ⇄ 64513) 通告 PodCIDR + LB</text>
     </g>
 
-    <!-- 6. Tailscale 隧道 -->
+    <!-- 6. 3-2-1 灾备流 -->
     <g transform="translate(700, 60)">
+      <line x1="0" y1="0" x2="26" y2="0" stroke="#a6da95" stroke-width="2.5" stroke-linecap="round" />
+      <text x="34" y="3.5" class="font-mono" font-size="9" fill="#cad3f5">3-2-1 灾备流: 集群 PVC/DB ➔ MinIO ➔ OpenList ➔ 189云盘 · /Volumes ➔ USB HDD</text>
+    </g>
+
+    <!-- 7. 控制面信令 -->
+    <g transform="translate(0, 80)">
+      <line x1="0" y1="0" x2="26" y2="0" stroke="#8087a2" stroke-width="2" stroke-dasharray="5 5" stroke-linecap="round" />
+      <text x="34" y="3.5" class="font-mono" font-size="9" fill="#cad3f5">控制面信令: DNS 查询 · openwrt-dns ➔ 主路由 CNAME 同步</text>
+    </g>
+
+    <!-- 8. Tailscale 隧道 -->
+    <g transform="translate(700, 80)">
       <line x1="0" y1="0" x2="26" y2="0" stroke="#c6a0f6" stroke-width="2.5" stroke-linecap="round" />
-      <text x="34" y="3.5" class="font-mono" font-size="8.5" fill="#cad3f5">Tailscale 隧道: VPS ⇄ subnet router @homelab-1 通告 .6/.10/.69</text>
+      <text x="34" y="3.5" class="font-mono" font-size="9" fill="#cad3f5">Tailscale 隧道: VPS ⇄ subnet router + exit node @工作节点 B</text>
     </g>
   </g>
 </svg>

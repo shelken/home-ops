@@ -14,21 +14,21 @@
 
 ```mermaid
 graph TB
-    subgraph SAKAMOTO["sakamoto"]
+    subgraph SAKAMOTO["宿主机"]
         subgraph LIMA["Lima VM"]
-            CP["k3s control-plane<br/>sakamoto-k8s"]
+            CP["k3s control-plane<br/>控制面节点"]
         end
     end
 
     subgraph PVE["PVE"]
-        subgraph PVE_VM["homelab-1 VM"]
-            WORKER["k3s worker"]
+        subgraph PVE_VM["工作节点 B VM"]
+            WORKER["k3s worker<br/>工作节点 B"]
         end
     end
 
-    subgraph YUUKO["yuuko (Mac mini)"]
+    subgraph YUUKO["Mac mini 宿主"]
         subgraph LIMA2["Lima VM"]
-            WORKER2["k3s worker<br/>yuuko-k8s"]
+            WORKER2["k3s worker<br/>工作节点 A"]
         end
     end
 
@@ -44,12 +44,12 @@ graph LR
     F50["F50<br/>ZTE MiFi<br/>192.168.10.1"]
 
     subgraph HOME["家庭内网"]
-        Router["router-mine<br/>OpenWrt<br/>192.168.6.1"]
-        TVBox["TVBox / HK1 Box<br/>OpenWrt + daed<br/>192.168.6.3"]
+        Router["主路由<br/>OpenWrt<br/>192.168.6.1"]
+        BYPASS["旁路由<br/>daed<br/>192.168.6.3"]
 
         subgraph VLAN6["VLAN 6 · 主内网<br/>192.168.6.0/24"]
-            SAKAMOTO["sakamoto<br/>192.168.6.144"]
-            YUUKO_HOST["yuuko<br/>192.168.6.11"]
+            SAKAMOTO["宿主机<br/>192.168.6.144"]
+            YUUKO_HOST["Mac mini 宿主<br/>192.168.6.11"]
             PVE_NODE["PVE<br/>192.168.6.213"]
         end
 
@@ -59,9 +59,9 @@ graph LR
     end
 
     subgraph K8S["k3s 集群"]
-        CP["sakamoto-k8s<br/>192.168.6.80"]
-        WORKER["homelab-1<br/>192.168.6.110"]
-        WORKER2["yuuko-k8s<br/>192.168.6.81"]
+        CP["控制面节点<br/>192.168.6.80"]
+        WORKER["工作节点 B<br/>192.168.6.110"]
+        WORKER2["工作节点 A<br/>192.168.6.81"]
 
         subgraph LBIPAM["Cilium LB IPAM<br/>192.168.69.0/24"]
             K8SGW["k8s-gateway<br/>192.168.69.41"]
@@ -74,10 +74,10 @@ graph LR
 
     Internet <--> F50
     F50 <--> Router
-    TVBox -->|"default route"| Router
-    SAKAMOTO -->|"default gateway"| TVBox
-    CP -->|"default gateway"| TVBox
-    WORKER -->|"default gateway"| TVBox
+    BYPASS -->|"default route"| Router
+    SAKAMOTO -->|"default gateway"| BYPASS
+    CP -->|"default gateway"| BYPASS
+    WORKER -->|"default gateway"| BYPASS
     Router <--> SAKAMOTO
     Router <--> YUUKO_HOST
     Router <--> PVE_NODE
@@ -96,18 +96,18 @@ graph LR
 
 | 链路 | 方式 | 说明 |
 |------|------|------|
-| F50 ↔ 互联网 | WAN (移动数据) | F50 是 router-mine 的互联网出口 |
-| router-mine ↔ F50 | LAN | router-mine 通过 F50 出网；F50 断线时 zte-mifi-healer 自动重连 |
-| TVBox ↔ router-mine | LAN (VLAN 6) | TVBox 是旁路由；自身默认路由仍指向 router-mine |
-| sakamoto ↔ router-mine | LAN (VLAN 6) | 192.168.6.0/24 |
-| PVE ↔ router-mine | LAN (VLAN 6) | 192.168.6.0/24 |
-| yuuko ↔ router-mine | LAN (VLAN 6) | 192.168.6.0/24，宿主有线桥接 |
-| IoT 设备 ↔ router-mine | LAN (VLAN 50) | 192.168.50.0/24 |
-| IoT 设备 → k3s pods | Multus CNI | VLAN 50 由 multus-iot 直通 Pod（home-assistant 192.168.50.51），调度偏好 homelab-1 |
-| sakamoto-k8s ↔ homelab-1 / yuuko-k8s | LAN (VLAN 6) | k3s 节点间通信 |
-| router-mine ↔ k3s 节点 | eBGP | Cilium 向 router-mine 通告 PodCIDR 和 LoadBalancerIP |
+| F50 ↔ 互联网 | WAN (移动数据) | F50 是主路由的互联网出口 |
+| 主路由 ↔ F50 | LAN | 主路由通过 F50 出网；F50 断线时 zte-mifi-healer 自动重连 |
+| 旁路由 ↔ 主路由 | LAN (VLAN 6) | 旁路由 (daed)；自身默认路由仍指向主路由 |
+| 宿主机 ↔ 主路由 | LAN (VLAN 6) | 192.168.6.0/24 |
+| PVE ↔ 主路由 | LAN (VLAN 6) | 192.168.6.0/24 |
+| Mac mini 宿主 ↔ 主路由 | LAN (VLAN 6) | 192.168.6.0/24，宿主有线桥接 |
+| IoT 设备 ↔ 主路由 | LAN (VLAN 50) | 192.168.50.0/24 |
+| IoT 设备 → k3s pods | Multus CNI | VLAN 50 由 multus-iot 直通 Pod（home-assistant 192.168.50.51），调度偏好工作节点 B |
+| 控制面节点 ↔ 工作节点 B / 工作节点 A | LAN (VLAN 6) | k3s 节点间通信 |
+| 主路由 ↔ k3s 节点 | eBGP | Cilium 向主路由通告 PodCIDR 和 LoadBalancerIP |
 | Cilium LB IPAM | 192.168.69.0/24 | k8s-gateway: 192.168.69.41；envoy-external: 192.168.69.45；envoy-internal: 192.168.69.46 |
-| VPS ↔ homelab-1 | Tailscale | 100.97.0.0/16，subnet router 由 operator Connector `ts-router` 承载（调度偏好 homelab-1），通告 192.168.6.0/24、192.168.10.0/24、192.168.69.0/24 |
+| VPS ↔ 工作节点 B | Tailscale | 100.97.0.0/16，subnet router + exit node 由 operator Connector `ts-router` 承载（调度偏好工作节点 B），通告 192.168.6.0/24、192.168.10.0/24、192.168.69.0/24 |
 
 ---
 
@@ -118,12 +118,12 @@ graph LR
 ```mermaid
 graph TB
     subgraph K3S["k3s 集群 (Flux 编排)"]
-        NODE_SAKA["sakamoto-k8s · control-plane"]
-        NODE_H1["homelab-1 · worker"]
-        NODE_YUUKO["yuuko-k8s · worker"]
+        NODE_SAKA["控制面节点 · control-plane"]
+        NODE_H1["工作节点 B · worker"]
+        NODE_YUUKO["工作节点 A · worker"]
     end
 
-    subgraph COMPOSE_SAKA["sakamoto · Docker Compose"]
+    subgraph COMPOSE_SAKA["宿主机 · Docker Compose"]
         CD_SAKA["Caddy (内部代理 :2019)
 MinIO (S3 存储 :9000)
 Registry Mirrors × 4 (ghcr / quay / mirror.gcr.io / registry.k8s.io)
@@ -225,13 +225,13 @@ CN / HK + VPS IP"]
 graph LR
     subgraph LAN["家庭内网<br/>192.168.6.0/24"]
         Client["局域网设备"]
-        TVBox["TVBox 旁路由<br/>daed"]
-        Router["router-mine<br/>DHCP + 内网 DNS 权威"]
+        BYPASS["旁路由<br/>daed"]
+        Router["主路由<br/>DHCP + 内网 DNS 权威"]
     end
 
     subgraph DNSPATH["DNS 分流"]
         DaeDNS["daed DNS routing<br/>dport(53) -> direct"]
-        RouterDNS["router-mine DNS<br/>内网域名"]
+        RouterDNS["主路由 DNS<br/>内网域名"]
         ForeignDNS["DoH over proxy<br/>国外域名"]
         CNDNS["国内 DNS<br/>国内域名"]
     end
@@ -246,8 +246,8 @@ graph LR
         Envoy_Internal["envoy-internal"]
     end
 
-    Client -->|"DNS"| TVBox
-    TVBox --> DaeDNS
+    Client -->|"DNS"| BYPASS
+    BYPASS --> DaeDNS
     DaeDNS --> RouterDNS
     DaeDNS --> ForeignDNS
     DaeDNS --> CNDNS
@@ -262,15 +262,15 @@ graph LR
 内网 DNS 记录有两个来源，都落进路由器 dnsmasq 的同一张 hosts 表
 
 - 集群内服务：HTTPRoute hostname 由集群里的 openwrt-dns（external-dns webhook）经 LuCI RPC 写成路由器 `/etc/config/dhcp` 的 `config cname`，dnsmasq 启动时展开到 `/tmp/hosts/dhcp.<cfg>`，再以 `--addn-hosts` 读入
-- 集群外服务（sakamoto 上的 minio、镜像代理等）：仓库 `router/dnsmasq-int.hosts` 声明，`task router:dns:diff` 比对、`task router:dns:sync` 下发到路由器 `/etc/dnsmasq.d/int.hosts`，通过 UCI `addnhosts` 注册。两个坑：`addnhosts` 是 list 语义，必须 `add_list`；被指向的路径要先存在，否则 `uci commit` 触发的 ucitrack 重载会让 dnsmasq 启动失败、整网解析中断
+- 集群外服务（宿主机上的 minio、镜像代理等）：仓库 `router/dnsmasq-int.hosts` 声明，`task router:dns:diff` 比对、`task router:dns:sync` 下发到路由器 `/etc/dnsmasq.d/int.hosts`，通过 UCI `addnhosts` 注册。两个坑：`addnhosts` 是 list 语义，必须 `add_list`；被指向的路径要先存在，否则 `uci commit` 触发的 ucitrack 重载会让 dnsmasq 启动失败、整网解析中断
 - 同名不能同时出现在两处：dnsmasq 对重复名字会返回多个地址并按查询轮换，不报错也不提示
 
 查现网实际生效的记录
 
 ```bash
-ssh router-mine "uci show dhcp | grep -E '=domain|=cname'"
-ssh router-mine "cat /tmp/hosts/dhcp.*"
-ssh router-mine "cat /etc/dnsmasq.d/int.hosts"
+ssh <ROUTER> "uci show dhcp | grep -E '=domain|=cname'"
+ssh <ROUTER> "cat /tmp/hosts/dhcp.*"
+ssh <ROUTER> "cat /etc/dnsmasq.d/int.hosts"
 ```
 
 内网入口迁入独立子域的分层决策见 [内网域决策](./adr/0002-internal-domain-static-client-dns.md)
@@ -281,12 +281,12 @@ ssh router-mine "cat /etc/dnsmasq.d/int.hosts"
 |---|------|------|--------|------|------|
 | 1 | VPS Caddy (v4) | 公网 | A `*` → VPS → Tailscale | envoy-external | ✅ 活跃 |
 | 2 | caddy-external (v6) | 公网 | AAAA `*` → 集群 v6 | envoy-external | ✅ 活跃 |
-| 3 | envoy-internal | 内网 | 客户端 DNS → TVBox daed → router-mine DNS (openwrt-dns 同步) → LB | envoy-internal | ✅ 活跃 |
+| 3 | envoy-internal | 内网 | 客户端 DNS → 旁路由 daed → 主路由 DNS (openwrt-dns 同步) → LB | envoy-internal | ✅ 活跃 |
 | 4 | Tailscale | 内网 | 直连 → subnet router | 集群服务 | ✅ 活跃 |
 | ~5~ | Cloudflare Tunnel | 无 | 无 | 无 | ❌ 已停用 |
 | ~6~ | NetBird | 无 | 无 | 无 | ❌ 已停用 |
 
-> 内网 DNS 里除集群服务外还有集群外内部服务（sakamoto 上的 minio、镜像代理、PVE 面板等），它们解析到 192.168.6.144，不经 envoy
+> 内网 DNS 里除集群服务外还有集群外内部服务（宿主机上的 minio、镜像代理、PVE 面板等），它们解析到 192.168.6.144，不经 envoy
 
 ---
 
@@ -351,7 +351,7 @@ graph LR
         FB_VPS["Fluent Bit<br/>VPS Caddy 日志"]
     end
 
-    subgraph SAKAMOTO["sakamoto"]
+    subgraph SAKAMOTO["宿主机"]
         CADDY_SAKA["Caddy metrics"]
     end
 
@@ -385,7 +385,7 @@ graph LR
 | VPS node-exporter | ts-node-vps:9100 | Prometheus |
 | VPS Caddy metrics | ts-node-vps:2019 | Prometheus |
 | VPS Docker 状态 | ts-node-vps:2575 | Gatus / Homepage |
-| sakamoto Caddy | sakamoto.lan:2019 | Prometheus |
+| 宿主机 Caddy | 192.168.6.144:2019 | Prometheus |
 | VPS Caddy 访问日志 | VPS Fluent Bit | VictoriaLogs |
 | k8s 容器日志 | 集群 Fluent Bit | VictoriaLogs |
 
@@ -403,10 +403,10 @@ graph TB
         Cluster_OpenList["OpenList (集群 S3)"]
     end
 
-    subgraph SAKA_BACKUP["sakamoto"]
+    subgraph SAKA_BACKUP["宿主机"]
         MinIO["MinIO (S3)<br/>:9000 · bucket kopiur"]
         COMPOSE_Data["Compose 数据"]
-        USER_Data["用户数据<br/>/Volumes/sakamoto-data"]
+        USER_Data["用户数据<br/>/Volumes/<USER_DATA>"]
         SAKA_Kopia["Kopia（云端）"]
         SAKA_Kopia_Local["Kopia（本地）"]
         USB_HDD["外接 USB HDD"]
@@ -442,11 +442,11 @@ graph TB
 
 | 链路 | 备份源 | 存储后端 | 目标 | 调度 |
 |------|--------|---------|------|------|
-| k8s PVC | Longhorn VolumeSnapshot | Kopiur（Kopia mover）→ MinIO (sakamoto S3, bucket kopiur) | 189 云盘 | 每小时 |
-| PostgreSQL | CNPG 集群 | Barman → MinIO (sakamoto S3) | 189 云盘 | 按 WAL 归档 |
-| sakamoto MinIO | MinIO 数据 | Kopia → OpenList (集群 S3) | 189 云盘 | 6 小时 |
-| sakamoto Compose | Compose 数据 | Kopia → OpenList (集群 S3) | 189 云盘 | 1 小时 |
-| sakamoto 本地 | 用户数据 (`/Volumes/sakamoto-data`) | Kopia Local → 外接 USB HDD | 本地 | 每小时 |
+| k8s PVC | Longhorn VolumeSnapshot | Kopiur（Kopia mover）→ MinIO (宿主机 S3, bucket kopiur) | 189 云盘 | 每小时 |
+| PostgreSQL | CNPG 集群 | Barman → MinIO (宿主机 S3) | 189 云盘 | 按 WAL 归档 |
+| 宿主机 MinIO | MinIO 数据 | Kopia → OpenList (集群 S3) | 189 云盘 | 6 小时 |
+| 宿主机 Compose | Compose 数据 | Kopia → OpenList (集群 S3) | 189 云盘 | 1 小时 |
+| 宿主机本地 | 用户数据 (`/Volumes/<USER_DATA>`) | Kopia Local → 外接 USB HDD | 本地 | 每小时 |
 | VPS 服务数据 | VPS 数据 | Kopia → OpenList (VPS 本地 S3) | 189 云盘 | 4 小时 |
 
 > Kopia 仓库配置通过 `.env.tpl` 从外部密钥管理注入，不提交到 Git。
