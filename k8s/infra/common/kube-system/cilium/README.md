@@ -5,7 +5,7 @@
 
 ### router-mine (192.168.6.1)
 
-[/etc/bird.conf](../../../../../router/mine.conf)
+[/etc/bird.conf](../../../../../router/bird/mine.conf)
 
 逐节点显式 neighbor（无网段接受），节点：sakamoto-k8s / homelab-1 / yuuko-k8s。
 
@@ -23,7 +23,7 @@ graph TD
 
 ### router-home (192.168.191.10，已断开)
 
-[/etc/bird.conf](../../../../../router/home.conf)
+[/etc/bird.conf](../../../../../router/bird/home.conf)
 
 ### Firewall Configuration
 

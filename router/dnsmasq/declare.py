@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """路由器 dnsmasq 的声明式下发。
 
-约定：仓库 `router/dnsmasq.d` 的渲染结果等于路由器 `CONF_DST` 的内容，
-`router/dnsmasq-int.hosts` 等于 `HOSTS_DST`。分流规则只以文件表达，
+约定：本目录 `conf.d/` 的渲染结果等于路由器 `CONF_DST` 的内容，
+`dnsmasq-int.hosts` 等于 `HOSTS_DST`。分流规则只以文件表达，
 不使用 `uci set` / `add_list`；`confdir` 由 `task router:dns:bootstrap`
 一次性引导，之后所有变更都是文件与 reload。
 """
@@ -15,9 +15,9 @@ import pathlib
 import subprocess
 import sys
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
-CONF_SRC = ROOT / "router" / "dnsmasq.d"
-HOSTS_SRC = ROOT / "router" / "dnsmasq-int.hosts"
+HERE = pathlib.Path(__file__).resolve().parent
+CONF_SRC = HERE / "conf.d"
+HOSTS_SRC = HERE / "dnsmasq-int.hosts"
 
 CONF_DST = "/etc/dnsmasq.d"
 HOSTS_DST = "/etc/dnsmasq-hosts/int.hosts"

@@ -1,6 +1,6 @@
 # 内网 DNS 由集群侧 k8s-gateway 单一后端应答
 
-家庭 LAN 与 VPS 的 DNS 分流都把主域与内部域交给集群里的 k8s-gateway，由它按当前集群资源应答：主域下集群内的入口解析到对应 Gateway 的 LoadBalancer 地址，集群内没有的名称再由 gateway 转发公网递归。原 OpenWrt external-dns（webhook 写路由器 UCI）整体移除——它以 `upsert-only` + `registry: noop` 写 UCI，资源下线后记录永不删除（#1477）；gateway 不保存任何记录副本，记录生命周期由集群资源天然决定，从机制上消除了该缺口。路由器侧的分流改为声明式：`/etc/dnsmasq.d` 的内容等于仓库 `router/dnsmasq.d` 的渲染结果，规则不再用 `uci set` / `add_list` 逐条修改。gateway 的公网递归改用 DoT（853），使上游查询不落在路由器针对 53 端口的重定向规则上。域名分层边界见 [ADR-0002](./0002-internal-domain-static-client-dns.md)。决策已确认，部署与端到端验证尚未完成
+家庭 LAN 与 VPS 的 DNS 分流都把主域与内部域交给集群里的 k8s-gateway，由它按当前集群资源应答：主域下集群内的入口解析到对应 Gateway 的 LoadBalancer 地址，集群内没有的名称再由 gateway 转发公网递归。原 OpenWrt external-dns（webhook 写路由器 UCI）整体移除——它以 `upsert-only` + `registry: noop` 写 UCI，资源下线后记录永不删除（#1477）；gateway 不保存任何记录副本，记录生命周期由集群资源天然决定，从机制上消除了该缺口。路由器侧的分流改为声明式：`/etc/dnsmasq.d` 的内容等于仓库 `router/dnsmasq/conf.d` 的渲染结果，规则不再用 `uci set` / `add_list` 逐条修改。gateway 的公网递归改用 DoT（853），使上游查询不落在路由器针对 53 端口的重定向规则上。域名分层边界见 [ADR-0002](./0002-internal-domain-static-client-dns.md)。决策已确认，部署与端到端验证尚未完成
 
 ## Considered Options
 
@@ -16,4 +16,4 @@
 - 路由器不再承载任何集群记录；`/etc/dnsmasq.d` 只放分流规则与自举 hosts 的引用，`int.hosts` 移到该目录之外，避免被 dnsmasq 当作配置文件解析
 - `confdir` 是唯一的一次性引导（`task router:dns:bootstrap`），此后所有规则都由仓库文件声明，不再出现分散的 UCI 变更
 - passwall-healer 的 LuCI 凭据拆为独立 ExternalSecret，不再依赖已删除的控制器的 secret
-- 集群外自举入口仍由 `router/dnsmasq-int.hosts` 声明，不依赖集群可用性
+- 集群外自举入口仍由 `router/dnsmasq/dnsmasq-int.hosts` 声明，不依赖集群可用性

@@ -73,8 +73,8 @@ task router:dns:sync   # 展示差异 → 确认 → 落地 → 重载 dnsmasq
 task router:dns:bootstrap  # 一次性：把 dnsmasq 的 confdir 指向持久目录
 ```
 
-`router/dnsmasq.d/` 是路由器 `/etc/dnsmasq.d` 的声明：`10-upstream.conf` 决定主域与内部域交给谁，
-`20-hosts.conf` 引用集群外自举记录 `router/dnsmasq-int.hosts`。规则不再用 `uci set` / `add_list` 逐条修改；
+`router/dnsmasq/conf.d/` 是路由器 `/etc/dnsmasq.d` 的声明：`10-upstream.conf` 决定主域与内部域交给谁，
+`20-hosts.conf` 引用集群外自举记录 `router/dnsmasq/dnsmasq-int.hosts`。规则不再用 `uci set` / `add_list` 逐条修改；
 `confdir` 是唯一的一次性引导，执行一次 `task router:dns:bootstrap` 之后，后续变更都只是文件与重载。
 具体机制、验证与故障表现见 [DNS 配置](./dns.md)。
 

@@ -7,8 +7,8 @@ vars:
     sh: |
       ansible-inventory -i {{.ROOT_DIR}}/ansible/inventory/others.ini --host router-mine \
         | jq -re '.ansible_user + "@" + .ansible_host'
-  BIRD_CONF: "{{.ROOT_DIR}}/router/mine.conf"
-  DNS_HOSTS: "{{.ROOT_DIR}}/router/dnsmasq-int.hosts"
+  BIRD_CONF: "{{.ROOT_DIR}}/router/bird/mine.conf"
+  DNS_HOSTS: "{{.ROOT_DIR}}/router/dnsmasq/dnsmasq-int.hosts"
   DNS_CONF_DIR: "/etc/dnsmasq.d"
   DNS_HOSTS_DST: "/etc/dnsmasq-hosts/int.hosts"
   # gateway 不可用时的顺序回落；gateway 自己的公网递归走 DoT
@@ -83,7 +83,7 @@ tasks:
       INTERNAL_DOMAIN: "{{.INTERNAL_DOMAIN}}"
       DNS_GATEWAY: "{{.DNS_GATEWAY}}"
       DNS_FALLBACK: "{{.DNS_FALLBACK}}"
-    cmd: python3 scripts/router-dns-declare.py diff
+    cmd: python3 router/dnsmasq/declare.py diff
 
   dns:bootstrap:
     desc: "一次性把 dnsmasq 的 confdir 指向持久目录（其后规则全部由文件声明）"
@@ -99,7 +99,7 @@ tasks:
     prompt: 将仓库声明下发到路由器并重载 dnsmasq？
     dir: "{{.ROOT_DIR}}"
     env: *dns-env
-    cmd: python3 scripts/router-dns-declare.py sync
+    cmd: python3 router/dnsmasq/declare.py sync
 
   run:
     internal: true
