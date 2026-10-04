@@ -107,7 +107,7 @@
       }
       /* 灾备长链路放慢，避免视觉过快 */
       .beam-slow { animation-duration: 7s; }
-      /* 控制面信令（eBGP / DNS 同步）：虚线 + 流动 */
+      /* 解析与控制面信令（DNS 查询 / eBGP）：虚线 + 流动 */
       .signal {
         stroke-width: 1.8;
         stroke-dasharray: 5 5;
@@ -440,7 +440,7 @@
 
       <g transform="translate(10, 36)">
         <rect width="272" height="26" rx="3" fill="#1e2030" />
-        <text x="8" y="18" class="font-mono" font-size="9" fill="#cad3f5">DHCP / DNS 权威 · 上游 F50 出网</text>
+        <text x="8" y="18" class="font-mono" font-size="9" fill="#cad3f5">DHCP / dnsmasq · 上游 F50 出网</text>
       </g>
       <g transform="translate(10, 68)">
         <rect width="272" height="26" rx="3" fill="#1e2030" />
@@ -449,7 +449,7 @@
       </g>
       <g transform="translate(10, 100)">
         <rect width="272" height="24" rx="3" fill="#1e2030" />
-        <text x="8" y="17" class="font-mono" font-size="9" fill="#8087a2">LuCI RPC: openwrt-dns 同步 CNAME</text>
+        <text x="8" y="17" class="font-mono" font-size="9" fill="#8087a2">集群域 DNS → k8s-gateway</text>
       </g>
     </g>
 
@@ -615,11 +615,11 @@
     <circle cx="1072" cy="300" r="3" class="pin" stroke="#f5a97f" />
     <circle cx="1020" cy="300" r="3" class="pin" stroke="#f5a97f" />
 
-    <!-- ⑪ 内网 DNS 同步：openwrt-dns（集群）→ 主路由 dnsmasq -->
-    <path d="M 1020 548 L 1058 548 L 1058 280 L 1075 280" class="wire track" />
-    <path d="M 1020 548 L 1058 548 L 1058 280 L 1075 280" class="wire signal" stroke="#8087a2" pathLength="100" />
-    <circle cx="1020" cy="548" r="3" class="pin" stroke="#8087a2" />
-    <circle cx="1075" cy="280" r="3" class="pin" stroke="#8087a2" />
+    <!-- ⑪ 集群域 DNS 查询：主路由 dnsmasq → k8s-gateway -->
+    <path d="M 1072 177 L 1058 177 L 1058 76 L 847 76 L 847 164" class="wire track" />
+    <path d="M 1072 177 L 1058 177 L 1058 76 L 847 76 L 847 164" class="wire signal" stroke="#8087a2" pathLength="100" />
+    <circle cx="1072" cy="177" r="3" class="pin" stroke="#8087a2" />
+    <circle cx="847" cy="164" r="3" class="pin" stroke="#8087a2" />
 
     <!-- ⑫ 集群 → 容灾：Kopiur 每小时快照落 MinIO -->
     <path d="M 380 565 L 380 670" class="wire track" />
@@ -703,7 +703,7 @@
     <!-- 7. 控制面信令 -->
     <g transform="translate(0, 80)">
       <line x1="0" y1="0" x2="26" y2="0" stroke="#8087a2" stroke-width="2" stroke-dasharray="5 5" stroke-linecap="round" />
-      <text x="34" y="3.5" class="font-mono" font-size="9" fill="#cad3f5">控制面信令: DNS 查询 · openwrt-dns ➔ 主路由 CNAME 同步</text>
+      <text x="34" y="3.5" class="font-mono" font-size="9" fill="#cad3f5">解析与控制面信令: 路由器 dnsmasq ➔ k8s-gateway DNS 查询 · eBGP 路由宣告</text>
     </g>
 
     <!-- 8. Tailscale 隧道 -->

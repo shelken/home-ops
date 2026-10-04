@@ -1,55 +1,63 @@
 # 路由器 DNS 配置
 
-路由器 dnsmasq 的分流规则以文件声明在 `router/dnsmasq/conf.d/`，下发后等于路由器 `/etc/dnsmasq.d` 的内容。规则不再用 `uci set` / `add_list` 逐条修改。
+路由器 dnsmasq 同时承载 LuCI/UCI 手工配置与 home-ops 补充配置。两者按所有权分开：
+手工配置保留在现有入口，home-ops 独占额外增加的 conf-dir 和自举 hosts 文件。
 
-## 职责
+## 所有权
+
+| 配置 | 所有者 |
+| :--- | :--- |
+| `/etc/config/dhcp` 中的全局选项、手工记录和其他 `addnhosts` | LuCI/UCI |
+| `/etc/dnsmasq.conf` 中 home-ops 标记块之外的内容 | 手工管理 |
+| `/etc/dnsmasq.conf` 中的 home-ops 标记块 | home-ops |
+| OpenWrt 自动生成的 `/tmp/dnsmasq.<instance>.d` | OpenWrt |
+| `/etc/dnsmasq-home-ops.d` | home-ops |
+| `/etc/dnsmasq.d/int.hosts` 及其精确 `addnhosts` 条目 | home-ops |
+
+home-ops 标记块向 dnsmasq 增加第二个 conf-dir：
+
+```text
+# BEGIN home-ops dnsmasq
+conf-dir=/etc/dnsmasq-home-ops.d,*.conf
+# END home-ops dnsmasq
+```
+
+UCI `confdir` 保持未设置，因此 OpenWrt 的默认临时目录继续生效。专用目录只加载 `.conf`
+文件，`/etc/dnsmasq.d/int.hosts` 继续按 hosts 格式读取。
+
+## 仓库声明
 
 | 文件 | 内容 |
 | :--- | :--- |
-| `router/dnsmasq/conf.d/10-upstream.conf` | 主域与内部域都交集群里的 k8s-gateway；`strict-order` 之后按序回落公网 |
-| `router/dnsmasq/conf.d/20-hosts.conf` | 引用集群外自举记录 `/etc/dnsmasq-hosts/int.hosts` |
-| `router/dnsmasq/dnsmasq-int.hosts` | 集群外入口的精确记录（sakamoto 上的 minio、镜像代理等） |
+| `router/dnsmasq/conf.d/10-upstream.conf.tpl` | 将主域与内部域交给 k8s-gateway |
+| `router/dnsmasq/dnsmasq-int.hosts` | 集群外入口的精确记录 |
+| `router/dnsmasq/declare.py` | 对比、校验并同步 home-ops 所有的配置 |
 
-集群内服务的记录不写在路由器：k8s-gateway 按当前集群资源应答，主域下集群内没有的名称由它转发公网递归。后端选择的理由见 [内网 DNS 后端](../adr/0003-internal-dns-via-gateway.md)。
-
-## 一次性引导
-
-dnsmasq 的 `confdir` 必须指向持久目录——默认的 `/tmp/dnsmasq.d` 在 tmpfs 上，重启即丢。
-
-```bash
-task router:dns:bootstrap
-```
-
-这一步同时清掉三处会让切换失败的旧状态，所以不要拆开手工做：
-
-- `/etc/dnsmasq.d/int.hosts` 会被移出 confdir：`--conf-dir` **不带后缀过滤**，hosts 文件留在里面会被
-  当作配置文件解析，dnsmasq 直接启动失败，整网断解析
-- UCI 的旧 `addnhosts` 注册被删除：它与 `20-hosts.conf` 的 `addn-hosts` 指向同一批名字，
-  重复注册会让同一个名字返回多个地址
-- UCI 的 `allservers` 被删除：它让所有上游同时被问，与声明里的 `strict-order` 相冲，
-  公网答案会和内网答案竞速（内网名可能在公网拿到 NXDOMAIN 而抢先返回）
-
-这是唯一一次 UCI 变更；此后所有规则都由仓库文件声明。紧跟 `task router:dns:sync` 下发声明——
-在它跑完之前，自举记录（`/etc/dnsmasq-hosts/int.hosts`）暂时不可解析。
+集群服务记录不写入路由器。k8s-gateway 根据当前 HTTPRoute、Service 和 Ingress 应答，
+主域下未匹配的名称由 gateway 转发公网递归。后端选择见
+[集群服务 DNS 决策](../adr/0003-internal-dns-via-gateway.md)。
 
 ## 下发
 
 ```bash
-task router:dns:diff   # 只读：列出 conf 目录与 hosts 的差异，以及路由器上的多余文件
-task router:dns:sync   # 下发 + 删除多余文件 + 重载 dnsmasq + 用路由器本机查询自举名验证
+task router:dns:sync   # 默认入口：展示差异 → 确认 → 校验 → 下发 → 重启
+task router:dns:diff   # 可选：只读展示 home-ops 所有权范围内的差异
 ```
 
-`sync` 先跑 `dns:diff`，确认之后才落地。
+用户通常只需运行 `sync`；它会先自动执行同一份只读 diff。首次同步会添加 home-ops
+标记块并创建专用目录，不需要独立 bootstrap。同步只删除专用目录中仓库未声明的
+`.conf`，其他 dnsmasq 配置保持原样。
 
 ## 验证
 
 ```bash
-dig @<ROUTER_IP> <CLUSTER_SERVICE_IN_MAIN_DOMAIN> A      # 期望：内网入口地址
-dig @<ROUTER_IP> <PUBLIC_ONLY_NAME_IN_MAIN_DOMAIN> A     # 期望：公网答案
-dig @<ROUTER_IP> <BOOTSTRAP_NAME> A                      # 期望：int.hosts 中的地址
-ssh <ROUTER> 'cat /etc/dnsmasq.d/*.conf; cat /etc/dnsmasq-hosts/int.hosts'
+task router:dns:diff
+ssh <ROUTER> 'cat /etc/dnsmasq.conf'
+ssh <ROUTER> 'cat /etc/dnsmasq-home-ops.d/*.conf'
+ssh <ROUTER> 'uci -q get dhcp.@dnsmasq[0].addnhosts'
+ssh <ROUTER> 'cat /etc/dnsmasq.d/int.hosts'
+dig @<ROUTER_IP> <CLUSTER_SERVICE_IN_MAIN_DOMAIN> A
+dig @<ROUTER_IP> <BOOTSTRAP_NAME> A
 ```
 
-- 集群不可用时，主域与内部域都靠 `strict-order` 的下一跳（公网）；故障期间首次查询要等上游超时
-- gateway 的 `ttl` 为 60，dnsmasq 与客户端据此缓存；记录变更后最长 60 秒收敛
-- 本地 hosts 与自举记录优先于转发规则，因此集群不可用时集群外入口仍可解析
+集群不可用时，集群服务名称无法解析；`int.hosts` 中的集群外自举名称仍由路由器本地回答。

@@ -5,7 +5,7 @@
 
 ![集群全景架构动态图](./assets/svgs/cluster-architecture.svg)
 
-> 图中一条连线只表达一个关系，两端吸附到具体卡片；实线为数据流（配色见底部图例），虚线为控制面信令（eBGP 路由宣告、内网 DNS 同步）。
+> 图中一条连线只表达一个关系，两端吸附到具体卡片；实线为数据流（配色见底部图例），虚线为解析与控制面信令（DNS 查询、eBGP 路由宣告）。
 > 自上而下的层级即为真实依赖顺序：公网与解析 → VPS 边缘 / 家庭网络 → 覆盖隧道 → k3s 集群 → 3-2-1 容灾。
 
 ---
@@ -259,24 +259,25 @@ graph LR
 
 ### 内网记录归属
 
-集群服务的记录不落进路由器，路由器只按域转发：
+- **集群内权威**：`k8s-gateway` 根据 HTTPRoute、Service 与 Ingress 动态应答
+- **主域未命中记录**：由 `k8s-gateway` 转发到公网递归
+- **集群外自举**：仓库中的 `router/dnsmasq/dnsmasq-int.hosts` 下发到
+  `/etc/dnsmasq.d/int.hosts`，由现有 UCI `addnhosts` 加载
+- **路由器分流**：`router/dnsmasq/conf.d/` 渲染到 home-ops 独占的
+  `/etc/dnsmasq-home-ops.d`；`/etc/dnsmasq.conf` 中的标记块追加该 conf-dir
+- **OpenWrt 所有权**：UCI `confdir` 保持未设置，默认临时目录及 LuCI/UCI 手工配置继续生效
 
-- 主域与内部域：由集群里的 k8s-gateway 按当前 HTTPRoute/Service/Ingress 与 Gateway status 应答；主域下集群内没有的名称由 gateway 转发公网递归
-- 集群外自举服务（宿主机上的 minio、镜像代理等）：仓库 `router/dnsmasq/dnsmasq-int.hosts` 声明，`task router:dns:diff` 比对、`task router:dns:sync` 下发，由 `router/dnsmasq/conf.d/20-hosts.conf` 的 `addn-hosts` 引用
-- 分流规则以文件声明在 `router/dnsmasq/conf.d/`，下发后等于路由器 `/etc/dnsmasq.d` 的内容；规则不再通过 `uci set` / `add_list` 逐条修改
-- 本地 hosts 与自举记录优先于转发规则：名字在本机有答案时不会去问上游
-- 同名不要同时出现在两处：dnsmasq 对重复名字会返回多个地址并按查询轮换，不报错也不提示
-
-查现网实际生效的记录
+检查方式：
 
 ```bash
-task router:dns:diff                          # 仓库声明与路由器现状的差异
-ssh <ROUTER> "cat /etc/dnsmasq.d/*.conf"      # 路由器实际读到的分流规则
-ssh <ROUTER> "cat /etc/dnsmasq-hosts/int.hosts"
-ssh <ROUTER> "uci show dhcp | grep -E '=domain|=cname'"   # 迁移期残留的旧式记录
+task router:dns:diff
+ssh <ROUTER> 'cat /etc/dnsmasq.conf'
+ssh <ROUTER> 'cat /etc/dnsmasq-home-ops.d/*.conf'
+ssh <ROUTER> 'uci -q get dhcp.@dnsmasq[0].addnhosts'
+ssh <ROUTER> 'cat /etc/dnsmasq.d/int.hosts'
 ```
 
-内网入口迁入独立子域的分层决策见 [内网域决策](./adr/0002-internal-domain-static-client-dns.md)，单一后端与声明式下发的决策见 [内网 DNS 后端](./adr/0003-internal-dns-via-gateway.md)
+后端与所有权决策见 [ADR-0003：集群服务 DNS 由 k8s-gateway 动态应答](adr/0003-internal-dns-via-gateway.md)。
 
 ### 入口一览
 

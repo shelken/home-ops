@@ -34,15 +34,15 @@ description: shelken/home-ops 项目的目录结构与资源组织规范。在�
 
 ```
 router/
-├── bird/                  # 目录名 = task 命名空间后半段（task router:bgp:*）
+├── bird/                  # 完全所有权：整体下发 /etc/bird.conf
 │   ├── home.conf
 │   └── mine.conf
-└── dnsmasq/               # task router:dns:*
-    ├── conf.d/            # 声明源，下发后等于路由器 /etc/dnsmasq.d
-    ├── dnsmasq-int.hosts
+└── dnsmasq/               # 共享所有权：task router:dns:*
+    ├── conf.d/            # 独占下发到 /etc/dnsmasq-home-ops.d
+    ├── dnsmasq-int.hosts  # 下发到 /etc/dnsmasq.d/int.hosts
     └── declare.py         # 只服务本功能的脚本放这里，不放 scripts/
 ```
 
+- 先界定远端所有权：独占文件或目录才能整体替换；共享配置只修改命名标记块，并将声明放入独占的附加目录
 - 只服务某一个功能的脚本、模板、数据，与它服务的声明同目录；跨功能复用的才进 `scripts/`
-- 每份声明都要有对应的 `task <功能>:diff` 与 `:sync`：只读对比 → 展示差异 → 确认 → 下发。新配置沿用这套动作，不另造下发方式
-- 一份声明的目录（`conf.d/`、`hosts` 之类）与它要落的远端路径一一对应，远端路径只在 taskfile 里定义一次
+- 远端路径只在 taskfile 里定义一次；声明目录必须明确对应的远端所有权范围
