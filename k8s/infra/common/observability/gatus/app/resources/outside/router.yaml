@@ -29,7 +29,7 @@ endpoints:
       - type: custom
   - name: router-dns-proxy
     group: router
-    # 这里专门监控代理 DNS 链路，15353 掉线时会先表现为解析超时
+    # 监控路由器对公网域名的解析；代理链上的组件掉线会先表现为解析超时
     url: ${ROUTER_IP}
     dns:
       query-name: openai.com

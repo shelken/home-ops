@@ -18,6 +18,7 @@
 | [VLAN 配置](./vlan.md) | VLAN 网络划分，包括主网 (VLAN 6) 和 IoT 网 (VLAN 50) |
 | [mDNS 配置](./mdns.md) | Avahi mDNS 反射，实现跨 VLAN 服务发现 |
 | [BGP 配置](./bgp.md) | BIRD BGP 路由，实现跨地域 Pod 网络互通 |
+| [DNS 配置](./dns.md) | dnsmasq 声明式下发、主域与内部域分流、集群外自举记录 |
 
 ## 网络架构概览
 
@@ -67,18 +68,15 @@ ip route | grep 10.42
 ```bash
 task router:bgp:diff   # 对比路由器运行配置与仓库版本
 task router:bgp:sync   # 展示差异 → 确认 → 校验 → 热加载
-task router:dns:diff   # 对比路由器 /etc/dnsmasq.d/int.hosts 与仓库版本
-task router:dns:sync   # 展示差异 → 确认 → 落地 → 重载 dnsmasq（SIGHUP 重读记录文件）
+task router:dns:diff   # 对比路由器 dnsmasq 声明与仓库版本
+task router:dns:sync   # 展示差异 → 确认 → 落地 → 重载 dnsmasq
+task router:dns:bootstrap  # 一次性：把 dnsmasq 的 confdir 指向持久目录
 ```
 
-`router/dnsmasq-int.hosts` 是内网域 `int.<MAIN_DOMAIN>` 的集群外记录，指向 sakamoto 上的入口。
-首次下发前需在路由器上注册一次。两个约束：`addnhosts` 是 list 语义，必须用 `add_list`；
-被指向的路径必须先存在 —— 否则 `uci commit` 触发的 ucitrack 重载会让 dnsmasq 启动失败，整网解析中断。
-
-```bash
-ssh router-mine "mkdir -p /etc/dnsmasq.d && touch /etc/dnsmasq.d/int.hosts \
-  && uci add_list dhcp.@dnsmasq[0].addnhosts='/etc/dnsmasq.d/int.hosts' && uci commit dhcp"
-```
+`router/dnsmasq/conf.d/` 是路由器 `/etc/dnsmasq.d` 的声明：`10-upstream.conf` 决定主域与内部域交给谁，
+`20-hosts.conf` 引用集群外自举记录 `router/dnsmasq/dnsmasq-int.hosts`。规则不再用 `uci set` / `add_list` 逐条修改；
+`confdir` 是唯一的一次性引导，执行一次 `task router:dns:bootstrap` 之后，后续变更都只是文件与重载。
+具体机制、验证与故障表现见 [DNS 配置](./dns.md)。
 
 ## 相关文档
 

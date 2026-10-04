@@ -7,9 +7,12 @@ vars:
     sh: |
       ansible-inventory -i {{.ROOT_DIR}}/ansible/inventory/others.ini --host router-mine \
         | jq -re '.ansible_user + "@" + .ansible_host'
-  BIRD_CONF: "{{.ROOT_DIR}}/router/mine.conf"
-  DNS_HOSTS: "{{.ROOT_DIR}}/router/dnsmasq-int.hosts"
-  DNS_HOSTS_DST: "/etc/dnsmasq.d/int.hosts"
+  BIRD_CONF: "{{.ROOT_DIR}}/router/bird/mine.conf"
+  # 路由器上的落地路径只在这里声明一次；脚本按 env 消费，不再各留一份
+  DNS_CONF_DIR: "/etc/dnsmasq.d"
+  DNS_HOSTS_DST: "/etc/dnsmasq-hosts/int.hosts"
+  # gateway 不可用时的顺序回落；gateway 自己的公网递归走 DoT
+  DNS_FALLBACK: "223.5.5.5"
 
 tasks:
   bgp:diff:
@@ -61,77 +64,78 @@ tasks:
 
   dns:diff:
     silent: true
-    desc: "对比路由器 /etc/dnsmasq.d/int.hosts 与仓库版本"
+    desc: "对比路由器 dnsmasq 声明（conf 目录与自举 hosts）与仓库版本"
     cmds:
-      - task: _dns:diff
+      - task: _dns:declare
+        vars: {action: diff}
 
-  _dns:diff:
-    internal: true
-    silent: true
+  dns:bootstrap:
+    desc: "一次性把 dnsmasq 切到仓库声明的 confdir（含清掉旧式 UCI hosts 与 allservers）"
+    prompt: 把 dnsmasq 切到 {{ .DNS_CONF_DIR }} 并重启？
     cmd: |
       set -euo pipefail
-      tmp="$(mktemp -t router-int.hosts)"
-      trap 'rm -f "${tmp}"' EXIT
+      ssh -n -o BatchMode=yes -o ConnectTimeout=5 {{ .ROUTER_SSH }} '
+        set -e
 
-      # 首次下发前路由器上没有该文件，cat 失败按空文件处理
-      ssh -n -o BatchMode=yes -o ConnectTimeout=5 {{ .ROUTER_SSH }} 'cat {{ .DNS_HOSTS_DST }} 2>/dev/null || true' > "${tmp}"
+        # confdir 必须是纯配置文件目录：hosts 文件留在里面会被当配置解析，dnsmasq 起不来、整网断解析
+        if [ -f {{ .DNS_CONF_DIR }}/int.hosts ]; then
+          mkdir -p "$(dirname {{ .DNS_HOSTS_DST }})"
+          mv {{ .DNS_CONF_DIR }}/int.hosts {{ .DNS_HOSTS_DST }}
+          echo "旧 hosts 已移出 confdir：{{ .DNS_CONF_DIR }}/int.hosts -> {{ .DNS_HOSTS_DST }}"
+        fi
+        mkdir -p {{ .DNS_CONF_DIR }}
 
-      if git --no-pager diff --no-index --quiet -- "${tmp}" {{ .DNS_HOSTS }}; then
-        echo "路由器记录与仓库一致，无差异"
-        exit 0
-      fi
+        # 旧 addnhosts 指向 confdir 内，与 20-hosts.conf 的 addn-hosts 指向同一批名字，重复注册会产生多个地址
+        uci -q delete_list dhcp.@dnsmasq[0].addnhosts || uci -q delete dhcp.@dnsmasq[0].addnhosts || true
 
-      # 左=路由器当前，右=仓库版本
-      if command -v delta >/dev/null 2>&1; then
-        git --no-pager diff --no-index --color=always -- "${tmp}" {{ .DNS_HOSTS }} | delta --paging=never || true
-      else
-        git --no-pager diff --no-index --color=always -- "${tmp}" {{ .DNS_HOSTS }} || true
-      fi
+        # allservers 让所有上游同时被问，与声明里的 strict-order 相冲：公网答案会和内网答案竞速
+        uci -q delete dhcp.@dnsmasq[0].allservers || true
+
+        uci set dhcp.@dnsmasq[0].confdir={{ .DNS_CONF_DIR }}
+        uci commit dhcp
+        /etc/init.d/dnsmasq restart
+
+        pidof dnsmasq >/dev/null || { echo "dnsmasq 没起来：检查 {{ .DNS_CONF_DIR }} 里是否混入了非配置文件"; exit 1; }
+        nslookup openwrt.org 127.0.0.1 >/dev/null 2>&1 || { echo "本机解析失败：先看 logread | grep dnsmasq，不要继续"; exit 1; }
+        echo "dnsmasq 已切到 {{ .DNS_CONF_DIR }}；下一步 task router:dns:sync 下发声明"
+      '
 
   dns:sync:
-    desc: "同步内网域记录到路由器（先展示差异，确认后落地并重载 dnsmasq）"
+    desc: "下发 dnsmasq 声明到路由器（先展示差异，确认后落地并重载）"
     # deps 先于 prompt 执行：确认发生在看到差异之后
-    deps: [_dns:diff]
-    prompt: 将仓库版本下发到路由器 {{ .DNS_HOSTS_DST }} 并重启 dnsmasq？
+    deps: [dns:diff]
+    prompt: 将仓库声明下发到路由器并重载 dnsmasq？
     cmds:
-      # hosts 文件没有语法校验器，下发前先挡掉错行
-      - |
-        set -euo pipefail
-        bad="$(grep -vE '^[[:space:]]*(#|$)' {{ .DNS_HOSTS }} | grep -vE '^[0-9]{1,3}(\.[0-9]{1,3}){3}[[:space:]]+[A-Za-z0-9.-]+$' || true)"
-        if [ -n "${bad}" ]; then
-          printf '格式不合法的行（只允许 "# 注释"、空行、"<ipv4> <fqdn>"）：\n%s\n' "${bad}"
-          exit 1
-        fi
-      - |
-        set -euo pipefail
-        scp -q -o BatchMode=yes {{ .DNS_HOSTS }} {{ .ROUTER_SSH }}:/tmp/int.hosts.new
-        ssh -n -o BatchMode=yes -o ConnectTimeout=5 {{ .ROUTER_SSH }} '
-          set -e
-          trap "rm -f /tmp/int.hosts.new" EXIT
-          # 先把文件放好再碰 UCI：uci commit 会触发 ucitrack 重载 dnsmasq，
-          # 若此时 addnhosts 指向的路径还不存在，dnsmasq 会启动失败，整网解析中断
-          mkdir -p "$(dirname {{ .DNS_HOSTS_DST }})"
-          mv /tmp/int.hosts.new {{ .DNS_HOSTS_DST }}
-          # addnhosts 是 list 语义，写成单个 option 会被 dnsmasq 忽略（openwrt#17511），必须 add_list
-          uci show dhcp | grep -q "addnhosts=.*{{ .DNS_HOSTS_DST }}" || {
-            echo "路由器未注册 addnhosts（文件已就位，dnsmasq 未重启，解析未受影响）。先做一次性准备："
-            echo "  uci add_list dhcp.@dnsmasq[0].addnhosts='"'"'{{ .DNS_HOSTS_DST }}'"'"'"
-            echo "  uci commit dhcp"
-            exit 1
-          }
-          # 内容变更走 reload：init 的 reload_service 会发 SIGHUP，dnsmasq 据此重读 --addn-hosts。
-          # 实测 procd 仍会重建部分实例（pidof 有变动），所以验证查询带重试
-          /etc/init.d/dnsmasq reload
-          # 落地后用路由器自己查第一个名字，确认 dnsmasq 真的读到了该文件；查询带重试，不用死等
-          name="$(awk "!/^#/ && NF {print \$2; exit}" {{ .DNS_HOSTS_DST }})"
-          i=0
-          until out="$(nslookup "${name}" 127.0.0.1 2>&1)" && echo "${out}" | grep -q "Address"; do
-            i=$((i + 1))
-            [ "${i}" -ge 10 ] && { echo "${out}"; echo "dnsmasq 未在 10 次查询内返回 ${name}"; exit 1; }
-            sleep 1
-          done
-          echo "${out}"
-        '
+      - task: _dns:declare
+        vars: {action: sync}
+
+  _dns:declare:
+    internal: true
+    dir: "{{.ROOT_DIR}}"
+    requires:
+      vars: ["action"]
+    # 顶层 sh 变量对同文件所有 task 生效，因此只在真正需要它的 task 里解析
+    vars:
+      DNS_DOMAINS:
+        sh: |
+          set -euo pipefail
+          sops -d {{.ROOT_DIR}}/k8s/components/common/sops/cluster-secret.sops.yaml \
+            | yq -o=json '.stringData | {"MAIN_DOMAIN": .MAIN_DOMAIN, "INTERNAL_DOMAIN": .INTERNAL_DOMAIN}'
+      MAIN_DOMAIN: '{{(fromJson .DNS_DOMAINS).MAIN_DOMAIN}}'
+      INTERNAL_DOMAIN: '{{(fromJson .DNS_DOMAINS).INTERNAL_DOMAIN}}'
+      DNS_GATEWAY:
+        sh: >-
+          yq ea -r 'select(.kind == "HelmRelease") | .spec.values.service.annotations."lbipam.cilium.io/ips"'
+          {{.ROOT_DIR}}/k8s/infra/common/network/internal/k8s-gateway/app/helmrelease.yaml
+    env:
+      ROUTER_SSH: "{{.ROUTER_SSH}}"
+      DNS_CONF_DIR: "{{.DNS_CONF_DIR}}"
+      DNS_HOSTS_DST: "{{.DNS_HOSTS_DST}}"
+      MAIN_DOMAIN: "{{.MAIN_DOMAIN}}"
+      INTERNAL_DOMAIN: "{{.INTERNAL_DOMAIN}}"
+      DNS_GATEWAY: "{{.DNS_GATEWAY}}"
+      DNS_FALLBACK: "{{.DNS_FALLBACK}}"
+    cmd: python3 router/dnsmasq/declare.py {{.action}}
 
   run:
     internal: true

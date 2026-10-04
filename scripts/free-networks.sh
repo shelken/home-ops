@@ -74,4 +74,6 @@ else
 fi
 
 # 执行远程命令
+# CMD 由本机拼装，就是要让变量在本机展开后再发过去
+# shellcheck disable=SC2029
 ssh "$REMOTE" "$CMD"

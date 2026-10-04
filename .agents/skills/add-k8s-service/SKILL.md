@@ -30,7 +30,7 @@ description: 在 home-ops 仓库中为 k3s 集群新增服务的完整流程：�
 
 复杂服务先写设计文档到 `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md`，提交后等用户审查。审查通过再写代码。
 
-对于需求尚不明确的服务，可用 [brainstorming skill](../../../../../.agents/skills/brainstorming/SKILL.md) 逐条澄清设计后再写代码。
+对于需求尚不明确的服务，先逐条澄清需求、边界与验收再写代码。
 
 ### 1. 创建代码
 

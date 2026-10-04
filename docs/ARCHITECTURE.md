@@ -165,8 +165,8 @@ ExternalDNS 自动管理各服务子域名的记录
 
 VPS 本机 DNS:
   127.0.0.1 -> dnsmasq
-               MAIN_DOMAIN -> k8s-gateway 192.168.69.41
-               其他域名 -> 公网 DNS
+               INTERNAL_DOMAIN 与 MAIN_DOMAIN -> k8s-gateway（更具体的内部域规则优先）
+               其他域名 -> 公网 DNS（DoT）
 ```
 
 ### 流量路径
@@ -242,7 +242,7 @@ graph LR
     end
 
     subgraph K8S["k3s 集群"]
-        OpenwrtDNS["openwrt-dns<br/>(External-DNS webhook)"]
+        K8sGW["k8s-gateway<br/>192.168.69.41"]
         Envoy_Internal["envoy-internal"]
     end
 
@@ -251,29 +251,32 @@ graph LR
     DaeDNS --> RouterDNS
     DaeDNS --> ForeignDNS
     DaeDNS --> CNDNS
-    OpenwrtDNS -->|"同步 DNS 记录"| RouterDNS
-    RouterDNS -->|"A/CNAME → LB IP"| Envoy_Internal
+    RouterDNS -->|"主域与内部域"| K8sGW
+    K8sGW -->|"A → LB IP"| Envoy_Internal
     TS_Client --> TS_Subnet
     TS_Subnet --> Envoy_Internal
 ```
 
 ### 内网记录归属
 
-内网 DNS 记录有两个来源，都落进路由器 dnsmasq 的同一张 hosts 表
+集群服务的记录不落进路由器，路由器只按域转发：
 
-- 集群内服务：HTTPRoute hostname 由集群里的 openwrt-dns（external-dns webhook）经 LuCI RPC 写成路由器 `/etc/config/dhcp` 的 `config cname`，dnsmasq 启动时展开到 `/tmp/hosts/dhcp.<cfg>`，再以 `--addn-hosts` 读入
-- 集群外服务（宿主机上的 minio、镜像代理等）：仓库 `router/dnsmasq-int.hosts` 声明，`task router:dns:diff` 比对、`task router:dns:sync` 下发到路由器 `/etc/dnsmasq.d/int.hosts`，通过 UCI `addnhosts` 注册。两个坑：`addnhosts` 是 list 语义，必须 `add_list`；被指向的路径要先存在，否则 `uci commit` 触发的 ucitrack 重载会让 dnsmasq 启动失败、整网解析中断
-- 同名不能同时出现在两处：dnsmasq 对重复名字会返回多个地址并按查询轮换，不报错也不提示
+- 主域与内部域：由集群里的 k8s-gateway 按当前 HTTPRoute/Service/Ingress 与 Gateway status 应答；主域下集群内没有的名称由 gateway 转发公网递归
+- 集群外自举服务（宿主机上的 minio、镜像代理等）：仓库 `router/dnsmasq/dnsmasq-int.hosts` 声明，`task router:dns:diff` 比对、`task router:dns:sync` 下发，由 `router/dnsmasq/conf.d/20-hosts.conf` 的 `addn-hosts` 引用
+- 分流规则以文件声明在 `router/dnsmasq/conf.d/`，下发后等于路由器 `/etc/dnsmasq.d` 的内容；规则不再通过 `uci set` / `add_list` 逐条修改
+- 本地 hosts 与自举记录优先于转发规则：名字在本机有答案时不会去问上游
+- 同名不要同时出现在两处：dnsmasq 对重复名字会返回多个地址并按查询轮换，不报错也不提示
 
 查现网实际生效的记录
 
 ```bash
-ssh <ROUTER> "uci show dhcp | grep -E '=domain|=cname'"
-ssh <ROUTER> "cat /tmp/hosts/dhcp.*"
-ssh <ROUTER> "cat /etc/dnsmasq.d/int.hosts"
+task router:dns:diff                          # 仓库声明与路由器现状的差异
+ssh <ROUTER> "cat /etc/dnsmasq.d/*.conf"      # 路由器实际读到的分流规则
+ssh <ROUTER> "cat /etc/dnsmasq-hosts/int.hosts"
+ssh <ROUTER> "uci show dhcp | grep -E '=domain|=cname'"   # 迁移期残留的旧式记录
 ```
 
-内网入口迁入独立子域的分层决策见 [内网域决策](./adr/0002-internal-domain-static-client-dns.md)
+内网入口迁入独立子域的分层决策见 [内网域决策](./adr/0002-internal-domain-static-client-dns.md)，单一后端与声明式下发的决策见 [内网 DNS 后端](./adr/0003-internal-dns-via-gateway.md)
 
 ### 入口一览
 
@@ -281,7 +284,7 @@ ssh <ROUTER> "cat /etc/dnsmasq.d/int.hosts"
 |---|------|------|--------|------|------|
 | 1 | VPS Caddy (v4) | 公网 | A `*` → VPS → Tailscale | envoy-external | ✅ 活跃 |
 | 2 | caddy-external (v6) | 公网 | AAAA `*` → 集群 v6 | envoy-external | ✅ 活跃 |
-| 3 | envoy-internal | 内网 | 客户端 DNS → 旁路由 daed → 主路由 DNS (openwrt-dns 同步) → LB | envoy-internal | ✅ 活跃 |
+| 3 | envoy-internal | 内网 | 客户端 DNS → 旁路由 daed → 主路由 DNS → k8s-gateway → LB | envoy-internal | ✅ 活跃 |
 | 4 | Tailscale | 内网 | 直连 → subnet router | 集群服务 | ✅ 活跃 |
 | ~5~ | Cloudflare Tunnel | 无 | 无 | 无 | ❌ 已停用 |
 | ~6~ | NetBird | 无 | 无 | 无 | ❌ 已停用 |
