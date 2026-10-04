@@ -16,12 +16,10 @@ daed 需要内核开启 CONFIG_DEBUG_INFO_BTF 才能加载 eBPF 程序。ophub �
 | 6.12 | 无 BTF | **有 BTF** |
 | 6.18 | 无 BTF | **有 BTF** |
 
-当前构建设置：`kernel_usage: flippy` + `openwrt_kernel: 6.6.y`，6.6 内核没有 BTF。
-
-**决策记录**：改为 `kernel_usage: stable` + `openwrt_kernel: 6.12.y`。
+**决策记录**：构建改为 `kernel_usage: stable` + `openwrt_kernel: 6.12.y`。
 原因：stable 6.12 是唯一原生支持 BTF 的内核，daed 需要 BTF 才能工作。风险是 6.12 在 HK1 Box 上未充分测试，如果遇到兼容性问题再考虑回退或自编译内核。
 
-Workflow 已新增 `kernel_usage` 输入选项，可以在 UI 上选择 flippy 或 stable。
+Workflow 有 `kernel_usage` 输入选项，可以在 UI 上选择 flippy 或 stable。
 
 ## daed 与 Hysteria2 obfs 兼容性
 
@@ -34,14 +32,7 @@ obfs-password=...
 
 会表现为节点超时，而不是参数报错。
 
-已验证现象：
-
-```text
-节点测试错误：Head "http://cp.cloudflare.com": connect error: timeout: no recent network activity
-发往 hy2 服务器 UDP 包：有
-来自 hy2 服务器 UDP 回包：少量
-结果：QUIC/Hysteria2 握手未建立
-```
+判据是 UDP 有发无回，QUIC 握手始终不建立。
 
 源码证据：`daeuniverse/outbound` 的 `dialer/hysteria2/hysteria2.go` 标注 `TODO: support salamander obfuscation`，解析函数只处理 `insecure`、`sni`、`pinSHA256`、`ca`、`maxTx`、`maxRx`，不处理 `obfs` / `obfs-password`。
 
@@ -73,7 +64,7 @@ Client → 8.8.8.8:53 → TVBox dnsmasq → dnsmasq 上游
 Client → 8.8.8.8:53 → daed DNS routing
 ```
 
-实测表现：`dig @8.8.8.8 cli-proxy-api.<MAIN_DOMAIN>` 返回 Cloudflare 的 `NXDOMAIN`，`www.google.com` 解析到污染 IP（如 `69.171.235.22` / `104.244.42.197` / `2001::1`），curl 连接超时。
+表现为内网域名解析不到，境外域名拿到污染结果，curl 连接超时。
 
 修复：关闭 dnsmasq 的 DNS 重定向，重启防火墙后重启 daed，让 eBPF 重新挂载。
 
