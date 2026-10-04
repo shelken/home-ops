@@ -8,8 +8,7 @@
 # 那边加一个站点，这里加一行。域名在本层是字面量（无 Flux 注入，同
 # ansible/playbooks/resource/registries.yaml）。
 #
-# 生效：下发到路由器 /etc/dnsmasq-hosts/int.hosts，由 conf.d/20-hosts.conf 的 addn-hosts 引用
-# （bootstrap 之前它在 /etc/dnsmasq.d 下，见 task router:dns:bootstrap）。
+# 生效：下发到路由器 /etc/dnsmasq-home-ops.d/int.hosts，由同目录的配置加载。
 # 下发：task router:dns:diff 比对，task router:dns:sync 落地。
 
 192.168.6.144 minio-ui.int.ooooo.space

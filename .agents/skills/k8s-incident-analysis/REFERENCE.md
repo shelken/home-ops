@@ -343,15 +343,19 @@ ssh <ROUTER_HOST> 'logread | grep -Ei "BEACON-LOSS|wpa_supplicant|dnsmasq" | tai
 ```bash
 ssh <ROUTER_HOST> 'netstat -lntup 2>/dev/null | grep -E ":53 "'
 ssh <ROUTER_HOST> 'uci show dhcp | grep -E "=server|confdir|addnhosts"'
+ssh <ROUTER_HOST> 'grep -A2 -B1 "BEGIN home-ops dnsmasq" /etc/dnsmasq.conf'
+ssh <ROUTER_HOST> 'ls -la /etc/dnsmasq-home-ops.d; cat /etc/dnsmasq-home-ops.d/*'
 ```
 
 判定经验：
 
 - 谁在听 53：应该只有 dnsmasq，出现别的监听者就是配置漂移
-- 集群不可用时，首次查询要等上游超时，之后靠 `strict-order` 回落公网
-- 自举记录（`/etc/dnsmasq-hosts/int.hosts`）不依赖集群，集群挂了它也仍应能解析
+- UCI `confdir` 应保持未设置；`/etc/dnsmasq.conf` 的接入点额外加载专用目录
+- LuCI/UCI 和手工配置应保留；home-ops 只完整管理 `/etc/dnsmasq-home-ops.d`
+- k8s-gateway 不可用时，集群服务名称无法解析
+- 专用目录中的 `int.hosts` 不依赖集群，集群挂了仍应能解析
 
-分流规则与自举记录见 `docs/router/dns.md`；后端选择的权衡见 `docs/adr/0003-internal-dns-via-gateway.md`。
+分流规则与自举记录见 `docs/router/dns.md`；后端与所有权决策见 `docs/adr/0003-internal-dns-via-gateway.md`。
 
 ### 7.5 Wi‑Fi 中继 / WWAN 的判定经验
 

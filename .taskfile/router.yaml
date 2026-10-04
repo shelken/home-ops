@@ -8,11 +8,8 @@ vars:
       ansible-inventory -i {{.ROOT_DIR}}/ansible/inventory/others.ini --host router-mine \
         | jq -re '.ansible_user + "@" + .ansible_host'
   BIRD_CONF: "{{.ROOT_DIR}}/router/bird/mine.conf"
-  # 路由器上的落地路径只在这里声明一次；脚本按 env 消费，不再各留一份
-  DNS_CONF_DIR: "/etc/dnsmasq.d"
-  DNS_HOSTS_DST: "/etc/dnsmasq-hosts/int.hosts"
-  # gateway 不可用时的顺序回落；gateway 自己的公网递归走 DoT
-  DNS_FALLBACK: "223.5.5.5"
+  # home-ops 完整管理独立的 dnsmasq 配置目录
+  DNS_MANAGED_CONF_DIR: "/etc/dnsmasq-home-ops.d"
 
 tasks:
   bgp:diff:
@@ -64,47 +61,16 @@ tasks:
 
   dns:diff:
     silent: true
-    desc: "对比路由器 dnsmasq 声明（conf 目录与自举 hosts）与仓库版本"
+    desc: "对比 home-ops 独占的 dnsmasq 配置目录"
     cmds:
       - task: _dns:declare
         vars: {action: diff}
 
-  dns:bootstrap:
-    desc: "一次性把 dnsmasq 切到仓库声明的 confdir（含清掉旧式 UCI hosts 与 allservers）"
-    prompt: 把 dnsmasq 切到 {{ .DNS_CONF_DIR }} 并重启？
-    cmd: |
-      set -euo pipefail
-      ssh -n -o BatchMode=yes -o ConnectTimeout=5 {{ .ROUTER_SSH }} '
-        set -e
-
-        # confdir 必须是纯配置文件目录：hosts 文件留在里面会被当配置解析，dnsmasq 起不来、整网断解析
-        if [ -f {{ .DNS_CONF_DIR }}/int.hosts ]; then
-          mkdir -p "$(dirname {{ .DNS_HOSTS_DST }})"
-          mv {{ .DNS_CONF_DIR }}/int.hosts {{ .DNS_HOSTS_DST }}
-          echo "旧 hosts 已移出 confdir：{{ .DNS_CONF_DIR }}/int.hosts -> {{ .DNS_HOSTS_DST }}"
-        fi
-        mkdir -p {{ .DNS_CONF_DIR }}
-
-        # 旧 addnhosts 指向 confdir 内，与 20-hosts.conf 的 addn-hosts 指向同一批名字，重复注册会产生多个地址
-        uci -q delete_list dhcp.@dnsmasq[0].addnhosts || uci -q delete dhcp.@dnsmasq[0].addnhosts || true
-
-        # allservers 让所有上游同时被问，与声明里的 strict-order 相冲：公网答案会和内网答案竞速
-        uci -q delete dhcp.@dnsmasq[0].allservers || true
-
-        uci set dhcp.@dnsmasq[0].confdir={{ .DNS_CONF_DIR }}
-        uci commit dhcp
-        /etc/init.d/dnsmasq restart
-
-        pidof dnsmasq >/dev/null || { echo "dnsmasq 没起来：检查 {{ .DNS_CONF_DIR }} 里是否混入了非配置文件"; exit 1; }
-        nslookup openwrt.org 127.0.0.1 >/dev/null 2>&1 || { echo "本机解析失败：先看 logread | grep dnsmasq，不要继续"; exit 1; }
-        echo "dnsmasq 已切到 {{ .DNS_CONF_DIR }}；下一步 task router:dns:sync 下发声明"
-      '
-
   dns:sync:
-    desc: "下发 dnsmasq 声明到路由器（先展示差异，确认后落地并重载）"
+    desc: "同步 home-ops 的 dnsmasq 配置（先展示差异，确认后校验并重启）"
     # deps 先于 prompt 执行：确认发生在看到差异之后
     deps: [dns:diff]
-    prompt: 将仓库声明下发到路由器并重载 dnsmasq？
+    prompt: 将 home-ops 配置下发到路由器并重启 dnsmasq？
     cmds:
       - task: _dns:declare
         vars: {action: sync}
@@ -129,12 +95,10 @@ tasks:
           {{.ROOT_DIR}}/k8s/infra/common/network/internal/k8s-gateway/app/helmrelease.yaml
     env:
       ROUTER_SSH: "{{.ROUTER_SSH}}"
-      DNS_CONF_DIR: "{{.DNS_CONF_DIR}}"
-      DNS_HOSTS_DST: "{{.DNS_HOSTS_DST}}"
+      DNS_MANAGED_CONF_DIR: "{{.DNS_MANAGED_CONF_DIR}}"
       MAIN_DOMAIN: "{{.MAIN_DOMAIN}}"
       INTERNAL_DOMAIN: "{{.INTERNAL_DOMAIN}}"
       DNS_GATEWAY: "{{.DNS_GATEWAY}}"
-      DNS_FALLBACK: "{{.DNS_FALLBACK}}"
     cmd: python3 router/dnsmasq/declare.py {{.action}}
 
   run:

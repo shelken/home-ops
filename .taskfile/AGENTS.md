@@ -20,6 +20,15 @@
 - **整集群下电 ≠ 撤节点**：不 drain/cordon（会撞 Longhorn/CNPG 等 PDB）。drain 只用于「集群继续跑、只撤一台」
 - **集群启停走 Ansible**：`playbooks/cluster-stop.yml` / `cluster-start.yml`（unit 名 `k3s.service`，与 xanmanning.k3s 一致）；`task cluster:*` 只做薄封装。库存需同时 `-i hosts.ini -i others.ini`
 - **对外暴露最小化**：`task --list` 只展示会直接执行的入口；仅被其他 task 组合调用的子步骤、纯调试/极少手跑的工具一律 `internal: true`（仍可被依赖调用，也可显式 `task ns:name` 跑）。示例：`cluster` 只暴露 start/stop/status
+- **领域内聚**：同一领域的声明、模板、静态数据和专用脚本放在同一功能目录；远端配置优先落入同一专用目录，目标系统要求固定路径时除外
+
+## Router 声明式任务
+
+- `task router:<功能>:sync` 是默认入口，用户无需先执行 `diff`
+- 每个声明式 router 功能必须提供可独立调用且严格只读的 `<功能>:diff`，`sync` 与 `diff` 必须复用同一份期望状态和所有权范围
+- `sync` 必须先调用 `diff`，完整展示差异后再确认，确认前禁止写入远端
+- 确认后的固定顺序为：校验、下发、reload/restart、最小运行验证，确认提示必须说明目标和服务影响
+- 可重复的首次初始化与迁移必须并入 `sync`，只有无法幂等执行且生命周期独立的操作才能使用单独命令，并在功能文档中说明原因
 
 ## 数据与分组（写 task 时）
 
@@ -35,3 +44,4 @@
 - [ ] stop/start 是否互逆、是否对已是目标状态幂等？
 - [ ] 是否用了最小实现，而不是提前抽象？
 - [ ] 子步骤 / 调试 task 是否已 `internal: true`，`--list` 是否只剩入口？
+- [ ] router 声明式任务只需运行 `sync`，并按 diff → 确认 → 校验 → 下发 → reload/restart → 验证执行

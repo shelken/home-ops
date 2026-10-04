@@ -18,7 +18,7 @@
 | [VLAN 配置](./vlan.md) | VLAN 网络划分，包括主网 (VLAN 6) 和 IoT 网 (VLAN 50) |
 | [mDNS 配置](./mdns.md) | Avahi mDNS 反射，实现跨 VLAN 服务发现 |
 | [BGP 配置](./bgp.md) | BIRD BGP 路由，实现跨地域 Pod 网络互通 |
-| [DNS 配置](./dns.md) | dnsmasq 声明式下发、主域与内部域分流、集群外自举记录 |
+| [DNS 配置](./dns.md) | dnsmasq 与 LuCI/UCI 共存、集群域分流、集群外自举记录 |
 
 ## 网络架构概览
 
@@ -66,17 +66,18 @@ ip route | grep 10.42
 路由器配置存放在仓库顶层 `router/`，由 `.taskfile/router.yaml` 下发：
 
 ```bash
-task router:bgp:diff   # 对比路由器运行配置与仓库版本
-task router:bgp:sync   # 展示差异 → 确认 → 校验 → 热加载
-task router:dns:diff   # 对比路由器 dnsmasq 声明与仓库版本
-task router:dns:sync   # 展示差异 → 确认 → 落地 → 重载 dnsmasq
-task router:dns:bootstrap  # 一次性：把 dnsmasq 的 confdir 指向持久目录
+task router:bgp:sync   # 默认入口：展示差异 → 确认 → 校验 → 整体替换 → 热加载
+task router:dns:sync   # 默认入口：展示差异 → 确认 → 校验 → 下发 → 重启 dnsmasq
+task router:bgp:diff   # 可选：只读检查整个 /etc/bird.conf
+task router:dns:diff   # 可选：只读检查 home-ops 专用目录
 ```
 
-`router/dnsmasq/conf.d/` 是路由器 `/etc/dnsmasq.d` 的声明：`10-upstream.conf` 决定主域与内部域交给谁，
-`20-hosts.conf` 引用集群外自举记录 `router/dnsmasq/dnsmasq-int.hosts`。规则不再用 `uci set` / `add_list` 逐条修改；
-`confdir` 是唯一的一次性引导，执行一次 `task router:dns:bootstrap` 之后，后续变更都只是文件与重载。
-具体机制、验证与故障表现见 [DNS 配置](./dns.md)。
+日常只运行对应的 `sync`；它会先自动执行同一功能的只读 `diff`，完整展示差异，再确认和
+生效。独立 `diff` 只用于排障、审阅和自动检查。
+
+BIRD 完全由 home-ops 管理，`bgp:sync` 整体同步 `/etc/bird.conf`。dnsmasq 保留 LuCI、UCI
+和基础配置的手工管理，home-ops 持续同步只完整管理 `/etc/dnsmasq-home-ops.d`。具体机制
+与验证方式见 [DNS 配置](./dns.md)。
 
 ## 相关文档
 
