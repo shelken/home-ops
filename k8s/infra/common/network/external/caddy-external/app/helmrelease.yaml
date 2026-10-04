@@ -171,7 +171,7 @@ spec:
               DOMAINS: homelab-dynamic.${MAIN_DOMAIN}
               PROXIED: "false"
               IP4_PROVIDER: "none"
-              UPDATE_CRON: "@every 15s"
+              UPDATE_CRON: "@every 1m"
               UPDATE_ON_START: true
               QUIET: true
               IP6_PROVIDER: "url:http://localhost:8888"
