@@ -48,7 +48,7 @@ hysteria2://密码@域名:端口/?sni=域名&insecure=1#hy2-no-obfs
 
 ### dnsmasq DNS 重定向会绕开 daed DNS
 
-主路由侧只下发 option 3（`<TVBOX_IP>`）与 option 121 classless route，没有 option 6；读当前值用 `uci show dhcp`。客户端因此把主路由自身当作 DNS，该地址与客户端同网段，查询经二层直达主路由，不经过 TVBox，也就不会命中 daed 的 `dport(53) -> direct`。
+主路由的 `lan` 网络只下发 option 3（`<TVBOX_IP>`）与 option 121 classless route，没有 option 6；读当前值用 `uci show dhcp`。客户端因此把主路由自身当作 DNS，该地址与客户端同网段，查询经二层直达主路由，不经过 TVBox，也就不会命中 daed 的 `dport(53) -> direct`。
 
 要让客户端 DNS 进入 dae DNS 模块，得由客户端显式指定一个非同网段的外部 DNS 地址（例如 `8.8.8.8`），该地址才会走默认网关送到 TVBox。
 
@@ -115,7 +115,7 @@ l4proto(udp) && !dport(53) -> direct
 
 ### 白名单外的主机整机不进入 daed
 
-daed 运行配置的第一条路由规则是 `!mac(...) && !sip(...) -> must_direct`。不在白名单内的主机，全部流量在 eBPF 层被标记为 `must_direct`，既不进入 dae 的路由规则，也不进入 dae DNS 模块。
+daed 的客户端白名单规则是 `!mac(...) && !sip(...) -> must_direct`。不在白名单内的主机，全部流量在 eBPF 层被标记为 `must_direct`，既不进入 dae 的路由规则，也不进入 dae DNS 模块。
 
 验证方式：非白名单主机经本机代理访问境外站点，同一时间窗内 daed 日志对该主机零记录，白名单主机的同类请求记为 `outbound=proxy`。
 
