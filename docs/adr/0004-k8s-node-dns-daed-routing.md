@@ -10,7 +10,7 @@ daed 是基于 eBPF 的透明代理，分流规则（如 `domain(geosite:github)
 
 ~~daed 无法感知该域名，随后发往目标 IP 的 HTTPS 流量被当作未知公网 IP 直连送往 F50 出口，触发 GFW SNI 阻断~~
 
-后一句的因果已被实测推翻，保留备查。当前 daed 运行配置的第一条路由规则是 `!mac(...) && !sip(...) -> must_direct`，白名单外的主机整机不进入 daed，在 eBPF 层直连出网；白名单内的主机即使未被嗅探到域名，未嗅探的境外 TCP 仍按 `fallback: proxy` 走代理。断流发生在白名单排除这一层，与是否嗅探到域名无关。实测细节见 [23-daed-on-tvbox.md](../23-daed-on-tvbox.md) 的白名单小节。
+后一句的因果已被实测推翻，保留备查：断流发生在 daed 的客户端白名单排除这一层，与是否嗅探到域名无关。归因与实测见 [23-daed-on-tvbox.md](../23-daed-on-tvbox.md) 的白名单小节。
 
 ### 2. 不能在主路由全局 DHCP 增加 Option 6
 daed 配置了严格的客户端白名单（`!mac(...) && !sip(...) -> must_direct`）。

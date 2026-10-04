@@ -70,7 +70,7 @@ description: Kubernetes 事故取证流程。Use when 服务离线但没告警�
 - 先确认可见窗口：最早/最晚 event、`--audit-log-maxsize`、`--audit-log-maxbackup`、目录中实际文件数。
 - `Metadata` 级别没有 request body；“apply”只能用 `verb=patch`、`fieldManager=kubectl/kubectl-client-side-apply`、`dryRun=All` 近似判定。
 - 查 live 残留时，用 `kubectl.kubernetes.io/last-applied-configuration` 找当前对象，但这只能说明对象曾被 apply，不等于 24 小时内 apply。
-- 统计噪声时按 user、userAgent、verb、resource 排名；controller 高频写操作通常来自 Events、SAR/TokenReview、Longhorn/Flux/KEDA/VolSync 等。
+- 统计噪声时按 user、userAgent、verb、resource 排名；controller 高频写操作通常来自 Events、SAR/TokenReview、Longhorn/Flux/KEDA/kopiur 等。
 
 完成标准：明确 audit 可见窗口、人工 kubectl 写操作数量、疑似 apply 对象、当前残留对象，以及哪些事件因轮转已不可查。
 

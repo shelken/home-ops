@@ -57,7 +57,7 @@ Kopia 策略采用层级继承机制：
 
 **问题**：仓库配置需要落在 Kopia 读取的固定路径上
 
-**修正**：由 compose `configs:` 挂载到 `/config/repository.config`，环境变量 `KOPIA_CONFIG_PATH` 指向该路径；`entrypoint.sh` 只做仓库连通性检查、policy/webhook 对账与启动 server，不复制配置文件
+**修正**：由 compose `configs:` 挂载到 `/config/repository.config`，`entrypoint.sh` 不复制配置文件（见 `docker-compose.yml` 的 `configs` 段与 `entrypoint.sh`）
 
 ### 2. Kopia Server 需要 --insecure 标志
 
@@ -81,11 +81,7 @@ exec kopia server start --insecure --address=0.0.0.0:51515 ...
 
 **问题**：两台机器使用不同的 Azure Key Vault secret，但需要相同的仓库密码
 
-**修正**：两台机器各自的 `.env.tpl` 引用本机命名空间下的同名 secret，取值由 Key Vault 侧保持一致
-```
-sakamoto: KOPIA_REPO_PASSWORD=azure://shelken-homelab/compose-sakamoto/KOPIA_REPO_PASSWORD
-vps:      KOPIA_REPO_PASSWORD=azure://shelken-homelab/compose-vps/KOPIA_REPO_PASSWORD
-```
+**修正**：两台机器各自的 `.env.tpl` 引用本机命名空间下的同名 secret，取值在 Key Vault 侧保持一致（见 `compose/sakamoto/.env.tpl` 与 `compose/vps/.env.tpl`）
 
 ### 5. 符号链接同步问题
 
