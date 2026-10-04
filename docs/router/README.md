@@ -69,17 +69,15 @@ ip route | grep 10.42
 task router:bgp:sync   # 默认入口：展示差异 → 确认 → 校验 → 整体替换 → 热加载
 task router:dns:sync   # 默认入口：展示差异 → 确认 → 校验 → 下发 → 重启 dnsmasq
 task router:bgp:diff   # 可选：只读检查整个 /etc/bird.conf
-task router:dns:diff   # 可选：只读检查 include、专用 conf-dir 与自举 hosts
+task router:dns:diff   # 可选：只读检查 home-ops 专用目录
 ```
 
 日常只运行对应的 `sync`；它会先自动执行同一功能的只读 `diff`，完整展示差异，再确认和
-生效。可重复的首次初始化并入 `sync`，不另设 bootstrap。独立 `diff` 只用于排障、审阅
-和自动检查。
+生效。独立 `diff` 只用于排障、审阅和自动检查。
 
-BIRD 完全由 home-ops 管理，`bgp:sync` 整体同步 `/etc/bird.conf`。dnsmasq 保留 LuCI 与 UCI
-手工管理，home-ops 只维护 `/etc/dnsmasq.conf` 中带标记的 include、
-`/etc/dnsmasq-home-ops.d` 和 `/etc/dnsmasq.d/int.hosts`。具体机制与验证方式见
-[DNS 配置](./dns.md)。
+BIRD 完全由 home-ops 管理，`bgp:sync` 整体同步 `/etc/bird.conf`。dnsmasq 保留 LuCI、UCI
+和基础配置的手工管理，home-ops 持续同步只完整管理 `/etc/dnsmasq-home-ops.d`。具体机制
+与验证方式见 [DNS 配置](./dns.md)。
 
 ## 相关文档
 

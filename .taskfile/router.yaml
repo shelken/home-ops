@@ -8,10 +8,8 @@ vars:
       ansible-inventory -i {{.ROOT_DIR}}/ansible/inventory/others.ini --host router-mine \
         | jq -re '.ansible_user + "@" + .ansible_host'
   BIRD_CONF: "{{.ROOT_DIR}}/router/bird/mine.conf"
-  # dnsmasq 与 LuCI/UCI 共享主配置，home-ops 只接管专用目录和自己的 hosts 文件
-  DNS_BASE_CONF: "/etc/dnsmasq.conf"
+  # home-ops 完整管理独立的 dnsmasq 配置目录
   DNS_MANAGED_CONF_DIR: "/etc/dnsmasq-home-ops.d"
-  DNS_HOSTS_DST: "/etc/dnsmasq.d/int.hosts"
 
 tasks:
   bgp:diff:
@@ -63,7 +61,7 @@ tasks:
 
   dns:diff:
     silent: true
-    desc: "对比 home-ops 的 dnsmasq 专用目录、include 与自举 hosts"
+    desc: "对比 home-ops 独占的 dnsmasq 配置目录"
     cmds:
       - task: _dns:declare
         vars: {action: diff}
@@ -97,9 +95,7 @@ tasks:
           {{.ROOT_DIR}}/k8s/infra/common/network/internal/k8s-gateway/app/helmrelease.yaml
     env:
       ROUTER_SSH: "{{.ROUTER_SSH}}"
-      DNS_BASE_CONF: "{{.DNS_BASE_CONF}}"
       DNS_MANAGED_CONF_DIR: "{{.DNS_MANAGED_CONF_DIR}}"
-      DNS_HOSTS_DST: "{{.DNS_HOSTS_DST}}"
       MAIN_DOMAIN: "{{.MAIN_DOMAIN}}"
       INTERNAL_DOMAIN: "{{.INTERNAL_DOMAIN}}"
       DNS_GATEWAY: "{{.DNS_GATEWAY}}"

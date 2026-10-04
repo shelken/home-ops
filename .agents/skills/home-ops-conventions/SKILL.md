@@ -37,12 +37,12 @@ router/
 ├── bird/                  # 完全所有权：整体下发 /etc/bird.conf
 │   ├── home.conf
 │   └── mine.conf
-└── dnsmasq/               # 共享所有权：task router:dns:*
-    ├── conf.d/            # 独占下发到 /etc/dnsmasq-home-ops.d
-    ├── dnsmasq-int.hosts  # 下发到 /etc/dnsmasq.d/int.hosts
-    └── declare.py         # 只服务本功能的脚本放这里，不放 scripts/
+└── dnsmasq/               # 共享 dnsmasq，持续下发只管理专用目录
+    ├── conf.d/            # 配置声明
+    ├── dnsmasq-int.hosts  # hosts 数据
+    └── declare.py         # 整体下发到 /etc/dnsmasq-home-ops.d
 ```
 
-- 先界定远端所有权：独占文件或目录才能整体替换；共享配置只修改命名标记块，并将声明放入独占的附加目录
+- 先界定远端所有权：独占文件或目录才能整体替换；共享配置不得整体接管，持续声明集中到独占的附加目录
 - 只服务某一个功能的脚本、模板、数据，与它服务的声明同目录；跨功能复用的才进 `scripts/`
 - 远端路径只在 taskfile 里定义一次；声明目录必须明确对应的远端所有权范围

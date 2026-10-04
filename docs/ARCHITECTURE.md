@@ -261,10 +261,10 @@ graph LR
 
 - **集群内权威**：`k8s-gateway` 根据 HTTPRoute、Service 与 Ingress 动态应答
 - **主域未命中记录**：由 `k8s-gateway` 转发到公网递归
-- **集群外自举**：仓库中的 `router/dnsmasq/dnsmasq-int.hosts` 下发到
-  `/etc/dnsmasq.d/int.hosts`，由现有 UCI `addnhosts` 加载
-- **路由器分流**：`router/dnsmasq/conf.d/` 渲染到 home-ops 独占的
-  `/etc/dnsmasq-home-ops.d`；`/etc/dnsmasq.conf` 中的标记块追加该 conf-dir
+- **集群外自举**：`router/dnsmasq/dnsmasq-int.hosts` 下发到 home-ops 专用目录，
+  由同目录的 `20-hosts.conf` 加载
+- **路由器分流**：`router/dnsmasq/conf.d/` 与自举 hosts 统一下发到
+  `/etc/dnsmasq-home-ops.d`，`/etc/dnsmasq.conf` 中的机器级接入点加载该目录
 - **OpenWrt 所有权**：UCI `confdir` 保持未设置，默认临时目录及 LuCI/UCI 手工配置继续生效
 
 检查方式：
@@ -272,9 +272,8 @@ graph LR
 ```bash
 task router:dns:diff
 ssh <ROUTER> 'cat /etc/dnsmasq.conf'
-ssh <ROUTER> 'cat /etc/dnsmasq-home-ops.d/*.conf'
-ssh <ROUTER> 'uci -q get dhcp.@dnsmasq[0].addnhosts'
-ssh <ROUTER> 'cat /etc/dnsmasq.d/int.hosts'
+ssh <ROUTER> 'ls -la /etc/dnsmasq-home-ops.d'
+ssh <ROUTER> 'cat /etc/dnsmasq-home-ops.d/*'
 ```
 
 后端与所有权决策见 [ADR-0003：集群服务 DNS 由 k8s-gateway 动态应答](adr/0003-internal-dns-via-gateway.md)。
