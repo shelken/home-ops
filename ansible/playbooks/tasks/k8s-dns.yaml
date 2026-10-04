@@ -25,11 +25,13 @@
       # Ansible managed: DNS policy
       {% set is_primary = (item.path | basename) == ('10-netplan-' ~ ansible_facts.default_ipv4.interface ~ '.network') %}
       [Network]
+      {% if is_primary %}
+      DNS=1.1.1.1 8.8.8.8
+      {% endif %}
       DNSDefaultRoute={{ 'true' if is_primary else 'false' }}
 
       [DHCPv4]
-      UseDNS={{ 'true' if is_primary else 'false' }}
-
+      UseDNS=false
       [DHCPv6]
       UseDNS=false
 
