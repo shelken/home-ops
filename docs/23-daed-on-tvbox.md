@@ -57,7 +57,7 @@ hysteria2://密码@域名:端口/?sni=域名&insecure=1#hy2-no-obfs
 
 ### dnsmasq DNS 重定向会绕开 daed DNS
 
-当前下发状态：主路由 DHCP 只配置了 option 3（`<TVBOX_IP>`）与 option 121 classless route，没有 option 6。客户端因此把主路由自身当作 DNS，该地址与客户端同网段，查询经二层直达主路由，不经过 TVBox，也就不会命中 daed 的 `dport(53) -> direct`。
+主路由侧只下发 option 3（`<TVBOX_IP>`）与 option 121 classless route，没有 option 6；读当前值用 `uci show dhcp`。客户端因此把主路由自身当作 DNS，该地址与客户端同网段，查询经二层直达主路由，不经过 TVBox，也就不会命中 daed 的 `dport(53) -> direct`。
 
 要让客户端 DNS 进入 dae DNS 模块，得由客户端显式指定一个非同网段的外部 DNS 地址（例如 `8.8.8.8`），该地址才会走默认网关送到 TVBox。
 
@@ -126,9 +126,14 @@ l4proto(udp) && !dport(53) -> direct
 
 daed 运行配置的第一条路由规则是 `!mac(...) && !sip(...) -> must_direct`。不在白名单内的主机，全部流量在 eBPF 层被标记为 `must_direct`，既不进入 dae 的路由规则，也不进入 dae DNS 模块。
 
-实测：非白名单主机经本机客户端代理访问境外站点返回 200，同一时间窗内 daed 日志对该主机零记录；同网段白名单主机的同类请求被记录为 `outbound=proxy`。
+验证方式：非白名单主机经本机代理访问境外站点，同一时间窗内 daed 日志对该主机零记录，白名单主机的同类请求记为 `outbound=proxy`。
 
-白名单外的主机一旦不在本机跑代理客户端，等于完全裸连。同样处于 `must_direct` 的 TVBox 本机实测：`baidu.com` 与 `github.com` 返回 200，`google.com` 与 `youtube.com` 12 秒超时。
+白名单外的主机不在本机跑代理客户端时完全裸连，国内站点可达。被墙站点一律超时：
+
+```sh
+curl -4 -I --connect-timeout 8 https://www.baidu.com
+curl -4 -I --connect-timeout 8 https://www.google.com
+```
 
 早期把这一现象归因于「客户端与主路由同网段，DNS 走二层直达，daed 嗅探不到域名」。该归因不成立：未嗅探到域名的外来 TCP 仍按 routing 末端的 fallback 走代理，真正短路的是白名单规则。
 
