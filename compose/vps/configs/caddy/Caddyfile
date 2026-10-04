@@ -60,6 +60,13 @@
     header_up Host {http.request.host}
     transport http {
       import {args[2]}
+
+      dial_timeout 10s
+      response_header_timeout 30s
+
+      keepalive 300s
+      keepalive_idle_conns 100
+      keepalive_interval 30s
     }
   }
 }
