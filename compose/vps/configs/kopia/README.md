@@ -11,7 +11,7 @@
 
 VPS 和 sakamoto 共享同一个 Kopia 仓库和策略配置：
 
-- **仓库密码**：VPS 引用 sakamoto 的 `KOPIA_REPO_PASSWORD`
+- **仓库密码**：两台机器各自引用本机命名空间下的 `KOPIA_REPO_PASSWORD`，取值在 Key Vault 侧保持一致
 - **策略文件**：通过符号链接共享，rsync 使用 `-L` 参数同步实际内容
 
 详细配置说明请参考：[sakamoto/kopia/README.md](../../../sakamoto/configs/kopia/README.md)
