@@ -120,6 +120,16 @@ l4proto(udp) && !dport(53) -> direct
 
 规则顺序很重要。`l4proto(udp) -> direct` 如果放在 `l4proto(udp) && dport(443) -> block` 前面，会让 QUIC block 永远不生效。
 
+### 客户端同网段直连主路由 DNS 会导致嗅探失效（白名单网络）
+
+若客户端与主路由同属一个二层网段，且客户端 DNS 指向主路由 `192.168.6.1`，其 DNS 查询走二层直接到达主路由，不经过旁路由网关。daed 无法感知该域名，随后发往目标 IP 的流量因缺乏域名映射被作为未知纯 IP 直连透传，触发 GFW SNI RST（如 GitHub 报 `SSL_ERROR_SYSCALL` / `EOF`）。
+
+注意防范以下误区：
+
+1. **不能在主路由全局 DHCP 下发 Option 6（如 8.8.8.8）**：daed 配有客户端白名单（`!mac(...) && !sip(...) -> must_direct`）。全局下发会导致非白名单普通设备（手机、电视、IoT）的 DNS 查询直连公网，不仅遭受 GFW 投毒污染，而且彻底失去 `.lan` 与 `*.int` 内网解析。
+2. **不能指定 223.5.5.5 作为触发 IP**：daed 规则中硬编码了 `dip(223.5.5.5) && dport(53) -> must_direct`，发往该地址的 DNS 请求会被跳过嗅探，直连拿到国内污染 IP。
+3. **K8s 节点由 Ansible 统一收口**：在 `ansible/playbooks/tasks/k8s-dns.yaml` 中将主网卡显式配置为 `DNS=1.1.1.1 8.8.8.8` 并禁用 `[DHCPv4] UseDNS`。内网域名由 daed 的 DNS 规则自动回弹主路由，境外域名由 daed 加密 DoH 嗅探代理。具体权衡见 [ADR-0004](adr/0004-k8s-node-dns-daed-routing.md)。
+
 ## daed DNS 上游建议
 
 当前更适合的结构：
