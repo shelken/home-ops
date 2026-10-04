@@ -57,7 +57,9 @@ hysteria2://密码@域名:端口/?sni=域名&insecure=1#hy2-no-obfs
 
 ### dnsmasq DNS 重定向会绕开 daed DNS
 
-当前采用的旁路由 DNS 模型：主路由 DHCP 下发 `gateway=<TVBOX_IP>`，DNS 下发外部地址（例如 `8.8.8.8`），让客户端 DNS 流量经过 TVBox 转发路径，由 daed 的 `dport(53) -> direct` 进入 dae DNS 模块。
+当前下发状态：主路由 DHCP 只配置了 option 3（`<TVBOX_IP>`）与 option 121 classless route，没有 option 6。客户端因此把主路由自身当作 DNS，该地址与客户端同网段，查询经二层直达主路由，不经过 TVBox，也就不会命中 daed 的 `dport(53) -> direct`。
+
+要让客户端 DNS 进入 dae DNS 模块，得由客户端显式指定一个非同网段的外部 DNS 地址（例如 `8.8.8.8`），该地址才会走默认网关送到 TVBox。
 
 如果 TVBox 上 `dhcp.@dnsmasq[0].dns_redirect='1'`，OpenWrt 会把客户端发往外部 DNS 的请求重定向到 TVBox 本机 dnsmasq。结果链路变成：
 
@@ -120,9 +122,15 @@ l4proto(udp) && !dport(53) -> direct
 
 规则顺序很重要。`l4proto(udp) -> direct` 如果放在 `l4proto(udp) && dport(443) -> block` 前面，会让 QUIC block 永远不生效。
 
-### 客户端同网段直连主路由 DNS 会导致嗅探失效（白名单网络）
+### 白名单外的主机整机不进入 daed
 
-若客户端与主路由同属一个二层网段，且客户端 DNS 指向主路由 `192.168.6.1`，其 DNS 查询走二层直接到达主路由，不经过旁路由网关。daed 无法感知该域名，随后发往目标 IP 的流量因缺乏域名映射被作为未知纯 IP 直连透传，触发 GFW SNI RST（如 GitHub 报 `SSL_ERROR_SYSCALL` / `EOF`）。
+daed 运行配置的第一条路由规则是 `!mac(...) && !sip(...) -> must_direct`。不在白名单内的主机，全部流量在 eBPF 层被标记为 `must_direct`，既不进入 dae 的路由规则，也不进入 dae DNS 模块。
+
+实测：非白名单主机经本机客户端代理访问境外站点返回 200，同一时间窗内 daed 日志对该主机零记录；同网段白名单主机的同类请求被记录为 `outbound=proxy`。
+
+白名单外的主机一旦不在本机跑代理客户端，等于完全裸连。同样处于 `must_direct` 的 TVBox 本机实测：`baidu.com` 与 `github.com` 返回 200，`google.com` 与 `youtube.com` 12 秒超时。
+
+早期把这一现象归因于「客户端与主路由同网段，DNS 走二层直达，daed 嗅探不到域名」。该归因不成立：未嗅探到域名的外来 TCP 仍按 `fallback: proxy` 走代理，真正短路的是白名单规则。
 
 注意防范以下误区：
 
