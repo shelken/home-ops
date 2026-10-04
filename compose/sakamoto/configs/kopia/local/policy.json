@@ -23,7 +23,9 @@
         "*.temp",
         "cache",
         "/Downloads",
-        "/Software/VM"
+        "/Software/VM",
+        ".minio.sys",
+        "kopia-backup"
       ]
     }
   },
@@ -48,6 +50,11 @@
     }
   },
   "shelken@sakamoto-local:/backup/sakamoto-data/k8s/storage": {
+    "scheduling": {
+      "cron": ["15 * * * *"]
+    }
+  },
+  "shelken@sakamoto-local:/backup/sakamoto-data/Devlopment/docker/data/minio": {
     "scheduling": {
       "cron": ["15 * * * *"]
     }

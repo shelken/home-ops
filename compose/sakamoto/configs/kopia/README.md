@@ -132,6 +132,7 @@ kopia snapshot list --all
 - `/backup/sakamoto-data/折腾` - 个人文件
 - `/backup/sakamoto-data/synogy-data` - 群晖数据
 - `/backup/sakamoto-data/k8s/storage` - K8s 应用数据
+- `/backup/sakamoto-data/Devlopment/docker/data/minio` - MinIO 对象存储数据
 
 **排除规则**：
 - `media/Downloads/qbittorrent` - 下载文件可重新下载
