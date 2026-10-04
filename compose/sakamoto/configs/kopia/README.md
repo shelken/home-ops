@@ -4,10 +4,12 @@
 
 本目录包含两个 Kopia 备份服务的配置：
 
-| 服务 | 仓库类型 | 备份源 | 目标 | 端口 | 调度 |
-|------|---------|--------|------|------|------|
-| kopia (云端) | S3 (OpenList) | compose, minio | 189 云盘 | 51515 | 1h/6h |
-| kopia-local (本地) | 文件系统 | sakamoto-data 用户数据 | BackUp3T | 51516 | 1h |
+| 服务 | 仓库类型 | 备份源 | 目标 | 端口 |
+|------|---------|--------|------|------|
+| kopia (云端) | S3 (OpenList) | compose, minio | 189 云盘 | 51515 |
+| kopia-local (本地) | 文件系统 | sakamoto-data 用户数据 | BackUp3T | 51516 |
+
+调度见 `policy.json` 与 `local/policy.json`，运行时用 `kopia policy list` 读。
 
 ## 文件结构
 
@@ -28,15 +30,17 @@ Kopia 策略采用层级继承机制：
 (global) → @hostname → user@hostname → user@hostname:/path
 ```
 
-### 当前配置结构
+### 策略覆盖结构
 
-| 策略目标 | 配置内容 | 说明 |
+| 策略目标 | 覆盖项 | 说明 |
 |---------|---------|------|
 | `@sakamoto` | retention, compression, files.ignore | sakamoto 主机级别 |
 | `@vps` | retention, compression, files.ignore | vps 主机级别 |
-| `shelken@sakamoto:/backup/compose` | scheduling: 1小时 | compose 备份调度 |
-| `shelken@sakamoto:/backup/minio` | scheduling: 6小时 | minio 备份调度 |
-| `shelken@vps:/backup/data` | scheduling: 4小时 | VPS 数据备份调度 |
+| `shelken@sakamoto:/backup/compose` | scheduling | compose 备份调度 |
+| `shelken@sakamoto:/backup/minio` | scheduling | minio 备份调度 |
+| `shelken@vps:/backup/data` | scheduling | VPS 数据备份调度 |
+
+调度间隔见 `policy.json`。
 
 ### 排除规则语法
 
