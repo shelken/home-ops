@@ -39,7 +39,7 @@ Homelab GitOps 仓库。Kubernetes 集群、基础设施组件、应用、外部
 - 网络：Cilium、Multus、Envoy Gateway、External-DNS
 - 密钥：SOPS、External Secrets、Azure KeyVault
 - 存储：Longhorn、CloudNativePG、SMB
-- 备份：Volsync、MinIO、Kopia
+- 备份：kopiur、MinIO、Kopia
 - 外部服务：`compose/sakamoto/`、`compose/vps/`
 
 完整架构见 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)。
