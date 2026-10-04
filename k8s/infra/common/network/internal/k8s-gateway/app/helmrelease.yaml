@@ -38,6 +38,8 @@ spec:
     ttl: 60
     fallthrough:
       enabled: true
+      zones:
+        - "${MAIN_DOMAIN}"
     extraZonePlugins:
       - name: log
       - name: errors
@@ -47,9 +49,6 @@ spec:
       - name: ready
       - name: prometheus
         parameters: 0.0.0.0:9153
-      # 内部域未匹配的名称交回主路由，供 VPS 链路解析集群外自举记录
-      - name: forward
-        parameters: "${INTERNAL_DOMAIN} ${ROUTER_IP}"
       # 公网递归走 DoT，绕开路由器上针对 53 端口的 DNS 重定向
       - name: forward
         parameters: ". tls://223.5.5.5"
