@@ -19,7 +19,7 @@
 - **互逆操作**：成对的 stop/start 必须按逆序成对实现；stop 多做的每一步，start 都要有对应恢复（如等 API / nodes Ready）
 - **整集群下电 ≠ 撤节点**：不 drain/cordon（会撞 Longhorn/CNPG 等 PDB）。drain 只用于「集群继续跑、只撤一台」
 - **集群启停走 Ansible**：`playbooks/cluster-stop.yml` / `cluster-start.yml`（unit 名 `k3s.service`，与 xanmanning.k3s 一致）；`task cluster:*` 只做薄封装。库存需同时 `-i hosts.ini -i others.ini`
-- **对外暴露最小化**：`task --list` 只展示会直接执行的入口；仅被其他 task 组合调用的子步骤、纯调试/极少手跑的工具一律 `internal: true`（仍可被依赖调用，也可显式 `task ns:name` 跑）。示例：`cluster` 只暴露 start/stop/status
+- **对外暴露最小化**：`task --list` 只展示会直接执行的入口；仅被其他 task 组合调用的子步骤、纯调试/极少手跑的工具一律 `internal: true`（仍可被依赖调用，也可显式 `task ns:name` 跑）。示例：`cluster` 只暴露 status/kubeconfig
 - **领域内聚**：同一领域的声明、模板、静态数据和专用脚本放在同一功能目录；远端配置优先落入同一专用目录，目标系统要求固定路径时除外
 
 ## Router 声明式任务

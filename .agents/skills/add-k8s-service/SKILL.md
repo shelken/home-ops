@@ -70,7 +70,7 @@ GitHub (main branch)
 k8s/clusters/staging/
   ├── repos.yaml  →  OCIRepository: app-template
   │
-  ├── infra.yml  (Flux Kustomization, wait: true)
+  ├── infra.yml  (Flux Kustomization, wait: false)
   │     │  patches: sops + subst → 全部子级
   │     ▼
   │   k8s/infra/staging/  (kustomize build)

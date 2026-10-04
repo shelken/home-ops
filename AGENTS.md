@@ -21,7 +21,7 @@ home-ops 是使用 Flux 管理 Kubernetes 集群与集群外服务的 GitOps 配
 - **密钥**: SOPS、External-Secrets、Azure Key Vault
 - **数据库与缓存**: CloudNative-PG、Dragonfly
 - **存储**: Longhorn、OpenEBS、SMB CSI
-- **备份**: VolSync 使用 Kopia，将备份写入集群外 MinIO
+- **备份**: kopiur（VolumeSnapshot + Kopia mover）将备份写入集群外 MinIO
 - **可观测性**: Prometheus、Grafana、Gatus、VictoriaLogs
 
 ### 重要目录索引
@@ -32,7 +32,7 @@ home-ops 是使用 Flux 管理 Kubernetes 集群与集群外服务的 GitOps 配
 - `k8s/apps/staging/`: staging 应用聚合入口
 - `k8s/infra/common/`: 网络、证书、密钥、数据库、存储、监控和安全等基础设施
 - `k8s/infra/staging/`: staging 当前启用的基础设施聚合入口
-- `k8s/components/`: VolSync、SOPS、认证和调度等可复用组件
+- `k8s/components/`: kopiur、SOPS、认证和调度等可复用组件
 
 **网络与集群外服务**
 - `k8s/infra/common/network/`: 内外 DNS、入口网关、Multus、证书、Tailscale 和网络自愈组件

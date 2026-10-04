@@ -278,7 +278,7 @@ kubectl -n network logs deploy/zte-mifi-healer --since=24h
 ### 7.1 一键快照
 
 ```bash
-scripts/router-network-snapshot.sh <ROUTER_HOST>
+.agents/skills/k8s-incident-analysis/scripts/router-network-snapshot.sh <ROUTER_HOST>
 ```
 
 可选环境变量：`WWAN_GW` `WAN_GW` `TEST_IP` `PROXY_DOMAIN` `DIRECT_DOMAIN` `UPSTREAM_DNS`。
@@ -294,7 +294,7 @@ scripts/router-network-snapshot.sh <ROUTER_HOST>
 
 ```bash
 # 先把同一时间窗的几段日志拿出来
-python3 scripts/monitoring-log-report.py \
+python3 .agents/skills/k8s-incident-analysis/scripts/monitoring-log-report.py \
   --hours 6 \
   --vl-endpoint <VL_ENDPOINT> \
   --vl-section 'name=gatus,namespace=observability,pod=gatus.*' \
@@ -302,7 +302,7 @@ python3 scripts/monitoring-log-report.py \
   --vl-section 'name=receiver,namespace=network,pod=zte-mifi-healer.*'
 
 # 再按自己需要过滤
-python3 scripts/monitoring-log-report.py \
+python3 .agents/skills/k8s-incident-analysis/scripts/monitoring-log-report.py \
   --hours 6 \
   --vl-endpoint <VL_ENDPOINT> \
   --vl-section 'name=gatus,namespace=observability,pod=gatus.*' \
@@ -310,7 +310,7 @@ python3 scripts/monitoring-log-report.py \
   | rg 'router-generate-204|success=false|f50'
 
 # 只看某一段入口也可以
-python3 scripts/monitoring-log-report.py \
+python3 .agents/skills/k8s-incident-analysis/scripts/monitoring-log-report.py \
   --hours 24 \
   --vl-endpoint <VL_ENDPOINT> \
   --skip-kubectl \
