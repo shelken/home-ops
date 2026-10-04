@@ -78,6 +78,7 @@ graph LR
     SAKAMOTO -->|"default gateway"| BYPASS
     CP -->|"default gateway"| BYPASS
     WORKER -->|"default gateway"| BYPASS
+    WORKER2 -->|"default gateway"| BYPASS
     Router <--> SAKAMOTO
     Router <--> YUUKO_HOST
     Router <--> PVE_NODE
@@ -99,6 +100,7 @@ graph LR
 | F50 ↔ 互联网 | WAN (移动数据) | F50 是主路由的互联网出口 |
 | 主路由 ↔ F50 | LAN | 主路由通过 F50 出网；F50 断线时 zte-mifi-healer 自动重连 |
 | 旁路由 ↔ 主路由 | LAN (VLAN 6) | 旁路由 (daed)；自身默认路由仍指向主路由 |
+| k3s 节点 / 宿主机 → 旁路由 | LAN (VLAN 6) | 默认网关指向 192.168.6.3 (daed)；节点主网卡 DNS 设为 1.1.1.1 触发 eBPF 嗅探分流 |
 | 宿主机 ↔ 主路由 | LAN (VLAN 6) | 192.168.6.0/24 |
 | PVE ↔ 主路由 | LAN (VLAN 6) | 192.168.6.0/24 |
 | Mac mini 宿主 ↔ 主路由 | LAN (VLAN 6) | 192.168.6.0/24，宿主有线桥接 |
@@ -167,7 +169,12 @@ VPS 本机 DNS:
   127.0.0.1 -> dnsmasq
                INTERNAL_DOMAIN 与 MAIN_DOMAIN -> k8s-gateway（更具体的内部域规则优先）
                其他域名 -> 公网 DNS（DoT）
-```
+
+K8s 节点本机 DNS (Ansible):
+  systemd-resolved -> 1.1.1.1 / 8.8.8.8 (经旁路由 daed 嗅探)
+                       ├── 境内域名 -> alidns (223.5.5.5) -> 直连
+                       ├── 境外域名 -> 海外 DoH -> 走代理
+                       └── 内网域名 (*.int 与 *.lan) -> 主路由 (192.168.6.1)
 
 ### 流量路径
 
@@ -261,6 +268,7 @@ graph LR
 
 - **集群内权威**：`k8s-gateway` 根据 HTTPRoute、Service 与 Ingress 动态应答
 - **主域未命中记录**：由 `k8s-gateway` 转发到公网递归
+- **内部域未命中记录**：由 `k8s-gateway` 直接在内存返回 NXDOMAIN/NODATA，不向外递归也不回踢路由器（消除转发死循环）
 - **集群外自举**：`router/dnsmasq/dnsmasq-int.hosts` 下发到 home-ops 专用目录，
   由同目录的 `20-hosts.conf` 加载
 - **路由器分流**：`router/dnsmasq/conf.d/` 与自举 hosts 统一下发到
@@ -277,7 +285,7 @@ ssh <ROUTER> 'cat /etc/dnsmasq-home-ops.d/*'
 ```
 
 后端与所有权决策见 [ADR-0003：集群服务 DNS 由 k8s-gateway 动态应答](adr/0003-internal-dns-via-gateway.md)。
-
+旁路由分流与节点 DNS 策略见 [ADR-0004：K8s 节点指定外部触发 DNS 由旁路由嗅探代理](adr/0004-k8s-node-dns-daed-routing.md)。
 ### 入口一览
 
 | # | 入口 | 协议 | DNS 链 | 终点 | 状态 |

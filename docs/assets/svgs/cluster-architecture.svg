@@ -285,7 +285,7 @@
         <rect width="157" height="54" rx="4" fill="#181926" stroke="#8aadf4" stroke-width="1" />
         <text x="10" y="17" font-size="10.5" font-weight="700" fill="#cad3f5">k8s-gateway</text>
         <text x="10" y="32" class="font-mono" font-size="9" fill="#8aadf4">LB 192.168.69.41 · :53</text>
-        <text x="10" y="46" font-size="9" fill="#b8c0e0">内网权威 DNS → LB IP</text>
+        <text x="10" y="46" font-size="9" fill="#b8c0e0">集群域权威 DNS (未命中阻断)</text>
       </g>
 
       <!-- envoy-internal -->
@@ -462,7 +462,7 @@
       <g transform="translate(10, 26)">
         <rect width="272" height="32" rx="3" fill="#1e2030" />
         <text x="8" y="15" font-size="9.5" font-weight="600" fill="#cad3f5">eBPF 透明分流 · 默认路由 → 主路由</text>
-        <text x="8" y="28" class="font-mono" font-size="9" fill="#b8c0e0">53 端口重定向 · 国内直连 / 国外代理</text>
+        <text x="8" y="28" class="font-mono" font-size="9" fill="#b8c0e0">53 端口嗅探分流 · 国内直连 / 国外代理</text>
       </g>
       <g transform="translate(10, 64)">
         <rect width="272" height="32" rx="3" fill="#1e2030" />
@@ -646,7 +646,7 @@
     <circle cx="604" cy="767" r="3" class="pin" stroke="#a6da95" />
     <circle cx="700" cy="767" r="3" class="pin" stroke="#a6da95" />
 
-    <!-- ⑯ 工作节点 → 旁路由（节点默认网关 = daed 旁路由，实测 default via 192.168.6.3） -->
+    <!-- ⑯ 3 节点 → 旁路由（默认网关 = daed 192.168.6.3 · DNS 1.1.1.1 嗅探） -->
     <path d="M 1020 330 L 1072 330" class="wire track" />
     <path d="M 1020 330 L 1072 330" class="wire beam" stroke="#f5bde6" pathLength="100" />
     <circle cx="1020" cy="330" r="3" class="pin" stroke="#f5bde6" />
