@@ -7,7 +7,7 @@
 | 服务 | 仓库类型 | 备份源 | 目标 | 端口 | 调度 |
 |------|---------|--------|------|------|------|
 | kopia (云端) | S3 (OpenList) | compose, minio | 189 云盘 | 51515 | 1h/6h |
-| kopia-local (本地) | 文件系统 | sakamoto-data 用户数据 | BackUp3T | 51516 | 12h |
+| kopia-local (本地) | 文件系统 | sakamoto-data 用户数据 | BackUp3T | 51516 | 1h |
 
 ## 文件结构
 
@@ -53,18 +53,11 @@ Kopia 策略采用层级继承机制：
 
 ## 遇到的问题和修正
 
-### 1. repository.config 只读挂载问题
+### 1. repository.config 的挂载方式
 
-**问题**：直接挂载 repository.config 为只读，Kopia 尝试修改时失败
+**问题**：仓库配置需要落在 Kopia 读取的固定路径上
 
-**修正**：在 entrypoint 中复制配置到可写位置
-```yaml
-entrypoint: ["/bin/sh", "-c"]
-command:
-  - |
-    cp /app/config/repository.config.tpl /app/repository.config
-    kopia repository connect from-config --file /app/repository.config ...
-```
+**修正**：由 compose `configs:` 挂载到 `/config/repository.config`，环境变量 `KOPIA_CONFIG_PATH` 指向该路径；`entrypoint.sh` 只做仓库连通性检查、policy/webhook 对账与启动 server，不复制配置文件
 
 ### 2. Kopia Server 需要 --insecure 标志
 
@@ -88,9 +81,10 @@ exec kopia server start --insecure --address=0.0.0.0:51515 ...
 
 **问题**：两台机器使用不同的 Azure Key Vault secret，但需要相同的仓库密码
 
-**修正**：VPS 的 .env.tpl 直接引用 sakamoto 的密码
+**修正**：两台机器各自的 `.env.tpl` 引用本机命名空间下的同名 secret，取值由 Key Vault 侧保持一致
 ```
-KOPIA_REPO_PASSWORD=azure://shelken-homelab/compose-sakamoto/KOPIA_REPO_PASSWORD
+sakamoto: KOPIA_REPO_PASSWORD=azure://shelken-homelab/compose-sakamoto/KOPIA_REPO_PASSWORD
+vps:      KOPIA_REPO_PASSWORD=azure://shelken-homelab/compose-vps/KOPIA_REPO_PASSWORD
 ```
 
 ### 5. 符号链接同步问题
