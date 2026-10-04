@@ -9,6 +9,7 @@ import pathlib
 import shlex
 import subprocess
 import sys
+from string import Template
 
 HERE = pathlib.Path(__file__).resolve().parent
 CONF_SRC = HERE / "conf.d"
@@ -17,23 +18,19 @@ HOSTS_SRC = HERE / "dnsmasq-int.hosts"
 CONF_DST = os.environ["DNS_MANAGED_CONF_DIR"]
 HOSTS_NAME = "int.hosts"
 HOSTS_DST = f"{CONF_DST}/{HOSTS_NAME}"
-CONF_SUFFIX = ".conf"
 
+ROUTER_SSH = os.environ["ROUTER_SSH"]
 SSH_OPTS = ["-o", "BatchMode=yes", "-o", "ConnectTimeout=5"]
-
-
-def _host() -> str:
-    return os.environ["ROUTER_SSH"]
 
 
 def ssh_read(*args: str) -> list[str]:
     """构造不占用 stdin 的远端命令。"""
-    return ["ssh", "-n", *SSH_OPTS, _host(), *args]
+    return ["ssh", "-n", *SSH_OPTS, ROUTER_SSH, *args]
 
 
 def ssh_write(*args: str) -> list[str]:
     """构造需要 stdin 的远端命令。"""
-    return ["ssh", *SSH_OPTS, _host(), *args]
+    return ["ssh", *SSH_OPTS, ROUTER_SSH, *args]
 
 
 def run(args: list[str], text: str | None = None) -> str:
@@ -52,20 +49,9 @@ def render_configs(hosts_path: str) -> dict[str, str]:
         "DNS_HOSTS_FILE": hosts_path,
     }
     files: dict[str, str] = {}
-    for path in sorted(CONF_SRC.iterdir()):
-        if path.name.endswith(".conf.tpl"):
-            name = path.name[: -len(".tpl")]
-        elif path.name.endswith(CONF_SUFFIX):
-            name = path.name
-        else:
-            continue
-        text = path.read_text()
-        for key, value in values.items():
-            text = text.replace("${" + key + "}", value)
-        leftover = [line for line in text.splitlines() if "${" in line]
-        if leftover:
-            raise SystemExit(f"{path.name} 渲染后仍有未替换的变量：{leftover}")
-        files[name] = text
+    for path in sorted(CONF_SRC.glob("*.conf.tpl")):
+        name = path.name.removesuffix(".tpl")
+        files[name] = Template(path.read_text()).substitute(values)
     if not files:
         raise SystemExit(f"{CONF_SRC} 下没有可下发的配置")
     return files
@@ -121,9 +107,7 @@ def write_remote(path: str, text: str) -> None:
 
 
 def write_remote_atomic(path: str, text: str) -> None:
-    target = pathlib.PurePosixPath(path)
     temporary = f"{path}.home-ops.new"
-    run(ssh_read(f"mkdir -p {shlex.quote(str(target.parent))}; rm -f {shlex.quote(temporary)}"))
     write_remote(temporary, text)
     run(ssh_read(f"mv -f {shlex.quote(temporary)} {shlex.quote(path)}"))
 
