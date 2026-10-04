@@ -24,7 +24,9 @@
         "/mirror",
         "/minio",
         "/kopia",
-        "/kopia-local"
+        "/kopia-local",
+        ".minio.sys",
+        "kopia-backup"
       ]
     }
   },
@@ -55,7 +57,7 @@
   },
   "shelken@sakamoto:/backup/minio": {
     "scheduling": {
-      "cron": ["30 */6 * * *"]
+      "cron": ["30 3 * * *"]
     }
   },
   "shelken@vps:/backup/data": {

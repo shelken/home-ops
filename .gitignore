@@ -59,3 +59,6 @@ __pycache__
 .playwright-cli
 DISCOVERY.md
 .papercuts.jsonl
+TRAFFIC_ANALYSIS*.md
+TRAFFIC_MAPPING*.txt
+scripts/analyze-traffic.py
