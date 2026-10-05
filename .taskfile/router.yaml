@@ -7,10 +7,15 @@ vars:
     sh: |
       ansible-inventory -i {{.ROOT_DIR}}/ansible/inventory/others.ini --host router-mine \
         | jq -re '.ansible_user + "@" + .ansible_host'
+  BYPASS_SSH:
+    sh: |
+      ansible-inventory -i {{.ROOT_DIR}}/ansible/inventory/others.ini --host hk1-router \
+        | jq -re '.ansible_user + "@" + .ansible_host'
   BIRD_CONF: "{{.ROOT_DIR}}/router/bird/mine.conf"
   # home-ops 完整管理独立的 dnsmasq 配置目录
   DNS_MANAGED_CONF_DIR: "/etc/dnsmasq-home-ops.d"
   DARKSTAT_CONF: "{{.ROOT_DIR}}/router/darkstat/darkstat.config"
+  DARKSTAT_DAE0_INIT: "{{.ROOT_DIR}}/router/darkstat/darkstat-dae0.init"
 
 tasks:
   bgp:diff:
@@ -118,6 +123,53 @@ tasks:
           sleep 1
           /etc/init.d/darkstat status | grep -q "running" || { echo "darkstat 启动异常"; exit 1; }
           echo "✅ darkstat 配置已同步并成功重启"
+        '
+
+  darkstat-dae0:diff:
+    silent: true
+    desc: "对比旁路由 darkstat-dae0 init 脚本与仓库版本"
+    cmds:
+      - task: _darkstat-dae0:diff
+
+  _darkstat-dae0:diff:
+    internal: true
+    silent: true
+    cmd: |
+      set -euo pipefail
+      tmp="$(mktemp -t router-darkstat-dae0.init)"
+      trap 'rm -f "${tmp}"' EXIT
+
+      ssh -n -o BatchMode=yes -o ConnectTimeout=5 {{ .BYPASS_SSH }} 'cat /etc/init.d/darkstat-dae0 2>/dev/null || true' > "${tmp}"
+
+      if git --no-pager diff --no-index --quiet -- "${tmp}" {{ .DARKSTAT_DAE0_INIT }}; then
+        echo "旁路由 darkstat-dae0 与仓库一致，无差异"
+        exit 0
+      fi
+
+      if command -v delta >/dev/null 2>&1; then
+        git --no-pager diff --no-index --color=always -- "${tmp}" {{ .DARKSTAT_DAE0_INIT }} | delta --paging=never || true
+      else
+        git --no-pager diff --no-index --color=always -- "${tmp}" {{ .DARKSTAT_DAE0_INIT }} || true
+      fi
+
+  darkstat-dae0:sync:
+    desc: "同步 darkstat-dae0 到旁路由（先展示差异，确认后安装依赖、下发并启用）"
+    deps: [_darkstat-dae0:diff]
+    prompt: 将仓库版本下发到旁路由 /etc/init.d/darkstat-dae0 并重启服务？
+    cmds:
+      - |
+        set -euo pipefail
+        scp -q -o BatchMode=yes {{ .DARKSTAT_DAE0_INIT }} {{ .BYPASS_SSH }}:/tmp/darkstat-dae0.init.new
+        ssh -n -o BatchMode=yes -o ConnectTimeout=5 {{ .BYPASS_SSH }} '
+          set -e
+          opkg list-installed darkstat >/dev/null 2>&1 || opkg install darkstat >/dev/null
+          mv /tmp/darkstat-dae0.init.new /etc/init.d/darkstat-dae0
+          chmod +x /etc/init.d/darkstat-dae0
+          /etc/init.d/darkstat-dae0 enable
+          /etc/init.d/darkstat-dae0 restart
+          sleep 1
+          /etc/init.d/darkstat-dae0 status | grep -q running || { echo "darkstat-dae0 启动异常"; exit 1; }
+          echo "✅ darkstat-dae0 已同步并成功运行"
         '
 
   _dns:declare:
