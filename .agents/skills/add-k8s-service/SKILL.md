@@ -183,4 +183,4 @@ Pod 未就绪时检查日志定位问题。
 ## Reference
 
 - 模式库与 YAML 示例：See [REFERENCE.md](REFERENCE.md)
-- 目录规范：`.agents/skills/home-ops-conventions/SKILL.md`
+- 目录规范：`CODING_STANDARDS.md` 的「目录与模块归属」「集群外资产」

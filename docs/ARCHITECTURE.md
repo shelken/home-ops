@@ -10,6 +10,15 @@
 
 ---
 
+## 组件清单
+
+- 编排与 GitOps: k3s、Flux CD v2
+- 网络: Cilium、Multus、Envoy Gateway、External-DNS、Tailscale
+- 密钥: SOPS、External Secrets、Azure Key Vault
+- 数据与存储: CloudNative-PG、Dragonfly、Longhorn、OpenEBS、SMB CSI
+- 备份: kopiur（VolumeSnapshot + Kopia mover）将备份写入集群外 MinIO
+- 可观测性: Prometheus、Grafana、Gatus、VictoriaLogs、Fluent Bit
+
 ## 1. 物理部署
 
 ```mermaid
