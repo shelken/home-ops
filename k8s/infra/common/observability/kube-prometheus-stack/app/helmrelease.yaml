@@ -152,15 +152,6 @@ spec:
               resources:
                 requests:
                   storage: 70Gi
-        affinity:
-          nodeAffinity:
-            requiredDuringSchedulingIgnoredDuringExecution:
-              nodeSelectorTerms:
-                - matchExpressions:
-                    - key: kubernetes.io/hostname
-                      operator: In
-                      values:
-                        - sakamoto-k8s
     prometheus-node-exporter:
       fullnameOverride: node-exporter
       prometheus:
