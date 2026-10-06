@@ -140,6 +140,7 @@ tasks:
       trap 'rm -f "${tmp}"' EXIT
 
       ssh -n -o BatchMode=yes -o ConnectTimeout=5 {{ .BYPASS_SSH }} 'cat /etc/init.d/darkstat-dae0 2>/dev/null || true' > "${tmp}"
+      chmod +x "${tmp}"  # init 脚本含执行位，mktemp 默认 0600 会让 diff 永远误报 mode 差异
 
       if git --no-pager diff --no-index --quiet -- "${tmp}" {{ .DARKSTAT_DAE0_INIT }}; then
         echo "旁路由 darkstat-dae0 与仓库一致，无差异"
