@@ -1,80 +1,27 @@
+# home-ops
+
 home-ops 是使用 Flux 管理 Kubernetes 集群与集群外服务的 GitOps 配置仓库。
 
-## 基本约束
+## 约束
 
-- 所有配置默认遵循最小权限原则;任何权限提升或新增的安全敏感配置变更，必须引用官方文档、配置参考或发布日志作为依据，并附上来源链接
-- GitOps原则，Flux管理，不准执行`kubectl apply`，不准直接对集群进行操作
-- 在你运维任何问题时, 必须给我把问题相关的架构搞清楚. 阅读 `docs/ARCHITECTURE.md` 先把整体搞清楚
-- **infra → apps**：运维/debug/恢复时永远先让 `flux-system/infra` Ready（含其 wait/health 依赖），再处理 `apps`。apps 依赖 infra；infra 未通时禁止靠长期旁路子 ks 顶替 parent
-- 任何资源的删除操作必须确认之后才可以执行
-- 区分哪些文件是集群的状态，哪些是当前的工作区状态要区分，不要认为本地未提交或未推送的代码就等于集群
-- 公开仓库内容不准暴露真实域名、公网 IP、内网 IP、节点名、主机名、系统/SSH 登录用户名、绝对路径、密钥路径、私有服务 URL；写文档、尸检报告、示例命令、日志摘录时必须用占位符（如 `<ROUTER_IP>`、`<PROXY_DOMAIN>`、`<NODE_NAME>`、`<PRIVATE_PATH>`），除非用户明确要求保留真实值；分析排障和理解配置时可以读取并使用真实值，不要因为脱敏影响判断；公开 GitHub 仓库 URL / owner 不属于这里的“用户名”，不要脱敏
-- 如果必须执行命令操作集群, 记住自己的手动执行命令, 必须在解决问题之后检查哪些命令会对集群产生残留影响, 必须列出来告诉用户; 如果忘记了, 检查auditlog; 并且在解决问题后, 恢复残留操作
+- 集群由 Flux 管理：变更一律走 Git 提交，禁止 `kubectl apply`，禁止直接操作集群
+- 运维顺序固定 infra → apps：先让 `flux-system/infra` Ready（含其 wait/health 依赖），再处理 `apps`；infra 就绪前不得用旁路子 Kustomization 顶替 parent
+- 删除任何资源前必须先确认
+- 手动执行过的集群命令，事后必须列出对集群的残留影响并恢复，忘记执行过什么时回查 audit log
+- 公开仓库脱敏：写出的内容不得出现真实域名、公网或内网 IP、节点名、主机名、SSH 登录用户名、绝对路径、密钥路径与私有服务 URL，一律用占位符；排障时可以直接读取真实值
 
-## 架构
+## 阅读场景
 
-**完整架构文档**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — 物理部署、网络拓扑、服务分布、入口流量、监控采集、备份链路。不清楚系统架构时先读这个。
+- 排障、运维、恢复或不清楚架构与入口 → [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)，依赖顺序与等待策略见其中「Flux 部署链路」
+- 写代码、改配置、新增应用 → [CODING_STANDARDS.md](CODING_STANDARDS.md)
+- 找文档、确认文档归属 → [docs/README.md](docs/README.md)
+- 排查历史事故与已知坑 → [postmortems/README.md](postmortems/README.md)
+- 在 compose/、ansible/、.taskfile/ 下工作 → 先读对应目录的 AGENTS.md
 
-- **容器编排**: Kubernetes (k3s)
-- **GitOps**: Flux CD v2；staging 根 Kustomization 依次装载仓库源、infra 和 apps，apps 显式依赖 infra
-- **网络**: Cilium、Multus、Envoy Gateway、External-DNS、Tailscale
-- **密钥**: SOPS、External-Secrets、Azure Key Vault
-- **数据库与缓存**: CloudNative-PG、Dragonfly
-- **存储**: Longhorn、OpenEBS、SMB CSI
-- **备份**: kopiur（VolumeSnapshot + Kopia mover）将备份写入集群外 MinIO
-- **可观测性**: Prometheus、Grafana、Gatus、VictoriaLogs
+## 布局
 
-### 重要目录索引
-
-**集群与 GitOps**
-- `k8s/clusters/`: Flux 集群入口、仓库源及 infra/apps 父级编排
-- `k8s/apps/common/`: 应用通用配置
-- `k8s/apps/staging/`: staging 应用聚合入口
-- `k8s/infra/common/`: 网络、证书、密钥、数据库、存储、监控和安全等基础设施
-- `k8s/infra/staging/`: staging 当前启用的基础设施聚合入口
-- `k8s/components/`: kopiur、SOPS、认证和调度等可复用组件
-
-**网络与集群外服务**
-- `k8s/infra/common/network/`: 内外 DNS、入口网关、Multus、证书、Tailscale 和网络自愈组件
-- `router/`: 路由器声明式配置源（BIRD / dnsmasq），由 `.taskfile/router.yaml` 下发
-- `compose/sakamoto/`、`compose/vps/`: 集群外 Docker Compose 服务及配置（部署约定见 `compose/AGENTS.md`）
-- `docs/router/`: 路由器配置文档
-
-**引导、自动化与维护**
-- `bootstrap/`: 集群引导配置
-- `ansible/`: 节点清单与配置自动化（写 playbook 前读 `ansible/AGENTS.md`）
-- `.taskfile/`: Task 子任务定义（新增 task 前读 `.taskfile/AGENTS.md`）
-- `.renovate/`: Renovate 分组、规则和自定义管理器
-- `scripts/`: 可重复运行的运维与维护脚本
-- `postmortems/`: 已解决复杂问题的尸检报告
-- `lima/`: Lima 实例配置，由 `.taskfile/lima.yaml` 下发到宿主
-
-> **注意**: 发现路径或组件状态变化时，同步检查本索引和 `docs/ARCHITECTURE.md`。
-
-### Lima VM 配置文件
-
-- `lima/sakamoto.yaml` - sakamoto-k8s 配置
-- `lima/yuuko.yaml` - yuuko-k8s 配置
-- `lima/recovery.yaml` - 单次恢复群晖磁盘数据用
-
-## 项目约定
-
-- 仓库目前使用mise进行管理 `环境变量/cli`（含 kubeconfig）
-- 在 `k8s/apps/common/` 启用/禁用某个应用时，同步更新 `.renovate/packageRules.json5` 的 `Disabled Packages`：禁用时添加该应用相关的镜像/包；启用时移除
-- 当多个服务同属一个目的时，优先放在同一个应用目录下按职责拆分子目录，例如 `xxx/app/` 和 `xxx/login/`，再由同级 `ks.yaml` 引用这些路径
-- 需要容器镜像时，使用crane寻找镜像固定化镜像版本（semver@digest），配合renovate的更新
-- 遇到失败的helmrelease，不要reconcile，直接删除hr，然后`flux reconcile ks`
-- SSH执行命令时优先使用IP地址而非主机名（参考[ansible节点信息](ansible/inventory/hosts.ini)）
-- 手动DNS(非external-dns管理的)在本地的`{active-dir}/dnscontrol`中; 任何手动dns变更必须经过用户确认,展示变化范围
-
-## 常用命令/脚本
-
-参考 `Taskfile.yaml` 和 `.taskfile/` 目录
-
-```bash
-task --list # 查看命令
-```
-
-## 参考仓库
-
-- [`onedr0p/home-ops`](https://github.com/onedr0p/home-ops): 架构与配置模式的上游参考(在`{kaiyuan-dir}/homelab/home-ops`)(每次拉最新再看)
+- `k8s/`: Flux 集群声明（clusters、infra、apps、components）
+- `compose/`、`router/`、`lima/`: 集群外 Compose 服务、路由器配置源、Lima VM（见 [lima/README.md](lima/README.md)）
+- `ansible/`、`bootstrap/`: 节点配置自动化、集群引导
+- `.taskfile/`、`scripts/`、`.renovate/`: task 命令入口、运维脚本、依赖升级配置
+- `docs/`、`postmortems/`: 文档索引、尸检报告
