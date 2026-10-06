@@ -7,10 +7,22 @@
 - 环境变量与 CLI（含 kubeconfig）由 mise 管理，声明见根目录 `mise.toml`
 - SSH 执行命令优先用 IP 而非主机名，地址以 `ansible/inventory/hosts.ini` 为准
 
+## 目录与模块归属
+
+- 谁负责干这件事，文件就放谁那里，不看文件类型，也不看依赖哪个技术栈（如 `zte-mifi-exporter` 的告警规则放在它自己的 `app/` 里，不管这条规则属于 Prometheus 还是 Gatus）
+- 每个 app 固定两层：`<app-name>/ks.yaml` 作为 Flux 入口，其余资源放 `app/`
+- 同一目的的多个服务放在同一应用目录，按职责拆子目录（如 `xxx/app/`、`xxx/login/`），由同级 `ks.yaml` 引用
+
+## 集群外资产
+
+- 一个功能 = 一份声明 + 一个下发器 + 一个 task 命名空间 + 一篇文档，`router/` 是样板
+- 先界定远端所有权，独占文件或目录才能整体替换，共享配置只在专用附加目录里持续声明
+- 只服务单一功能的脚本、模板与数据跟声明同目录，跨功能复用的才进 `scripts/`
+- 远端路径只在 taskfile 里定义一次，声明目录必须标明对应的远端所有权范围
+
 ## Flux 资源
 
 - 集群状态以 Flux 已同步的内容为准，本地未提交或未推送的修改不代表集群
-- 同一目的的多个服务放在同一应用目录，按职责拆子目录（如 `xxx/app/`、`xxx/login/`），由同级 `ks.yaml` 引用
 - HelmRelease 失败时不要反复 reconcile：删除该 HelmRelease 后执行 `flux reconcile ks` 重建
 
 ## 镜像与依赖
