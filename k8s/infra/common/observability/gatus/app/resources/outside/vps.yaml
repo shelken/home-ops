@@ -72,6 +72,14 @@ endpoints:
       - "[BODY].State.Restarting == false"
       - "[BODY].State.Dead == false"
   - <<: *common
+    name: dnsmasq
+    url: http://ts-node-vps.network.svc:2575/containers/dnsmasq/json
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].State.Running == true"
+      - "[BODY].State.Restarting == false"
+      - "[BODY].State.Dead == false"
+  - <<: *common
     name: dhp
     url: https://dhp.${MAIN_DOMAIN}/v2/
     method: HEAD
