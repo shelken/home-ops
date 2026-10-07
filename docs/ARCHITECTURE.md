@@ -177,7 +177,7 @@ ExternalDNS 自动管理各服务子域名的记录
 VPS 本机 DNS:
   127.0.0.1 -> dnsmasq
                INTERNAL_DOMAIN 与 MAIN_DOMAIN -> k8s-gateway（更具体的内部域规则优先）
-               其他域名 -> 公网 DNS（DoT）
+               其他域名 -> 公网 DNS（1.1.1.1 / 8.8.8.8）
 
 K8s 节点本机 DNS (Ansible):
   systemd-resolved -> 1.1.1.1 / 8.8.8.8 (经旁路由 daed 嗅探)

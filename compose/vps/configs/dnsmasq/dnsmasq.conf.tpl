@@ -8,8 +8,8 @@ strict-order
 server=/int.{{azure://shelken-homelab/compose-vps/MAIN_DOMAIN}}/192.168.69.41
 server=/{{azure://shelken-homelab/compose-vps/MAIN_DOMAIN}}/192.168.69.41
 
-# gateway 不可用时的顺序回落；公网查询走 DoT，避免明文 53 被劫持或篡改
-server=/{{azure://shelken-homelab/compose-vps/MAIN_DOMAIN}}/1.1.1.1@853#cloudflare-dns.com
-server=/{{azure://shelken-homelab/compose-vps/MAIN_DOMAIN}}/8.8.8.8@853#dns.google
-server=1.1.1.1@853#cloudflare-dns.com
-server=8.8.8.8@853#dns.google
+# gateway 不可用时的顺序回落；公网上游使用 1.1.1.1 / 8.8.8.8
+server=/{{azure://shelken-homelab/compose-vps/MAIN_DOMAIN}}/1.1.1.1
+server=/{{azure://shelken-homelab/compose-vps/MAIN_DOMAIN}}/8.8.8.8
+server=1.1.1.1
+server=8.8.8.8
