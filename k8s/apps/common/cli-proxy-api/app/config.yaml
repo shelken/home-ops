@@ -299,28 +299,6 @@ openai-compatibility:
 # Supported channels: gemini-cli, vertex, aistudio, antigravity, claude, codex, qwen, iflow.
 # NOTE: Aliases do not apply to gemini-api-key, codex-api-key, claude-api-key, openai-compatibility, vertex-api-key, or ampcode.
 # You can repeat the same name with different aliases to expose multiple client model names.
-oauth-model-alias:
-  antigravity:
-    - name: "rev19-uic3-1p"
-      alias: "gemini-2.5-computer-use-preview-10-2025"
-    - name: "gemini-3-pro-image"
-      alias: "gemini-3-pro-image-preview"
-      fork: true
-    - name: "gemini-3-pro-high"
-      alias: "gemini-3-pro-preview"
-      fork: true
-    - name: "gemini-3-flash"
-      alias: "gemini-3-flash-preview"
-      fork: true
-    - name: "claude-sonnet-4-5"
-      alias: "gemini-claude-sonnet-4-5"
-      fork: true
-    - name: "claude-sonnet-4-5-thinking"
-      alias: "gemini-claude-sonnet-4-5-thinking"
-      fork: true
-    - name: "claude-opus-4-6-thinking"
-      alias: "gemini-claude-opus-4-5-thinking"
-      fork: true
 
 #   claude:
 #     - name: "claude-sonnet-4-5-20250929"
