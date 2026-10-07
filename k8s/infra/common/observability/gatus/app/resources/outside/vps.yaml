@@ -65,20 +65,16 @@ endpoints:
       - "[CONNECTED] == true"
   - <<: *common
     name: hysteria2
-    url: http://ts-node-vps.network.svc:2575/containers/hysteria2/json
+    url: http://ts-node-vps.network.svc:2575/containers/hysteria2/top?ps_args=-o%20pid
     conditions:
       - "[STATUS] == 200"
-      - "[BODY].State.Running == true"
-      - "[BODY].State.Restarting == false"
-      - "[BODY].State.Dead == false"
+      - "len([BODY].Processes) > 0"
   - <<: *common
     name: dnsmasq
-    url: http://ts-node-vps.network.svc:2575/containers/dnsmasq/json
+    url: http://ts-node-vps.network.svc:2575/containers/dnsmasq/top?ps_args=-o%20pid
     conditions:
       - "[STATUS] == 200"
-      - "[BODY].State.Running == true"
-      - "[BODY].State.Restarting == false"
-      - "[BODY].State.Dead == false"
+      - "len([BODY].Processes) > 0"
   - <<: *common
     name: dhp
     url: https://dhp.${MAIN_DOMAIN}/v2/
