@@ -11,18 +11,18 @@
 
 <div align="center">
 
-[![K3S](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fk3s_version&logo=k3s&labelColor=363a4f&style=for-the-badge&label=K3S&color=91D7E3)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
-[![Age-Days](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fcluster_age_days&logo=upptime&labelColor=363a4f&style=for-the-badge&label=Age)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
-[![Uptime-Days](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fcluster_uptime_days&logo=upptime&labelColor=363a4f&style=for-the-badge&label=Uptime)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
-[![Node-Count](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fcluster_node_count&logo=kubernetes&labelColor=363a4f&style=for-the-badge&label=Nodes)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
-[![Pod-Count](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fcluster_pod_count&logo=kubernetes&labelColor=363a4f&style=for-the-badge&label=Pods)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
-[![CPU-Usage](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fcluster_cpu_usage&labelColor=363a4f&style=for-the-badge&label=CPU)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
-[![Memory-Usage](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fcluster_memory_usage&labelColor=363a4f&style=for-the-badge&label=Memory)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
-[![Alerts](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fcluster_alert_count&logo=prometheus&labelColor=363a4f&style=for-the-badge&label=Alerts)](https://prometheus.ooooo.space/alerts)
+[![K3S](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fbadges%2Fk3s_version%3Fformat%3Dshields&logo=k3s&labelColor=363a4f&style=for-the-badge&label=K3S&color=91D7E3)](https://github.com/home-operations/kromgo)&nbsp;&nbsp;
+[![Age-Days](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fbadges%2Fcluster_age_days%3Fformat%3Dshields&logo=upptime&labelColor=363a4f&style=for-the-badge&label=Age)](https://github.com/home-operations/kromgo)&nbsp;&nbsp;
+[![Uptime-Days](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fbadges%2Fcluster_uptime_days%3Fformat%3Dshields&logo=upptime&labelColor=363a4f&style=for-the-badge&label=Uptime)](https://github.com/home-operations/kromgo)&nbsp;&nbsp;
+[![Node-Count](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fbadges%2Fcluster_node_count%3Fformat%3Dshields&logo=kubernetes&labelColor=363a4f&style=for-the-badge&label=Nodes)](https://github.com/home-operations/kromgo)&nbsp;&nbsp;
+[![Pod-Count](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fbadges%2Fcluster_pod_count%3Fformat%3Dshields&logo=kubernetes&labelColor=363a4f&style=for-the-badge&label=Pods)](https://github.com/home-operations/kromgo)&nbsp;&nbsp;
+[![CPU-Usage](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fbadges%2Fcluster_cpu_usage%3Fformat%3Dshields&labelColor=363a4f&style=for-the-badge&label=CPU)](https://github.com/home-operations/kromgo)&nbsp;&nbsp;
+[![Memory-Usage](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fbadges%2Fcluster_memory_usage%3Fformat%3Dshields&labelColor=363a4f&style=for-the-badge&label=Memory)](https://github.com/home-operations/kromgo)&nbsp;&nbsp;
+[![Alerts](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fbadges%2Fcluster_alert_count%3Fformat%3Dshields&logo=prometheus&labelColor=363a4f&style=for-the-badge&label=Alerts)](https://prometheus.ooooo.space/alerts)
 
-[![MiFi-Network](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fmifi_network_type&logo=wifi&labelColor=363a4f&style=for-the-badge&label=Network)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
-[![MiFi-Operator](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fmifi_operator&logo=simpleicons&labelColor=363a4f&style=for-the-badge&label=Operator)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
-[![MiFi-Monthly](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fmifi_monthly_total&logo=chart-bar&labelColor=363a4f&style=for-the-badge&label=Monthly)](https://github.com/kashalls/kromgo)
+[![MiFi-Network](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fbadges%2Fmifi_network_type%3Fformat%3Dshields&logo=wifi&labelColor=363a4f&style=for-the-badge&label=Network)](https://github.com/home-operations/kromgo)&nbsp;&nbsp;
+[![MiFi-Operator](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fbadges%2Fmifi_operator%3Fformat%3Dshields&logo=simpleicons&labelColor=363a4f&style=for-the-badge&label=Operator)](https://github.com/home-operations/kromgo)&nbsp;&nbsp;
+[![MiFi-Monthly](https://img.shields.io/endpoint?url=https%3A%2F%2Fkromgo.ooooo.space%2Fbadges%2Fmifi_monthly_total%3Fformat%3Dshields&logo=chart-bar&labelColor=363a4f&style=for-the-badge&label=Monthly)](https://github.com/home-operations/kromgo)
 
 </div>
 
