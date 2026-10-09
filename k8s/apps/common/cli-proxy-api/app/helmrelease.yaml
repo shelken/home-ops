@@ -19,7 +19,7 @@ spec:
           copy-config:
             image: &image
               repository: eceasy/cli-proxy-api
-              tag: v8.0.13@sha256:6ce96259e6a2fec3b1093301d2dc61989260a8d682465be53e8f70656c6b6784
+              tag: v8.0.23@sha256:fc250aafe345d178fe7fb1b2966efb2ca204e69ce0cf73eed661209f33e24b70
             command: ["sh", "-c", "cp /secret-config/config.yaml /config/config.yaml"]
             securityContext:
               runAsUser: 1000
@@ -34,7 +34,7 @@ spec:
               - sh
               - -c
               # renovate: datasource=github-releases depName=router-for-me/Cli-Proxy-API-Management-Center
-              - curl -fsSL --retry 3 -o /CLIProxyAPI/management/management.html https://github.com/router-for-me/Cli-Proxy-API-Management-Center/releases/download/v1.25.3/management.html || echo 'seed-panel download failed, panel falls back to latest on first access'
+              - curl -fsSL --retry 3 -o /CLIProxyAPI/management/management.html https://github.com/router-for-me/Cli-Proxy-API-Management-Center/releases/download/v1.26.0/management.html || echo 'seed-panel download failed, panel falls back to latest on first access'
             securityContext:
               runAsUser: 1000
               runAsGroup: 1000
