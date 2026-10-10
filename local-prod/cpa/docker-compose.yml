@@ -1,7 +1,7 @@
 services:
   cpa:
     # 与集群完全同版本同 digest, 避免 token/config 格式漂移
-    image: eceasy/cli-proxy-api:v8.0.13@sha256:6ce96259e6a2fec3b1093301d2dc61989260a8d682465be53e8f70656c6b6784
+    image: eceasy/cli-proxy-api:v8.0.23@sha256:fc250aafe345d178fe7fb1b2966efb2ca204e69ce0cf73eed661209f33e24b70
     container_name: cli-proxy-api-local
     user: "1000:1000"
     command: ["/CLIProxyAPI/CLIProxyAPI", "--config", "/config/config.yaml"]
