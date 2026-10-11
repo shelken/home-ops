@@ -32,6 +32,12 @@ spec:
     remediation:
       retries: 3
   values:
+    resources:
+      requests:
+        cpu: 15m
+        memory: 40Mi
+      limits:
+        memory: 96Mi
     args:
       - --kubelet-insecure-tls
       - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname

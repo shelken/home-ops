@@ -33,6 +33,12 @@ spec:
       retries: 3
   # ref: https://artifacthub.io/packages/helm/intel/intel-device-plugins-gpu?modal=values
   values:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 20Mi
+      limits:
+        memory: 48Mi
     name: i915
     nodeFeatureRule: false # 自动打标签(no matches for kind "NodeFeatureRule")
     sharedDevNum: 99

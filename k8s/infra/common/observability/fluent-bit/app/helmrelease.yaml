@@ -11,6 +11,12 @@ spec:
   interval: 1h
   values:
     #ref: https://github.com/fluent/helm-charts/blob/main/charts/fluent-bit/values.yaml
+    resources:
+      requests:
+        cpu: 20m
+        memory: 64Mi
+      limits:
+        memory: 256Mi
     image:
       repository: ghcr.io/fluent/fluent-bit
     config:

@@ -37,6 +37,12 @@ spec:
     # ref: https://artifacthub.io/packages/helm/piraeus-charts/snapshot-controller
     # ref: https://github.com/blackjid/home-ops/blob/main/kubernetes/apps/kube-system/snapshot-controller/app/helmrelease.yaml
     controller:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          memory: 128Mi
       replicaCount: 1
       serviceMonitor:
         create: true
