@@ -36,6 +36,12 @@ spec:
   values:
     # ref: https://github.com/openebs/dynamic-localpv-provisioner/blob/b690e9a3ac1f5b4146a54162a73ff8e5d4d1db51/deploy/helm/charts/values.yaml#L85
     localpv-provisioner:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          memory: 96Mi
       localpv:
         image:
           registry: quay.io/

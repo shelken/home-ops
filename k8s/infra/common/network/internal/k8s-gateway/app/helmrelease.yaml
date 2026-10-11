@@ -32,6 +32,12 @@ spec:
     remediation:
       retries: 3
   values:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        memory: 64Mi
     # ref：https://github.com/k8s-gateway/k8s_gateway/blob/master/charts/k8s-gateway/values.yaml
     fullnameOverride: k8s-gateway
     domain: "${MAIN_DOMAIN} ${INTERNAL_DOMAIN}"

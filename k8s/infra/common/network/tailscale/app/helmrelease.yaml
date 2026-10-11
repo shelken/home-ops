@@ -16,8 +16,12 @@ spec:
       image:
         repository: ghcr.io/tailscale/k8s-operator
       resources:
+        requests:
+          cpu: 10m
+          memory: 40Mi
         limits:
           squat.ai/tun: "1"
+          memory: 128Mi
     proxyConfig:
       defaultProxyClass: "tun-access"
     apiServerProxyConfig:

@@ -34,6 +34,12 @@ spec:
   # ref: https://github.com/prometheus-community/helm-charts/blob/main/charts/prometheus-blackbox-exporter/values.yaml
   # ref: https://github.com/prometheus/blackbox_exporter/blob/master/CONFIGURATION.md
   values:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        memory: 96Mi
     service:
       port: 9115
       ipDualStack:

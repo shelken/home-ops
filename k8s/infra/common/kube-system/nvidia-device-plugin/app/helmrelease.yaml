@@ -34,6 +34,12 @@ spec:
       retries: 3
   # ref: https://github.com/NVIDIA/k8s-device-plugin/blob/main/deployments/helm/nvidia-device-plugin/values.yaml
   values:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        memory: 64Mi
     runtimeClassName: nvidia
     config:
       map:
