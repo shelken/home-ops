@@ -51,3 +51,28 @@ spec:
   targetNamespace: *namespace
   timeout: 5m
   wait: true
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app kopiur-repository-cloud
+  namespace: &namespace kopiur-system
+spec:
+  dependsOn:
+    - name: kopiur
+      namespace: kopiur-system
+    - name: azure-store
+      namespace: external-secrets
+  interval: 1h
+  path: ./k8s/infra/common/kopiur-system/kopiur/repository-cloud
+  prune: true
+  retryInterval: 2m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: *namespace
+  timeout: 5m
+  # 不阻塞等待就绪，避免与依赖本地仓库的 OpenList 产生冷启动互相等待死锁
+  wait: false

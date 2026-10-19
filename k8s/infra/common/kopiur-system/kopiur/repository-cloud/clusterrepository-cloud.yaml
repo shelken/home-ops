@@ -22,11 +22,12 @@ spec:
           name: kopiur-cloud-secret
           namespace: kopiur-system
       # 与宿主机 Kopia 共用 kopia 桶，用前缀隔离两套仓库。
-      # OpenList 的 S3 端口只接受 TLS，且对明文 HTTP 返回 301；
-      # 集群内走 envoy-internal 的 HTTPS 入口，避免经宿主机公网绕行。
+      # 集群内部直连 OpenList Service 端口 5246（明文 S3），不经 Envoy 与外部 DNS。
       bucket: kopia
       prefix: kopiur/
-      endpoint: drive-s3.${INTERNAL_DOMAIN}
+      endpoint: openlist.default.svc.cluster.local:5246
+      tls:
+        disableTls: true
   encryption:
     passwordSecretRef:
       name: kopiur-cloud-secret
