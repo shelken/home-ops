@@ -1,6 +1,6 @@
 # 文档索引
 
-本目录记录 home-ops 的架构、部署、网络、存储、运维和历史设计。公开文档采用半公开运维版：隐藏公网域名、公网 IP、系统/SSH 登录用户名、密钥路径和私有服务 URL；保留公开 GitHub 仓库链接、内网网段、节点名、设备名和架构关系，方便排障。
+本目录记录 home-ops 的架构、部署、网络、存储、运维和历史设计。公开文档采用半公开运维版：隐藏公网域名、公网 IP、系统/SSH 登录用户名、密钥路径和私有服务 URL，保留公开 GitHub 仓库链接、内网网段、节点名、设备名和架构关系，方便排障
 
 ## 核心入口
 
@@ -9,6 +9,7 @@
 | [架构总览](./ARCHITECTURE.md) | 物理部署、网络入口、服务分布、监控采集和备份链路 |
 | [网络清单](./network-inventory.md) | LoadBalancer、Multus 和固定服务地址清单 |
 | [运维笔记](./operations-notes.md) | Flux、Cilium、Multus、SMB 等常见排障入口 |
+| [内部域与客户端契约](./internal-domain.md) | 内部域解析、迁移顺序与验收门槛 |
 | [路由器配置](./router/README.md) | OpenWrt、BGP、VLAN、mDNS 相关配置 |
 | [尸检报告](../postmortems/README.md) | 已发生事故的根因、误判和复盘规则 |
 
@@ -49,11 +50,22 @@
 | [ServiceMonitor 排查报告](./draft/servicemonitor.md) | 草案/历史排查 |
 | [Cloudflare Tunnel 与公网直连切换](./cftunnel与直接公网切换.md) | 历史迁移记录 |
 
+## 决策记录
+
+| 文档 | 决策 |
+|------|------|
+| [adr/](./adr/) | 网络、DNS 与备份链路的架构决策 |
+| [0001](./adr/0001-lima-network-ownership.md) | Lima 节点 netplan 归 Lima 管，Ansible 只做 DNS 与 VLAN |
+| [0002](./adr/0002-internal-domain-static-client-dns.md) | 内部域分层，SFM 客户端使用静态 DNS 应答 |
+| [0003](./adr/0003-internal-dns-via-gateway.md) | 集群服务 DNS 由 k8s-gateway 动态应答 |
+| [0004](./adr/0004-k8s-node-dns-daed-routing.md) | K8s 节点显式指定外部 DNS 触发旁路由嗅探 |
+| [0005](./adr/0005-kopiur-dual-repository.md) | Kopiur 双仓库：本地每小时与云端每日独立直写 |
+
 ## 维护规则
 
-- 新增长期有效文档时，优先把入口加到本索引。
-- 临时排查结论不要直接堆进 README；可先写入对应服务文档或 postmortem。
-- 涉及公网域名、公网 IP、系统/SSH 登录用户名、密钥路径、私有服务 URL 时使用占位符；公开 GitHub 仓库链接不需要脱敏。
-- 涉及直接删除资源、绕过 GitOps 或 bootstrap 例外命令时，必须在文档中标明适用场景和风险。
+- 新增长期有效文档时，优先把入口加到本索引
+- 临时排查结论不要直接堆进 README，可先写入对应服务文档或 postmortem
+- 涉及公网域名、公网 IP、系统/SSH 登录用户名、密钥路径、私有服务 URL 时使用占位符。公开 GitHub 仓库链接不需要脱敏
+- 涉及直接删除资源、绕过 GitOps 或 bootstrap 例外命令时，必须在文档中标明适用场景和风险
 - 排障与分析时可读取并使用真实值，脱敏只约束写出的内容
 - 目录结构或组件状态变化时，同步更新根 `AGENTS.md` 的布局、`docs/ARCHITECTURE.md` 与本索引

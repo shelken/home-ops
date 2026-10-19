@@ -293,8 +293,8 @@ ssh <ROUTER> 'ls -la /etc/dnsmasq-home-ops.d'
 ssh <ROUTER> 'cat /etc/dnsmasq-home-ops.d/*'
 ```
 
-后端与所有权决策见 [ADR-0003：集群服务 DNS 由 k8s-gateway 动态应答](adr/0003-internal-dns-via-gateway.md)。
-旁路由分流与节点 DNS 策略见 [ADR-0004：K8s 节点指定外部触发 DNS 由旁路由嗅探代理](adr/0004-k8s-node-dns-daed-routing.md)。
+后端与所有权决策见 [ADR-0003：集群服务 DNS 由 k8s-gateway 动态应答](adr/0003-internal-dns-via-gateway.md)，旁路由分流与节点 DNS 策略见 [ADR-0004：K8s 节点显式指定外部 DNS 触发旁路由嗅探](adr/0004-k8s-node-dns-daed-routing.md)
+
 ### 入口一览
 
 | # | 入口 | 协议 | DNS 链 | 终点 | 状态 |
@@ -471,8 +471,8 @@ graph TB
 | 宿主机本地 | 用户数据 (`/Volumes/<USER_DATA>`) | Kopia Local → 外接 USB HDD | 本地 | 每小时 |
 | VPS 服务数据 | VPS 数据 | Kopia → OpenList (VPS 本地 S3) | 189 云盘 | 4 小时 |
 
-> Kopia 仓库配置通过 `.env.tpl` 从外部密钥管理注入，不提交到 Git。
-> 189 云盘是 OpenList 的运行时存储配置，不在 Git 内声明。
+> Kopia 仓库配置通过 `.env.tpl` 从外部密钥管理注入，不提交到 Git
+> 189 云盘是 OpenList 的运行时存储配置，不在 Git 内声明
 
 ---
 

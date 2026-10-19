@@ -9,7 +9,7 @@
 | kopia (云端) | S3 (OpenList) | compose, minio（不含 `kopiur`） | 189 云盘 | 51515 |
 | kopia-local (本地) | 文件系统 | sakamoto-data 用户数据 | BackUp3T | 51516 |
 
-调度见 `policy.json` 与 `local/policy.json`，运行时用 `kopia policy list` 读。
+调度见 `policy.json` 与 `local/policy.json`，运行时用 `kopia policy list` 读
 
 ## 文件结构
 
@@ -40,13 +40,13 @@ Kopia 策略采用层级继承机制：
 | `shelken@sakamoto:/backup/minio` | scheduling | minio 备份调度（`kopiur` 桶由集群内 Kopiur 直接上云，宿主机忽略） |
 | `shelken@vps:/backup/data` | scheduling | VPS 数据备份调度 |
 
-调度间隔见 `policy.json`。
+调度间隔见 `policy.json`
 
 ### 排除规则语法
 
-- `cache` - 匹配任意位置的 cache 目录
-- `/cache` - 仅匹配根目录下的 cache 目录
-- `*.log` - 匹配所有 .log 文件
+- `cache`：匹配任意位置的 cache 目录
+- `/cache`：仅匹配根目录下的 cache 目录
+- `*.log`：匹配所有 .log 文件
 
 ### 设计原则
 
@@ -54,7 +54,7 @@ Kopia 策略采用层级继承机制：
 - **独立调度**：每个备份路径单独配置 scheduling，互不影响
 - **幂等导入**：容器启动时执行 `kopia policy import`，自动覆盖更新
 - **共享仓库**：sakamoto 和 VPS 使用相同的 Kopia 仓库（通过 189 云盘 + OpenList S3）
-- **嵌套仓库剔除**：`@sakamoto` 忽略 `kopiur`，集群 PVC 备份不再被二次封装上传，见 `docs/adr/0005-kopiur-dual-repository.md`
+- **嵌套仓库剔除**：`@sakamoto` 忽略 `kopiur`，集群 PVC 备份不再被二次封装上传，见 [ADR-0005](../../../../docs/adr/0005-kopiur-dual-repository.md)
 
 ## 遇到的问题和修正
 
@@ -69,6 +69,7 @@ Kopia 策略采用层级继承机制：
 **问题**：不加 `--insecure` 时，服务器会因 TLS 未配置而不稳定
 
 **修正**：添加 `--insecure` 标志
+
 ```yaml
 exec kopia server start --insecure --address=0.0.0.0:51515 ...
 ```
@@ -78,6 +79,7 @@ exec kopia server start --insecure --address=0.0.0.0:51515 ...
 **问题**：docker-compose 的 `${}` 会在 compose 解析时展开，而非运行时
 
 **修正**：使用 `$${}` 进行转义，让变量在容器 shell 中展开
+
 ```yaml
 --server-username=$${KOPIA_SERVER_USERNAME}
 ```
@@ -93,14 +95,14 @@ exec kopia server start --insecure --address=0.0.0.0:51515 ...
 **问题**：rsync 默认同步符号链接本身，导致远程服务器链接失效
 
 **修正**：在 Taskfile 的 rsync 命令添加 `-L` 参数，跟随符号链接复制实际内容
+
 ```yaml
 rsync -avzL --delete ...
 ```
 
 ### 6. OpenList 环境变量前缀
 
-使用`--no-prefix` 统一不用 `OPENLIST_`前缀
-
+使用 `--no-prefix` 统一不用 `OPENLIST_` 前缀
 
 ### 7. Kopia 多客户端同步延迟
 
@@ -127,18 +129,7 @@ kopia snapshot list --all
 
 ### 备份范围
 
-**备份路径**（白名单模式）：
-- `/backup/sakamoto-data/media` - 照片、音乐、视频、电子书等
-- `/backup/sakamoto-data/Work` - 工作文件
-- `/backup/sakamoto-data/折腾` - 个人文件
-- `/backup/sakamoto-data/synogy-data` - 群晖数据
-- `/backup/sakamoto-data/k8s/storage` - K8s 应用数据
-- `/backup/sakamoto-data/Devlopment/docker/data/minio` - MinIO 对象存储数据
-
-**排除规则**：
-- `media/Downloads/qbittorrent` - 下载文件可重新下载
-- `media/Software/VM` - 虚拟机可重建
-- 系统文件（.DS_Store, .Spotlight-V100, .Trashes 等）
+本地仓库只备份白名单路径，路径与排除规则以 `local/policy.json` 的 `files.ignore` 和各路径的 `scheduling` 条目为准，运行时用 `kopia policy show shelken@sakamoto-local:/backup/sakamoto-data/<path>` 查看实际生效值
 
 ### 首次初始化
 
