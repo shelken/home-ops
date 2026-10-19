@@ -43,24 +43,13 @@ spec:
             (with-tls) {
               tls /etc/caddy/tls/tls.crt /etc/caddy/tls/tls.key
             }
-            (to_external_default) {
+            (to_external) {
               reverse_proxy {
                 to https://envoy-external.network.svc.cluster.local:443
                 header_up Host {http.request.host}
                 transport http {
                   tls
-                  # 固定默认SNI，避免连接复用把请求误送到 cpa 专用 listener
-                  tls_server_name homelab-external.{$MAIN_DOMAIN}
-                }
-              }
-            }
-            (to_external_cpa) {
-              reverse_proxy {
-                to https://envoy-external.network.svc.cluster.local:443
-                header_up Host {http.request.host}
-                transport http {
-                  tls
-                  tls_server_name cpa.{$MAIN_DOMAIN}
+                  tls_server_name {http.request.host}
                 }
               }
             }
@@ -79,15 +68,8 @@ spec:
                 crowdsec
                 appsec
 
-                @cpa host cpa.{$MAIN_DOMAIN}
-                handle @cpa {
-                  import to_external_cpa
-                  import common_header
-                }
-
-                # 默认流量固定走默认 https listener
                 handle {
-                  import to_external_default
+                  import to_external
                   import common_header
                 }
               }

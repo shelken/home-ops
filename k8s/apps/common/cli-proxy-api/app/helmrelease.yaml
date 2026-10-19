@@ -157,7 +157,6 @@ spec:
         parentRefs:
           - name: envoy-external
             namespace: network
-            sectionName: https-cpa
         rules:
           # - <<: *for-pi-websocket
           - matches:
