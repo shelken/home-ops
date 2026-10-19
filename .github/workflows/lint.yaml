@@ -28,7 +28,7 @@ jobs:
       # 只装这几个：mise.toml 里还有 homeassistant-cli 与 mc，全量安装既不必要也很慢。
       # pipx 是 yamllint 的安装后端，必须在它之前装上（install: false 时不会自动带出来）
       - name: Install mise
-        uses: jdx/mise-action@08ae2a091c038e1e05ec6f5115dc5c69d5a2a6b8 # v5.1.2
+        uses: jdx/mise-action@9b200bcecbfd6303e69a4a261b2e09e3757440a7 # v5.2.0
         with:
           install: false
 
