@@ -1,6 +1,11 @@
 # Kopiur 备份
 
-集群卷备份使用 [Kopiur](https://github.com/home-operations/kopiur) + Kopia，备份至集群外 MinIO (`s3://kopiur`)。
+集群卷备份使用 [Kopiur](https://github.com/home-operations/kopiur) + Kopia，同时写入两个仓库：
+
+- `sakamoto`：集群外 MinIO (`s3://kopiur`)，每小时，供本地细粒度回滚
+- `cloud-openlist`：集群内 OpenList S3 (`s3://kopia/kopiur/`)，每天一次，供异地容灾
+
+两套调度由同一个备份组件生成，见 [ADR-0005](adr/0005-kopiur-dual-repository.md)。
 
 依赖：
 - Longhorn（服务数据存储）
@@ -36,13 +41,19 @@ spec:
       # KOPIUR_PGID: "0"
 ```
 
-组件自动创建：PVC（`IfNotPresent` 保护已有卷）、SnapshotPolicy、SnapshotSchedule（`H * * * *` 自动错峰）、Restore CR。
+组件自动创建：PVC（`IfNotPresent` 保护已有卷）、本地与云端两套 SnapshotPolicy/SnapshotSchedule、Restore CR。
+
+云端策略默认 `H 4 * * *`、保留 7 天，可用 `KOPIUR_CLOUD_CACHE_CAPACITY` 覆盖缓存卷大小。云端只保留每日快照，避免小时级 SQLite 碎片包在云端触发小包合并后的全量重传。
 
 ## 恢复
 
 ```bash
 task kopiur:restore APP=<app> CONFIRM=<app> NAMESPACE=<ns>
 ```
+
+默认使用本地 `sakamoto` 仓库。本地 MinIO 或宿主机不可用时，把组件生成的 `Restore` 中 `spec.source.fromPolicy.name` 改为 `${APP}-cloud`，即从 OpenList 直接恢复；恢复完成后改回。
+
+`task kopiur:restore` 用于本地仓库恢复。灾难场景下本地仓库本身不可用，需先修正 `Restore` 的来源，再按该任务的步骤手工执行删除 PVC、重建 Kustomization 与等待 Bound。
 
 详见 `kopiur-restore` skill。
 

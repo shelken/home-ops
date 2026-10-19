@@ -6,7 +6,7 @@
 
 | 服务 | 仓库类型 | 备份源 | 目标 | 端口 |
 |------|---------|--------|------|------|
-| kopia (云端) | S3 (OpenList) | compose, minio | 189 云盘 | 51515 |
+| kopia (云端) | S3 (OpenList) | compose, minio（不含 `kopiur`） | 189 云盘 | 51515 |
 | kopia-local (本地) | 文件系统 | sakamoto-data 用户数据 | BackUp3T | 51516 |
 
 调度见 `policy.json` 与 `local/policy.json`，运行时用 `kopia policy list` 读。
@@ -37,7 +37,7 @@ Kopia 策略采用层级继承机制：
 | `@sakamoto` | retention, compression, files.ignore | sakamoto 主机级别 |
 | `@vps` | retention, compression, files.ignore | vps 主机级别 |
 | `shelken@sakamoto:/backup/compose` | scheduling | compose 备份调度 |
-| `shelken@sakamoto:/backup/minio` | scheduling | minio 备份调度 |
+| `shelken@sakamoto:/backup/minio` | scheduling | minio 备份调度（`kopiur` 桶由集群内 Kopiur 直接上云，宿主机忽略） |
 | `shelken@vps:/backup/data` | scheduling | VPS 数据备份调度 |
 
 调度间隔见 `policy.json`。
@@ -54,6 +54,7 @@ Kopia 策略采用层级继承机制：
 - **独立调度**：每个备份路径单独配置 scheduling，互不影响
 - **幂等导入**：容器启动时执行 `kopia policy import`，自动覆盖更新
 - **共享仓库**：sakamoto 和 VPS 使用相同的 Kopia 仓库（通过 189 云盘 + OpenList S3）
+- **嵌套仓库剔除**：`@sakamoto` 忽略 `kopiur`，集群 PVC 备份不再被二次封装上传，见 `docs/adr/0005-kopiur-dual-repository.md`
 
 ## 遇到的问题和修正
 

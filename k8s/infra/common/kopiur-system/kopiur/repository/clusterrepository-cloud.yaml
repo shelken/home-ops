@@ -1,0 +1,49 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/home-operations/kopiur/main/deploy/crds/clusterrepositories.yaml
+# 云端异地仓库：直接写入 OpenList 的 S3 网关，不再由宿主机外层 Kopia 快照 MinIO 目录。
+# 与本地 sakamoto 仓库并存：本地每小时、云端每天一次，避免小时级 SQLite 碎片包在云端
+# 触发小包合并（full-rewrite-contents），把历史数据重复上传公网。
+apiVersion: kopiur.home-operations.com/v1alpha1
+kind: ClusterRepository
+metadata:
+  name: cloud-openlist
+spec:
+  allowedNamespaces:
+    all: true
+  # 12 个应用集中在凌晨触发，串行会拖到白天；限 3 个并发兼顾公网带宽。
+  concurrency:
+    maxConcurrentJobs: 3
+  credentialProjection:
+    allowed: true
+  backend:
+    s3:
+      auth:
+        secretRef:
+          name: kopiur-cloud-secret
+          namespace: kopiur-system
+      # 与宿主机 Kopia 共用 kopia 桶，用前缀隔离两套仓库。
+      # OpenList 的 S3 端口只接受 TLS，且对明文 HTTP 返回 301；
+      # 集群内走 envoy-internal 的 HTTPS 入口，避免经宿主机公网绕行。
+      bucket: kopia
+      prefix: kopiur/
+      endpoint: drive-s3.${INTERNAL_DOMAIN}
+  encryption:
+    passwordSecretRef:
+      name: kopiur-cloud-secret
+      namespace: kopiur-system
+      key: KOPIA_PASSWORD
+  maintenance:
+    # 云端每天只写一次，quick 维护无需每小时跑；full 每周一次即可回收旧包。
+    schedule:
+      quick:
+        cron: 0 5 * * *
+        jitter: 10m
+      full:
+        cron: 0 5 * * 0
+        jitter: 1h
+  moverDefaults:
+    cache:
+      contentCacheSizeMb: 256
+      metadataCacheSizeMb: 512
+  scheduleDefaults:
+    timezone: ${TIMEZONE}
