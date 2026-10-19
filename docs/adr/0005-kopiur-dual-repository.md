@@ -18,7 +18,7 @@ status: accepted
 ## Consequences
 
 - 云端每天只接收一份快照，不积累小时级碎片包，日常上云量稳定为 24 小时净增量
-- 云端仓库独立自治，灾难发生时可直接从 OpenList 恢复 PVC，无需依赖宿主机 MinIO 还原
+- 云端仓库独立自治，灾难发生时可直接从 OpenList 恢复 PVC，无需依赖宿主机 MinIO 还原；唯一例外是 OpenList 自身，其 S3 网关依赖自己提供，全损时必须先从本地仓库恢复 OpenList 或临时起一个独立网关
 - 为解开冷启动闭环（OpenList 依赖本地仓库，而云端仓库需要 OpenList 提供端口），云端仓库拆为独立的 `kopiur-repository-cloud` Flux Kustomization，配置 `wait: false`
 - 应用恢复默认仍指向本地策略，从云端恢复需将 `Restore.spec.source.fromPolicy.name` 改为 `${APP}-cloud`
 - 宿主机 `kopiur` 桶的历史快照按保留期在云端自然过期，不做手工破坏性删除

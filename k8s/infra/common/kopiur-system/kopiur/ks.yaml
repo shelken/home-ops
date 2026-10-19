@@ -74,5 +74,11 @@ spec:
     namespace: flux-system
   targetNamespace: *namespace
   timeout: 5m
-  # 不阻塞等待就绪，避免与依赖本地仓库的 OpenList 产生冷启动互相等待死锁
+  # 不阻塞等待就绪，避免与依赖本地仓库的 OpenList 产生冷启动互相等待死锁；
+  # healthCheck 只提供仓库就绪可见性（父级 infra wait:false，不会反向阻塞）
+  healthChecks:
+    - apiVersion: kopiur.home-operations.com/v1alpha1
+      kind: ClusterRepository
+      name: cloud-openlist
+      namespace: kopiur-system
   wait: false

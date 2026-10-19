@@ -39,11 +39,57 @@ spec:
 task kopiur:restore APP=<app> CONFIRM=<app> NAMESPACE=<ns>
 ```
 
-默认使用本地 `sakamoto` 仓库。本地 MinIO 或宿主机不可用时，把组件生成的 `Restore` 中 `spec.source.fromPolicy.name` 改为 `${APP}-cloud`，即从 OpenList 直接恢复，恢复完成后改回
+默认使用本地 `sakamoto` 仓库。本地 MinIO 或宿主机不可用时改用云端仓库，顺序如下：
 
-`task kopiur:restore` 用于本地仓库恢复。灾难场景下本地仓库本身不可用，需先修正 `Restore` 的来源，再按该任务的步骤手工执行删除 PVC、重建 Kustomization 与等待 Bound
+1. 确认云端快照存在，缺快照时先手工触发（见下节）。`task kopiur:snapshots` 走的是本地仓库，看不到云端
+
+   ```bash
+   kubectl get snapshots.kopiur.home-operations.com -A \
+     -o custom-columns='NS:.metadata.namespace,NAME:.metadata.name,PHASE:.status.phase' \
+     | grep '<app>-cloud'
+   ```
+
+2. 解除应用对本地仓库 Kustomization 的依赖，否则本地仓库 Degraded 时 Flux 会停止应用 reconcile：
+
+   ```bash
+   kubectl patch ks <app> -n <ns> --type=json \
+     -p='[{"op":"test","path":"/spec/dependsOn/0/name","value":"kopiur-repository"},{"op":"remove","path":"/spec/dependsOn/0"}]'
+   ```
+
+   稳定后从 Git 恢复该依赖；重建集群的灾备流程同样需要这一步
+
+3. 删除 PVC 与 `Restore`，把 `spec.source.fromPolicy.name` 改为 `${APP}-cloud` 后重建。切源时建议同时把 `policy.onMissingSnapshot` 临时改为 `Fail`，让「云端没有快照」响亮失败而不是产出空卷，恢复成功后改回 `Continue`
+
+恢复行为：组件的 `Restore` 带 `mover.inheritSecurityContextFrom.snapshot`，云端缺快照时停在 `Pending`（`MissingRecordedIdentity` 条件 + Warning 事件），不会静默产出空卷；`resolution` 一经写入不再重解析，重试必须删 PVC 重建
 
 详见 `kopiur-restore` skill
+
+### OpenList 自举
+
+`cloud-openlist` 的 S3 后端就是 OpenList 自己，OpenList 全损时无法用它恢复自身：
+
+1. 先从本地 `sakamoto` 恢复 OpenList，OpenList 的云端副本此时只能写不能读
+2. OpenList 起来后再用 `cloud-openlist` 恢复其余应用
+
+本地仓库同样不可用时，需在任意可连 189 云盘的环境手工起一个 OpenList 网关（沿用原 S3 凭据与 `kopia` 桶），并把 `ClusterRepository` 的 endpoint 指向它
+
+### 手工触发云端基线
+
+合并后首次云端快照要等下一个 `H 4 * * *` 槽位，最长约 24 小时。等待期间宿主机对 `kopiur` 桶的嵌套快照已停止，如需立刻建立基线，手写一次性 `Snapshot` CR：
+
+```bash
+kubectl create -n <ns> -f - <<'EOF'
+apiVersion: kopiur.home-operations.com/v1alpha1
+kind: Snapshot
+metadata:
+  generateName: <app>-cloud-baseline-
+spec:
+  policyRef:
+    name: <app>-cloud
+EOF
+```
+
+是否信任云端保护链，以全部应用的云端基线快照 `Succeeded` 为准，不以清单合并为准
 
 ## 查看快照
 
