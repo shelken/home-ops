@@ -38,4 +38,4 @@ daed 规则中硬编码了 `dip(223.5.5.5) && dport(53) -> must_direct`（防止
 
 - K8s 节点访问 GitHub、Quay、GHCR 等境外服务 100% 命中 daed 代理，彻底杜绝 TLS 握手 RST。
 - K8s 节点对集群自举服务（`*.int.<MAIN_DOMAIN>`）和本地局域网（`*.lan`）的解析正常通过 daed 回弹主路由，不影响内网通信。
-- 依赖旁路由 TVBox 正常运行；由于各 K8s 节点的默认路由原本就是旁路由，此设计未引入新增单点故障。
+- 依赖旁路由 TVBox 正常运行；由于各 K8s 节点的 IPv4 默认路由原本就是旁路由，此设计未引入新增单点故障。节点的 IPv6 出网不在本决策范围，见 [ADR-0005](0005-k8s-node-no-ipv6-egress.md)
