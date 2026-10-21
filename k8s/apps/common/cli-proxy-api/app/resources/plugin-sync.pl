@@ -40,16 +40,40 @@ sub request {
 sub declared_plugins {
     my ($path) = @_;
     open my $cfg, "<", $path or return ();
-    my ($id, $ver, $src, @want);
+    my ($in_plugins, $in_configs, $current_id, $current_ver, $current_src, @want);
     while (my $line = <$cfg>) {
-        if ($line =~ /^ {4}([a-z0-9_-]+):\s*$/) {
-            push @want, [ $id, $ver, $src ] if defined $id && defined $ver;
-            ($id, $ver, $src) = ($1, undef, undef);
+        if ($line =~ /^([a-z0-9_-]+):\s*$/) {
+            $in_plugins = ($1 eq "plugins");
+            $in_configs = 0;
+            next;
         }
-        $ver = $1 if defined $id && $line =~ /^\s+version:\s*(\S+)\s*$/;
-        $src = $1 if defined $id && $line =~ /^\s+source-url:\s*(\S+)\s*$/;
+        next unless $in_plugins;
+        if ($line =~ /^\s+([a-z0-9_-]+):\s*$/) {
+            my $key = $1;
+            if ($key eq "configs") {
+                $in_configs = 1;
+                next;
+            }
+        }
+        next unless $in_configs;
+        if ($line =~ /^\s+([a-z0-9_-]+):\s*$/) {
+            my $candidate = $1;
+            if ($candidate !~ /^(?:store|enabled|priority|identity-profile|login-profile|enable-model-prefix|enable-checkin|model-prefix|install|artifacts|tags)$/) {
+                if ($current_id && $current_ver) {
+                    push @want, [ $current_id, $current_ver, $current_src ];
+                }
+                ($current_id, $current_ver, $current_src) = ($candidate, undef, undef);
+                next;
+            }
+        }
+        if ($current_id) {
+            $current_ver = $1 if $line =~ /^\s+version:\s*(\S+)/ && !defined $current_ver;
+            $current_src = $1 if $line =~ /^\s+source-url:\s*(\S+)/ && !defined $current_src;
+        }
     }
-    push @want, [ $id, $ver, $src ] if defined $id && defined $ver;
+    if ($current_id && $current_ver) {
+        push @want, [ $current_id, $current_ver, $current_src ];
+    }
     close $cfg;
     return @want;
 }
@@ -63,14 +87,25 @@ for (1 .. 60) {
 }
 exit 0 unless defined $plugins;
 
+# 动态获取宿主当前注册的商店源列表, 建立 url -> source_id 映射。
+# CPA 安装接口的 source 参数只认 source_id (如 official 或 source-4d51d6a9fde7),
+# 若直接传 URL 字符串会报 404 plugin_store_source_not_found。
+my %source_by_url;
+if (my $store_res = request("GET", "/v0/management/plugin-store")) {
+    while ($store_res =~ /"id":"([^"]+)","name":"[^"]*","url":"([^"]+)"/g) {
+        $source_by_url{$2} = $1;
+    }
+}
+
 for my $item (declared_plugins("/config/config.yaml")) {
-    my ($id, $version, $source) = @$item;
+    my ($id, $version, $source_url) = @$item;
     if ($plugins =~ /"id":"\Q$id\E"(.*?)(?="id":"|\z)/s) {
         my $entry = $1;
         next if $entry =~ /"registered":true/ && $entry =~ /"version":"\Q$version\E"/;
     }
     my $query = "version=$version";
-    $query .= "&source=$source" if defined $source;
+    my $source_id = $source_by_url{$source_url} if defined $source_url;
+    $query .= "&source=$source_id" if defined $source_id;
     my $res = request("POST", "/v0/management/plugin-store/$id/install?$query");
     print $res ? "plugin ready: $id $version\n" : "plugin install failed: $id $version\n";
 }
