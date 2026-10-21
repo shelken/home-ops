@@ -5,7 +5,7 @@ kind: Dragonfly
 metadata:
   name: dragonfly
 spec:
-  image: ghcr.io/dragonflydb/dragonfly:v1.40.1
+  image: ghcr.io/dragonflydb/dragonfly:v2.0.2
   replicas: 2
   networkPolicyEnabled: false
   env:
@@ -20,6 +20,7 @@ spec:
     - --cluster_mode=emulated
     - --lock_on_hashtags
     - --default_lua_flags=allow-undeclared-keys # immich
+    - --version_check=false
   affinity:
     podAntiAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
