@@ -1,6 +1,7 @@
 ---
-# DNS 策略 — systemd-networkd drop-in
-# 规则：默认 IPv4 路由网卡参与 DNS，其余不参与，全部禁 IPv6 DNS
+# DNS 与 IPv6 出网策略 — systemd-networkd drop-in
+# 规则：默认 IPv4 路由网卡参与 DNS，其余不参与，全部禁 IPv6 DNS；
+# 全部禁用 RA 默认网关（节点出网只走 IPv4，经旁路由，见 ADR-0005）
 
 - name: 发现 netplan 生成的 networkd 配置
   ansible.builtin.find:
@@ -38,10 +39,26 @@
       [IPv6AcceptRA]
       UseDNS=false
       UseDomains=false
+      UseGateway=false
   loop: "{{ netplan_networks.files }}"
   loop_control:
     label: "{{ item.path | basename }}"
   notify: Reload systemd-networkd
+
+- name: 立即应用 networkd 配置
+  ansible.builtin.meta: flush_handlers
+
+# UseGateway=false 只阻止新的 RA 默认路由，已学到的要手动删除
+- name: 查询 RA 学到的 IPv6 默认路由
+  ansible.builtin.command: ip -6 route show default proto ra
+  register: ra_default_routes
+  changed_when: false
+  check_mode: false
+
+- name: 删除 RA 学到的 IPv6 默认路由
+  ansible.builtin.command: ip -6 route flush default proto ra
+  when: ra_default_routes.stdout | length > 0
+  changed_when: true
 
 - name: 清理旧 DNS drop-in
   ansible.builtin.file:
