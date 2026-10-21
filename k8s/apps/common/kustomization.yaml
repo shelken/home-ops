@@ -34,7 +34,7 @@ resources:
   - qui/ks.yaml
   - plex/ks.yaml
   # - seafile/ks.yaml
-  - shlink/ks.yaml
+  # - shlink/ks.yaml
   # - slash/ks.yaml
   # - simple-service/ks.yaml
   - smb-volumes/ks.yaml
