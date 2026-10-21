@@ -34,15 +34,22 @@ sub request {
     return $res =~ m{HTTP/1\.[01] 200} ? $res : undef;
 }
 
-# config.yaml 里 plugins.configs.<id>.store.version 即期望版本
+# config.yaml 里 plugins.configs.<id>.store.version/source-url 即期望版本与来源;
+# 官方源里有同名的 workbuddy, 安装请求不带 source 时 CPA 会在多源里判重 409,
+# 所以 source-url 是必读字段, 不是可选装饰。
 sub declared_plugins {
     my ($path) = @_;
     open my $cfg, "<", $path or return ();
-    my ($id, @want);
+    my ($id, $ver, $src, @want);
     while (my $line = <$cfg>) {
-        $id = $1 if $line =~ /^ {4}([a-z0-9_-]+):\s*$/;
-        push @want, [ $id, $1 ] if defined $id && $line =~ /^\s+version:\s*(\S+)\s*$/;
+        if ($line =~ /^ {4}([a-z0-9_-]+):\s*$/) {
+            push @want, [ $id, $ver, $src ] if defined $id && defined $ver;
+            ($id, $ver, $src) = ($1, undef, undef);
+        }
+        $ver = $1 if defined $id && $line =~ /^\s+version:\s*(\S+)\s*$/;
+        $src = $1 if defined $id && $line =~ /^\s+source-url:\s*(\S+)\s*$/;
     }
+    push @want, [ $id, $ver, $src ] if defined $id && defined $ver;
     close $cfg;
     return @want;
 }
@@ -57,12 +64,14 @@ for (1 .. 60) {
 exit 0 unless defined $plugins;
 
 for my $item (declared_plugins("/config/config.yaml")) {
-    my ($id, $version) = @$item;
+    my ($id, $version, $source) = @$item;
     if ($plugins =~ /"id":"\Q$id\E"(.*?)(?="id":"|\z)/s) {
         my $entry = $1;
         next if $entry =~ /"registered":true/ && $entry =~ /"version":"\Q$version\E"/;
     }
-    my $res = request("POST", "/v0/management/plugin-store/$id/install?version=$version");
+    my $query = "version=$version";
+    $query .= "&source=$source" if defined $source;
+    my $res = request("POST", "/v0/management/plugin-store/$id/install?$query");
     print $res ? "plugin ready: $id $version\n" : "plugin install failed: $id $version\n";
 }
 
