@@ -9,6 +9,13 @@ spec:
     kind: OCIRepository
     name: fluent-bit
   interval: 1h
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
   values:
     #ref: https://github.com/fluent/helm-charts/blob/main/charts/fluent-bit/values.yaml
     resources:

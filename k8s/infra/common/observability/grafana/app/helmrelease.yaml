@@ -8,6 +8,13 @@ spec:
   chartRef:
     kind: OCIRepository
     name: grafana-operator
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
   values:
     # ref: https://github.com/grafana/grafana-operator/blob/master/deploy/helm/grafana-operator/values.yaml
     resources:
