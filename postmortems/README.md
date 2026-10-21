@@ -24,3 +24,4 @@
 - [024 · flux wait recursion retry gap freezes apps](./024-flux-wait-recursion-retry-gap-freezes-apps.md)
 - [025 · longhorn downgrade deadlock](./025-longhorn-downgrade-deadlock.md)
 - [027 · node ipv6 ra route bypasses daed](./027-node-ipv6-ra-route-bypasses-daed.md)
+- [028 · router aaaa leak couples bootstrap dns to cluster](./028-router-aaaa-leak-couples-bootstrap-dns-to-cluster.md)
