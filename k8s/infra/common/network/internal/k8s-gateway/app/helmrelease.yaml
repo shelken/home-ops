@@ -41,6 +41,10 @@ spec:
         memory: 64Mi
     # ref：https://codeberg.org/k8s-gateway/k8s_gateway/src/branch/master/charts/k8s-gateway/values.yaml
     fullnameOverride: k8s-gateway
+    # 单副本升级时先起新 Pod 再停旧 Pod，避免 DNS 短暂断档
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
     # 4.x 镜像默认 root；容器内监听 1053 + 非 root，Service 对外仍是 53
     securityContext:
       runAsUser: 1000

@@ -58,7 +58,7 @@ kind: Service
 metadata:
   name: postgres-test
   annotations:
-    external-dns.alpha.kubernetes.io/hostname: postgres-test.${MAIN_DOMAIN}
+    external-dns.kubernetes.io/hostname: postgres-test.${MAIN_DOMAIN}
     lbipam.cilium.io/ips: 192.168.69.53
 spec:
   type: LoadBalancer
