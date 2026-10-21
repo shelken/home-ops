@@ -37,37 +37,45 @@ spec:
         cpu: 10m
         memory: 32Mi
       limits:
+        cpu: null # 4.x 默认带 100m CPU limit，保持原先不限 CPU
         memory: 64Mi
-    # ref：https://github.com/k8s-gateway/k8s_gateway/blob/master/charts/k8s-gateway/values.yaml
+    # ref：https://codeberg.org/k8s-gateway/k8s_gateway/src/branch/master/charts/k8s-gateway/values.yaml
     fullnameOverride: k8s-gateway
-    domain: "${MAIN_DOMAIN} ${INTERNAL_DOMAIN}"
-    ttl: 60
-    fallthrough:
-      enabled: true
-      zones:
-        - "${MAIN_DOMAIN}"
-    extraZonePlugins:
-      - name: log
-      - name: errors
-      - name: health
-        configBlock: |-
-          lameduck 5s
-      - name: ready
-      - name: prometheus
-        parameters: 0.0.0.0:9153
-      # 公网递归走 DoT，绕开路由器上针对 53 端口的 DNS 重定向
-      - name: forward
-        parameters: ". tls://223.5.5.5"
-        configBlock: |-
-          tls_servername dns.alidns.com
-      - name: loop
-      - name: reload
-      - name: loadbalance
+    # 4.x 镜像默认 root；容器内监听 1053 + 非 root，Service 对外仍是 53
+    securityContext:
+      runAsUser: 1000
+    serviceType: LoadBalancer
     service:
-      type: LoadBalancer
-      useTcp: true
-      port: 53
       annotations:
         lbipam.cilium.io/ips: "192.168.69.41"
       externalTrafficPolicy: Local
-    watchedResources: ["HTTPRoute", "Service", "Ingress"]
+    servers:
+      - zones:
+          - zone: .
+            use_tcp: true
+        port: 1053
+        servicePort: 53
+        plugins:
+          - name: log
+          - name: errors
+          - name: health
+            configBlock: |-
+              lameduck 5s
+          - name: ready
+          - name: k8s_gateway
+            parameters: "${MAIN_DOMAIN} ${INTERNAL_DOMAIN}"
+            configBlock: |-
+              apex k8s-gateway.network
+              ttl 60
+              resources HTTPRoute Service Ingress
+              fallthrough ${MAIN_DOMAIN}
+          - name: prometheus
+            parameters: 0.0.0.0:9153
+          # 公网递归走 DoT，绕开路由器上针对 53 端口的 DNS 重定向
+          - name: forward
+            parameters: ". tls://223.5.5.5"
+            configBlock: |-
+              tls_servername dns.alidns.com
+          - name: loop
+          - name: reload
+          - name: loadbalance
