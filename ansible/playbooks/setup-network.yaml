@@ -15,6 +15,7 @@
 # 用法:
 #   ansible-playbook -i inventory/hosts.ini playbooks/setup-network.yaml
 #   ansible-playbook -i inventory/hosts.ini playbooks/setup-network.yaml --limit homelab-1
+#   ansible-playbook -i inventory/hosts.ini playbooks/setup-network.yaml --tags dns   # 可选 lan / vlan / dns
 
 - name: 配置 K8s 节点网络
   hosts: k8s
@@ -25,18 +26,21 @@
     - name: 推断平台类型
       ansible.builtin.set_fact:
         is_pve: "{{ ansible_facts.virtualization_type == 'kvm' }}"
+      tags: [always]
 
   tasks:
+    # 必须用 import_tasks：include_tasks 是动态的，tags 只作用于 include 本身，
+    # 内部任务不继承，--tags 会把整段任务跳过
     - name: LAN 配置
-      ansible.builtin.include_tasks: tasks/k8s-lan.yaml
+      ansible.builtin.import_tasks: tasks/k8s-lan.yaml
       tags: [lan]
 
     - name: VLAN 配置
-      ansible.builtin.include_tasks: tasks/k8s-vlan.yaml
+      ansible.builtin.import_tasks: tasks/k8s-vlan.yaml
       tags: [vlan]
 
     - name: DNS 策略
-      ansible.builtin.include_tasks: tasks/k8s-dns.yaml
+      ansible.builtin.import_tasks: tasks/k8s-dns.yaml
       tags: [dns]
 
   handlers:
