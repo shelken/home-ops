@@ -1,0 +1,19 @@
+---
+# yaml-language-server: $schema=https://fluxcd-community.github.io/flux2-schemas/kustomize-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app stt-voice
+  namespace: &namespace default
+spec:
+  targetNamespace: *namespace
+  interval: 1h
+  path: ./k8s/apps/common/ai/stt-voice/app
+  prune: true
+  retryInterval: 2m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  timeout: 5m
+  wait: false

@@ -1,0 +1,18 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/discovery.k8s.io/endpointslice-v1.json
+# 地址来自 cluster-settings ${YUUKO_IP} postBuild 注入;FQDN endpoint 不可靠,见 ADR-0002
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: stt-voice
+  labels:
+    kubernetes.io/service-name: stt-voice
+spec:
+  addressType: IPv4
+  endpoints:
+    - addresses:
+        - "${YUUKO_IP}"
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8900
