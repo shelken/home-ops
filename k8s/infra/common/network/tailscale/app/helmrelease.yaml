@@ -9,6 +9,13 @@ spec:
   chartRef:
     kind: OCIRepository
     name: tailscale-operator
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
   values:
     #ref: https://github.com/tailscale/tailscale/blob/main/cmd/k8s-operator/deploy/chart/values.yaml
     operatorConfig:
