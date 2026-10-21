@@ -13,11 +13,8 @@ from string import Template
 
 HERE = pathlib.Path(__file__).resolve().parent
 CONF_SRC = HERE / "conf.d"
-HOSTS_SRC = HERE / "dnsmasq-int.hosts"
 
 CONF_DST = os.environ["DNS_MANAGED_CONF_DIR"]
-HOSTS_NAME = "int.hosts"
-HOSTS_DST = f"{CONF_DST}/{HOSTS_NAME}"
 
 ROUTER_SSH = os.environ["ROUTER_SSH"]
 SSH_OPTS = ["-o", "BatchMode=yes", "-o", "ConnectTimeout=5"]
@@ -41,12 +38,11 @@ def run(args: list[str], text: str | None = None) -> str:
     return result.stdout
 
 
-def render_configs(hosts_path: str) -> dict[str, str]:
+def render_configs() -> dict[str, str]:
     values = {
         "MAIN_DOMAIN": os.environ["MAIN_DOMAIN"],
         "INTERNAL_DOMAIN": os.environ["INTERNAL_DOMAIN"],
         "DNS_GATEWAY": os.environ["DNS_GATEWAY"],
-        "DNS_HOSTS_FILE": hosts_path,
     }
     files: dict[str, str] = {}
     for path in sorted(CONF_SRC.glob("*.conf.tpl")):
@@ -58,7 +54,7 @@ def render_configs(hosts_path: str) -> dict[str, str]:
 
 
 def desired_files() -> dict[str, str]:
-    return {**render_configs(HOSTS_DST), HOSTS_NAME: HOSTS_SRC.read_text()}
+    return render_configs()
 
 
 def remote_names() -> set[str]:
@@ -114,10 +110,7 @@ def write_remote_atomic(path: str, text: str) -> None:
 
 def validate() -> None:
     temporary = f"/tmp/home-ops-dnsmasq-{os.getpid()}"
-    files = {
-        **render_configs(f"{temporary}/{HOSTS_NAME}"),
-        HOSTS_NAME: HOSTS_SRC.read_text(),
-    }
+    files = render_configs()
     try:
         run(ssh_read(f"rm -rf {shlex.quote(temporary)}; mkdir -p {shlex.quote(temporary)}"))
         for name, text in files.items():
@@ -151,9 +144,9 @@ def do_sync() -> int:
 
     name = next(
         (
-            line.split()[1]
-            for line in HOSTS_SRC.read_text().splitlines()
-            if line.strip() and not line.startswith("#")
+            line.split("/")[1]
+            for line in (CONF_SRC / "30-bootstrap.conf.tpl").read_text().splitlines()
+            if line.startswith("address=/")
         ),
         None,
     )
