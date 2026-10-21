@@ -49,3 +49,15 @@ spec:
         memory: 128Mi
       limits:
         memory: 2Gi
+    ui:
+      enabled: true
+      auth:
+        anonymous:
+          enabled: true
+          user: admin
+      rbac:
+        userRoles: true
+        bindings:
+          - role: user
+            users:
+              - admin
