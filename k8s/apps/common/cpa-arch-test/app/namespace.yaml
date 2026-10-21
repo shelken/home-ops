@@ -1,0 +1,7 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cpa-arch-test
+  labels:
+    app.kubernetes.io/name: cpa-arch-test

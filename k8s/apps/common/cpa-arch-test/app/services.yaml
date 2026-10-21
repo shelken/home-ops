@@ -1,0 +1,26 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cpa-amd64
+spec:
+  selector:
+    app.kubernetes.io/name: cpa-arch-test
+    app.kubernetes.io/variant: amd64
+  ports:
+    - name: http
+      port: 8317
+      targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cpa-arm64
+spec:
+  selector:
+    app.kubernetes.io/name: cpa-arch-test
+    app.kubernetes.io/variant: arm64
+  ports:
+    - name: http
+      port: 8317
+      targetPort: http
