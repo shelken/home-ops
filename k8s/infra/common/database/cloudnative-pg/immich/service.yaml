@@ -4,7 +4,7 @@ kind: Service
 metadata:
   name: immich-lb
   annotations:
-    external-dns.alpha.kubernetes.io/hostname: immich-db.${MAIN_DOMAIN}
+    external-dns.kubernetes.io/hostname: immich-db.${MAIN_DOMAIN}
     lbipam.cilium.io/ips: 192.168.69.56
     gatus.home-operations.com/endpoint: |-
       group: services
