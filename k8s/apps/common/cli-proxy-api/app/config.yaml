@@ -76,13 +76,13 @@ plugins:
       enabled: true
       store:
         # renovate: datasource=github-releases depName=shelken/cpa-plugins extractVersion=^qwenworkcn/v(?<version>.+)$
-        version: 0.1.5
+        version: 0.1.6
         source-url: https://raw.githubusercontent.com/shelken/cpa-plugins/main/registry.json
     workbuddy:
       enabled: true
       store:
         # renovate: datasource=github-releases depName=shelken/cpa-plugins extractVersion=^workbuddy/v(?<version>.+)$
-        version: 0.3.1
+        version: 0.4.0
         source-url: https://raw.githubusercontent.com/shelken/cpa-plugins/main/registry.json
   store-sources:
     - https://raw.githubusercontent.com/shelken/cpa-plugins/main/registry.json
