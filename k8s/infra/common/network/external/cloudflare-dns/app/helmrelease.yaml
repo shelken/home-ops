@@ -64,7 +64,7 @@ spec:
       - --crd-source-kind=DNSEndpoint
       - --gateway-name=envoy-external
       # - --zone-id-filter=$(CF_ZONE_ID)
-    annotationFilter: "external-dns.alpha.kubernetes.io/exclude notin (true)"
+    annotationFilter: "external-dns.kubernetes.io/exclude notin (true)"
     triggerLoopOnEvent: true
     policy: sync
     sources: ["crd", "gateway-httproute"]
