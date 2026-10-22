@@ -16,6 +16,7 @@ configMapGenerator:
       - device.yaml=./resources/outside/device.yaml
       - geoip.yaml=./resources/outside/geoip.yaml
       - router.yaml=./resources/outside/router.yaml
+      - registry-mirror.yaml=./resources/outside/registry-mirror.yaml
       - sakamoto.yaml=./resources/outside/sakamoto.yaml
       - vps.yaml=./resources/outside/vps.yaml
 generatorOptions:

@@ -1,0 +1,24 @@
+---
+# 主机清单须与 ansible/playbooks/resource/registries.yaml 中的外部镜像端点一致（lint 校验）
+endpoints:
+  - &common
+    name: dhp
+    group: registry-mirror
+    # 不经旁路由的国内公共 DNS，切换代理组件时不误报
+    url: 223.5.5.5
+    interval: 10m
+    dns:
+      query-name: dhp.${MAIN_DOMAIN}
+      query-type: A
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[DNS_RCODE] == NOERROR"
+    alerts:
+      - type: custom
+  - <<: *common
+    name: docker.m.daocloud.io
+    dns:
+      query-name: docker.m.daocloud.io
+      query-type: A
