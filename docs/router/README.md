@@ -81,6 +81,9 @@ BIRD 完全由 home-ops 管理，`bgp:sync` 整体同步 `/etc/bird.conf`。dnsm
 和基础配置的手工管理，home-ops 持续同步只完整管理 `/etc/dnsmasq-home-ops.d`。具体机制
 与验证方式见 [DNS 配置](./dns.md)。
 
+各功能在 `router/<功能>/spec.py` 声明受管文件、校验、生效与验证命令，由 `router/declare.py`
+统一执行 diff 与 sync：先在远端暂存目录校验全部候选文件，再原子替换有变化的文件。
+
 ## 相关文档
 
 - [跨地域节点互联架构](../17-add-remote-node.md) - 完整的 BGP 全互联方案（含 Cilium 配置）
