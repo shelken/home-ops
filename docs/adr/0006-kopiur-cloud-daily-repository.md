@@ -17,6 +17,7 @@ status: accepted
 ## Consequences
 
 - 云端每天只收一份快照，日常上传量为 24 小时净增量；异地副本的恢复点从每小时变为每天，细粒度回滚只依赖本地仓库
+- 云端副本可独立于本地仓库恢复：2026-10-22 已用 qui 演练把组件 `Restore` 的来源切到 `${APP}-cloud` 并从云端恢复，完整切换步骤见 [Kopiur 备份](../11-kopiur.md)
 - 云端仓库必须独立成 `kopiur-repository-cloud` Kustomization：OpenList 依赖本地仓库的 Kustomization，两者合并会在冷启动时互相等待
 - OpenList 自身的云端副本只能经 OpenList 读取，集群与 sakamoto 主机同时损坏时无法用云端副本恢复 OpenList。接受该风险，不额外配置第二个网关
 - 宿主机 Kopia 停止封装 kopiur 桶，须在全部应用的云端快照成功后再部署，已有的历史快照按保留策略自然过期

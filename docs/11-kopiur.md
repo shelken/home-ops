@@ -51,7 +51,7 @@ spec:
 
 ### 本地仓库不可用时切到云端
 
-未演练，演练通过前只作为预案。提交一次 Git，改两行：
+提交一次 Git，改两行：
 
 ```diff
 # k8s/components/kopiur/backup/restore.yaml
@@ -65,6 +65,11 @@ spec:
 - 第一行让所有 `Restore` 改从云端策略取快照，只有 PVC 被重建的应用会真正恢复
 - 第二行让应用的 Kustomization 不再因本地仓库 NotReady 而停止 reconcile
 - 本地仓库恢复后 revert 该提交
+
+2026-10-22 已用 qui 演练第一行：删除 qui 的 Kustomization 后，从云端快照恢复，文件与快照一致。演练时本地仓库正常，第二行未实测
+
+- 删除 Kustomization 不会删除备份：快照默认 `onScheduleDelete: Retain`，CR 被删后数据仍在仓库，随后由 catalog 接管为 `adopted` 快照
+- 恢复会先停在 `MissingRecordedIdentity` 等待约 5 分钟，直到 catalog 接管云端快照后才拉取数据，期间不会产出空卷
 
 OpenList 自身的云端副本要经 OpenList 读取。集群与 sakamoto 主机同时损坏时，只能临时用 VPS 上的 OpenList 读取云端仓库，前提是开放其 S3 端口 5246（当前只发布 5244）
 
