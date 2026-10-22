@@ -13,6 +13,7 @@ import importlib
 import os
 import re
 import shlex
+import stat
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -81,12 +82,13 @@ def ssh(command: str, data: bytes | None = None) -> bytes:
 
 
 def fingerprint(file: File) -> str:
-    return f"{file.mode:o} {hashlib.sha256(file.content).hexdigest()}"
+    return f"{stat.filemode(stat.S_IFREG | file.mode)} {hashlib.sha256(file.content).hexdigest()}"
 
 
 def remote_fingerprints(paths: list[str]) -> dict[str, str]:
+    # 旁路由的精简 busybox 没有 stat，权限取 ls -l 的模式串
     script = "".join(
-        f"p={shlex.quote(p)}; if [ -f \"$p\" ]; then echo \"$(stat -c %a \"$p\") $(sha256sum < \"$p\" | cut -d' ' -f1)\"; else echo -; fi\n"
+        f"p={shlex.quote(p)}; if [ -f \"$p\" ]; then echo \"$(ls -l \"$p\" | cut -c1-10) $(sha256sum < \"$p\" | cut -d' ' -f1)\"; else echo -; fi\n"
         for p in paths
     )
     return dict(zip(paths, ssh(script).decode().splitlines()))
