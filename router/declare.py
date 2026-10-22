@@ -121,12 +121,13 @@ def plan(spec: Spec) -> Plan:
 def show(spec: Spec, todo: Plan) -> None:
     for file in todo.changed:
         print(f"--- 差异：{file.path}（权限 {file.mode:o}）")
-        current = ssh(f"cat {shlex.quote(file.path)} 2>/dev/null || true")
         try:
-            before, after = current.decode(), file.content.decode()
+            after = file.content.decode()
         except UnicodeDecodeError:
+            # 二进制不做逐行对比，也就不必把远端文件（dae 约 33MB）拉回本地
             print(f"二进制内容不同，将替换（sha256 {hashlib.sha256(file.content).hexdigest()[:12]}）")
             continue
+        before = ssh(f"cat {shlex.quote(file.path)} 2>/dev/null || true").decode(errors="replace")
         if file.sensitive:
             before, after = redact(before), redact(after)
             print("链接已脱敏，哈希不同即链接有变化；原文用 sops 查看")
