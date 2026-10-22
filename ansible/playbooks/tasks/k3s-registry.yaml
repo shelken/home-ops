@@ -7,13 +7,9 @@
     group: root
     mode: '0755'
 
-- name: 设置 registries 文件名
-  ansible.builtin.set_fact:
-    registries_file: "{{ 'registries-remote.yaml' if (remote_node | default(false)) else 'registries.yaml' }}"
-
 - name: 复制 registries 配置到远程节点
   ansible.builtin.copy:
-    src: "{{ playbook_dir }}/resource/{{ registries_file }}"
+    src: "{{ playbook_dir }}/resource/registries.yaml"
     dest: /etc/rancher/k3s/registries.yaml
     owner: root
     group: root

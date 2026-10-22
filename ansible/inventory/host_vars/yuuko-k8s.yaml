@@ -3,9 +3,7 @@
 # lima_host: cluster-start/stop 按此走 Lima 分支而非 PVE qm
 lima_host: yuuko
 
-remote_node: false
-
-# 本地节点沿用集群 registry 配置，只拒绝 IPv6 DNS。
+# 只拒绝 IPv6 DNS。
 setup_dns: true
 
 # 声明式节点标签（节点重建后 install-k3s 自动恢复）。

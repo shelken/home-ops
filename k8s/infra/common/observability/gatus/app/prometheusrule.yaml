@@ -59,3 +59,15 @@ spec:
               基础服务 {{ $labels.name }} 连接({{ $labels.type }})失败
           labels:
             severity: critical
+
+        - alert: Gatus|镜像端点失效
+          expr: |
+            gatus_results_endpoint_success{group="registry-mirror"} == 0
+          for: 1h
+          annotations:
+            summary: >-
+              镜像端点 {{ $labels.name }} 域名解析失败
+            description: >-
+              containerd 会回退到下一个镜像端点或源站，不会立即故障；确认域名已失效后从 ansible/playbooks/resource/registries.yaml 删除该端点。
+          labels:
+            severity: warning
