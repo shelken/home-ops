@@ -6,7 +6,7 @@
 
 | 服务 | 仓库类型 | 备份源 | 目标 | 端口 |
 |------|---------|--------|------|------|
-| kopia (云端) | S3 (OpenList) | compose, minio | 189 云盘 | 51515 |
+| kopia (云端) | S3 (OpenList) | compose, minio（不含 `kopiur` 桶） | 189 云盘 | 51515 |
 | kopia-local (本地) | 文件系统 | sakamoto-data 用户数据 | BackUp3T | 51516 |
 
 调度见 `policy.json` 与 `local/policy.json`，运行时用 `kopia policy list` 读。
@@ -54,6 +54,7 @@ Kopia 策略采用层级继承机制：
 - **独立调度**：每个备份路径单独配置 scheduling，互不影响
 - **幂等导入**：容器启动时执行 `kopia policy import`，自动覆盖更新
 - **共享仓库**：sakamoto 和 VPS 使用相同的 Kopia 仓库（通过 189 云盘 + OpenList S3）
+- **不封装 kopiur 桶**：`@sakamoto` 忽略 `/kopiur`，集群 PVC 的异地副本由 Kopiur 直写云端仓库，见 [ADR-0006](../../../../docs/adr/0006-kopiur-cloud-daily-repository.md)。改动 `policy.json` 后需强制重建 kopia 容器才会重新导入
 
 ## 遇到的问题和修正
 
