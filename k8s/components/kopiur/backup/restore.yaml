@@ -15,7 +15,7 @@ spec:
     onMissingSnapshot: Continue
   source:
     fromPolicy:
-      name: ${APP}
+      name: ${APP}-cloud
       offset: 0
   target:
     populator: {}
