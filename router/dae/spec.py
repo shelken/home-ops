@@ -38,7 +38,7 @@ def binary(tag: str) -> bytes:
 
 def config() -> bytes:
     return subprocess.run(
-        ["sops", "-d", "--extract", '["config"]', str(HERE / "config.sops.yaml")],
+        ["sops", "-d", str(HERE / "config.sops.dae")],
         check=True,
         capture_output=True,
     ).stdout
