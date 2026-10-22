@@ -150,29 +150,29 @@ spec:
             backendRefs:
               - name: cpa-usage-keeper
                 port: 8080
-      app-external:
-        annotations:
-          gethomepage.dev/enabled: "true"
-          gethomepage.dev/group: external
-          gethomepage.dev/name: *app
-          gethomepage.dev/icon: kubernetes-dashboard.svg
-          gethomepage.dev/app: *app
-          gatus.home-operations.com/endpoint: |-
-            conditions:
-              - "[STATUS] == 404"
-        hostnames: ["cpa.${MAIN_DOMAIN}"]
-        parentRefs:
-          - name: envoy-external
-            namespace: network
-        rules:
-          # - <<: *for-pi-websocket
-          - matches:
-              - path:
-                  type: PathPrefix
-                  value: /v1
-            backendRefs:
-              - identifier: app
-                port: *port
+      # app-external:
+      #   annotations:
+      #     gethomepage.dev/enabled: "true"
+      #     gethomepage.dev/group: external
+      #     gethomepage.dev/name: *app
+      #     gethomepage.dev/icon: kubernetes-dashboard.svg
+      #     gethomepage.dev/app: *app
+      #     gatus.home-operations.com/endpoint: |-
+      #       conditions:
+      #         - "[STATUS] == 404"
+      #   hostnames: ["cpa.${MAIN_DOMAIN}"]
+      #   parentRefs:
+      #     - name: envoy-external
+      #       namespace: network
+      #   rules:
+      #     # - <<: *for-pi-websocket
+      #     - matches:
+      #         - path:
+      #             type: PathPrefix
+      #             value: /v1
+      #       backendRefs:
+      #         - identifier: app
+      #           port: *port
     persistence:
       scripts:
         type: configMap
