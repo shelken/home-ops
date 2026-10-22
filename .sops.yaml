@@ -9,9 +9,8 @@ creation_rules:
       - age:
         - *admin_mio
         - *home-ops
-  # 集群外路由器配置只在本机下发时解密，集群密钥不需要
-  - path_regex: router/.+\.sops\.ya?ml
-    encrypted_regex: "^config$"
+  # 集群外路由器配置只在本机下发时解密，集群密钥不需要；.dae 扩展名按 binary 处理，`sops <文件>` 直接编辑原文
+  - path_regex: router/.+\.sops\.dae$
     key_groups:
       - age:
         - *admin_mio

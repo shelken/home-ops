@@ -11,12 +11,21 @@ import difflib
 import hashlib
 import importlib
 import os
+import re
 import shlex
 import subprocess
 import sys
 from dataclasses import dataclass
 
 SSH_OPTS = ["-o", "BatchMode=yes", "-o", "ConnectTimeout=5"]
+# 订阅与节点链接携带凭据；agent 也会运行 diff，输出一律脱敏
+SECRET_URL = re.compile(r"\b([a-z][a-z0-9+.-]*)://[^\s'\"]+")
+
+
+def redact(text: str) -> str:
+    return SECRET_URL.sub(
+        lambda m: f"{m[1]}://<已隐藏#{hashlib.sha256(m[0].encode()).hexdigest()[:8]}>", text
+    )
 
 
 @dataclass(frozen=True)
@@ -26,7 +35,7 @@ class File:
     mode: int = 0o644
     # 该文件变化时代替 Spec.reload，例如二进制变化需要完整重启
     reload: str | None = None
-    # 含凭据：非终端（如 agent、CI 日志）不展示内容差异
+    # 含凭据：diff 与报错中的链接一律脱敏，只能用 sops 查看原文
     sensitive: bool = False
 
 
@@ -66,7 +75,7 @@ def ssh(command: str, data: bytes | None = None) -> bytes:
     args = ["ssh", *SSH_OPTS, target, command] if data is not None else ["ssh", "-n", *SSH_OPTS, target, command]
     result = subprocess.run(args, input=data, capture_output=True)
     if result.returncode != 0:
-        sys.stderr.write(f"远端命令失败：{command}\n{result.stdout.decode(errors='replace')}{result.stderr.decode(errors='replace')}")
+        sys.stderr.write(redact(f"远端命令失败：{command}\n{result.stdout.decode(errors='replace')}{result.stderr.decode(errors='replace')}"))
         raise SystemExit(1)
     return result.stdout
 
@@ -110,15 +119,15 @@ def plan(spec: Spec) -> Plan:
 def show(spec: Spec, todo: Plan) -> None:
     for file in todo.changed:
         print(f"--- 差异：{file.path}（权限 {file.mode:o}）")
-        if file.sensitive and not sys.stdout.isatty():
-            print("敏感文件内容不同，非终端不展示")
-            continue
         current = ssh(f"cat {shlex.quote(file.path)} 2>/dev/null || true")
         try:
             before, after = current.decode(), file.content.decode()
         except UnicodeDecodeError:
             print(f"二进制内容不同，将替换（sha256 {hashlib.sha256(file.content).hexdigest()[:12]}）")
             continue
+        if file.sensitive:
+            before, after = redact(before), redact(after)
+            print("链接已脱敏，哈希不同即链接有变化；原文用 sops 查看")
         name = file.path.lstrip("/")
         sys.stdout.writelines(
             difflib.unified_diff(

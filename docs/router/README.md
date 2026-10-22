@@ -73,7 +73,7 @@ task router:dns:sync   # 默认入口：展示差异 → 确认 → 校验 → �
 task router:dae:sync   # 默认入口：旁路由 dae 二进制、init 脚本、配置与服务状态
 task router:bgp:diff   # 可选：只读检查整个 /etc/bird.conf
 task router:dns:diff   # 可选：只读检查 home-ops 专用目录
-task router:dae:diff   # 可选：只读检查旁路由 dae；配置含凭据，非终端不展示内容差异
+task router:dae:diff   # 可选：只读检查旁路由 dae；配置中的链接已脱敏
 ```
 
 日常只运行对应的 `sync`；它会先自动执行同一功能的只读 `diff`，完整展示差异，再确认和
@@ -87,8 +87,13 @@ BIRD 完全由 home-ops 管理，`bgp:sync` 整体同步 `/etc/bird.conf`。dnsm
 统一执行 diff 与 sync：先在远端暂存目录校验全部候选文件，再原子替换有变化的文件。
 
 旁路由 dae 的选型与回滚见 [ADR-0007](../adr/0007-bypass-router-dae-declarative.md)。配置在
-`router/dae/config.sops.yaml`，用 `sops router/dae/config.sops.yaml` 编辑。期望状态是 daed
+`router/dae/config.sops.dae`，用 `sops router/dae/config.sops.dae` 直接编辑 dae 原文。期望状态是 daed
 停止并禁用、dae 启用并运行，首次 sync 即完成切换，会短暂中断所有经旁路由的出网。
+
+dae 配置含订阅与节点凭据。`declare.py` 对标记为 `sensitive` 的文件，无论是否在终端运行，
+diff 和远端报错中的 `scheme://...` 链接一律替换为 `scheme://<已隐藏#哈希>`；哈希不同即链接有变化。
+agent 只用 `task router:dae:diff` 审查变更，不执行 `sops -d`、`sops <文件>`，不读取旁路由上的
+`/etc/dae/config.dae`；需要原文时由人用 `sops router/dae/config.sops.dae` 查看。
 
 ## 相关文档
 
