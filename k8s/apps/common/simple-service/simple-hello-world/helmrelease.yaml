@@ -19,7 +19,7 @@ spec:
           app:
             image:
               repository: ghcr.io/shelken/simple-hello-world
-              tag: 0.1.0@sha256:7bdbbfdef2b822460a73188c24dea195fff7f3927582eeeb6c3ab86436566f89
+              tag: 0.1.0@sha256:36c968e898076f069ed6062863b90066123478b6db0f5da806c66aa5e4a4d598
             probes:
               liveness: &probes
                 enabled: true
