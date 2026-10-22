@@ -70,8 +70,10 @@ ip route | grep 10.42
 ```bash
 task router:bgp:sync   # 默认入口：展示差异 → 确认 → 校验 → 整体替换 → 热加载
 task router:dns:sync   # 默认入口：展示差异 → 确认 → 校验 → 下发 → 重启 dnsmasq
+task router:dae:sync   # 默认入口：旁路由 dae 二进制、init 脚本、配置与服务状态
 task router:bgp:diff   # 可选：只读检查整个 /etc/bird.conf
 task router:dns:diff   # 可选：只读检查 home-ops 专用目录
+task router:dae:diff   # 可选：只读检查旁路由 dae；配置含凭据，非终端不展示内容差异
 ```
 
 日常只运行对应的 `sync`；它会先自动执行同一功能的只读 `diff`，完整展示差异，再确认和
@@ -83,6 +85,10 @@ BIRD 完全由 home-ops 管理，`bgp:sync` 整体同步 `/etc/bird.conf`。dnsm
 
 各功能在 `router/<功能>/spec.py` 声明受管文件、校验、生效与验证命令，由 `router/declare.py`
 统一执行 diff 与 sync：先在远端暂存目录校验全部候选文件，再原子替换有变化的文件。
+
+旁路由 dae 的选型与回滚见 [ADR-0007](../adr/0007-bypass-router-dae-declarative.md)。配置在
+`router/dae/config.sops.yaml`，用 `sops router/dae/config.sops.yaml` 编辑。期望状态是 daed
+停止并禁用、dae 启用并运行，首次 sync 即完成切换，会短暂中断所有经旁路由的出网。
 
 ## 相关文档
 

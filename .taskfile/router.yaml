@@ -7,6 +7,10 @@ vars:
     sh: |
       ansible-inventory -i {{.ROOT_DIR}}/ansible/inventory/others.ini --host router-mine \
         | jq -re '.ansible_user + "@" + .ansible_host'
+  BYPASS_SSH:
+    sh: |
+      ansible-inventory -i {{.ROOT_DIR}}/ansible/inventory/others.ini --host bypass-router \
+        | jq -re '.ansible_user + "@" + .ansible_host'
   # home-ops 完整管理独立的 dnsmasq 配置目录
   DNS_MANAGED_CONF_DIR: "/etc/dnsmasq-home-ops.d"
 
@@ -27,13 +31,30 @@ tasks:
       - task: _declare
         vars: {feature: bird, action: sync}
 
+  dae:diff:
+    silent: true
+    desc: "对比旁路由 dae 的二进制、init 脚本、配置与服务状态"
+    cmds:
+      - task: _declare
+        vars: {feature: dae, action: diff, target: "{{.BYPASS_SSH}}"}
+
+  dae:sync:
+    desc: "同步旁路由 dae（先展示差异，确认后校验、下发、收敛服务并验证）"
+    # deps 先于 prompt 执行：确认发生在看到差异之后
+    deps: [dae:diff]
+    prompt: 下发到旁路由；若要停 daed、启 dae，会中断所有经旁路由的出网，确认？
+    cmds:
+      - task: _declare
+        vars: {feature: dae, action: sync, target: "{{.BYPASS_SSH}}"}
+
   _declare:
     internal: true
     dir: "{{.ROOT_DIR}}"
     requires:
       vars: ["feature", "action"]
     env:
-      ROUTER_SSH: "{{.ROUTER_SSH}}"
+      # 与顶层同名变量冲突时 task 级 env 会被覆盖（Task 3.53 实测），故另起名
+      DECLARE_SSH: "{{.target | default .ROUTER_SSH}}"
     cmd: python3 router/declare.py {{.feature}} {{.action}}
 
   dns:diff:
@@ -71,7 +92,7 @@ tasks:
           yq ea -r 'select(.kind == "HelmRelease") | .spec.values.service.annotations."lbipam.cilium.io/ips"'
           {{.ROOT_DIR}}/k8s/infra/common/network/internal/k8s-gateway/app/helmrelease.yaml
     env:
-      ROUTER_SSH: "{{.ROUTER_SSH}}"
+      DECLARE_SSH: "{{.ROUTER_SSH}}"
       DNS_MANAGED_CONF_DIR: "{{.DNS_MANAGED_CONF_DIR}}"
       MAIN_DOMAIN: "{{.MAIN_DOMAIN}}"
       INTERNAL_DOMAIN: "{{.INTERNAL_DOMAIN}}"

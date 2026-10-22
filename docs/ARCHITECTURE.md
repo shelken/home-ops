@@ -54,7 +54,7 @@ graph LR
 
     subgraph HOME["家庭内网"]
         Router["主路由<br/>OpenWrt<br/>192.168.6.1"]
-        BYPASS["旁路由<br/>daed<br/>192.168.6.3"]
+        BYPASS["旁路由<br/>dae<br/>192.168.6.3"]
 
         subgraph VLAN6["VLAN 6 · 主内网<br/>192.168.6.0/24"]
             SAKAMOTO["宿主机<br/>192.168.6.144"]
@@ -108,8 +108,8 @@ graph LR
 |------|------|------|
 | F50 ↔ 互联网 | WAN (移动数据) | F50 是主路由的互联网出口 |
 | 主路由 ↔ F50 | LAN | 主路由通过 F50 出网；F50 断线时 zte-mifi-healer 自动重连 |
-| 旁路由 ↔ 主路由 | LAN (VLAN 6) | 旁路由 (daed)；自身默认路由仍指向主路由 |
-| k3s 节点 / 宿主机 → 旁路由 | LAN (VLAN 6) | 默认网关指向 192.168.6.3 (daed)；节点主网卡 DNS 设为 1.1.1.1 触发 eBPF 嗅探分流 |
+| 旁路由 ↔ 主路由 | LAN (VLAN 6) | 旁路由 (dae，配置由 `task router:dae:sync` 下发，见 [ADR-0007](adr/0007-bypass-router-dae-declarative.md))；自身默认路由仍指向主路由 |
+| k3s 节点 / 宿主机 → 旁路由 | LAN (VLAN 6) | 默认网关指向 192.168.6.3 (dae)；节点主网卡 DNS 设为 1.1.1.1 触发 eBPF 嗅探分流 |
 | k3s 节点 IPv6 | LAN (VLAN 6) | 节点禁用 RA 默认网关，无 IPv6 出网，境外访问回退 IPv4 经旁路由（[ADR-0005](adr/0005-k8s-node-no-ipv6-egress.md)）；需要 IPv6 直连的 Pod 通过 `multus-ipv6` 在自己的网络命名空间里独立出入站 |
 | 宿主机 ↔ 主路由 | LAN (VLAN 6) | 192.168.6.0/24 |
 | PVE ↔ 主路由 | LAN (VLAN 6) | 192.168.6.0/24 |
@@ -148,7 +148,7 @@ dockerproxy (docker-socket-proxy :2575)"]
         CD_VPS["Caddy (公网入口 + TLS)
 CrowdSec (WAF + AppSec)
 dnsmasq (本机 DNS) / mosdns (DNS)
-hysteria2 / hysteria2-no-obfs (供 daed)
+hysteria2 / hysteria2-no-obfs (供旁路由 dae)
 anytls (sing-box :5444)
 DERP (中继，宿主机 :8666)
 OpenList (S3 网关)
@@ -181,7 +181,7 @@ VPS 本机 DNS:
                其他域名 -> 公网 DNS（1.1.1.1 / 8.8.8.8）
 
 K8s 节点本机 DNS (Ansible):
-  systemd-resolved -> 1.1.1.1 / 8.8.8.8 (经旁路由 daed 嗅探)
+  systemd-resolved -> 1.1.1.1 / 8.8.8.8 (经旁路由 dae 嗅探)
                        ├── 境内域名 -> alidns (223.5.5.5) -> 直连
                        ├── 境外域名 -> 海外 DoH -> 走代理
                        └── 内网域名 (*.int 与 *.lan) -> 主路由 (192.168.6.1)
@@ -242,12 +242,12 @@ CN / HK + VPS IP"]
 graph LR
     subgraph LAN["家庭内网<br/>192.168.6.0/24"]
         Client["局域网设备"]
-        BYPASS["旁路由<br/>daed"]
+        BYPASS["旁路由<br/>dae"]
         Router["主路由<br/>DHCP + 内网 DNS 权威"]
     end
 
     subgraph DNSPATH["DNS 分流"]
-        DaeDNS["daed DNS routing<br/>dport(53) -> direct"]
+        DaeDNS["dae DNS routing<br/>dport(53) -> direct"]
         RouterDNS["主路由 DNS<br/>内网域名"]
         ForeignDNS["DoH over proxy<br/>国外域名"]
         CNDNS["国内 DNS<br/>国内域名"]
@@ -302,7 +302,7 @@ ssh <ROUTER> 'cat /etc/dnsmasq-home-ops.d/*'
 |---|------|------|--------|------|------|
 | 1 | VPS Caddy (v4) | 公网 | A `*` → VPS → Tailscale | envoy-external | ✅ 活跃 |
 | 2 | caddy-external (v6) | 公网 | AAAA `*` → 集群 v6 | envoy-external | ✅ 活跃 |
-| 3 | envoy-internal | 内网 | 客户端 DNS → 旁路由 daed → 主路由 DNS → k8s-gateway → LB | envoy-internal | ✅ 活跃 |
+| 3 | envoy-internal | 内网 | 客户端 DNS → 旁路由 dae → 主路由 DNS → k8s-gateway → LB | envoy-internal | ✅ 活跃 |
 | 4 | Tailscale | 内网 | 直连 → subnet router | 集群服务 | ✅ 活跃 |
 | ~5~ | Cloudflare Tunnel | 无 | 无 | 无 | ❌ 已停用 |
 | ~6~ | NetBird | 无 | 无 | 无 | ❌ 已停用 |
@@ -327,7 +327,7 @@ graph TB
 
         subgraph HOST["Host 网络模式（宿主机端口）"]
             hysteria2["hysteria2 :10357"]
-            hysteria2_no_obfs["hysteria2-no-obfs :10358<br/>daed 兼容入口"]
+            hysteria2_no_obfs["hysteria2-no-obfs :10358<br/>dae 兼容入口"]
             anytls["anytls :5444"]
             derp["DERP :8666<br/>Caddy 经 172.20.0.1 回打"]
         end
@@ -358,7 +358,7 @@ graph TB
 | `vdns` | → 本地 mosdns:9053 | DNS 服务 |
 
 > hysteria2、hysteria2-no-obfs、anytls、dnsmasq 不经过 Caddy，
-> 直接使用宿主机端口；no-obfs Hysteria2 供 daed 客户端使用。
+> 直接使用宿主机端口；no-obfs Hysteria2 供旁路由 dae 使用。
 
 ---
 

@@ -9,6 +9,12 @@ creation_rules:
       - age:
         - *admin_mio
         - *home-ops
+  # 集群外路由器配置只在本机下发时解密，集群密钥不需要
+  - path_regex: router/.+\.sops\.ya?ml
+    encrypted_regex: "^config$"
+    key_groups:
+      - age:
+        - *admin_mio
 stores:
   yaml:
     indent: 2
