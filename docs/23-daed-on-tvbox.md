@@ -2,6 +2,8 @@
 
 本文从 [22-tvbox-bypass-router.md](22-tvbox-bypass-router.md) 拆出，只记录 daed 相关经验。
 
+旁路由已改用 dae，配置由仓库下发（[ADR-0007](adr/0007-bypass-router-dae-declarative.md)）。daed 与 dae 共用同一内核与配置语法，下文的内核、白名单与路由规则经验仍然适用。
+
 ## daed 与 ophub 内核 BTF 支持情况
 
 daed 需要内核开启 CONFIG_DEBUG_INFO_BTF 才能加载 eBPF 程序。ophub 的 kernel_flippy 和 kernel_stable 在不同内核版本上的 BTF 支持不同（数据来自 [ophub/kernel kernel-config](https://github.com/ophub/kernel/tree/main/kernel-config/release/stable)）：

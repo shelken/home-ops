@@ -1,0 +1,4 @@
+---
+# 旁路由 dae 二进制取上游 release（ImmortalWrt 24.10 包停在 1.0.0），见 ADR-0007
+# renovate: datasource=github-releases depName=daeuniverse/dae
+version: v2.1.1
