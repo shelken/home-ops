@@ -9,6 +9,11 @@ metadata:
 spec:
   allowedNamespaces:
     all: true
+  # 首次建库曾在默认 120s 内超时并留下空的 kopiur 目录。OpenList 把空目录列为占位对象，
+  # kopia 随后视其为已有数据而拒绝建库，需先手工删除该目录
+  bootstrap:
+    failurePolicy:
+      activeDeadlineSeconds: 600
   # 所有应用的云端调度集中在凌晨，允许少量并行，单个慢上传不阻塞其余应用
   concurrency:
     maxConcurrentJobs: 3
