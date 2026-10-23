@@ -38,7 +38,7 @@ spec:
   dependsOn:
     - name: kopiur
       namespace: kopiur-system
-    - name: azure-store
+    - name: bitwarden-store
       namespace: external-secrets
   interval: 1h
   path: ./k8s/infra/common/kopiur-system/kopiur/repository
@@ -64,7 +64,7 @@ spec:
   dependsOn:
     - name: kopiur
       namespace: kopiur-system
-    - name: azure-store
+    - name: bitwarden-store
       namespace: external-secrets
   interval: 1h
   path: ./k8s/infra/common/kopiur-system/kopiur/repository-cloud

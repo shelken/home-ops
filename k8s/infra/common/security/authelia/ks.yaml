@@ -13,7 +13,7 @@ spec:
   dependsOn:
     - name: dragonfly-cluster
       namespace: database
-    - name: azure-store
+    - name: bitwarden-store
       namespace: external-secrets
     - name: cloudnative-pg-cluster
       namespace: database

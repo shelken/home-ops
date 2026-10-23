@@ -18,7 +18,7 @@ spec:
       KOPIUR_CAPACITY: 5Gi
       KOPIUR_CACHE_CAPACITY: 5Gi
   dependsOn:
-    - name: azure-store
+    - name: bitwarden-store
       namespace: external-secrets
     - name: cloudnative-pg-cluster
       namespace: database

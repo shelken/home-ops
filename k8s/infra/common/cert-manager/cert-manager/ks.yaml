@@ -33,7 +33,7 @@ spec:
   dependsOn:
     - name: cert-manager
       namespace: cert-manager
-    - name: azure-store
+    - name: bitwarden-store
       namespace: external-secrets
   healthChecks:
     - kind: ClusterIssuer
