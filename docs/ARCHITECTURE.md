@@ -14,7 +14,7 @@
 
 - 编排与 GitOps: k3s、Flux CD v2
 - 网络: Cilium、Multus、Envoy Gateway、External-DNS、Tailscale
-- 密钥: SOPS、External Secrets、Azure Key Vault
+- 密钥: SOPS、External Secrets、Bitwarden Secrets Manager
 - 数据与存储: CloudNative-PG、Dragonfly、Longhorn、OpenEBS、SMB CSI
 - 备份: kopiur（VolumeSnapshot + Kopia mover）每小时写入集群外 MinIO，另每天一次直写集群内 OpenList S3
 - 可观测性: Prometheus、Grafana、Gatus、VictoriaLogs、Fluent Bit
@@ -517,7 +517,7 @@ graph TB
     subgraph APP_DIR["app/ 目录 (kustomize)"]
         DIR_KS["kustomization.yaml<br/>resources: helmrelease, externalsecret"]
         DIR_HR["helmrelease.yaml<br/>app-template chart"]
-        DIR_ES["externalsecret.yaml<br/>Azure KeyVault"]
+        DIR_ES["externalsecret.yaml<br/>Bitwarden SM"]
     end
 
     subgraph CLUSTER["k3s 集群部署结果"]

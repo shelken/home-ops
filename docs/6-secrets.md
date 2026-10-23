@@ -14,19 +14,19 @@ task secret:bootstrap # 初始化集群所需的 secret
 
 ## 初始化所需 Secret
 
-`task secret:bootstrap` 会根据 [`bootstrap/resources.yaml`](../bootstrap/resources.yaml) 创建集群引导阶段需要的 namespace 和 K8s Secret。外部密钥值来自 Azure KeyVault 或 Bitwarden Secrets Manager，由 [`scripts/secret-inject.py`](../scripts/secret-inject.py) 按 `azure://` 与 `bws://` 占位符渲染，两种来源可在同一个文件中混用
+`task secret:bootstrap` 会根据 [`bootstrap/resources.yaml`](../bootstrap/resources.yaml) 创建集群引导阶段需要的 namespace 和 K8s Secret。外部密钥值由 [`scripts/secret-inject.py`](../scripts/secret-inject.py) 按占位符渲染：除 `azure-creds` 用 `azure://` 从 Azure KeyVault 读取外，其余都用 `bws://` 从 Bitwarden Secrets Manager 读取。渲染脚本两种占位符都支持，可在同一个文件中混用，所以执行 `task secret:bootstrap` 时 `az` 登录和 BWS 环境变量都要就绪
 
 | 外部 secret key | 集群内资源 | 用途 | 备注 |
 |-----------------|------------|------|------|
-| `azure-creds` | `external-secrets/azure-creds` | External Secrets 访问 Azure KeyVault | 引导后 ClusterSecretStore 依赖它读取外部密钥 |
+| `azure-creds` | `external-secrets/azure-creds` | External Secrets 访问 Azure KeyVault | 唯一仍读 Azure KeyVault 的 bootstrap 项；`azure-store` 保留，轮换见下文 |
 | `bitwarden-access-token` | `external-secrets/bitwarden-access-token` | External Secrets 访问 Bitwarden Secrets Manager | 值取自 BWS 中同名 secret（`bws://bitwarden-access-token`），集群内 key 为 `token`，供 `bitwarden-store` 认证使用 |
-| `flux-instance` | `flux-system/git-token-auth` | Flux instance 拉取 Git 仓库 | `flux-instance` 是 KeyVault remote key；集群内 Secret 名是 `git-token-auth` |
-| `sops` | `flux-system/sops-age` | Flux 解密 SOPS 加密资源 | `sops` 是 KeyVault remote key；集群内 Secret 名是 `sops-age` |
+| `flux-instance` | `flux-system/git-token-auth` | Flux instance 拉取 Git 仓库 | `flux-instance` 是 BWS secret 名；集群内 Secret 名是 `git-token-auth` |
+| `sops` | `flux-system/sops-age` | Flux 解密 SOPS 加密资源 | `sops` 是 BWS secret 名；集群内 Secret 名是 `sops-age` |
 | `ooooo-space-tls` | 由 certificates/export-import 同步 | 通配 TLS 证书 | 不在 `bootstrap/resources.yaml` 中直接创建；由证书同步链路管理 |
 
 ## Bitwarden Secrets Manager
 
-集群内所有 ExternalSecret 与 PushSecret 都使用 ClusterSecretStore `bitwarden-store`，数据源是 BWS 项目，进度见 [#1666](https://github.com/shelken/home-ops/issues/1666)。`azure-store` 仍保留，但集群内已无使用者；`bootstrap/resources.yaml` 与 compose 模板的 `azure://` 占位符还未迁移
+集群内所有 ExternalSecret 与 PushSecret 都使用 ClusterSecretStore `bitwarden-store`，数据源是 BWS 项目，进度见 [#1666](https://github.com/shelken/home-ops/issues/1666)。`azure-store` 仍保留，但集群内已无使用者；Azure KeyVault 只剩 `azure-creds` 和它的轮换任务。bootstrap 与 compose 模板也都读 BWS（`azure-creds` 除外），运维命令写入的同样是 BWS
 
 BWS provider 与 Azure 的差异，写 ExternalSecret 时要遵守：
 
@@ -37,7 +37,7 @@ BWS provider 与 Azure 的差异，写 ExternalSecret 时要遵守：
 
 渲染脚本 `scripts/secret-inject.py` 对 BWS 的约定：
 
-- 占位符：`bws://<name>[/<json_key>]`，`name` 与 Azure 中同名 secret 一致，值是 JSON 时用 `/<json_key>` 取键
+- 占位符：`bws://<name>[/<json_key>]`，`name` 是 BWS secret 名（从 Azure 迁移时保持同名），值是 JSON 时用 `/<json_key>` 取键
 - 环境变量：`BWS_ACCESS_TOKEN` 是机器账号访问令牌，`bws` 没有登录命令，每次调用都要带上它，所以必须由你在 shell 里提供，不进仓库。`BWS_PROJECT_ID` 是 secret 所在项目的 ID，不是凭据，已写在 [`mise.toml`](../mise.toml) 的 `[env]` 中，在仓库目录内自动生效
 - CLI：`bws` 由 mise 提供，版本见 [`mise.toml`](../mise.toml)，执行 `mise install` 安装
 - 脚本对整个项目只调用一次 `bws secret list`，同一项目内出现同名 secret 时报错中止
@@ -45,6 +45,19 @@ BWS provider 与 Azure 的差异，写 ExternalSecret 时要遵守：
 ```bash
 export BWS_ACCESS_TOKEN=<机器账号令牌>
 task secret:bootstrap
+```
+
+### 写入命令
+
+写入由 [`scripts/secret-store.py`](../scripts/secret-store.py) 完成，`task secret:*` 都调用它，同样需要 `BWS_ACCESS_TOKEN` 与 `BWS_PROJECT_ID`。一个 BWS secret 存一个 JSON 对象，按键增删改；写入前校验 JSON，同名 secret 拒绝写入，空值拒绝写入，除 `show` 外不打印值：
+
+```bash
+task secret:azsecret [key=<name>]                 # 不带 key 列出所有 secret 名，带 key 显示该 secret 的值
+task secret:keys secret=<name>                    # 只看有哪些键，不显示值
+task secret:set-key secret=<name> key=<k> value=<v> # secret 不存在则创建，键已存在则更新
+task secret:edit secret=<name>                    # 用 $EDITOR 编辑，内容有变化且是合法 JSON 才写入
+task secret:delete-key secret=<name> key=<k>
+task secret:delete [key=<name>]                   # 不带 key 时用 fzf 选择
 ```
 
 ## external-secrets
@@ -55,7 +68,7 @@ task secret:bootstrap
 
 ### azure-creds 轮换
 
-`azure-creds` 是 External Secrets 访问 Azure KeyVault 的 bootstrap 凭据，KeyVault 中保存 JSON：`ClientID` 和 `ClientSecret`。Azure App client secret 不能原地续期；正确流程是新增 credential、写回 KeyVault、同步 bootstrap Secret、重启 ESO，确认正常后删除旧 credential。
+`azure-creds` 是 External Secrets 访问 Azure KeyVault 的 bootstrap 凭据，KeyVault 中保存 JSON：`ClientID` 和 `ClientSecret`。它是唯一仍存放在 KeyVault 的 secret，`azure-creds-list` 与 `azure-creds-rotate` 是仅针对 Azure 的任务，其余 `task secret:*` 读写的都是 BWS。Azure App client secret 不能原地续期；正确流程是新增 credential、写回 KeyVault、同步 bootstrap Secret、重启 ESO，确认正常后删除旧 credential。
 
 同一个 Azure App 只轮换 credential 时不需要重新分配 RBAC；原来的 Service Principal 角色仍然有效。只有新建 App/SP 时，才需要重新执行 KeyVault RBAC 分配。
 

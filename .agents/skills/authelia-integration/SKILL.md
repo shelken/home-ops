@@ -90,41 +90,41 @@ postBuild:
 
 ### 2. 生成并写入 OIDC 密钥
 
-Client Secret 明文只进入应用对应的 Azure Key Vault JSON secret，Argon2 digest 可提交到 Authelia 配置
+Client Secret 明文只进入应用对应的 BWS JSON secret，Argon2 digest 可提交到 Authelia 配置
 
 先保持新 client 的 `client_secret: ""`，再执行一次初始化 task：
 
 ```bash
 task secret:init-authelia-oidc-client \
-  secret="<azure-json-secret>" \
+  secret="<bws-json-secret>" \
   key="<APP>_OIDC_CLIENT_SECRET" \
   client="<app>"
 ```
 
 该 task 从 Authelia HelmRelease 读取当前固定镜像版本，在 shell 内一次生成明文与 digest，使用 `secret:set-key` 写入明文，并按唯一 `client_id` 定点设置 digest，它只接受空的 `client_secret`，重复执行会失败，避免误触发在线密钥轮换
 
-agent 对 Key Vault 只使用 `secret:init-authelia-oidc-client`、`secret:set-key` 与 `secret:keys`：
+agent 对 BWS 只使用 `secret:init-authelia-oidc-client`、`secret:set-key` 与 `secret:keys`（需要 `BWS_ACCESS_TOKEN`）：
 
 ```bash
-task secret:keys secret="<azure-json-secret>"
+task secret:keys secret="<bws-json-secret>"
 ```
 
 应用另需 session/cookie 签名密钥时，以同一闭环直接写入：
 
 ```bash
 set -euo pipefail
-kv_secret="<azure-json-secret>"
+bws_secret="<bws-json-secret>"
 session_key="<APP>_AUTH_SECRET"
 session_secret=$(openssl rand -hex 64)
 task secret:set-key \
-  secret="$kv_secret" \
+  secret="$bws_secret" \
   key="$session_key" \
   value="$session_secret" >/dev/null
 unset session_secret
 printf 'session secret stored\n'
 ```
 
-敏感值始终停留在 shell 与 Key Vault 中，工具调用文本、工具输出、提交、日志和回复只出现 key 名
+敏感值始终停留在 shell 与 BWS 中，工具调用文本、工具输出、提交、日志和回复只出现 key 名
 
 ### 3. 注入应用
 
