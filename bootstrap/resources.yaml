@@ -36,8 +36,8 @@ metadata:
   name: git-token-auth
   namespace: flux-system
 stringData:
-  username: azure://shelken-homelab/flux-instance/username
-  password: azure://shelken-homelab/flux-instance/password
+  username: bws://flux-instance/username
+  password: bws://flux-instance/password
 
 ---
 apiVersion: v1
@@ -46,4 +46,4 @@ metadata:
   name: sops-age
   namespace: flux-system
 stringData:
-  age.agekey: azure://shelken-homelab/sops/SOPS_PRIVATE_KEY
+  age.agekey: bws://sops/SOPS_PRIVATE_KEY

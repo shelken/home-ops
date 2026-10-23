@@ -5,8 +5,8 @@
       "bucket": "kopia",
       "prefix": "main/",
       "endpoint": "openlist:5246",
-      "accessKeyID": "azure://shelken-homelab/compose-vps/OPENLIST_S3_ACCESS_KEY_ID",
-      "secretAccessKey": "azure://shelken-homelab/compose-vps/OPENLIST_S3_SECRET_ACCESS_KEY",
+      "accessKeyID": "bws://compose-vps/OPENLIST_S3_ACCESS_KEY_ID",
+      "secretAccessKey": "bws://compose-vps/OPENLIST_S3_SECRET_ACCESS_KEY",
       "doNotUseTLS": true
     }
   },

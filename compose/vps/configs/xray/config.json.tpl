@@ -11,7 +11,7 @@
       "settings": {
         "clients": [
           {
-            "id": "azure://shelken-homelab/compose-vps/XRAY_VLESS_UUID",
+            "id": "bws://compose-vps/XRAY_VLESS_UUID",
             "flow": "xtls-rprx-vision"
           }
         ],
@@ -23,8 +23,8 @@
         "realitySettings": {
           "dest": "www.microsoft.com:443",
           "serverNames": ["www.microsoft.com"],
-          "privateKey": "azure://shelken-homelab/compose-vps/XRAY_REALITY_PRIVATE_KEY",
-          "shortIds": ["azure://shelken-homelab/compose-vps/XRAY_REALITY_SHORT_ID"]
+          "privateKey": "bws://compose-vps/XRAY_REALITY_PRIVATE_KEY",
+          "shortIds": ["bws://compose-vps/XRAY_REALITY_SHORT_ID"]
         }
       },
       "sniffing": {

@@ -1,12 +1,12 @@
 listen: :10358
 
 tls:
-  cert: /data/hysteria2/tls/wildcard_.{{azure://shelken-homelab/compose-vps/MAIN_DOMAIN}}.crt
-  key: /data/hysteria2/tls/wildcard_.{{azure://shelken-homelab/compose-vps/MAIN_DOMAIN}}.key
+  cert: /data/hysteria2/tls/wildcard_.{{bws://compose-vps/MAIN_DOMAIN}}.crt
+  key: /data/hysteria2/tls/wildcard_.{{bws://compose-vps/MAIN_DOMAIN}}.key
 
 auth:
   type: password
-  password: azure://shelken-homelab/compose-vps/HYSTERIA2_AUTH_PASSWORD
+  password: bws://compose-vps/HYSTERIA2_AUTH_PASSWORD
 
 bandwidth:
   up: 160 mbps
