@@ -43,8 +43,8 @@ description: 在 home-ops 仓库中为 k3s 集群新增服务的完整流程：�
 2. **写 `ks.yaml`** — `dependsOn` 只写真实前置，`components` 只写用到的能力。
 3. **写 `helmrelease.yaml`** — 优先 app-template。镜像、env、service、route、persistence、probes、resources 按需补齐。
 4. **写 `kustomization.yaml`** — 只引用真实存在的文件。有配置文件需要生成 ConfigMap 再加 `configMapGenerator`。
-5. **写 `externalsecret.yaml`** — 按 **Secret 注入决策**（见下文）判断用哪种方式，确认后再创建。`dataFrom.extract.key` 用真实的 Azure KeyVault secret 名，`target.template.data` 只暴露服务实际消费的键。
-6. **写入 KeyVault** — 用 `task secret:set-key` 写入，`task secret:keys` 验证。agent 不得读取 secret 值。
+5. **写 `externalsecret.yaml`** — 按 **Secret 注入决策**（见下文）判断用哪种方式，确认后再创建。`store` 用 `bitwarden-store`，`dataFrom.extract.key` 用真实的 BWS secret 名（BWS 忽略 `property`，`dataFrom.find` 不可用，详见 `docs/6-secrets.md`），`target.template.data` 只暴露服务实际消费的键。
+6. **写入 BWS** — 用 `task secret:set-key` 写入（需要 `BWS_ACCESS_TOKEN`），`task secret:keys` 验证。agent 不得读取 secret 值。
 7. **注册** — 加进对应层的 `kustomization.yaml`：
    - apps 服务 → `k8s/apps/common/kustomization.yaml`
    - infra 服务 → 对应的 category 层，如 `k8s/infra/common/network/external/kustomization.yaml`
@@ -150,7 +150,7 @@ Pod 未就绪时检查日志定位问题。
 │     └─ 3c. 配置小、和 secret 紧耦合
 │           └─ ExternalSecret 内联模板（如 immich）
 │               配置直接写在 ES 的 template.data 里
-│               非敏感配置变更也需摸 KeyVault
+│               非敏感配置变更也需摸 BWS
 │
 └─ 4. 两种都行 → 优先 env var。env 太多（>10 个）退 3a/3b
 ```
@@ -162,7 +162,7 @@ Pod 未就绪时检查日志定位问题。
   - **`$$` 转义**：在 YAML 值里用 `$${VAR}`，kustomize 输出时转成 `${VAR}`，运行时程序自己解析。不影响 Kustomization 其他 `${VAR}` 的替换。这个 Kustomization 还用到 `${TIMEZONE}` 等其他变量时优先用这种方式。
   选择原则：Kustomization 没有其他 `${VAR}` 依赖 → 用 annotation；还有其他 `${VAR}` 依赖 → 用 `$$` 转义。
 - **多个 ExternalSecret 写同一个 target Secret** → 不接受。改成用一个 ExternalSecret 合并多个 `extract`（如 authelia 同时 extract `authelia` + `mail` + `cloudnative-pg`）。
-- **Bootstrap 阶段的 azure:// 占位符** — 仅用于 bootstrap 阶段（先有鸡蛋问题），与服务无关，不需要关心。
+- **Bootstrap 阶段的 azure:// 占位符** — 只剩 `azure-creds` 一处，用于 bootstrap 阶段（先有鸡蛋问题），与服务无关，不需要关心。服务的 secret 一律写 BWS。
 
 ## Anti-patterns
 

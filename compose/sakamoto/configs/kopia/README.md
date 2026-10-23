@@ -15,7 +15,7 @@
 
 | 文件 | 说明 |
 |------|------|
-| `repository.config.tpl` | 云端存储库连接配置模板，使用 azure:// 占位符；endpoint 由固定前缀 `drive-s3.int.` + `MAIN_DOMAIN` 渲染 |
+| `repository.config.tpl` | 云端存储库连接配置模板，使用 bws:// 占位符；endpoint 由固定前缀 `drive-s3.int.` + `MAIN_DOMAIN` 渲染 |
 | `policy.json` | 云端备份策略配置（VPS 通过符号链接共享此文件） |
 | `local/repository.config.tpl` | 本地存储库连接配置（文件系统类型，无占位符，渲染时原样直通） |
 | `local/policy.json` | 本地备份策略配置（白名单路径 + 排除规则） |
@@ -84,9 +84,9 @@ exec kopia server start --insecure --address=0.0.0.0:51515 ...
 
 ### 4. VPS 和 sakamoto 共享仓库密码
 
-**问题**：两台机器使用不同的 Azure Key Vault secret，但需要相同的仓库密码
+**问题**：两台机器使用不同的 BWS secret，但需要相同的仓库密码
 
-**修正**：两台机器各自的 `.env.tpl` 引用本机命名空间下的同名 secret，取值在 Key Vault 侧保持一致（见 `compose/sakamoto/.env.tpl` 与 `compose/vps/.env.tpl`）
+**修正**：两台机器各自的 `.env.tpl` 引用本机命名空间下的同名 secret，取值在 BWS 侧保持一致（见 `compose/sakamoto/.env.tpl` 与 `compose/vps/.env.tpl`）
 
 ### 5. 符号链接同步问题
 
@@ -145,7 +145,7 @@ kopia snapshot list --all
 本地备份使用独立仓库，首次需要手动创建：
 
 ```bash
-# 1. 在 Azure Key Vault 中设置 KOPIA_LOCAL_REPO_PASSWORD
+# 1. 在 BWS 中设置 KOPIA_LOCAL_REPO_PASSWORD
 # 2. 创建仓库目录
 ssh sakamoto "mkdir -p /Volumes/BackUp3T/kopia-local-repo"
 

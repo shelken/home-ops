@@ -37,7 +37,7 @@ Homelab GitOps 仓库。Kubernetes 集群、基础设施组件、应用、外部
 - 容器编排：Kubernetes / k3s
 - GitOps：Flux CD v2
 - 网络：Cilium、Multus、Envoy Gateway、External-DNS
-- 密钥：SOPS、External Secrets、Azure KeyVault
+- 密钥：SOPS、External Secrets、Bitwarden Secrets Manager
 - 存储：Longhorn、CloudNativePG、SMB
 - 备份：kopiur、MinIO、Kopia
 - 外部服务：`compose/sakamoto/`、`compose/vps/`
