@@ -11,7 +11,7 @@ spec:
     substitute:
       APP: *app
   dependsOn:
-    - name: azure-store
+    - name: bitwarden-store
       namespace: external-secrets
   interval: 1h
   path: ./k8s/apps/common/homepage/app

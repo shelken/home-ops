@@ -7,7 +7,7 @@ metadata:
   namespace: &namespace network
 spec:
   dependsOn:
-    - name: azure-store
+    - name: bitwarden-store
       namespace: external-secrets
   healthChecks:
     - apiVersion: helm.toolkit.fluxcd.io/v2

@@ -17,7 +17,7 @@ spec:
     - name: smb-volumes
     - name: keda
       namespace: observability
-    - name: azure-store
+    - name: bitwarden-store
       namespace: external-secrets
   postBuild:
     substitute:

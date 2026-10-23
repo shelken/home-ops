@@ -11,7 +11,7 @@ spec:
   dependsOn:
     - name: cilium
       namespace: kube-system
-    - name: azure-store
+    - name: bitwarden-store
       namespace: external-secrets
     - name: kopiur-repository
       namespace: kopiur-system
@@ -43,7 +43,7 @@ spec:
   dependsOn:
     - name: cilium
       namespace: kube-system
-    - name: azure-store
+    - name: bitwarden-store
       namespace: external-secrets
     - name: kopiur-repository
       namespace: kopiur-system
