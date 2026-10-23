@@ -91,6 +91,9 @@ def parse_object(name: str, secret: Secret) -> dict:
         die(f"{name} 不是合法 JSON: {e}")
     if not isinstance(data, dict):
         die(f"{name} 不是 JSON 对象")
+    # 重新序列化会改写数字（精度、指数），ESO 与本仓库也只约定字符串值，所以拒绝而不是悄悄改写
+    if bad := sorted(k for k, v in data.items() if not isinstance(v, str)):
+        die(f"{name} 含非字符串值的键 {', '.join(bad)}，工具不改写，请用 edit")
     return data
 
 
