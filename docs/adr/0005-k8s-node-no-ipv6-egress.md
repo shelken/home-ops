@@ -17,7 +17,7 @@ K8s 节点的 systemd-networkd drop-in 对所有网卡设置 `[IPv6AcceptRA] Use
 ## Consequences
 
 - 节点不再有 off-link IPv6，无法经 IPv6 连到节点自身，也无法用 IPv6 访问外网；主路由防火墙本来只放行 Pod 的 EUI-64 地址，不放行节点，实际可达性不变
-- 节点 on-link（LAN 内）IPv6 保留；需要 IPv6 直连的 Pod（caddy-external、tailscale、qbittorrent、ss-rust）通过 `multus-ipv6` 的 macvlan 在自己的网络命名空间里拿到独立 GUA 和 RA 默认路由，不经过节点路由表，不受影响
-- Cilium `enable-ipv6=false`，Pod 全是 IPv4，IPv6 出网的使用者只有节点自身（containerd、kubelet、apt、ansible）
+- 节点 on-link（LAN 内）IPv6 保留；需要 IPv6 直连的 Pod 通过 `multus-ipv6` 的 macvlan 在自己的网络命名空间里拿到独立 GUA 和 RA 默认路由，不经过节点路由表，不受影响
+- Cilium 未启用 IPv6，Pod 全是 IPv4，IPv6 出网的使用者只有节点自身（containerd、kubelet、apt、ansible）
 - 配置由 `ansible/playbooks/tasks/k8s-dns.yaml` 统一下发。撤销该项后，下一次 RA 会自动恢复默认路由
 - 若将来要让节点 IPv6 经旁路由或其他网关出网，回到第一个选项

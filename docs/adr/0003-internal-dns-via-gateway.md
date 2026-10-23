@@ -10,7 +10,7 @@ status: accepted
 ## Considered Options
 
 - 保留 webhook 并启用 `sync`：该 provider 没有 TXT ownership 的存放位置，UCI 无法保存 TXT 记录，`sync` 会连同手工条目一起删除
-- 路由器 Knot 承载动态记录：能精确删除，但要引入 RFC2136、TSIG、TXT ownership，且主域还须外挂 `mod-dnsproxy` 才不被权威 NXDOMAIN 遮蔽，依赖固件包是否编译该模块
+- 路由器 Knot 承载动态记录：能精确删除，但要引入 RFC2136、TSIG、TXT ownership，且依赖固件编译了 `mod-dnsproxy`，主域才不会被权威 NXDOMAIN 遮蔽
 - 主域继续写路由器本地表、内部域另用独立权威：保留原有本机应答路径，但引入两套后端与两套凭据
 - dnsmasq `address=` 通配覆盖主域：未部署或拼错的名称也会解析到网关，不符合精确记录语义
 - home-ops 接管 OpenWrt 默认或手工共用的 dnsmasq 配置目录：会覆盖 LuCI、UCI 和手工文件的管理范围
