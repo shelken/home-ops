@@ -23,7 +23,7 @@
       "users": [
         {
           "name": "sammy",
-          "password": "azure://shelken-homelab/compose-vps/XRAY_VLESS_UUID"
+          "password": "bws://compose-vps/XRAY_VLESS_UUID"
         }
       ],
       "tls": {

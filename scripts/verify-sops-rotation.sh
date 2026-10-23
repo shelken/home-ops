@@ -4,7 +4,7 @@ set -euo pipefail
 # ==============================================================================
 # verify-sops-rotation.sh
 # 遵循 principle-prove-it-works 准则的确定性验证脚本
-# 严查真实产物（AKV、Git 仓库明文、信封接收者、双钥解密自检），杜绝自欺欺人
+# 严查真实产物（BWS、Git 仓库明文、信封接收者、双钥解密自检），杜绝自欺欺人
 # ==============================================================================
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -69,14 +69,14 @@ else
   fail_count=$((fail_count + 1))
 fi
 
-# 3. 检查 Azure Key Vault 里的私钥公钥是否与声明一致
-echo -e "\n${BLUE}--> 3. 验证 Azure Key Vault (shelken-homelab/sops/SOPS_PRIVATE_KEY)${NC}"
-akv_priv=$(az keyvault secret show --vault-name shelken-homelab --name sops --query value -o tsv | jq -r .SOPS_PRIVATE_KEY 2>/dev/null || true)
-if [ -n "$akv_priv" ]; then
-  akv_pub=$(echo "$akv_priv" | age-keygen -y 2>/dev/null)
-  assert_eq "Azure Key Vault 私钥对应公钥 == .sops.yaml 定义" "$pub_home_ops" "$akv_pub"
+# 3. 检查 BWS 里的私钥公钥是否与声明一致
+echo -e "\n${BLUE}--> 3. 验证 BWS (sops/SOPS_PRIVATE_KEY)${NC}"
+bws_priv=$("$ROOT_DIR/scripts/secret-store.py" show sops | jq -r .SOPS_PRIVATE_KEY 2>/dev/null || true)
+if [ -n "$bws_priv" ]; then
+  bws_pub=$(echo "$bws_priv" | age-keygen -y 2>/dev/null)
+  assert_eq "BWS 私钥对应公钥 == .sops.yaml 定义" "$pub_home_ops" "$bws_pub"
 else
-  echo -e "  [${RED}FAIL${NC}] 无法从 Azure Key Vault 获取 SOPS_PRIVATE_KEY"
+  echo -e "  [${RED}FAIL${NC}] 无法从 BWS 获取 SOPS_PRIVATE_KEY"
   fail_count=$((fail_count + 1))
 fi
 
