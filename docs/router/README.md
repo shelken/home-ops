@@ -90,6 +90,8 @@ BIRD 完全由 home-ops 管理，`bgp:sync` 整体同步 `/etc/bird.conf`。dnsm
 `router/dae/config.sops.dae`，用 `sops router/dae/config.sops.dae` 直接编辑 dae 原文。期望状态是 daed
 停止并禁用、dae 启用并运行，首次 sync 即完成切换，会短暂中断所有经旁路由的出网。
 
+dae 没有 Web UI，切换节点、改规则都要改仓库再 sync。dae 不会自动刷新订阅，`router/dae/dae.init` 另起一个 procd 实例，每 6 小时执行一次 `hot_reload`。dae 二进制和 init 脚本由 sync 下发，opkg 升级 dae 包会覆盖 `/usr/bin/dae` 与 `/etc/init.d/dae`，下一次 sync 检测到差异后换回来。
+
 dae 配置含订阅与节点凭据。`declare.py` 对标记为 `sensitive` 的文件，无论是否在终端运行，
 diff 和远端报错中的 `scheme://...` 链接一律替换为 `scheme://<已隐藏#哈希>`；哈希不同即链接有变化。
 agent 只用 `task router:dae:diff` 审查变更，不执行 `sops -d`、`sops <文件>`，不读取旁路由上的
