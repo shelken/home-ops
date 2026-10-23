@@ -16,7 +16,7 @@ spec:
       ANUBIS_TARGET: http://vaultwarden:80
       KOPIUR_CAPACITY: 2Gi
   dependsOn:
-    - name: azure-store
+    - name: bitwarden-store
       namespace: external-secrets
     - name: kopiur-repository
       namespace: kopiur-system
