@@ -295,7 +295,32 @@ ssh <ROUTER> 'cat /etc/dnsmasq-home-ops.d/*'
 ```
 
 后端与所有权决策见 [ADR-0003：集群服务 DNS 由 k8s-gateway 动态应答](adr/0003-internal-dns-via-gateway.md)。
-旁路由分流与节点 DNS 策略见 [ADR-0004：K8s 节点指定外部触发 DNS 由旁路由嗅探代理](adr/0004-k8s-node-dns-daed-routing.md)。
+旁路由分流与节点 DNS 策略见 [ADR-0004：K8s 节点 DNS 显式指向外部地址，经旁路由 dae 解析](adr/0004-k8s-node-dns-daed-routing.md)。
+
+### 内部域契约
+
+决策见 [ADR-0002](adr/0002-internal-domain-static-client-dns.md)。
+
+- **域名分层**：内部入口用 `${INTERNAL_DOMAIN}`（`int.<MAIN_DOMAIN>`），公网入口用 `${MAIN_DOMAIN}`
+- **证书**：主域 Certificate 含 `*.${INTERNAL_DOMAIN}`，与主域共用同一 Secret，见 `k8s/infra/common/network/certificates/export/certificate.yaml`
+- **不发布到公网**：Cloudflare 的 ExternalDNS 只观测 `envoy-external`，公网没有内部域记录。在家用网络内直接 `dig` 会被本机网络拦截而返回内网地址，复核用 DoH：
+
+  ```bash
+  curl -s -H 'accept: application/dns-json' 'https://cloudflare-dns.com/dns-query?name=x.<INTERNAL_DOMAIN>&type=A'
+  # 公网应为 Status 3（NXDOMAIN）
+  ```
+
+- **解析路径**：
+
+  | 客户端 | 路径 |
+  |---|---|
+  | LAN 设备、VPS | 路由器或 VPS 的 dnsmasq → k8s-gateway；集群外自举名称为路由器 `int.hosts` 的精确记录 |
+  | K8s 节点 | 经旁路由 dae 转回主路由，见 [ADR-0004](adr/0004-k8s-node-dns-daed-routing.md) |
+  | SFM 客户端 | sing-box 静态应答：内部子域的 A 查询返回 `<INTERNAL_GATEWAY_IP>`，其他查询类型与内部域根名返回 `NOERROR` 空应答，不依赖家庭 DNS |
+
+- **SFM 连接路径**：业务连接绕过 TUN，由应用使用系统路由，家中走 LAN，外出走 Tailscale subnet route；显式 HTTP/SOCKS 代理的应用需要绕过内部域
+- **入口 IP 变化**：路由器 `int.hosts` 与 SFM 静态应答（proxy 仓库的 sing-box 底模）要同时更新，否则两侧指向不同入口
+
 ### 入口一览
 
 | # | 入口 | 协议 | DNS 链 | 终点 | 状态 |
