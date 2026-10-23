@@ -299,7 +299,7 @@ ssh <ROUTER> 'cat /etc/dnsmasq-home-ops.d/*'
 
 ### 内部域契约
 
-决策见 [ADR-0002](adr/0002-internal-domain-static-client-dns.md)。
+决策见 [ADR-0002](adr/0002-internal-domain-layering.md)。
 
 - **域名分层**：内部入口用 `${INTERNAL_DOMAIN}`（`int.<MAIN_DOMAIN>`），公网入口用 `${MAIN_DOMAIN}`
 - **证书**：主域 Certificate 含 `*.${INTERNAL_DOMAIN}`，与主域共用同一 Secret，见 `k8s/infra/common/network/certificates/export/certificate.yaml`
@@ -316,10 +316,9 @@ ssh <ROUTER> 'cat /etc/dnsmasq-home-ops.d/*'
   |---|---|
   | LAN 设备、VPS | 路由器或 VPS 的 dnsmasq → k8s-gateway；集群外自举名称为路由器 `int.hosts` 的精确记录 |
   | K8s 节点 | 经旁路由 dae 转回主路由，见 [ADR-0004](adr/0004-k8s-node-dns-daed-routing.md) |
-  | SFM 客户端 | sing-box 静态应答：内部子域的 A 查询返回 `<INTERNAL_GATEWAY_IP>`，其他查询类型与内部域根名返回 `NOERROR` 空应答，不依赖家庭 DNS |
+  | SFM 客户端 | 由 proxy 仓库的 sing-box 配置在本地静态应答，不依赖家庭 DNS，见 [proxy #46](https://github.com/shelken/proxy/issues/46) |
 
-- **SFM 连接路径**：业务连接绕过 TUN，由应用使用系统路由，家中走 LAN，外出走 Tailscale subnet route；显式 HTTP/SOCKS 代理的应用需要绕过内部域
-- **入口 IP 变化**：路由器 `int.hosts` 与 SFM 静态应答（proxy 仓库的 sing-box 底模）要同时更新，否则两侧指向不同入口
+- **入口 IP 变化**：路由器 `int.hosts` 与各客户端的静态应答要同时更新，否则两侧指向不同入口
 
 ### 入口一览
 

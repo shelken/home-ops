@@ -5,7 +5,7 @@ status: accepted
 
 # 集群服务 DNS 由 k8s-gateway 动态应答
 
-家庭 LAN 与 VPS 将主域和内部域中的集群服务名称交给集群内的 k8s-gateway，由它根据当前 HTTPRoute、Service 和 Ingress 应答；集群外自举名称仍由路由器的精确记录应答，不依赖集群可用性。原 OpenWrt external-dns 整体移除，因为它以 `upsert-only` 和 `registry: noop` 写入路由器 UCI，资源下线后无法删除记录（#1477）。路由器 dnsmasq 保持 LuCI 与 UCI 手工管理，home-ops 只独占自己新增的专用配置目录，域名分层见 [ADR-0002](./0002-internal-domain-static-client-dns.md)
+家庭 LAN 与 VPS 将主域和内部域中的集群服务名称交给集群内的 k8s-gateway，由它根据当前 HTTPRoute、Service 和 Ingress 应答；集群外自举名称仍由路由器的精确记录应答，不依赖集群可用性。原 OpenWrt external-dns 整体移除，因为它以 `upsert-only` 和 `registry: noop` 写入路由器 UCI，资源下线后无法删除记录（#1477）。路由器 dnsmasq 保持 LuCI 与 UCI 手工管理，home-ops 只独占自己新增的专用配置目录，域名分层见 [ADR-0002](./0002-internal-domain-layering.md)
 
 ## Considered Options
 
