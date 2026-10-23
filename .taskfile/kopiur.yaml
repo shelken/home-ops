@@ -2,14 +2,14 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: "3"
 
-# 集群 Kopiur PVC 恢复与快照查看。
+# 集群 Kopiur 快照与状态查看。恢复由备份组件声明完成，见 docs/11-kopiur.md。
 
 vars:
   KOPIA_EXEC: kubectl exec -n kopiur-system deploy/kopia --
 
 tasks:
   snapshots:
-    desc: "列集群 kopia 快照。可选 APP=metatube（匹配 source 名）"
+    desc: "列本地仓库 kopia 快照（云端见 docs/11-kopiur.md）。可选 APP=metatube（匹配 source 名）"
     silent: true
     vars:
       APP: '{{.APP | default ""}}'
@@ -54,104 +54,3 @@ tasks:
         kubectl get restore -n "$NS" 2>/dev/null | grep -E "NAME|$APP" || true
         echo "=== pod ==="
         kubectl get pod -n "$NS" 2>/dev/null | grep -E "NAME|$APP" || true
-
-  restore:
-    desc: "Kopiur 恢复 PVC。APP=… CONFIRM=… [NAMESPACE=default]"
-    silent: true
-    requires:
-      vars: [APP, CONFIRM]
-    vars:
-      NAMESPACE: '{{.NAMESPACE | default "default"}}'
-    preconditions:
-      - sh: which kubectl
-        msg: "kubectl not found"
-      - sh: which flux
-        msg: "flux not found"
-    cmds:
-      - |
-        set -euo pipefail
-        NS="{{.NAMESPACE}}"
-        APP="{{.APP}}"
-        CONFIRM="{{.CONFIRM}}"
-
-        if [ "$CONFIRM" != "$APP" ]; then
-          echo "错误: 删除 PVC 前必须传 CONFIRM=$APP"
-          exit 1
-        fi
-        parent=$(kubectl get ks "$APP" -n "$NS" -o jsonpath='{.metadata.labels.kustomize\.toolkit\.fluxcd\.io/name}' 2>/dev/null || true)
-        case "$parent" in
-          infra|apps) ;;
-          *)
-            echo "错误: 无法确定 $NS/$APP 的 parent Kustomization（期望 infra 或 apps，实际 ${parent:-empty}）"
-            exit 1
-            ;;
-        esac
-        for gate_parent in infra apps; do
-          ready=$(kubectl get ks "$gate_parent" -n flux-system -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}')
-          if [ "$ready" != "True" ]; then
-            echo "错误: flux-system/$gate_parent 未 Ready，先修 parent gate"
-            exit 1
-          fi
-        done
-        echo "▶ APP=$APP NS=$NS"
-
-        echo "▶ 0. 确认 kopia 有快照"
-        if ! snapshots=$({{.KOPIA_EXEC}} kopia snapshot list --all 2>/dev/null | grep -i "$APP"); then
-          echo "错误: kopia 快照列表没有 $APP"
-          exit 1
-        fi
-        printf '%s\n' "$snapshots" | head -5
-
-        echo "▶ 1. 删除 ks（prune inventory）"
-        kubectl delete ks "$APP" -n "$NS" --ignore-not-found --wait=true --timeout=180s
-
-        echo "▶ 2. 清残留（死 Restore / faulted PVC / cache PVC）"
-        kubectl delete restore "$APP" -n "$NS" --ignore-not-found --wait=true --timeout=90s
-        kubectl delete pvc "$APP" -n "$NS" --ignore-not-found --wait=false
-        kubectl delete pvc "kopiur-cache-$APP" -n "$NS" --ignore-not-found --wait=false
-
-        echo "▶ 3. 等待应用 PVC 消失"
-        for i in $(seq 1 36); do
-          if ! kubectl get pvc "$APP" -n "$NS" >/dev/null 2>&1; then
-            echo "  PVC gone"
-            break
-          fi
-          phase=$(kubectl get pvc "$APP" -n "$NS" -o jsonpath='{.status.phase}' 2>/dev/null || true)
-          echo "  wait pvc phase=$phase ($i)"
-          sleep 5
-        done
-        if kubectl get pvc "$APP" -n "$NS" >/dev/null 2>&1; then
-          echo "错误: PVC $APP 仍在（可能 finalizer/卷卡死），先手工处理再跑"
-          kubectl describe pvc "$APP" -n "$NS" | tail -20
-          exit 1
-        fi
-
-        echo "▶ 4. 由 $parent parent 从 Git 重建 ks"
-        flux reconcile ks "$parent" -n flux-system --timeout=5m
-        for i in $(seq 1 30); do
-          kubectl get ks "$APP" -n "$NS" >/dev/null 2>&1 && break
-          sleep 2
-        done
-        if ! kubectl get ks "$APP" -n "$NS" >/dev/null 2>&1; then
-          echo "错误: $parent reconcile 后未创建 $NS/$APP"
-          exit 1
-        fi
-        flux reconcile ks "$APP" -n "$NS" --timeout=3m
-
-        echo "▶ 5. 等待 Restore + PVC Bound + HR Ready"
-        for i in $(seq 1 60); do
-          pvc=$(kubectl get pvc "$APP" -n "$NS" -o jsonpath='{.status.phase}' 2>/dev/null || echo none)
-          hr=$(kubectl get hr "$APP" -n "$NS" -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}' 2>/dev/null || echo none)
-          pod=$(kubectl get pod -n "$NS" -l app.kubernetes.io/name="$APP" -o jsonpath='{.items[0].status.phase}' 2>/dev/null || echo "?")
-          pod_ready=$(kubectl get pod -n "$NS" -l app.kubernetes.io/name="$APP" -o jsonpath='{.items[0].status.conditions[?(@.type=="Ready")].status}' 2>/dev/null || echo "?")
-          restore=$(kubectl get restore "$APP" -n "$NS" -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}' 2>/dev/null || echo "?")
-          echo "  $(date +%H:%M:%S) restore=$restore pvc=$pvc hr=$hr pod=$pod podReady=$pod_ready"
-          if [ "$restore" = "True" ] && [ "$pvc" = "Bound" ] && [ "$hr" = "True" ] && [ "$pod_ready" = "True" ]; then
-            echo "✔ restore finished: $APP.$NS Restore Ready, PVC Bound, HR and Pod Ready"
-            kubectl get hr,pvc,pod -n "$NS" 2>/dev/null | grep -E "NAME|$APP" || true
-            exit 0
-          fi
-          sleep 10
-        done
-        echo "错误: 超时。task kopiur:status APP=$APP NAMESPACE=$NS"
-        exit 1
