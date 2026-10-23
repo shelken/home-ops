@@ -54,11 +54,16 @@ def fetch_azure(vault: str, secret: str) -> str:
 @cache
 def bws_secrets() -> dict[str, list[str]]:
     """整个项目只列一次；同名 secret 在 BWS 中合法，所以每个名字保留全部值。"""
-    project = os.environ.get("BWS_PROJECT_ID")
-    if not project:
-        die("未设置环境变量 BWS_PROJECT_ID（BWS 项目 ID）")
-    if not os.environ.get("BWS_ACCESS_TOKEN"):
-        die("未设置环境变量 BWS_ACCESS_TOKEN（BWS 机器账号访问令牌）")
+    hints = {
+        "BWS_ACCESS_TOKEN": "机器账号访问令牌，在 shell 里 export，不进仓库",
+        "BWS_PROJECT_ID": "BWS 项目 ID，在仓库目录内由 mise.toml 的 [env] 提供，需激活 mise",
+    }
+    if missing := [name for name in hints if not os.environ.get(name)]:
+        die(
+            "缺少环境变量:\n"
+            + "\n".join(f"  {name}  {hints[name]}" for name in missing)
+        )
+    project = os.environ["BWS_PROJECT_ID"]
     print("获取: bws secret list", file=sys.stderr)
     out = run(["bws", "secret", "list", project, "-o", "json"], "bws 获取 secret 列表")
     try:
