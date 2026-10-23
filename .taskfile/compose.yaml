@@ -95,7 +95,7 @@ tasks:
     cmds:
       # 1. 渲染 .env.tpl 与所有 .tpl：单进程内每个 vault/secret 只获取一次，
       #    先写临时文件、成功才原子落位；任一文件渲染失败则整体中止（不会同步半渲染产物）
-      - "{{.SCRIPTS_DIR}}/azure-inject.py render {{.LOCAL_DIR}}"
+      - "{{.SCRIPTS_DIR}}/secret-inject.py render {{.LOCAL_DIR}}"
       - chmod 600 "{{.LOCAL_DIR}}/.env"
       # 2. 同步文件到目标机器（文件自动属于 SSH 登录用户，-L 跟随符号链接）
       #    --inplace: macOS/Lima 下 Docker bind mount 追踪 inode，rsync 默认写临时文件再 rename 会
