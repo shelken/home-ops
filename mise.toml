@@ -27,6 +27,7 @@ mc = "latest"
 KUBECONFIG = "{{env.HOME}}/.kube/home-ops.yaml"
 ANSIBLE_CONFIG = "{{config_root}}/ansible/ansible.cfg"
 SOPS_AGE_KEY_FILE = "~/.config/sops/age/keys.txt"
+BWS_PROJECT_ID = "6f018a31-68f7-4420-981d-b4ec001d0f24"
 
 [tasks.setup]
 description = "首次环境初始化（安装 pre-commit hooks）"

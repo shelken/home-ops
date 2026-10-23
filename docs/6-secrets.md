@@ -29,13 +29,12 @@ task secret:bootstrap # 初始化集群所需的 secret
 External Secrets 的来源正在从 Azure KeyVault 过渡到 Bitwarden Secrets Manager（BWS）。过渡期间 ClusterSecretStore `azure-store` 与 `bitwarden-store` 并存，现有 ExternalSecret 仍使用 `azure-store`，进度见 [#1666](https://github.com/shelken/home-ops/issues/1666)
 
 - 占位符：`bws://<name>[/<json_key>]`，`name` 与 Azure 中同名 secret 一致，值是 JSON 时用 `/<json_key>` 取键
-- 环境变量：`BWS_ACCESS_TOKEN` 是机器账号访问令牌，`BWS_PROJECT_ID` 是 secret 所在项目的 ID，脚本只从环境变量读取
+- 环境变量：`BWS_ACCESS_TOKEN` 是机器账号访问令牌，`bws` 没有登录命令，每次调用都要带上它，所以必须由你在 shell 里提供，不进仓库。`BWS_PROJECT_ID` 是 secret 所在项目的 ID，不是凭据，已写在 [`mise.toml`](../mise.toml) 的 `[env]` 中，在仓库目录内自动生效
 - CLI：`bws` 由 mise 提供，版本见 [`mise.toml`](../mise.toml)，执行 `mise install` 安装
 - 脚本对整个项目只调用一次 `bws secret list`，同一项目内出现同名 secret 时报错中止
 
 ```bash
 export BWS_ACCESS_TOKEN=<机器账号令牌>
-export BWS_PROJECT_ID=<项目 ID>
 task secret:bootstrap
 ```
 
