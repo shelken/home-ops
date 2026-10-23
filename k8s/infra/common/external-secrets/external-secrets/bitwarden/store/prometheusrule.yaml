@@ -1,0 +1,19 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: external-secrets-bitwarden-store-rules
+spec:
+  groups:
+    - name: external-secrets.bitwarden-store.rules
+      rules:
+        - alert: ExternalSecretsBitwardenStoreNotReady
+          expr: |
+            clustersecretstore_status_condition{name="bitwarden-store", condition="Ready", status="False"} == 1
+          for: 5m
+          annotations:
+            summary: Bitwarden Secrets Manager SecretStore 不可用
+            description: External Secrets 的 bitwarden-store 处于 NotReady，可能是 bitwarden-sdk-server、其 TLS 证书或访问令牌异常，依赖 Bitwarden 的 Secret 无法同步。
+          labels:
+            severity: critical

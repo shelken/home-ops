@@ -1,0 +1,10 @@
+---
+# 服务端只在启动时加载一次证书，证书续期后靠 Reloader 重启 Pod
+deploymentAnnotations:
+  reloader.stakater.com/auto: "true"
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true

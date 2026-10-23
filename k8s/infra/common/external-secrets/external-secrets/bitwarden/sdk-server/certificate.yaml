@@ -1,0 +1,51 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cert-manager.io/issuer_v1.json
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: bitwarden-selfsigned-issuer
+spec:
+  selfSigned: {}
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cert-manager.io/certificate_v1.json
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: bitwarden-ca
+spec:
+  isCA: true
+  commonName: bitwarden-ca
+  secretName: bitwarden-ca-certs
+  # CA 若按默认 90 天轮换，会与服务端证书的续期错开，store 读到的 ca.crt 可能不匹配
+  duration: 87600h
+  issuerRef:
+    name: bitwarden-selfsigned-issuer
+    kind: Issuer
+    group: cert-manager.io
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cert-manager.io/issuer_v1.json
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: bitwarden-ca-issuer
+spec:
+  ca:
+    secretName: bitwarden-ca-certs
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cert-manager.io/certificate_v1.json
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: bitwarden-tls-certs
+spec:
+  # chart 默认挂载该 Secret 的 tls.crt、tls.key、ca.crt
+  secretName: bitwarden-tls-certs
+  issuerRef:
+    name: bitwarden-ca-issuer
+    kind: Issuer
+    group: cert-manager.io
+  dnsNames:
+    - bitwarden-sdk-server
+    - bitwarden-sdk-server.external-secrets
+    - bitwarden-sdk-server.external-secrets.svc
+    - bitwarden-sdk-server.external-secrets.svc.cluster.local

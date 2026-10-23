@@ -14,14 +14,29 @@ task secret:bootstrap # 初始化集群所需的 secret
 
 ## 初始化所需 Secret
 
-`task secret:bootstrap` 会根据 [`bootstrap/resources.yaml`](../bootstrap/resources.yaml) 创建集群引导阶段需要的 namespace 和 K8s Secret。外部密钥值仍来自 Azure KeyVault。
+`task secret:bootstrap` 会根据 [`bootstrap/resources.yaml`](../bootstrap/resources.yaml) 创建集群引导阶段需要的 namespace 和 K8s Secret。外部密钥值来自 Azure KeyVault 或 Bitwarden Secrets Manager，由 [`scripts/secret-inject.py`](../scripts/secret-inject.py) 按 `azure://` 与 `bws://` 占位符渲染，两种来源可在同一个文件中混用
 
 | 外部 secret key | 集群内资源 | 用途 | 备注 |
 |-----------------|------------|------|------|
 | `azure-creds` | `external-secrets/azure-creds` | External Secrets 访问 Azure KeyVault | 引导后 ClusterSecretStore 依赖它读取外部密钥 |
+| `bitwarden-access-token` | `external-secrets/bitwarden-access-token` | External Secrets 访问 Bitwarden Secrets Manager | 值取自 BWS 中同名 secret（`bws://bitwarden-access-token`），集群内 key 为 `token`，供 `bitwarden-store` 认证使用 |
 | `flux-instance` | `flux-system/git-token-auth` | Flux instance 拉取 Git 仓库 | `flux-instance` 是 KeyVault remote key；集群内 Secret 名是 `git-token-auth` |
 | `sops` | `flux-system/sops-age` | Flux 解密 SOPS 加密资源 | `sops` 是 KeyVault remote key；集群内 Secret 名是 `sops-age` |
 | `ooooo-space-tls` | 由 certificates/export-import 同步 | 通配 TLS 证书 | 不在 `bootstrap/resources.yaml` 中直接创建；由证书同步链路管理 |
+
+## Bitwarden Secrets Manager
+
+External Secrets 的来源正在从 Azure KeyVault 过渡到 Bitwarden Secrets Manager（BWS）。过渡期间 ClusterSecretStore `azure-store` 与 `bitwarden-store` 并存，现有 ExternalSecret 仍使用 `azure-store`，进度见 [#1666](https://github.com/shelken/home-ops/issues/1666)
+
+- 占位符：`bws://<name>[/<json_key>]`，`name` 与 Azure 中同名 secret 一致，值是 JSON 时用 `/<json_key>` 取键
+- 环境变量：`BWS_ACCESS_TOKEN` 是机器账号访问令牌，`bws` 没有登录命令，每次调用都要带上它，所以必须由你在 shell 里提供，不进仓库。`BWS_PROJECT_ID` 是 secret 所在项目的 ID，不是凭据，已写在 [`mise.toml`](../mise.toml) 的 `[env]` 中，在仓库目录内自动生效
+- CLI：`bws` 由 mise 提供，版本见 [`mise.toml`](../mise.toml)，执行 `mise install` 安装
+- 脚本对整个项目只调用一次 `bws secret list`，同一项目内出现同名 secret 时报错中止
+
+```bash
+export BWS_ACCESS_TOKEN=<机器账号令牌>
+task secret:bootstrap
+```
 
 ## external-secrets
 
