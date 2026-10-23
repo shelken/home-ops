@@ -1,35 +1,46 @@
-# DNS 设置记录
+# K8s 节点 DNS 与 IPv6 出网策略
 
-## 问题
+适用于 inventory `k8s` 组的全部节点。由 `ansible/playbooks/tasks/k8s-dns.yaml` 下发，入口是 `setup-network.yaml` 的 `dns` tag，落地为每个 netplan 网卡的 systemd-networkd drop-in `ansible-dns.conf`
 
-部分节点会从 IPv6 RA/DHCPv6 获得运营商 DNS，导致解析被污染；节点 DNS 还必须经默认网关（旁路由）才能触发域名嗅探，取舍见 [ADR-0004](adr/0004-k8s-node-dns-daed-routing.md)。
+## 策略
 
-## 原则
+| 对象 | 设置 |
+|---|---|
+| 默认 IPv4 路由网卡 | `DNS=1.1.1.1 8.8.8.8`、`DNSDefaultRoute=true` |
+| 其他网卡 | `DNSDefaultRoute=false` |
+| 所有网卡 | 忽略 DHCPv4、DHCPv6、RA 下发的 DNS；忽略 RA 的搜索域；RA 不提供默认网关 |
 
-- 默认 IPv4 路由网卡显式写入 `DNS=1.1.1.1 8.8.8.8`，不使用 DHCP 下发的 DNS。
-- 不修改 IP、网关、DHCP/static 模式、cloud-init 或 netplan 网络形态。
-- 自动只让默认 IPv4 路由网卡参与 DNS。
-- 其他网卡不参与 DNS。
-- 禁止 IPv6 RA/DHCPv6 下发 DNS。
+每次下发还会删除节点已学到的 RA IPv6 默认路由，并清理旧版本留下的 drop-in 文件
+
+## 原因
+
+- **DNS 指向 1.1.1.1 与 8.8.8.8**：这两个地址与节点不同网段，查询必须经默认网关到达旁路由，进入 dae 的 DNS 模块，按域名分流；内网域名由 dae 转回主路由解析。节点若沿用主路由 DHCP 下发的 DNS，查询经二层直达主路由，绕过旁路由。取舍与被否决的方案见 [ADR-0004](adr/0004-k8s-node-dns-daed-routing.md)，旁路由侧的限制见 [23-daed-on-tvbox.md](23-daed-on-tvbox.md)
+- **忽略 DHCPv6 与 RA 的 DNS**：节点曾从 IPv6 RA/DHCPv6 拿到运营商 DNS，解析被污染
+- **不接受 RA 默认网关**：节点从 RA 学到的 IPv6 默认路由绕过旁路由，境外双栈服务被限速直连，曾导致 Helm 超时回滚。取舍见 [ADR-0005](adr/0005-k8s-node-no-ipv6-egress.md)
+
+## 不做的事
+
+- 不修改 IP、网关、DHCP/static 模式、cloud-init 或 netplan 网络形态：Lima 节点的网卡归 Lima/cloud-init，PVE 节点归 cloud-init，这里只写 DNS 与 RA 的 drop-in
+- 不在主路由全局下发 DHCP DNS：非白名单设备的查询会直连公网，被污染并失去内网解析
+- 不使用 223.5.5.5 作触发地址：dae 对它 `must_direct`，跳过 DNS 模块
 
 ## 检查
 
 ```bash
-sudo cat /etc/netplan/*.yaml
 resolvectl status
+ip -6 route show default
 ```
 
-确认结果：
+预期：
 
-```text
-没有 IPv6 DNS server
-IPv4 DNS 只有 1.1.1.1 和 8.8.8.8，且只来自默认 IPv4 路由网卡
-```
+- 默认 IPv4 路由网卡的 DNS 为 `1.1.1.1 8.8.8.8`，没有 IPv6 DNS server
+- Lima 的 NAT 网卡可能仍列出自己的 DNS server，只要 `DNSDefaultRoute=false` 就不会作为默认解析路径
+- `ip -6 route show default` 无输出
 
-## 日常修复
+## 修复
 
 ```bash
 ansible-playbook -i ansible/inventory/hosts.ini ansible/playbooks/setup-network.yaml --tags dns
+# 只处理单个节点
+ansible-playbook -i ansible/inventory/hosts.ini ansible/playbooks/setup-network.yaml --tags dns --limit <node>
 ```
-
-DNS 策略在 `setup-network.yaml` 中统一管理（`--tags dns` 只跑 DNS 部分）。
