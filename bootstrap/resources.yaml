@@ -24,6 +24,15 @@ stringData:
 apiVersion: v1
 kind: Secret
 metadata:
+  name: bitwarden-access-token
+  namespace: external-secrets
+stringData:
+  token: bws://bitwarden-access-token
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
   name: git-token-auth
   namespace: flux-system
 stringData:
