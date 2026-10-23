@@ -26,7 +26,16 @@ task secret:bootstrap # 初始化集群所需的 secret
 
 ## Bitwarden Secrets Manager
 
-External Secrets 的来源正在从 Azure KeyVault 过渡到 Bitwarden Secrets Manager（BWS）。过渡期间 ClusterSecretStore `azure-store` 与 `bitwarden-store` 并存，现有 ExternalSecret 仍使用 `azure-store`，进度见 [#1666](https://github.com/shelken/home-ops/issues/1666)
+集群内所有 ExternalSecret 与 PushSecret 都使用 ClusterSecretStore `bitwarden-store`，数据源是 BWS 项目，进度见 [#1666](https://github.com/shelken/home-ops/issues/1666)。`azure-store` 仍保留，但集群内已无使用者；`bootstrap/resources.yaml` 与 compose 模板的 `azure://` 占位符还未迁移
+
+BWS provider 与 Azure 的差异，写 ExternalSecret 时要遵守：
+
+- `remoteRef.key` 是 secret 名；`property`、`version` 会被忽略，取到的永远是整段值。要取 JSON 里的键，用 `dataFrom.extract` 取整个 JSON，再用 `target.template.data` 映射
+- `dataFrom.find` 不可用
+- `bitwarden-store` 显示 Ready 只说明 provider 校验通过，是否可用以 ExternalSecret 同步成功为准
+- 集群内只有一个 BWS 项目，同名 secret 会让 ESO 报错
+
+渲染脚本 `scripts/secret-inject.py` 对 BWS 的约定：
 
 - 占位符：`bws://<name>[/<json_key>]`，`name` 与 Azure 中同名 secret 一致，值是 JSON 时用 `/<json_key>` 取键
 - 环境变量：`BWS_ACCESS_TOKEN` 是机器账号访问令牌，`bws` 没有登录命令，每次调用都要带上它，所以必须由你在 shell 里提供，不进仓库。`BWS_PROJECT_ID` 是 secret 所在项目的 ID，不是凭据，已写在 [`mise.toml`](../mise.toml) 的 `[env]` 中，在仓库目录内自动生效
