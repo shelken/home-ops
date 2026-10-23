@@ -47,7 +47,7 @@ spec:
 
 恢复由组件声明完成：PVC 的 `dataSourceRef` 指向同名 `Restore`，`Restore` 从 `fromPolicy` 指定的策略取最新快照。PVC 不存在时，Flux reconcile 重建 PVC，volume populator 自动填充数据。因此删除应用的 Kustomization 后由父级重新 reconcile，或在新集群上 bootstrap，都会自动恢复
 
-`task kopiur:*` 是仓库迁移等少见操作用的工具，不是日常恢复入口
+`task kopiur:snapshots`、`task kopiur:status` 只用于查看；仓库迁移等少见操作用 `task kopia:*`。没有恢复用的 task
 
 ### 本地仓库不可用时切到云端
 

@@ -1,80 +1,60 @@
 ---
 name: kopiur-restore
-description: Kopiur 从 kopia 恢复 PVC。Use when PVC 丢失/faulted、定点恢复、kopiur task、Restore/populator 卡住。
+description: PVC 丢失/数据损坏、定点恢复、切到云端仓库恢复，或 Restore/populator 卡住时使用。
 ---
 
 # Kopiur restore
 
-用 `components/kopiur/backup`（PVC `dataSourceRef` → Restore CR → volume populator）从集群 kopia 恢复。默认 `task kopiur:*`。
+恢复由备份组件 `k8s/components/kopiur/backup` 声明完成：PVC `dataSourceRef` → 同名 `Restore` → volume populator 自动填充。**不需要恢复脚本**，目标是让 Flux 重建 PVC。
 
-**完成标准**：Restore Ready → 应用 PVC Bound → HR/Pod Ready → 挂载有预期数据。
+模型、云端切换步骤、演练结论见 `docs/11-kopiur.md`，不在此重复。
+
+**完成标准**：`Restore` Ready → PVC Bound → HR/Pod Ready → 挂载有预期数据。
 
 ## Gate：infra → apps
 
-运维/debug/**恢复**一律：
-
-1. 先让 **infra** Ready（含其 wait/health 依赖）
-2. 再动 **apps**（apps `dependsOn` infra）
-
-卡住时先修 parent gate，再删应用 ks。禁止长期靠 `kubectl apply` 旁路子 ks 顶替 parent。
-
-恢复前先看：`kubectl get ks infra apps -n flux-system`。
-
-## 恢复机制
-
-Kopiur 使用 Kubernetes volume populator 模式：
-- `Restore` CR 定义恢复源（`fromPolicy` 指向 `SnapshotPolicy`，`offset: 0` = 最新）
-- PVC 的 `dataSourceRef` 指向 `Restore` CR
-- 当 PVC 不存在时，Kopiur 控制器自动创建 populator Pod 从 kopia 拉取快照填充新 PVC
-- `onMissingSnapshot: Continue` 允许首次部署时无快照也能创建空 PVC
-
-## Steps
-
-### 1. 确认快照
+先让 `flux-system/infra` Ready（含其 wait/health 依赖），再处理 `apps`；卡住时先修 parent gate。禁止用 `kubectl apply` 旁路子 Kustomization 顶替 parent。
 
 ```bash
-task kopiur:snapshots APP=<app>
+kubectl get ks infra apps -n flux-system
 ```
 
-有 `APP@…:/pvc/APP` 再继续；无快照则停（CNPG 等改走 barman）。
+## 触发恢复
 
-### 2. 执行恢复
-
-```bash
-task kopiur:restore APP=<app> CONFIRM=<app> NAMESPACE=<ns>
-```
-
-自动化流程：删 ks → 清死 Restore/PVC/cache PVC → 等 PVC 消失 → flux reconcile 重建 → 等 Restore Ready + PVC Bound + HR Ready。
-
-### 3. 校验
-
-```bash
-task kopiur:status APP=<app> NAMESPACE=<ns>
-```
-
-**完成**：文首标准；SnapshotSchedule 正常调度，Snapshot 持续 Succeeded。
-
-## Rules
-
-1. 备份时间看 **SnapshotSchedule** `nextSchedule.at` 和 **Snapshot** 的 `Phase: Succeeded`。
-2. 恢复只动 Restore CR / 应用 PVC，不拿 SnapshotSchedule 当恢复开关。
-3. 死 Restore / faulted PVC / 孤立 cache PVC 必清，再让 populator 重拉。
-4. 查快照用 `kopiur-system/kopia`（`task kopiur:snapshots`）。
-5. CNPG ≠ 本 SOP。
-6. `security` 命名空间的 crowdsec 使用特权 mover（UID/GID 0），命名空间已标注 `kopiur.home-operations.com/privileged-movers: "true"`。
-
-## Task
-
-| 命令 | 作用 |
+| 场景 | 操作 |
 |---|---|
-| `task kopiur:snapshots [APP=]` | 列快照 |
-| `task kopiur:restore APP= CONFIRM= [NAMESPACE=]` | 恢复 |
-| `task kopiur:status APP= [NAMESPACE=]` | 状态 |
+| PVC 已丢失 | 无需操作，Flux 下一次 reconcile 重建 PVC 即触发恢复 |
+| PVC 在但数据损坏 | 确认后删除应用的 Kustomization，由父级 `apps` 重建（PVC、`Restore` 随 prune 一并重建） |
+| 新集群 bootstrap | 无需操作 |
+| 本地仓库不可用 | 按 `docs/11-kopiur.md`「本地仓库不可用时切到云端」提交 Git |
 
-VPS kopia 拉推：`task kopia:*`。实现：`.taskfile/kopiur.yaml`。
+删除 Kustomization 前必须先得到用户确认，并记录为手动集群操作。
+
+## 步骤
+
+1. 确认有快照：本地策略 `${APP}`，云端策略 `${APP}-cloud`
+
+   ```bash
+   kubectl get snapshots.kopiur.home-operations.com -n <ns> \
+     -o custom-columns='NAME:.metadata.name,POLICY:.spec.policyRef.name,PHASE:.status.phase'
+   ```
+
+   `task kopiur:snapshots APP=<app>` 只查本地仓库，本地仓库不可用时会失败
+
+2. 触发恢复（见上表）
+3. 校验：`task kopiur:status APP=<app> NAMESPACE=<ns>`，并检查应用数据
+
+## 卡住时
+
+- `Restore` 停在 `MissingRecordedIdentity`：从云端恢复时 catalog 约 5 分钟后才接管云端快照，等待即可，期间不会产出空卷
+- 删除 Kustomization 不删备份：快照默认 `onScheduleDelete: Retain`，数据留在仓库并被接管为 `adopted`
+- 死 `Restore`、faulted PVC、孤立 cache PVC（`kopiur-cache-<app>`）要先清掉，再让 populator 重拉
+- `onMissingSnapshot: Continue`：没有快照时会建出空 PVC，首次部署正常；恢复后若数据为空，先回到步骤 1
+- CNPG 不走本 SOP，使用 barman
+- `security` 命名空间的 crowdsec 使用特权 mover（UID/GID 0），命名空间已标注 `kopiur.home-operations.com/privileged-movers: "true"`
 
 ## 指针
 
 - `k8s/components/kopiur/backup/`
-- `k8s/infra/common/kopiur-system/kopia/`
-- `k8s/infra/common/kopiur-system/kopiur/`
+- `k8s/infra/common/kopiur-system/`
+- 迁移类操作（少见）：`task kopia:*`，见 `docs/11-kopiur.md`
