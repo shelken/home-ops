@@ -62,7 +62,7 @@ spec:
         externalUrl: https://alertmanager.${INTERNAL_DOMAIN}
         containers:
           - name: wechatrobot
-            image: ghcr.io/shelken/alertmanager-wechatrobot:0.1.6
+            image: ghcr.io/shelken/alertmanager-wechatrobot:0.1.7
             ports:
               - containerPort: 8060
             env:
