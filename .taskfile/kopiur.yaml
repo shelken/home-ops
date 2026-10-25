@@ -54,3 +54,57 @@ tasks:
         kubectl get restore -n "$NS" 2>/dev/null | grep -E "NAME|$APP" || true
         echo "=== pod ==="
         kubectl get pod -n "$NS" 2>/dev/null | grep -E "NAME|$APP" || true
+
+  install-cli:
+    desc: "通过 krew 安装 kubectl-kopiur 插件"
+    silent: true
+    cmds:
+      - krew index add kopiur https://github.com/home-operations/kopiur.git 2>/dev/null || true
+      - krew install kopiur
+    preconditions:
+      - sh: which krew
+        msg: "需要先安装 krew（可通过 mise install 安装）"
+
+  trigger:
+    desc: "手动触发一次快照备份。APP=<app> [TARGET=cloud|local] [NAMESPACE=default] [WAIT=true]"
+    silent: true
+    requires:
+      vars: [APP]
+    vars:
+      TARGET: '{{.TARGET | default "cloud"}}'
+      NAMESPACE: '{{.NAMESPACE | default "default"}}'
+      WAIT: '{{.WAIT | default "true"}}'
+    cmds:
+      - |
+        set -euo pipefail
+        NS="{{.NAMESPACE}}"; APP="{{.APP}}"; TARGET="{{.TARGET}}"
+        if [ "$TARGET" = "cloud" ]; then
+          POLICY="${APP}-cloud"
+        else
+          POLICY="${APP}"
+        fi
+        echo "▶ 触发备份: namespace=$NS, policy=$POLICY"
+        if which kubectl-kopiur >/dev/null 2>&1 || which kopiur >/dev/null 2>&1; then
+          WAIT_FLAG=""
+          if [ "{{.WAIT}}" = "true" ]; then
+            WAIT_FLAG="--logs"
+          fi
+          kubectl kopiur snapshot now --policy "$POLICY" -n "$NS" $WAIT_FLAG
+        else
+          SNAP_NAME=$(cat <<EOF | kubectl create -f - -o jsonpath='{.metadata.name}'
+        apiVersion: kopiur.home-operations.com/v1alpha1
+        kind: Snapshot
+        metadata:
+          generateName: ${APP}-manual-
+          namespace: ${NS}
+        spec:
+          policyRef:
+            name: ${POLICY}
+        EOF
+          )
+          echo "✔ 已生成 Snapshot CR: $SNAP_NAME"
+          if [ "{{.WAIT}}" = "true" ]; then
+            echo "▶ 正在等待快照完成 (Ctrl+C 可退出监听，后台继续运行)..."
+            kubectl get snapshot -n "$NS" "$SNAP_NAME" -w
+          fi
+        fi
