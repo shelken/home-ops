@@ -16,7 +16,7 @@ spec:
       activeDeadlineSeconds: 600
   # 所有应用的云端调度集中在凌晨，允许少量并行，单个慢上传不阻塞其余应用
   concurrency:
-    maxConcurrentJobs: 3
+    maxConcurrentJobs: 1
   credentialProjection:
     allowed: true
   backend:
@@ -38,6 +38,8 @@ spec:
       namespace: kopiur-system
       key: KOPIA_PASSWORD
   maintenance:
+    failurePolicy:
+      activeDeadlineSeconds: 1800 # 最多 30 分钟，卡死强制 kill
     # 云端每天只写一次，quick 维护无需每小时跑；full 每周一次即可回收旧包。
     schedule:
       quick:
@@ -48,7 +50,7 @@ spec:
         jitter: 1h
   moverDefaults:
     cache:
-      contentCacheSizeMb: 256
-      metadataCacheSizeMb: 512
+      contentCacheSizeMb: 512
+      metadataCacheSizeMb: 1024
   scheduleDefaults:
     timezone: ${TIMEZONE}
