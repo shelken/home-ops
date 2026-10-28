@@ -20,6 +20,8 @@
     api_key {$CROWDSEC_CADDY_BOUNCER_API_KEY}
     ticker_interval 15s
     appsec_url http://crowdsec-agent:7422
+    # 必须大于 crowdsec-agent 的 auth_timeout(2s)，否则内层认证耗尽外层预算
+    appsec_timeout 5s
   }
 }
 
