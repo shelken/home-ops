@@ -25,7 +25,7 @@ Workflow 有 `kernel_usage` 输入选项，可以在 UI 上选择 flippy 或 sta
 
 ## daed 与 Hysteria2 obfs 兼容性
 
-当前 daed 可以导入 `hysteria2://` 节点，但 dae 核心的 Hysteria2 URL 解析未实现 Salamander 混淆。节点如果依赖：
+当时的 daed 可以导入 `hysteria2://` 节点，但其内置 dae 核心的 Hysteria2 URL 解析未实现 Salamander 混淆。节点如果依赖：
 
 ```text
 obfs=salamander
@@ -38,11 +38,13 @@ obfs-password=...
 
 源码证据：`daeuniverse/outbound` 的 `dialer/hysteria2/hysteria2.go` 标注 `TODO: support salamander obfuscation`，解析函数只处理 `insecure`、`sni`、`pinSHA256`、`ca`、`maxTx`、`maxRx`，不处理 `obfs` / `obfs-password`。
 
-结论：当前 TVBox 上的 daed 不适合使用带 Salamander obfs 的 hy2 节点。要用 daed + hy2，应给服务端单独开不带 obfs 的 hy2 节点：
+当时的 TVBox daed 使用 hy2 时，需要给服务端单独开不带 obfs 的节点：
 
 ```text
 hysteria2://密码@域名:端口/?sni=域名&insecure=1#hy2-no-obfs
 ```
+
+独立 dae `v2.1.1` 的情况不同：它固定的 [outbound 依赖](https://github.com/daeuniverse/dae/blob/v2.1.1/go.mod) 已[解析 `obfs=salamander` 和 `obfs-password`](https://github.com/olicesx/outbound/blob/cc86ced2e683/dialer/hysteria2/hysteria2.go)，并在 [QUIC 连接上启用 Salamander](https://github.com/olicesx/outbound/blob/cc86ced2e683/protocol/hysteria2/client/client.go)。该依赖包含 [TCP 和 UDP 混淆端到端测试](https://github.com/olicesx/outbound/blob/cc86ced2e683/protocol/hysteria2/e2e_test.go)。旁路由切换后，代理 HTTP 请求返回 204，VPS 观察到旁路由与混淆入口的双向 UDP 流量
 
 ## daed DNS 与路由经验
 

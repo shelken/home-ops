@@ -219,7 +219,7 @@
         <g transform="translate(126, 0)">
           <rect width="118" height="52" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
           <text x="10" y="20" font-size="9.5" font-weight="600" fill="#cad3f5">hysteria2</text>
-          <text x="10" y="36" class="font-mono" font-size="9" fill="#a5adcb">:10357 / :10358</text>
+          <text x="10" y="36" class="font-mono" font-size="9" fill="#a5adcb">:10357</text>
         </g>
       </g>
       <g transform="translate(14, 290)">

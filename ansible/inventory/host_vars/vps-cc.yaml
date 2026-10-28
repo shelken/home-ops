@@ -31,7 +31,6 @@ ufw_allowed_rules:
   - 3478/udp # derp
   - "5201" # iperf3
   - "10357" # hy2
-  - "10358" # hy2 + no-obfs
   - "5444" # anytls
   - 60223/tcp # ssh
 

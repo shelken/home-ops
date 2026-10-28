@@ -148,7 +148,7 @@ dockerproxy (docker-socket-proxy :2575)"]
         CD_VPS["Caddy (公网入口 + TLS)
 CrowdSec (WAF + AppSec)
 dnsmasq (本机 DNS) / mosdns (DNS)
-hysteria2 / hysteria2-no-obfs (供旁路由 dae)
+hysteria2 (供旁路由 dae)
 anytls (sing-box :5444)
 DERP (中继，宿主机 :8666)
 OpenList (S3 网关)
@@ -351,7 +351,6 @@ graph TB
 
         subgraph HOST["Host 网络模式（宿主机端口）"]
             hysteria2["hysteria2 :10357"]
-            hysteria2_no_obfs["hysteria2-no-obfs :10358<br/>dae 兼容入口"]
             anytls["anytls :5444"]
             derp["DERP :8666<br/>Caddy 经 172.20.0.1 回打"]
         end
@@ -381,8 +380,7 @@ graph TB
 | `dhp` | → 本地 dhp:5000 | Docker 镜像 pull-through 代理 |
 | `vdns` | → 本地 mosdns:9053 | DNS 服务 |
 
-> hysteria2、hysteria2-no-obfs、anytls、dnsmasq 不经过 Caddy，
-> 直接使用宿主机端口；no-obfs Hysteria2 供旁路由 dae 使用。
+> hysteria2、anytls、dnsmasq 不经过 Caddy，直接使用宿主机端口
 
 ---
 
