@@ -6,16 +6,22 @@
 
 | 服务 | 仓库类型 | 备份源 | 目标 | 端口 |
 |------|---------|--------|------|------|
-| kopia (云端) | S3 (OpenList) | compose, rustfs（不含 `kopiur` 桶） | 189 云盘 | 51515 |
+| kopia (云端) | WebDAV | compose, RustFS（不含 `kopiur` 桶） | 139 云盘的 `main` 库 | 51515 |
 | kopia-local (本地) | 文件系统 | sakamoto-data 用户数据 | BackUp3T | 51516 |
 
 调度见 `policy.json` 与 `local/policy.json`，运行时用 `kopia policy list` 读。
+
+云端 WebDAV 账号以 `/cloud/139/backup/kopia` 为根目录。两台宿主机连接 `/dav/main`，集群 kopiur 连接 `/dav/kopiur`，两者是独立仓库。本地 RustFS 仓库保持原后端。
+
+宿主机分别从 BWS 的 `compose-sakamoto` 和 `compose-vps` 读取 `KOPIA_MAIN_PASSWORD`、`OPENLIST_WEBDAV_USERNAME`、`OPENLIST_WEBDAV_PASSWORD`。两台宿主机的主库口令必须一致，Compose 将 `KOPIA_MAIN_PASSWORD` 作为 Kopia 标准环境变量 `KOPIA_PASSWORD` 传入容器。集群使用 `volsync-template` 中的 `KOPIA_PASSWORD`，不读取宿主机条目。
+
+首次切换时，须先初始化新的 `main` 仓库，再强制重建两台宿主机的 Kopia 服务。主机策略保留 `zstd-fastest`。集群的云端复制先暂停，待 `yun139` 全局压缩设为 `zstd` 并验证后，再通过 Git 解除暂停。189 旧库保留原连接格式和口令供恢复使用。
 
 ## 文件结构
 
 | 文件 | 说明 |
 |------|------|
-| `repository.config.tpl` | 云端存储库连接配置模板，使用 bws:// 占位符；endpoint 由固定前缀 `drive-s3.int.` + `MAIN_DOMAIN` 渲染 |
+| `repository.config.tpl` | 云端 WebDAV 连接模板，使用 bws:// 占位符；URL 由 `MAIN_DOMAIN` 渲染并以 `/dav/main` 结尾 |
 | `policy.json` | 云端备份策略配置（VPS 通过符号链接共享此文件） |
 | `local/repository.config.tpl` | 本地存储库连接配置（文件系统类型，无占位符，渲染时原样直通） |
 | `local/policy.json` | 本地备份策略配置（白名单路径 + 排除规则） |
@@ -53,8 +59,8 @@ Kopia 策略采用层级继承机制：
 - **统一策略**：retention 和 compression 在 @hostname 级别配置，所有路径继承
 - **独立调度**：每个备份路径单独配置 scheduling，互不影响
 - **幂等导入**：容器启动时执行 `kopia policy import`，自动覆盖更新
-- **共享仓库**：sakamoto 和 VPS 使用相同的 Kopia 仓库（通过 189 云盘 + OpenList S3）
-- **不封装 kopiur 桶**：`@sakamoto` 忽略 `/kopiur`，集群 PVC 的异地副本由 Kopiur 直写云端仓库，见 [ADR-0006](../../../../docs/adr/0006-kopiur-cloud-daily-repository.md)。改动 `policy.json` 后需强制重建 kopia 容器才会重新导入
+- **共享仓库**：两台宿主机通过 WebDAV 连接 139 云盘的同一个 `main` 库。
+- **不封装 kopiur 桶**：`@sakamoto` 忽略 `/kopiur`，集群 PVC 的异地副本由 SnapshotReplication 复制到独立的 `kopiur` 库。改动 `policy.json` 后需强制重建 kopia 容器才会重新导入。
 
 ## 遇到的问题和修正
 
@@ -86,7 +92,7 @@ exec kopia server start --insecure --address=0.0.0.0:51515 ...
 
 **问题**：两台机器使用不同的 BWS secret，但需要相同的仓库密码
 
-**修正**：两台机器各自的 `.env.tpl` 引用本机命名空间下的同名 secret，取值在 BWS 侧保持一致（见 `compose/sakamoto/.env.tpl` 与 `compose/vps/.env.tpl`）
+**修正**：两台机器各自的 `.env.tpl` 引用本机 BWS 条目中的 `KOPIA_MAIN_PASSWORD`，取值在 BWS 侧保持一致（见 `compose/sakamoto/.env.tpl` 与 `compose/vps/.env.tpl`）。
 
 ### 5. 符号链接同步问题
 
@@ -160,7 +166,7 @@ open http://sakamoto.lan:51516
 
 | 特性 | 云端备份 | 本地备份 |
 |------|---------|---------|
-| 仓库密码 | KOPIA_REPO_PASSWORD | KOPIA_LOCAL_REPO_PASSWORD |
+| 仓库密码 | KOPIA_MAIN_PASSWORD | KOPIA_LOCAL_REPO_PASSWORD |
 | 备份目标 | 189 云盘（异地） | BackUp3T（本地） |
 | 恢复速度 | 较慢（网络） | 快速（本地磁盘） |
 | 备份内容 | Docker + RustFS | 用户数据 |

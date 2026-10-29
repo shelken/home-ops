@@ -1,0 +1,79 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/home-operations/kopiur/main/deploy/crds/clusterrepositories.yaml
+
+apiVersion: kopiur.home-operations.com/v1alpha1
+kind: ClusterRepository
+metadata:
+  name: cloud-openlist
+spec:
+  allowedNamespaces:
+    all: true
+  mode: ReadOnly
+  credentialProjection:
+    allowed: true
+  backend:
+    s3:
+      auth:
+        secretRef:
+          name: kopiur-repository-cloud-secret
+          namespace: kopiur-system
+      bucket: kopia
+      endpoint: openlist.default.svc.cluster.local:5246
+      prefix: kopiur/
+      tls:
+        disableTls: true
+  encryption:
+    passwordSecretRef:
+      name: kopiur-repository-cloud-secret
+      namespace: kopiur-system
+      key: KOPIA_PASSWORD
+  maintenance:
+    enabled: false
+  scheduleDefaults:
+    timezone: ${TIMEZONE}
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/home-operations/kopiur/main/deploy/crds/clusterrepositories.yaml
+apiVersion: kopiur.home-operations.com/v1alpha1
+kind: ClusterRepository
+metadata:
+  name: yun139
+spec:
+  allowedNamespaces:
+    all: true
+  mode: ReadWrite
+  bootstrap:
+    failurePolicy:
+      activeDeadlineSeconds: 600
+  concurrency:
+    maxConcurrentJobs: 1
+  credentialProjection:
+    allowed: true
+  backend:
+    webDav:
+      url: http://openlist.default.svc.cluster.local:80/dav/kopiur
+      auth:
+        secretRef:
+          name: kopiur-repository-cloud-secret
+          namespace: kopiur-system
+  encryption:
+    passwordSecretRef:
+      name: kopiur-repository-cloud-secret
+      namespace: kopiur-system
+      key: KOPIA_PASSWORD
+  maintenance:
+    enabled: true
+    failurePolicy:
+      activeDeadlineSeconds: 1800
+    schedule:
+      quick:
+        cron: 0 5 * * *
+        jitter: 10m
+      full:
+        cron: 0 5 * * 0
+        jitter: 1h
+  moverDefaults:
+    cache:
+      contentCacheSizeMb: 512
+      metadataCacheSizeMb: 1024
+  scheduleDefaults:
+    timezone: ${TIMEZONE}

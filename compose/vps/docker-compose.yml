@@ -425,9 +425,6 @@ services:
     networks:
       - homelab
     restart: always
-    depends_on:
-      openlist:
-        condition: service_healthy
     labels:
       - homepage.group=VPS
       - homepage.name=kopia
@@ -440,7 +437,7 @@ services:
       KOPIA_CONFIG_PATH: /config/repository.config
       KOPIA_CACHE_DIRECTORY: /config/cache
       KOPIA_LOG_DIR: /config/logs
-      KOPIA_PASSWORD: ${KOPIA_REPO_PASSWORD}
+      KOPIA_PASSWORD: ${KOPIA_MAIN_PASSWORD}
       KOPIA_WEBHOOK_URL: ${KOPIA_WEBHOOK_URL}
       # 仅在失败/警告时通知，成功时不通知 (可选值: report, warning, error)
       KOPIA_MIN_SEVERITY: warning

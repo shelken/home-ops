@@ -19,7 +19,7 @@ MINIO_ROOT_PASSWORD=bws://compose-sakamoto/MINIO_ROOT_PASSWORD
 MIRROR_DATA_DIR=bws://compose-sakamoto/MIRROR_DATA_DIR
 
 # ==================== Kopia (Cloud) ====================
-KOPIA_REPO_PASSWORD=bws://compose-sakamoto/KOPIA_REPO_PASSWORD
+KOPIA_MAIN_PASSWORD=bws://compose-sakamoto/KOPIA_MAIN_PASSWORD
 KOPIA_WEBHOOK_URL=bws://compose-sakamoto/KOPIA_WEBHOOK_URL
 
 # ==================== Kopia Local ====================

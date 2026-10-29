@@ -1,12 +1,10 @@
 {
   "storage": {
-    "type": "s3",
+    "type": "webdav",
     "config": {
-      "bucket": "kopia",
-      "prefix": "main/",
-      "endpoint": "drive-s3.int.{{bws://compose-sakamoto/MAIN_DOMAIN}}",
-      "accessKeyID": "bws://compose-sakamoto/OPENLIST_S3_ACCESS_KEY_ID",
-      "secretAccessKey": "bws://compose-sakamoto/OPENLIST_S3_SECRET_ACCESS_KEY"
+      "url": "https://drive.{{bws://compose-sakamoto/MAIN_DOMAIN}}/dav/main",
+      "username": "bws://compose-sakamoto/OPENLIST_WEBDAV_USERNAME",
+      "password": "bws://compose-sakamoto/OPENLIST_WEBDAV_PASSWORD"
     }
   },
   "caching": {
