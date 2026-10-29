@@ -53,9 +53,6 @@ spec:
   wait: true
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
-# 云端仓库独立成 KS：OpenList 依赖 kopiur-repository，若云端仓库并入该 KS，
-# 冷启动时会互相等待。没有对象依赖本 KS，NotReady 只表示云端暂不可用。
-# 本 KS 还声明了复制对象，其源仓库在 kopiur-repository，故按序依赖它
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -65,12 +62,37 @@ spec:
   dependsOn:
     - name: kopiur
       namespace: kopiur-system
-    - name: kopiur-repository
-      namespace: kopiur-system
     - name: bitwarden-store
       namespace: external-secrets
   interval: 1h
   path: ./k8s/infra/common/kopiur-system/kopiur/repository-cloud
+  prune: true
+  retryInterval: 2m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: *namespace
+  timeout: 5m
+  wait: true
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+# 复制规则依赖源仓库 (sakamoto) 与目标仓库 (yun139) 均已在集群就绪
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app kopiur-replication
+  namespace: &namespace kopiur-system
+spec:
+  dependsOn:
+    - name: kopiur
+      namespace: kopiur-system
+    - name: kopiur-repository
+      namespace: kopiur-system
+    - name: kopiur-repository-cloud
+      namespace: kopiur-system
+  interval: 1h
+  path: ./k8s/infra/common/kopiur-system/kopiur/replication
   prune: true
   retryInterval: 2m
   sourceRef:
