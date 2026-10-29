@@ -1,6 +1,6 @@
 # Talos 迁移分析：从 k3s 到 Talos Linux
 
-> **状态**: 草稿 - 待决策
+> **状态**: 草稿（待决策）
 > **创建日期**: 2025-12
 > **参考**: [onedr0p/home-ops](https://github.com/onedr0p/home-ops)
 
@@ -228,6 +228,7 @@ QEMU + HVF:
 **步骤**:
 
 1. 下载 Talos ISO (AMD64)
+
 ```bash
 wget https://factory.talos.dev/image/376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba/v1.11.6/metal-amd64.iso
 ```
@@ -241,6 +242,7 @@ wget https://factory.talos.dev/image/376567988ad370138ad8b2698212367b8edcb69b5fd
    - Network: virtio
 
 3. 生成并应用配置
+
 ```bash
 talosctl gen config my-cluster https://192.168.6.110:6443 --output-dir _out
 talosctl apply-config --insecure --nodes 192.168.6.110 --file _out/controlplane.yaml
@@ -252,12 +254,14 @@ talosctl bootstrap --nodes 192.168.6.110
 **前提**: 接受 10-15% 性能损失
 
 1. 停止并删除 Lima VM
+
 ```bash
 limactl stop sakamoto-k8s
 limactl delete sakamoto-k8s
 ```
 
 2. 使用 talosctl 创建 QEMU 集群
+
 ```bash
 brew install qemu siderolabs/tap/talosctl
 

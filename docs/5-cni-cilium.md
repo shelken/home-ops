@@ -1,36 +1,28 @@
-## Cilium CNI
+# Cilium CNI 部署与运维
 
-### link
+## 参考链接
 
 - [Run your Kubernetes Cluster on “Bare Metal” with Cilium CNI — Part. 1](https://itnext.io/run-your-kubernetes-cluster-on-bare-metal-with-cilium-cni-part-1-e88028800d90)
 - [bare-metal-kubernetes-part-2-cilium-and-firewalls](https://datavirke.dk/posts/bare-metal-kubernetes-part-2-cilium-and-firewalls/)
 - [bootstrapping-k3s-with-cilium](https://blog.stonegarden.dev/articles/2024/02/bootstrapping-k3s-with-cilium/)
+- [Cilium 官方安装指南](https://docs.cilium.io/en/stable/gettingstarted/k8s-install-default/#install-cilium)
 
+## 安装与引导
 
-### 实践
-
-#### 安装
-
-因为我们已经禁用flannel，那么我们需要在集群中安装cilium，才能启动flux。
-
-> [link](https://docs.cilium.io/en/stable/gettingstarted/k8s-install-default/#install-cilium)
+因 k3s 禁用了内置 Flannel 与 kube-proxy，集群引导初期需先安装 Cilium 为 Pod 提供网络，随后交付 Flux 接管：
 
 ```bash
-# 这里的版本根据flux中定义的来，如果不一致也没关系。flux后续会重新安装定义的版本。但是最好一直，省的二次下载安装
-helm install cilium cilium/cilium --version 1.18.3 --namespace kube-system -f infra/common/kube-system/cilium/app/values.yaml
-helm upgrade cilium cilium/cilium --version 1.18.3 --namespace kube-system -f infra/common/kube-system/cilium/app/values.yaml
+# 引导期只安装 Cilium：版本、chart 来源与 values 均统一取自 bootstrap/helmfile.yaml
+helmfile -f bootstrap/helmfile.yaml -l name=cilium sync
 
 cilium status --wait
 
-# 如果出现flux helmrrelease卡住(cilium升级)导致后面的kustomization无法执行
+# 若出现 Flux HelmRelease 卡住（Cilium 升级）导致后续 Kustomization 无法执行
 flux suspend hr cilium -n kube-system
 flux resume hr cilium -n kube-system
-#或者在 HelmReleases 中让这个无限尝试。
-# upgrade:
-#   remediation:
-#     retries: -1
+# 若仍反复卡住，可在 HelmRelease 中将 upgrade.remediation.retries 调整为 -1（当前为 2，install 已配置为 -1）
 ```
 
-### ipam
+## IPAM 模式
 
-ipam.mode 无法随意切换变更，如果要变更最好是建立新的集群
+Cilium 的 `ipam.mode` 在集群初始化后无法直接就地切换，若需变更应在新建集群时规划

@@ -1,22 +1,16 @@
 # GPU
 
-> 以下都是在PVE上的显卡相关操作
+> PVE 虚拟化环境下的显卡驱动安装、vGPU 分配与直通配置
 
 ## NVIDIA
 
-### vGPU
+### vGPU 虚拟化
 
->
-> [vgpu 开启教程（驱动安装）](https://gitlab.com/polloloco/vgpu-proxmox)
->
-> [自建vgpu认证服务教程](https://git.collinwebdesigns.de/oscar.krause/fastapi-dls)
->
-> [fastapi-dls docker hub image](https://hub.docker.com/r/collinwebdesigns/fastapi-dls)
->
-> [佛西网盘资源（vgpu相关驱动）](https://alist.homelabproject.cc/foxipan/vGPU/16.8)
->
-> [英伟达 driver 官方](https://www.nvidia.com/en-us/drivers/)
->
+- [vGPU 驱动安装与补丁教程](https://gitlab.com/polloloco/vgpu-proxmox)
+- [自建 fastapi-dls 授权许可服务](https://git.collinwebdesigns.de/oscar.krause/fastapi-dls)
+- [fastapi-dls Docker Hub 镜像](https://hub.docker.com/r/collinwebdesigns/fastapi-dls)
+- [vGPU 驱动网盘资源（佛西网盘）](https://alist.homelabproject.cc/foxipan/vGPU/16.8)
+- [英伟达官方驱动归档](https://www.nvidia.com/en-us/drivers/)
 
 #### 宿主机
 
@@ -27,8 +21,10 @@
 目前稳定使用17.6没有问题. 旧的16.8也测试正常
 
 ```bash
-./NVIDIA-Linux-x86_64-550.163.02-vgpu-kvm.run --apply-patch ~/vgpu-proxmox/550.163.02.patch
-./NVIDIA-Linux-x86_64-550.163.02-vgpu-kvm-custom.run --dkms -m=kernel
+# 根据所选 vGPU 驱动版本设置变量
+export VGPU_DRIVER_VERSION="<VGPU_DRIVER_VERSION>"
+./NVIDIA-Linux-x86_64-${VGPU_DRIVER_VERSION}-vgpu-kvm.run --apply-patch ~/vgpu-proxmox/${VGPU_DRIVER_VERSION}.patch
+./NVIDIA-Linux-x86_64-${VGPU_DRIVER_VERSION}-vgpu-kvm-custom.run --dkms -m=kernel
 ```
 
 宿主机覆盖的配置示例
@@ -54,20 +50,21 @@ ansible-playbook ansible/playbooks/install-nvidia.yaml
 ```
 
 ```bash
-#rsync传输文件
-rsync -avzP <NVIDIA_DRIVER_RUN_FILE> <SSH_USER>@192.168.6.111:~/
+# rsync 传输驱动安装文件（版本以 ansible/playbooks/install-nvidia.yaml 为准）
+export GRID_DRIVER_VERSION="<GRID_DRIVER_VERSION>"
+rsync -avzP "NVIDIA-Linux-x86_64-${GRID_DRIVER_VERSION}-grid.run" <SSH_USER>@192.168.6.111:~/
 
-sudo ./NVIDIA-Linux-x86_64-550.163.01-grid.run --silent --no-questions --accept-license --disable-nouveau
+sudo ./NVIDIA-Linux-x86_64-${GRID_DRIVER_VERSION}-grid.run --silent --no-questions --accept-license --disable-nouveau
 ```
 
-处理licence
+#### 授权激活（fastapi-dls）
 
-部署一个 fastapi-dls 服务，当前配置见 [`compose/sakamoto/docker-compose.yml`](../compose/sakamoto/docker-compose.yml) 的 `nvidia-dls` 服务。
+授权服务 `fastapi-dls` 以 Docker Compose 运行在宿主机 sakamoto，服务名 `nvidia-dls`，定义见 [`compose/sakamoto/docker-compose.yml`](../compose/sakamoto/docker-compose.yml)。在 VM 中获取 client token 并启用 `nvidia-gridd`：
 
 ```bash
 export MAIN_DOMAIN=
 sudo curl --insecure -L -X GET https://nvidia-dls.$MAIN_DOMAIN/-/client-token -o /etc/nvidia/ClientConfigToken/client_configuration_token_$(date '+%d-%m-%Y-%H-%M-%S').tok
-sudo service nvidia-gridd enable --now
+sudo systemctl enable --now nvidia-gridd
 sudo reboot
 
 # 检查
@@ -87,7 +84,9 @@ UEFI情况下，VM关闭「安全启动」
 然后进入安装
 
 ```bash
-sudo apt install nvidia-headless-570-server
+# 列出当前系统可用分支，选择已验证分支安装（如 570-server 验证通过）
+apt-cache search --names-only '^nvidia-headless-[0-9]+-server$'
+sudo apt install nvidia-headless-<BRANCH>-server
 sudo reboot
 ```
 
@@ -99,6 +98,7 @@ lspci -nnk | grep -A5 NVI
 # ffmpeg
 ffmpeg -decoders | grep cuvid
 ```
+
 https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#with-apt-ubuntu-debian
 [k3s中配置nvidia-container-toolkit](https://docs.k3s.io/advanced#nvidia-container-runtime)
 
@@ -120,11 +120,9 @@ sudo reboot
 ./NVIDIA-Linux-x86_64-535.247.01.run --no-kernel-module
 ```
 
-### 分配
+### 节点标签分配
 
-```bash
-k label node [node] nvidia.com/gpu.present=true
-```
+当前工作节点 GPU 标签已由 Ansible 声明式管理（见 [`ansible/inventory/host_vars/homelab-1.yaml`](../ansible/inventory/host_vars/homelab-1.yaml)），无需手动执行 `kubectl label`
 
 ## INTEL
 
@@ -147,17 +145,13 @@ sudo apt install linux-firmware
 lspci -nnk | grep -B5 i915
 ```
 
-### 分配
+### Intel 核显标签分配
+
+同上，已由 Ansible 自动分配标签 `intel.feature.node.kubernetes.io/gpu=true`
+
+### 宿主机内核模块配置
 
 ```bash
-k label node [node] intel.feature.node.kubernetes.io/gpu=true
-```
-
-## Intel
-
-```bash
-# 宿主机
-
 # 手动加载模块
 sudo modprobe i915
 

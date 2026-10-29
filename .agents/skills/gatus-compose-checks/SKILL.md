@@ -7,36 +7,33 @@ description: 从 home-ops 的 Docker Compose 服务补齐 Gatus outside 健康�
 
 ## Quick start
 
-1. 读现有 Gatus outside 配置：
-   - `k8s/infra/common/observability/gatus/app/resources/outside/*.yaml`
-2. 读目标 compose：
-   - `compose/vps/docker-compose.yml`
-   - `compose/sakamoto/docker-compose.yml`
-3. 对比服务、端口、Caddy routes、compose `healthcheck`。
-4. 从集群内现有 Pod 测连通性，再编辑对应 outside YAML。
-5. 校验 YAML 与 `kustomize build`。
+1. 读取现有 Gatus outside 配置：`k8s/infra/common/observability/gatus/app/resources/outside/*.yaml`
+2. 读取目标 Compose 服务：`compose/vps/docker-compose.yml` 与 `compose/sakamoto/docker-compose.yml`
+3. 对比服务、端口、Caddy 路由与 Compose `healthcheck`
+4. 从集群内现有 Pod 测试端点连通性，再编辑对应 outside YAML
+5. 校验 YAML 语法并运行 `kustomize build`
 
 ## Endpoint 选择原则
 
 优先级从高到低：
 
-1. compose 自带 `healthcheck` 使用的 HTTP 路径。
-2. 服务官方 health/status endpoint。
-3. 协议标准轻量 endpoint，例如 Docker API `/_ping`、Registry `/v2/`。
-4. HTTP `HEAD` 到轻量页面或 API。
-5. TCP / UDP / DNS 连通性检查。
+1. Compose 自带 `healthcheck` 使用的 HTTP 路径
+2. 服务官方健康检查端点（如 `/health`、`/ready`）
+3. 标准协议轻量端点（如 Docker API `/_ping`、Registry `/v2/`）
+4. HTTP `HEAD` 检查轻量静态页或 API
+5. TCP、UDP 或 DNS 连通性探测
 
-不要为了“看起来更完整”拉大响应。Gatus 只判断服务活性，不替代 Prometheus 或日志系统。
+Gatus 仅判断服务活性，不替代 Prometheus 监控指标或日志采集，探测请求保持轻量
 
 ## 轻量化规则
 
-- 能用 `HEAD` 就不要用 `GET`。
-- 不用 Gatus 拉 `/metrics`；metrics 交给 Prometheus，Gatus 用 TCP connect。
-- Docker socket proxy 用 `/_ping`，响应小且语义明确。
-- Docker Registry 用 `/v2/`，优先 `HEAD`。
-- DNS 服务用 DNS 查询验证真实功能，不用网页状态页。
-- Kopia 无公开轻量 health 时，用 `HEAD /` 判断 UI 服务活着。
-- 代理类服务无 HTTP health 时，用 TCP 或 UDP connect。
+- 优先使用 `HEAD` 代替 `GET`
+- 不使用 Gatus 抓取 `/metrics`，指标采集由 Prometheus 负责，Gatus 采用 TCP 连通性探测
+- Docker socket proxy 使用 `/_ping`，响应体积小且语义明确
+- Docker Registry 使用 `/v2/`，优先 `HEAD` 请求
+- DNS 服务使用实际 DNS 查询校验解析功能，不依赖 Web 状态页
+- Kopia 无轻量健康接口时使用 `HEAD /` 确认 UI 服务存活
+- 代理类服务无 HTTP 端点时采用 TCP 或 UDP 连通性探测
 
 ## VPS 访问路径
 
@@ -44,7 +41,7 @@ description: 从 home-ops 的 Docker Compose 服务补齐 Gatus outside 健康�
 
 - `k8s/infra/common/network/tailscale/proxy/node-vps.yaml`
 
-从集群视角访问 VPS，优先使用该 Service 暴露的 DNS 名称和端口。不要用本机 curl 结果代替集群内连通性。
+从集群内部访问 VPS 时，优先使用该 Service 暴露的 DNS 名称和端口，严禁使用本机 curl 代替集群内连通性
 
 ## 集群内验证
 
@@ -60,17 +57,17 @@ kubectl -n <namespace> exec <pod> -- nslookup -port=<port> <query-name> <dns-ser
 
 验证内容应覆盖：
 
-- HTTP 状态码是否符合配置。
-- TCP/UDP 端口是否通。
-- DNS 查询是否返回 `NOERROR`。
-- 目标路径是否不会返回大 body。
+- HTTP 状态码符合预期
+- TCP 与 UDP 端口连通
+- DNS 查询返回 `NOERROR`
+- 目标路径不返回大体积响应体
 
 ## 编辑要求
 
-- 只改对应 outside YAML，除非发现访问路径本身缺端口或 Caddy route 缺失。
-- 保持现有 anchor、group、alert、ui 风格。
-- `hide-hostname` / `hide-url` 按同组现有配置沿用。
-- 不在公开文档或 skill 中写真实域名、IP、节点名、用户名或私有路径。
+- 仅修改对应 outside YAML，除非发现网络连通本身缺少端口或 Caddy 路由缺失
+- 保持现有 anchor、group、alert 与 UI 布局风格
+- `hide-hostname` 与 `hide-url` 沿用同组既有配置
+- 公开文档或 Skill 中严禁出现真实域名、公网 IP、内网 IP、节点名或凭据
 
 ## 验证
 
@@ -92,7 +89,7 @@ kustomize build k8s/infra/common/observability/gatus/app >/tmp/gatus-app.yaml
 
 最后汇报：
 
-- 新增/调整了哪些 endpoint。
-- 每个 endpoint 使用什么轻量检查方式。
-- 集群内实测结果。
-- 未验证项与风险。
+- 新增或调整的 endpoint 清单
+- 每个 endpoint 选用的轻量检查方式
+- 集群内实测结果
+- 未验证项与潜在风险

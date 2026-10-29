@@ -79,5 +79,5 @@ config bridge-vlan
 
 ## 相关文档
 
-- [mDNS 配置](./mdns.md) - 跨 VLAN 的 mDNS 反射配置
-- [BGP 配置](./bgp.md) - BGP 路由配置
+- [mDNS 配置](./mdns.md)：跨 VLAN 的 mDNS 反射配置
+- [BGP 配置](./bgp.md)：BGP 路由配置

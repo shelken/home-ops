@@ -584,7 +584,9 @@ Modify `containers/templates/simple-service/AGENTS.md` to this full content:
 From the `containers` repo root:
 
 ```bash
+
 cp -r templates/simple-service apps/<service-name>
+
 ```
 
 Then update:
@@ -597,13 +599,17 @@ Then update:
 After the image exists, add the Kubernetes deployment under:
 
 ```text
+
 k8s/apps/common/simple-service/<service-name>/
+
 ```
 
 and register it in:
 
 ```text
+
 k8s/apps/common/simple-service/ks.yaml
+
 ```
 ```
 

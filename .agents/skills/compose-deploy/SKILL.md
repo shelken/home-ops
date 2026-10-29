@@ -7,20 +7,19 @@ description: Use when 部署/更新 VPS 或 sakamoto
 
 ## Overview
 
-在 home-ops 仓库里部署或更新 VPS / sakamoto 的 docker
-compose，进入仓库后 mise 会自动加载工具环境，直接执行 task。
+在 home-ops 仓库中部署或更新 VPS 与 sakamoto 的 Docker Compose 服务。进入仓库后 mise 自动加载运行环境，直接执行对应 Task
 
 ## When to Use
 
-- 需要部署/更新 VPS 或 sakamoto 的 compose 服务
-- 需要仅同步配置（不重启容器）
-- 需要查看 compose 日志/状态
-- 看到 `task: command not found`
+- 部署或更新 VPS 与 sakamoto 的 Compose 服务
+- 仅同步配置文件（不重启容器）
+- 查看 Compose 服务运行日志与状态
+- 遇到 `task: command not found` 时自举依赖
 
 **When NOT to use**
 
-- 操作 k8s/flux/ansible 时
-- 不是 compose 相关任务时
+- 操作 K8s、Flux 或 Ansible 时
+- 执行非 Compose 相关运维任务时
 
 ## Core Pattern
 
@@ -52,5 +51,5 @@ task compose:deploy:vps
 
 ## Common Mistakes
 
-- 不在仓库根目录执行 → 找不到 Taskfile / 工具未加载
-- 只需要同步却用 deploy → 不必要的重启
+- 未在仓库根目录执行导致找不到 Taskfile 或环境未加载
+- 仅需同步配置时误用 deploy 造成非必要重启

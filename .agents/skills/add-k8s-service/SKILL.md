@@ -19,10 +19,10 @@ description: 在 home-ops 仓库中为 k3s 集群新增服务的完整流程：�
 
 `<parent-dir>` 按服务归属决定（见创建代码第 1 步）。
 
-1. 找 1-3 个最接近的现有目录当模板。
-2. 创建上述目录结构，只写当前服务真正需要的文件。
-3. 注册到对应当层的 `kustomization.yaml`。
-4. `kustomize build` 验证 app、对应中间层、staging 三层。
+1. 找 1 到 3 个最接近的现有目录当模板
+2. 创建上述目录结构，只写当前服务真正需要的文件
+3. 注册到对应当层的 `kustomization.yaml`
+4. `kustomize build` 验证 app、对应中间层与 staging 三层
 
 ## Workflows
 
@@ -34,28 +34,27 @@ description: 在 home-ops 仓库中为 k3s 集群新增服务的完整流程：�
 
 ### 1. 创建代码
 
-1. **识别形态与归属** — 先判断服务属于 apps 还是 infra：
+1. **识别形态与归属**：先判断服务属于 apps 还是 infra：
    - 普通应用 → `k8s/apps/common/<app>/`
    - 基础设施（网络、存储、监控等）→ `k8s/infra/common/<category>/<app>/`
-   - 外部入口（caddy-external、ss-rust 这类） → `k8s/infra/common/network/external/<app>/`
+   - 外部入口（如 caddy-external、ss-rust）→ `k8s/infra/common/network/external/<app>/`
 
-   然后判断技术特征：HTTP? DB? 密钥? 持久化? route? 选参考目录。
-2. **写 `ks.yaml`** — `dependsOn` 只写真实前置，`components` 只写用到的能力。
-3. **写 `helmrelease.yaml`** — 优先 app-template。镜像、env、service、route、persistence、probes、resources 按需补齐。
-4. **写 `kustomization.yaml`** — 只引用真实存在的文件。有配置文件需要生成 ConfigMap 再加 `configMapGenerator`。
-5. **写 `externalsecret.yaml`** — 按 **Secret 注入决策**（见下文）判断用哪种方式，确认后再创建。`store` 用 `bitwarden-store`，`dataFrom.extract.key` 用真实的 BWS secret 名（BWS 忽略 `property`，`dataFrom.find` 不可用，详见 `docs/6-secrets.md`），`target.template.data` 只暴露服务实际消费的键。
-6. **写入 BWS** — 用 `task secret:set-key` 写入（需要 `BWS_ACCESS_TOKEN`），`task secret:keys` 验证。agent 不得读取 secret 值。
-7. **注册** — 加进对应层的 `kustomization.yaml`：
+   判断服务技术特征（HTTP、DB、密钥、持久化、Route），选择最贴近的参考目录
+2. **编写 `ks.yaml`**：`dependsOn` 只写真实前置，`components` 只写用到的能力
+3. **编写 `helmrelease.yaml`**：优先使用 app-template，镜像、环境变量、Service、Route、持久化、探针与资源按需补齐
+4. **编写 `kustomization.yaml`**：只引用真实存在的文件，需生成 ConfigMap 时配置 `configMapGenerator`
+5. **编写 `externalsecret.yaml`**：按下文「Secret 注入决策」确认模式，`store` 固定为 `bitwarden-store`，`dataFrom.extract.key` 使用真实 BWS secret 名（BWS 忽略 `property` 且不支持 `dataFrom.find`，详见 `docs/6-secrets.md`），`target.template.data` 仅暴露实际消费的键
+6. **写入 BWS**：使用 `task secret:set-key` 写入（依赖 `BWS_ACCESS_TOKEN`），`task secret:keys` 验证，禁止读取 secret 原文
+7. **注册**：加入对应层级 `kustomization.yaml` 并沿用该文件现有排序风格：
    - apps 服务 → `k8s/apps/common/kustomization.yaml`
-   - infra 服务 → 对应的 category 层，如 `k8s/infra/common/network/external/kustomization.yaml`
-   保持排序风格。
-8. **验证** — `kustomize build` 跑三层：
-   - apps： `app/` → `k8s/apps/common/` → `k8s/apps/staging/`
-   - infra： `app/` → `<category>/`  →  `k8s/infra/staging/`
+   - infra 服务 → 对应 category 层，如 `k8s/infra/common/network/external/kustomization.yaml`
+8. **验证**：执行三层 `kustomize build`：
+   - apps: `app/` → `k8s/apps/common/` → `k8s/apps/staging/`
+   - infra: `app/` → `<category>/` → `k8s/infra/staging/`
 
 ### 2. 提交审查
 
-代码写完不自行提交。等用户审查同意后，再提 PR。
+代码编写完成后停在工作区，等用户审查同意再提交并提 PR
 
 ### 3. 部署观测
 
@@ -115,7 +114,7 @@ kubectl rollout status deployment/<app> -n <namespace> --timeout=5m
 kubectl get pods -n <namespace> -l app.kubernetes.io/name=<app> -w
 ```
 
-Pod 未就绪时检查日志定位问题。
+Pod 未就绪时检查 Pod Events 与容器日志定位问题
 
 ## Secret 注入决策
 
@@ -157,28 +156,28 @@ Pod 未就绪时检查日志定位问题。
 
 ### 关键细节
 
-- **Flux postBuild.substitute 与配置文件 `${}` 冲突** — 当配置文件的 `${ENV_VAR}` 被 Flux 提前替换时（因为 Flux 在构建阶段对所有 YAML 做 `${VAR}` 替换），有两种解法：
-  - **`kustomize.toolkit.fluxcd.io/substitute: disabled`** 注解：加在 ks.yaml 的 metadata.annotations 上，禁用整个 Kustomization 的变量替换。代价是所有 `${VAR}`（包括 `${TIMEZONE}` 等）都失效，需在 HelmRelease 中用 YAML anchor 或硬编码替代。
-  - **`$$` 转义**：在 YAML 值里用 `$${VAR}`，kustomize 输出时转成 `${VAR}`，运行时程序自己解析。不影响 Kustomization 其他 `${VAR}` 的替换。这个 Kustomization 还用到 `${TIMEZONE}` 等其他变量时优先用这种方式。
-  选择原则：Kustomization 没有其他 `${VAR}` 依赖 → 用 annotation；还有其他 `${VAR}` 依赖 → 用 `$$` 转义。
-- **多个 ExternalSecret 写同一个 target Secret** → 不接受。改成用一个 ExternalSecret 合并多个 `extract`（如 authelia 同时 extract `authelia` + `mail` + `cloudnative-pg`）。
-- **Bootstrap 阶段的 azure:// 占位符** — 只剩 `azure-creds` 一处，用于 bootstrap 阶段（先有鸡蛋问题），与服务无关，不需要关心。服务的 secret 一律写 BWS。
+- **Flux postBuild.substitute 与配置文件 `${}` 冲突**：当配置文件的 `${ENV_VAR}` 被 Flux 提前替换时，采用以下两种解法：
+  - **`kustomize.toolkit.fluxcd.io/substitute: disabled`**：资源级排除，Flux 只跳过带该注解的资源。配置文件走 ConfigMap 时写在 `kustomization.yaml` 的 `generatorOptions.annotations` 上（如 gatus、go2rtc、caddy-external），其余资源的 `${VAR}` 照常替换
+  - **`$$` 转义**：在 YAML 值里用 `$${VAR}`，kustomize 输出时转成 `${VAR}`，运行时程序自己解析。不影响 Kustomization 其他 `${VAR}` 的替换。该 Kustomization 仍需消费 `${TIMEZONE}` 等变量时优先采用此方式（如 crowdsec、ss-rust）
+  需要整个 Kustomization 都跳过 postBuild 变量时，在 ks.yaml 的 metadata.labels 添加 `substitution.flux/disabled: "true"`，集群层 patch 按该标签跳过变量注入（见 `docs/ARCHITECTURE.md` §8）
+- **多个 ExternalSecret 写入同一目标 Secret**：使用单一 ExternalSecret 合并多个 `extract`（如 authelia 同时 extract `authelia`、`mail` 与 `cloudnative-pg`）
+- **Bootstrap 阶段的 azure:// 占位符**：仅保留 `azure-creds` 用于集群初次引导，普通服务密钥一律写入 BWS
 
 ## Anti-patterns
 
-- 不要为"看起来完整"补无关字段。
-- 不要把依赖全写上——每个都要说清用途。
-- 不要预先创建不需要的文件。
-- 不要把参考目录整块复制过来，逐项按需删减。
-- 不要擅自加标签（`labels`）、`mergePolicy`。
+- 保持字段极简，只写有明确用途的配置
+- 声明真实存在的依赖与组件
+- 仅创建当前必需的文件
+- 参考现有目录时逐项按需提取，不盲目全盘复制
+- 仅在存在规范约束时添加标签与策略
 
 ## Validation
 
-- 目录两层结构？`ks.yaml` → `app/`。
-- `path` 指向正确（apps → `./k8s/apps/common/<app>/app`，infra → `./k8s/infra/common/<category>/<app>/app`）？
-- `kustomization.yaml` 只引真实存在的文件？
-- 字段、依赖、标签都有明确理由？
-- 注册层和 staging 渲染通过？
+- 目录是否保持两层结构（`ks.yaml` → `app/`）
+- `path` 是否指向正确（apps 指向 `./k8s/apps/common/<app>/app`，infra 指向 `./k8s/infra/common/<category>/<app>/app`）
+- `kustomization.yaml` 是否只引用真实存在的文件
+- 字段、依赖与标签是否具备明确依据
+- 注册层与 staging 渲染是否通过
 
 ## Reference
 

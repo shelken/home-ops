@@ -2,14 +2,13 @@
 
 集群卷备份使用 [Kopiur](https://github.com/home-operations/kopiur) + Kopia：
 
-- 本地仓库 `sakamoto`：集群外 RustFS 的 `kopiur` 桶，每小时一次，供细粒度回滚
-- 云端仓库 `cloud-openlist`：集群内 OpenList S3 的 `kopia` 桶 `kopiur/` 前缀，由集群级 SnapshotReplication 每天复制本地快照
-
+- 本地仓库 `sakamoto`：集群外 RustFS 的 `kopiur` 桶，每小时执行一次，用于细粒度状态回滚
+- 云端仓库 `yun139`：OpenList 提供的 139 网盘 WebDAV（`/dav/kopiur`），由集群级 SnapshotReplication `sakamoto-to-cloud` 每天同步本地快照；历史 `cloud-openlist`（S3 存储桶）已改为只读归档并停止维护
 取舍见 [ADR-0008](adr/0008-kopiur-cloud-snapshotreplication.md)
 
-依赖：
-- Longhorn（服务数据存储）
-- `kopiur-system`（控制器 + ClusterRepository + Kopia WebUI）
+依赖组件：
+- Longhorn（持久卷 CSI 驱动）
+- `kopiur-system`（控制器、ClusterRepository 与 Kopia Web 控制台）
 
 ## 添加新应用
 
@@ -41,29 +40,28 @@ spec:
       # KOPIUR_PGID: "0"
 ```
 
-组件自动创建：PVC（`IfNotPresent` 保护已有卷）、本地 SnapshotPolicy 与 SnapshotSchedule（`H * * * *`，按对象错峰）、Restore CR
+组件自动生成：PVC（`IfNotPresent` 保护存量数据卷）、本地 SnapshotPolicy 与 SnapshotSchedule（按对象错峰调度）、Restore CR
 
 ## 云端副本
 
-集群级单一资源 `k8s/infra/common/kopiur-system/kopiur/repository-cloud/snapshotreplication.yaml`，源 `sakamoto`，目标 `cloud-openlist`。`task kopiur:replicate` 手动触发，绕过每日窗口，成功后顺延下一个自动窗口
+集群级单一资源 `k8s/infra/common/kopiur-system/kopiur/replication/snapshotreplication.yaml`（`sakamoto-to-cloud`），源 `sakamoto`，目标 `yun139`。`task kopiur:replicate` 手动触发，绕过每日窗口，成功后顺延下一个自动窗口
 
 ## 恢复
 
-恢复由组件声明完成：PVC 的 `dataSourceRef` 指向同名 `Restore`，`Restore` 从 `fromPolicy` 指定的策略取最新快照。PVC 不存在时，Flux reconcile 重建 PVC，volume populator 自动填充数据。因此删除应用的 Kustomization 后由父级重新 reconcile，或在新集群上 bootstrap，都会自动恢复
+恢复过程完全由组件声明驱动：PVC 的 `dataSourceRef` 绑定同名 `Restore`，`Restore` 从 `fromPolicy` 策略拉取最新快照。PVC 缺失时 Flux 自动重建，volume populator 注入数据。删除应用 Kustomization 触发父级重建或全新集群引导均可自动恢复
 
-`task kopiur:snapshots`、`task kopiur:status` 只用于查看；仓库迁移等少见操作用 `task kopia:*`。没有恢复用的 task
+`task kopiur:snapshots` 与 `task kopiur:status` 仅用于状态审查；数据迁移使用 `task kopia:*`
 
 ### 本地仓库不可用时切到云端
 
-没有 `${APP}-cloud` 策略可切。在该应用的 `ks.yaml` 里给 `Restore` 打补丁，数据源指向 `cloud-openlist`：`source.identity` 用 `应用名@命名空间:/pvc/应用名`，并显式给 `spec.repository`；`policy.onMissingSnapshot` 改 `Fail`，否则身份没匹配上会建出空卷；选择器只按 `kind: Restore` 写，Flux 先构建后替换 `${APP}`，按 `name` 选不中
+没有 `${APP}-cloud` 策略可切。在该应用的 `ks.yaml` 里给 `Restore` 打补丁，数据源指向 `yun139`：`source.identity` 用 `应用名@命名空间:/pvc/应用名`，并显式给 `spec.repository`；`policy.onMissingSnapshot` 改 `Fail`，否则身份没匹配上会建出空卷；选择器只按 `kind: Restore` 写，Flux 先构建后替换 `${APP}`，按 `name` 选不中
 
 同时把 `kopiur-repository` 的 `wait` 改成 `false`，本地仓库恢复后 revert
 
 ~~2026-10-22 用 qui 演练从云端恢复成功~~ 切的是已删除的 `${APP}-cloud` 策略，新路径未演练
 
-- 删除 Kustomization 不会删除备份：快照默认 `onScheduleDelete: Retain`，CR 被删后数据仍在仓库，随后由 catalog 接管为 `adopted` 快照
-- 恢复会先停在 `MissingRecordedIdentity` 等待约 5 分钟，直到 catalog 接管云端快照后才拉取数据，期间不会产出空卷
-
+- 删除 Kustomization 不会清除快照：快照默认策略为 `onScheduleDelete: Retain`，CR 移除后数据依然保留在仓库，后续由 Catalog 接管为 `adopted`
+- 恢复过程初期若停留在 `MissingRecordedIdentity` 属正常等待（约 5 分钟），待 Catalog 完成快照接管后即开始拉取数据，不会产生空卷
 OpenList 自身的云端副本要经 OpenList 读取。集群与 sakamoto 主机同时损坏时，只能临时用 VPS 上的 OpenList 读取云端仓库，前提是开放其 S3 端口 5246（当前只发布 5244）
 
 ## 查看快照
@@ -75,7 +73,7 @@ task kopiur:snapshots           # 全量
 task kopiur:snapshots APP=plex  # 按应用过滤
 ```
 
-或访问 Kopia WebUI：`https://kopia.<DOMAIN>`，它同样只连接本地仓库
+或访问 Kopia WebUI：`https://kopia.<INTERNAL_DOMAIN>`（HTTPRoute 挂在 envoy-internal 上），它同样只连接本地仓库
 
 云端仓库（副本都在 `kopiur-system`）：
 

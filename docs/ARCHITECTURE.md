@@ -12,12 +12,12 @@
 
 ## 组件清单
 
-- 编排与 GitOps: k3s、Flux CD v2
-- 网络: Cilium、Multus、Envoy Gateway、External-DNS、Tailscale
-- 密钥: SOPS、External Secrets、Bitwarden Secrets Manager
-- 数据与存储: CloudNative-PG、Dragonfly、Longhorn、OpenEBS、SMB CSI
-- 备份: kopiur（VolumeSnapshot + Kopia mover）每小时写入集群外 RustFS；再由一个 SnapshotReplication 每天把这些仓库的最新快照复制到集群内 OpenList S3
-- 可观测性: Prometheus、Grafana、Gatus、VictoriaLogs、Fluent Bit
+- 编排与 GitOps：k3s、Flux CD v2
+- 网络：Cilium、Multus、Envoy Gateway、External-DNS、Tailscale
+- 密钥：SOPS、External Secrets、Bitwarden Secrets Manager
+- 数据与存储：CloudNativePG、Dragonfly、Longhorn、OpenEBS、SMB CSI
+- 备份：kopiur（VolumeSnapshot + Kopia mover）每小时写入集群外 RustFS；再由 SnapshotReplication 每天将最新快照复制到 139 网盘 WebDAV（`yun139`）
+- 可观测性：Prometheus、Grafana、Gatus、VictoriaLogs、Fluent Bit
 
 ## 1. 物理部署
 
@@ -189,6 +189,7 @@ K8s 节点本机 DNS (Ansible):
 ### 流量路径
 
 ```mermaid
+
 graph LR
     subgraph INTERNET["互联网"]
         Client["客户端"]
@@ -234,11 +235,13 @@ CN / HK + VPS IP"]
 
     Envoy_External --> GeoIP
     GeoIP --> HTTPRoute
+
 ```
 
 ### 内网入口与旁路由 DNS
 
 ```mermaid
+
 graph LR
     subgraph LAN["家庭内网<br/>192.168.6.0/24"]
         Client["局域网设备"]
@@ -272,6 +275,7 @@ graph LR
     K8sGW -->|"A → LB IP"| Envoy_Internal
     TS_Client --> TS_Subnet
     TS_Subnet --> Envoy_Internal
+
 ```
 
 ### 内网记录归属
@@ -279,19 +283,21 @@ graph LR
 - **集群内权威**：`k8s-gateway` 根据 HTTPRoute、Service 与 Ingress 动态应答
 - **主域未命中记录**：由 `k8s-gateway` 转发到公网递归
 - **内部域未命中记录**：由 `k8s-gateway` 直接在内存返回 NXDOMAIN/NODATA，不向外递归也不回踢路由器（消除转发死循环）
-- **集群外自举**：`router/dnsmasq/dnsmasq-int.hosts` 下发到 home-ops 专用目录，
-  由同目录的 `20-hosts.conf` 加载
-- **路由器分流**：`router/dnsmasq/conf.d/` 与自举 hosts 统一下发到
+- **集群外自举**：`router/dnsmasq/conf.d/30-bootstrap.conf.tpl` 下发为 home-ops 专用目录中的
+  `30-bootstrap.conf`，用 `address=` 与 `local=` 对记录名本地权威应答（A 与 AAAA 都不转发）
+- **路由器分流**：`router/dnsmasq/conf.d/` 下的配置统一下发到
   `/etc/dnsmasq-home-ops.d`，`/etc/dnsmasq.conf` 中的机器级接入点加载该目录
 - **OpenWrt 所有权**：UCI `confdir` 保持未设置，默认临时目录及 LuCI/UCI 手工配置继续生效
 
 检查方式：
 
 ```bash
+
 task router:dns:diff
 ssh <ROUTER> 'cat /etc/dnsmasq.conf'
 ssh <ROUTER> 'ls -la /etc/dnsmasq-home-ops.d'
 ssh <ROUTER> 'cat /etc/dnsmasq-home-ops.d/*'
+
 ```
 
 后端与所有权决策见 [ADR-0003：集群服务 DNS 由 k8s-gateway 动态应答](adr/0003-internal-dns-via-gateway.md)。
@@ -306,19 +312,22 @@ ssh <ROUTER> 'cat /etc/dnsmasq-home-ops.d/*'
 - **不发布到公网**：Cloudflare 的 ExternalDNS 只观测 `envoy-external`，公网没有内部域记录。在家用网络内直接 `dig` 会被本机网络拦截而返回内网地址，复核用 DoH：
 
   ```bash
+
   curl -s -H 'accept: application/dns-json' 'https://cloudflare-dns.com/dns-query?name=x.<INTERNAL_DOMAIN>&type=A'
+
   # 公网应为 Status 3（NXDOMAIN）
+
   ```
 
 - **解析路径**：
 
   | 客户端 | 路径 |
   |---|---|
-  | LAN 设备、VPS | 路由器或 VPS 的 dnsmasq → k8s-gateway；集群外自举名称为路由器 `int.hosts` 的精确记录 |
+  | LAN 设备、VPS | 路由器或 VPS 的 dnsmasq → k8s-gateway；集群外自举名称为路由器 `30-bootstrap.conf` 中的 `address=` 记录 |
   | K8s 节点 | 经旁路由 dae 转回主路由，见 [ADR-0004](adr/0004-k8s-node-dns-daed-routing.md) |
   | SFM 客户端 | 由 proxy 仓库的 sing-box 配置在本地静态应答，不依赖家庭 DNS，见 [proxy #46](https://github.com/shelken/proxy/issues/46) |
 
-- **入口 IP 变化**：路由器 `int.hosts` 与各客户端的静态应答要同时更新，否则两侧指向不同入口
+- **入口 IP 变化**：路由器 `30-bootstrap.conf` 与各客户端的静态应答要同时更新，否则两侧指向不同入口
 
 ### 入口一览
 
@@ -338,6 +347,7 @@ ssh <ROUTER> 'cat /etc/dnsmasq-home-ops.d/*'
 ## 5. VPS Caddy 路由
 
 ```mermaid
+
 graph TB
     subgraph VPS["VPS"]
         Caddy["VPS Caddy（443）"]
@@ -358,22 +368,20 @@ graph TB
 
     subgraph CLUSTER["集群"]
         Envoy["envoy-external"]
-        Envoy_CPA["envoy-external（CPA SNI）"]
     end
 
-    Caddy -->|"cpa"| Envoy_CPA
     Caddy -->|"*（默认）"| Envoy
     Caddy --> mosdns
     Caddy --> subconv
     Caddy --> sbtools
     Caddy --> dhp
     Caddy -->|"to_host"| derp
+
 ```
 
 | 域名 | 路由目标 | 说明 |
 |------|---------|------|
 | `*`（默认） | → Tailscale → envoy-external | 大部分服务 |
-| `cpa` | → Tailscale → envoy-external（CPA SNI） | CPA 协议专用 |
 | `sub` | → 本地 sub-converter:25500 | 订阅转换 |
 | `subs` | → 本地 sbtools-server:8080 | 配置交付服务 |
 | `derp` | → 宿主机 :8666（Caddy 经 172.20.0.1 回打） | Tailscale 中继 |
@@ -387,6 +395,7 @@ graph TB
 ## 6. 监控与日志采集
 
 ```mermaid
+
 graph LR
     subgraph VPS["VPS"]
         NE_VPS["node-exporter"]
@@ -419,6 +428,7 @@ graph LR
 
     Gatus --> TS_SVC
     Gatus --> VPS_Public["VPS 公网 URL"]
+
 ```
 
 ### 采集目标
@@ -437,6 +447,7 @@ graph LR
 ## 7. 备份链路
 
 ```mermaid
+
 graph TB
     subgraph K8S["k3s 集群"]
         PVC["PVC (Longhorn)"]
@@ -462,8 +473,7 @@ graph TB
         VPS_OpenList["OpenList (本地 S3)"]
     end
 
-    Cloud["189 天翼云盘"]
-
+    Cloud["139 移动云盘"]
     PVC --> Kopiur
     PG --> Barman
     Kopiur -->|"每小时"| RustFS
@@ -482,6 +492,7 @@ graph TB
     VPS_Data --> VPS_Kopia
     VPS_Kopia --> VPS_OpenList
     VPS_OpenList --> Cloud
+
 ```
 
 ### 备份配置
@@ -489,21 +500,22 @@ graph TB
 | 链路 | 备份源 | 存储后端 | 目标 | 调度 |
 |------|--------|---------|------|------|
 | k8s PVC（本地） | Longhorn VolumeSnapshot | Kopiur（Kopia mover）→ RustFS (宿主机 S3, bucket kopiur) | 宿主机本地 | 每小时 |
-| k8s PVC（云端副本） | 本地仓库 `sakamoto` 的最新快照 | Kopiur SnapshotReplication（`kopia snapshot migrate`）→ OpenList (集群 S3, bucket kopia, prefix kopiur/) | 189 云盘 | 每天 |
-| PostgreSQL | CNPG 集群 | Barman → RustFS (宿主机 S3) | 189 云盘 | 按 WAL 归档 |
-| 宿主机 RustFS | RustFS 数据（不含 kopiur 桶） | Kopia → OpenList (集群 S3) | 189 云盘 | 每天 03:30 |
-| 宿主机 Compose | Compose 数据 | Kopia → OpenList (集群 S3) | 189 云盘 | 1 小时 |
+| k8s PVC（云端副本） | 本地仓库 `sakamoto` 的最新快照 | Kopiur SnapshotReplication（`kopia snapshot migrate`）→ ClusterRepository `yun139`（WebDAV → 集群 OpenList `/dav/kopiur`） | 139 云盘 | 每天 |
+| PostgreSQL | CNPG 集群 | Barman → RustFS (宿主机 S3) | 139 云盘 | 按 WAL 归档 |
+| 宿主机 RustFS | RustFS 数据（不含 kopiur 桶） | Kopia → OpenList (WebDAV) | 139 云盘 | 每天 03:30 |
+| 宿主机 Compose | Compose 数据 | Kopia → OpenList (WebDAV) | 139 云盘 | 1 小时 |
 | 宿主机本地 | 用户数据 (`/Volumes/<USER_DATA>`) | Kopia Local → 外接 USB HDD | 本地 | 每小时 |
-| VPS 服务数据 | VPS 数据 | Kopia → OpenList (VPS 本地 S3) | 189 云盘 | 4 小时 |
+| VPS 服务数据 | VPS 数据 | Kopia → OpenList (VPS WebDAV) | 139 云盘 | 4 小时 |
 
-> Kopia 仓库配置通过 `.env.tpl` 从外部密钥管理注入，不提交到 Git。
-> 189 云盘是 OpenList 的运行时存储配置，不在 Git 内声明。
+> Kopia 仓库配置通过 `.env.tpl` 从外部密钥管理注入，不提交到 Git
+> 139 云盘是 OpenList 的运行时存储配置，不在 Git 内声明
 
 ---
 
 ## 8. Flux 部署链路
 
 ```mermaid
+
 graph TB
     GIT["GitHub: shelken/home-ops (main)"]
 
@@ -570,6 +582,7 @@ graph TB
     HELM --> WORKLOAD
     WORKLOAD --> POD
     HELM --> OBJ
+
 ```
 
 ### 部署顺序

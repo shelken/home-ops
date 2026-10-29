@@ -18,9 +18,9 @@
 在仓库根目录执行以下命令。部署保留依赖检查，等待本机 `openlist` 健康后再启动 Kopia
 
 ```bash
-sec-run task secret:keys secret=compose-vps
-sec-run task secret:edit secret=compose-vps
-sec-run task compose:deploy:vps -- --force-recreate kopia
+task secret:keys secret=compose-vps
+task secret:edit secret=compose-vps
+task compose:deploy:vps -- --force-recreate kopia
 ```
 
 共享仓库的口令一致性、首次初始化和运行验证统一见共享维护步骤

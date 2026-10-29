@@ -12,5 +12,5 @@ status: accepted
 ## Consequences
 
 - 内外入口继续使用同一证书 Secret，内部通配的加入不构成私钥或权限隔离
-- 入口 IP 变化时，路由器 `int.hosts` 与各客户端的静态应答都要更新
+- 入口 IP 变化时，路由器的自举记录（`router/dnsmasq/conf.d/30-bootstrap.conf.tpl`）与各客户端的静态应答都要更新
 - 内部入口的 hostname、证书覆盖和消费者（OIDC 回调、应用公开 URL、备份地址、镜像源）随域名迁移同步修改，不长期维持双域名

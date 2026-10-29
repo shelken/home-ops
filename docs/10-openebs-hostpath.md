@@ -1,5 +1,8 @@
+# OpenEBS HostPath 本地存储
 
-## 挂载到特定机器
+参考配置：[`k8s/infra/common/openebs-system/openebs/app/helmrelease.yaml`](../k8s/infra/common/openebs-system/openebs/app/helmrelease.yaml)
+
+当前 OpenEBS HostPath 已移除特定节点亲和性限制（本仓库不再设置 `nodeAffinityLabels`），基准存储路径统一为 `/var/mnt/local-hostpath`：
 
 ```yaml
 spec:
@@ -8,17 +11,12 @@ spec:
       localpv:
         image:
           registry: quay.io/
-        basePath: &hostPath /mnt/data/openebs/local
+        basePath: &hostPath /var/mnt/local-hostpath
       hostpathClass:
         enabled: true
         name: openebs-hostpath
         isDefaultClass: false
         basePath: *hostPath
-        nodeAffinityLabels:
-          - "openebs.io/node-sakamoto"
 ```
 
-```bash
-# 固定openebs的卷到sakamoto
-kubectl label node lima-sakamoto2 openebs.io/node-sakamoto=true
-```
+集群实际节点名称以 `ansible/inventory/hosts.ini` 为准（`sakamoto-k8s`、`homelab-1`、`yuuko-k8s`）

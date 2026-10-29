@@ -1,6 +1,6 @@
 # 网络清单
 
-本文件记录集群内部网络地址和 Multus 使用边界。公网域名、公网 IP 和私有服务 URL 不写入本文档。
+本文件记录集群内部网络地址和 Multus 使用边界。公网域名、公网 IP 和私有服务 URL 不写入本文档
 
 ## LoadBalancer 地址段
 
@@ -16,6 +16,7 @@ LB IP range: `192.168.69.0/24`
 | immich-db              | `192.168.69.56` | Immich 数据库             |        |
 | seafile-db             | `192.168.69.57` | Seafile 数据库            |        |
 | mosquitto              | `192.168.69.59` | MQTT 服务                 |        |
+| cli-proxy-api          | `192.168.69.60` | CLI Proxy API 服务        |        |
 | victoria-logs          | `192.168.69.66` | 接收外部设备日志          |        |
 | crowdsec               | `192.168.69.67` | 外部 agent / bouncer 连接 |        |
 
@@ -34,16 +35,17 @@ LB IP range: `192.168.69.0/24`
 
 ## Multus 使用边界
 
-只有几类服务应该使用 Multus：
+使用 Multus 的服务场景：
 
-- `multus-ipv6`：需要 IPv6 或 UDP 直连的服务，例如 tailscale、qbittorrent、caddy-external。
-- `multus-iot`：需要接入 IoT VLAN 的服务，例如 home-assistant。
-- `multus-homekit`：需要 HomeKit/mDNS 特定网络路径的服务，例如 go2rtc。
-- `multus-main`：保留备用。
+- `multus-ipv6`：需要 IPv6 或 UDP 直连的服务（如 tailscale、qbittorrent、caddy-external）
+- `multus-iot`：需要接入 IoT VLAN 的服务（如 home-assistant）
+- `multus-homekit`：需要 HomeKit/mDNS 特定网络路径的服务（如 go2rtc）
+- `multus-main`：保留备用
 
-其他需要单独 IP 的服务优先使用 LoadBalancer / L2 宣告，并严格限定暴露端口。
+其他需要独立 IP 的服务优先使用 LoadBalancer / L2 宣告，并严格限定暴露端口
 
-Multus 引用中的 IP 掩码很重要：`/32` 与 `/24` 会影响容器是否自动获得出口网段路由。
+Multus 声明中的 IP 掩码区分：`/32` 与 `/24` 会直接影响容器是否自动生成对应出口网段路由
+
 
 ## 参考
 

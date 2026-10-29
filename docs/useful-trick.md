@@ -1,6 +1,9 @@
-## CloudNative-PG 立即备份
+# 运维实用技巧
+
+## CloudNativePG 立即备份
 
 ### 创建一次性备份
+
 ```bash
 kubectl apply -f - <<EOF
 apiVersion: postgresql.cnpg.io/v1
@@ -17,6 +20,7 @@ EOF
 ```
 
 ### 查看备份状态
+
 ```bash
 # 查看所有备份
 kubectl get backups -n <namespace>
@@ -29,14 +33,18 @@ kubectl describe backup <backup-name> -n <namespace>
 ```
 
 
-## envoy-gateway
+## Envoy Gateway 调试与控制台
 
-> [envoy-gateway-doc](https://gateway.envoyproxy.io/docs)
+参考上游文档：[Envoy Gateway Docs](https://gateway.envoyproxy.io/docs)
 
-整个 gateway 的管理（Envoy Gateway Admin Console）
+管理控制台端口转发（Envoy Gateway Admin Console）：
 
-`kubectl port-forward -n network deployment/envoy-gateway 19001:19000`
+```bash
+kubectl port-forward -n network deployment/envoy-gateway 19001:19000
+```
 
-访问envoy proxy admin/configdump
+查看 Envoy Proxy 实际运行配置（admin / config_dump）：
 
-`kubectl port-forward -n network deployment/envoy-external 19000:19000`
+```bash
+kubectl port-forward -n network deployment/envoy-external 19000:19000
+```

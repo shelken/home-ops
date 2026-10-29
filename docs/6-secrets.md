@@ -1,15 +1,13 @@
 # 密钥管理
 
 
-## sops
+## SOPS
 
 ```bash
-# 进入仓库根目录后 mise 自动提供 sops / task
-task sops:encrypt-all # 一次性加密所有需要未加密文件
-
-task sops:updatekey-all # 变更/删除/增加密钥时 一次性更新所有已加密的文件
-
-task secret:bootstrap # 初始化集群所需的 secret
+# 进入仓库根目录后 mise 自动提供 sops 与 task
+task sops:encrypt-all    # 批量加密未加密的 SOPS 目标文件
+task sops:updatekey-all  # 密钥变更时批量更新已加密文件
+task secret:bootstrap    # 渲染并应用集群自举所需 Secret
 ```
 
 ## 初始化所需 Secret
@@ -26,21 +24,21 @@ task secret:bootstrap # 初始化集群所需的 secret
 
 ## Bitwarden Secrets Manager
 
-集群内所有 ExternalSecret 与 PushSecret 都使用 ClusterSecretStore `bitwarden-store`，数据源是 BWS 项目，进度见 [#1666](https://github.com/shelken/home-ops/issues/1666)。`azure-store` 仍保留，但集群内已无使用者；Azure KeyVault 只剩 `azure-creds` 和它的轮换任务。bootstrap 与 compose 模板也都读 BWS（`azure-creds` 除外），运维命令写入的同样是 BWS
+集群内所有 ExternalSecret 与 PushSecret 都使用 ClusterSecretStore `bitwarden-store`，数据源是 BWS 项目。迁移已完成（[#1666](https://github.com/shelken/home-ops/issues/1666) 已关闭），剩余收尾（删除 `azure-store`、`azure-creds` 与 Key Vault 相关内容）见 [#1675](https://github.com/shelken/home-ops/issues/1675)。`azure-store` 仍保留，但集群内已无使用者；Azure KeyVault 只剩 `azure-creds` 和它的轮换任务。bootstrap 与 compose 模板也都读 BWS（`azure-creds` 除外），运维命令写入的同样是 BWS
 
-BWS provider 与 Azure 的差异，写 ExternalSecret 时要遵守：
+BWS provider 与 Azure 的行为差异：
 
-- `remoteRef.key` 是 secret 名；`property`、`version` 会被忽略，取到的永远是整段值。要取 JSON 里的键，用 `dataFrom.extract` 取整个 JSON，再用 `target.template.data` 映射
-- `dataFrom.find` 不可用
-- `bitwarden-store` 显示 Ready 只说明 provider 校验通过，是否可用以 ExternalSecret 同步成功为准
-- 集群内只有一个 BWS 项目，同名 secret 会让 ESO 报错
+- `remoteRef.key` 为 secret 名；`property` 与 `version` 会被忽略，取到的始终为整段值。若需消费 JSON 字段，使用 `dataFrom.extract` 提取整个 JSON，再通过 `target.template.data` 映射
+- 不支持 `dataFrom.find`
+- `bitwarden-store` 处于 Ready 仅说明 provider 连接正常，可用性以具体 ExternalSecret 同步成功为准
+- 单一项目内出现同名 secret 会导致 ESO 报错
 
-渲染脚本 `scripts/secret-inject.py` 对 BWS 的约定：
+渲染脚本 `scripts/secret-inject.py` 约定：
 
-- 占位符：`bws://<name>[/<json_key>]`，`name` 是 BWS secret 名（从 Azure 迁移时保持同名），值是 JSON 时用 `/<json_key>` 取键
-- 环境变量：`BWS_ACCESS_TOKEN` 是机器账号访问令牌，`bws` 没有登录命令，每次调用都要带上它，所以必须由你在 shell 里提供，不进仓库。`BWS_PROJECT_ID` 是 secret 所在项目的 ID，不是凭据，已写在 [`mise.toml`](../mise.toml) 的 `[env]` 中，在仓库目录内自动生效
-- CLI：`bws` 由 mise 提供，版本见 [`mise.toml`](../mise.toml)，执行 `mise install` 安装
-- 脚本对整个项目只调用一次 `bws secret list`，同一项目内出现同名 secret 时报错中止
+- 占位符：`bws://<name>[/<json_key>]`，`name` 为 BWS secret 名，值为 JSON 时以 `/<json_key>` 取键
+- 环境变量：`BWS_ACCESS_TOKEN` 为机器账号访问令牌，由外部 shell 提供，不提交仓库；`BWS_PROJECT_ID` 为项目 ID，已由 [`mise.toml`](../mise.toml) 注入
+- CLI：`bws` 由 mise 统一管理
+- 脚本运行期间单次拉取 `bws secret list`，检测到同名 secret 即中止报错
 
 ```bash
 export BWS_ACCESS_TOKEN=<机器账号令牌>
@@ -80,7 +78,7 @@ task secret:azure-creds-rotate years=1
 ```
 
 
-### 初始创建流程回忆
+### 历史初始化流程存档
 
 ```bash
 az login

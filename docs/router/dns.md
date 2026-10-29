@@ -28,10 +28,10 @@ OpenWrt 的默认临时目录继续生效。
 | 文件 | 专用目录中的目标 |
 | :--- | :--- |
 | `router/dnsmasq/conf.d/10-upstream.conf.tpl` | `10-upstream.conf` |
-| `router/dnsmasq/conf.d/20-hosts.conf.tpl` | `20-hosts.conf` |
-| `router/dnsmasq/dnsmasq-int.hosts` | `int.hosts` |
+| `router/dnsmasq/conf.d/30-bootstrap.conf.tpl` | `30-bootstrap.conf` |
 
-`20-hosts.conf` 从同一目录加载 `int.hosts`。集群服务记录不写入路由器；k8s-gateway 根据
+`conf.d/` 下的每个 `*.conf.tpl` 都会随下发渲染进专用目录（`router/dnsmasq/spec.py`）。`30-bootstrap.conf`
+用 `address=` 与 `local=` 对集群外自举名称做本地权威应答，不依赖集群。集群服务记录不写入路由器；k8s-gateway 根据
 当前 HTTPRoute、Service 和 Ingress 应答，主域下未匹配的名称由 gateway 转发公网递归。
 后端选择见 [集群服务 DNS 决策](../adr/0003-internal-dns-via-gateway.md)。
 
@@ -55,4 +55,4 @@ dig @<ROUTER_IP> <CLUSTER_SERVICE_IN_MAIN_DOMAIN> A
 dig @<ROUTER_IP> <BOOTSTRAP_NAME> A
 ```
 
-集群不可用时，集群服务名称无法解析；`int.hosts` 中的集群外自举名称仍由路由器本地回答。
+集群不可用时，集群服务名称无法解析；`30-bootstrap.conf` 中的集群外自举名称仍由路由器本地回答。
