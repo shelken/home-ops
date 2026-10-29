@@ -83,6 +83,7 @@
     host minio-ui.{args[0]}
     method GET HEAD
     path /
+    not header Authorization *
   }
   redir @ui_root /rustfs/console/ 308
 
