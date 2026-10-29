@@ -29,7 +29,7 @@ VICTORIA_LOGS_HOST=bws://compose-vps/VICTORIA_LOGS_HOST
 VICTORIA_LOGS_PORT=9428
 
 # ==================== Kopia ====================
-KOPIA_REPO_PASSWORD=bws://compose-vps/KOPIA_REPO_PASSWORD
+KOPIA_MAIN_PASSWORD=bws://compose-vps/KOPIA_MAIN_PASSWORD
 KOPIA_WEBHOOK_URL=bws://compose-vps/KOPIA_WEBHOOK_URL
 
 # ==================== OpenList ====================

@@ -1,13 +1,10 @@
 {
   "storage": {
-    "type": "s3",
+    "type": "webdav",
     "config": {
-      "bucket": "kopia",
-      "prefix": "main/",
-      "endpoint": "openlist:5246",
-      "accessKeyID": "bws://compose-vps/OPENLIST_S3_ACCESS_KEY_ID",
-      "secretAccessKey": "bws://compose-vps/OPENLIST_S3_SECRET_ACCESS_KEY",
-      "doNotUseTLS": true
+      "url": "http://openlist:80/dav/main",
+      "username": "bws://compose-vps/OPENLIST_WEBDAV_USERNAME",
+      "password": "bws://compose-vps/OPENLIST_WEBDAV_PASSWORD"
     }
   },
   "caching": {
