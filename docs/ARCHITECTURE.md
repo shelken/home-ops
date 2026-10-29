@@ -16,7 +16,7 @@
 - 网络: Cilium、Multus、Envoy Gateway、External-DNS、Tailscale
 - 密钥: SOPS、External Secrets、Bitwarden Secrets Manager
 - 数据与存储: CloudNative-PG、Dragonfly、Longhorn、OpenEBS、SMB CSI
-- 备份: kopiur（VolumeSnapshot + Kopia mover）每小时写入集群外 MinIO；再由一个 SnapshotReplication 每天把这些仓库的最新快照复制到集群内 OpenList S3
+- 备份: kopiur（VolumeSnapshot + Kopia mover）每小时写入集群外 RustFS；再由一个 SnapshotReplication 每天把这些仓库的最新快照复制到集群内 OpenList S3
 - 可观测性: Prometheus、Grafana、Gatus、VictoriaLogs、Fluent Bit
 
 ## 1. 物理部署
@@ -137,7 +137,7 @@ graph TB
 
     subgraph COMPOSE_SAKA["宿主机 · Docker Compose"]
         CD_SAKA["Caddy (内部代理 :2019)
-MinIO (S3 存储 :9000)
+RustFS (S3 存储 :9000)
 Registry Mirrors × 4 (ghcr / quay / mirror.gcr.io / registry.k8s.io)
 Kopia (云端) + Kopia Local (备份)
 Nvidia DLS
@@ -331,7 +331,7 @@ ssh <ROUTER> 'cat /etc/dnsmasq-home-ops.d/*'
 | ~5~ | Cloudflare Tunnel | 无 | 无 | 无 | ❌ 已停用 |
 | ~6~ | NetBird | 无 | 无 | 无 | ❌ 已停用 |
 
-> 内网 DNS 里除集群服务外还有集群外内部服务（宿主机上的 minio、镜像代理、PVE 面板等），它们解析到 192.168.6.144，不经 envoy
+> 内网 DNS 里除集群服务外还有集群外内部服务（宿主机上的 rustfs、镜像代理、PVE 面板等），它们解析到 192.168.6.144，不经 envoy
 
 ---
 
@@ -448,7 +448,7 @@ graph TB
     end
 
     subgraph SAKA_BACKUP["宿主机"]
-        MinIO["MinIO (S3)<br/>:9000 · bucket kopiur"]
+        RustFS["RustFS (S3)<br/>:9000 · bucket kopiur"]
         COMPOSE_Data["Compose 数据"]
         USER_Data["用户数据<br/>/Volumes/<USER_DATA>"]
         SAKA_Kopia["Kopia（云端）"]
@@ -466,12 +466,12 @@ graph TB
 
     PVC --> Kopiur
     PG --> Barman
-    Kopiur -->|"每小时"| MinIO
-    MinIO -->|"每天复制最新快照"| Replicate
+    Kopiur -->|"每小时"| RustFS
+    RustFS -->|"每天复制最新快照"| Replicate
     Replicate --> Cluster_OpenList
-    Barman --> MinIO
+    Barman --> RustFS
 
-    MinIO --> SAKA_Kopia
+    RustFS --> SAKA_Kopia
     COMPOSE_Data --> SAKA_Kopia
     SAKA_Kopia --> Cluster_OpenList
     Cluster_OpenList --> Cloud
@@ -488,10 +488,10 @@ graph TB
 
 | 链路 | 备份源 | 存储后端 | 目标 | 调度 |
 |------|--------|---------|------|------|
-| k8s PVC（本地） | Longhorn VolumeSnapshot | Kopiur（Kopia mover）→ MinIO (宿主机 S3, bucket kopiur) | 宿主机本地 | 每小时 |
+| k8s PVC（本地） | Longhorn VolumeSnapshot | Kopiur（Kopia mover）→ RustFS (宿主机 S3, bucket kopiur) | 宿主机本地 | 每小时 |
 | k8s PVC（云端副本） | 本地仓库 `sakamoto` 的最新快照 | Kopiur SnapshotReplication（`kopia snapshot migrate`）→ OpenList (集群 S3, bucket kopia, prefix kopiur/) | 189 云盘 | 每天 |
-| PostgreSQL | CNPG 集群 | Barman → MinIO (宿主机 S3) | 189 云盘 | 按 WAL 归档 |
-| 宿主机 MinIO | MinIO 数据（不含 kopiur 桶） | Kopia → OpenList (集群 S3) | 189 云盘 | 每天 03:30 |
+| PostgreSQL | CNPG 集群 | Barman → RustFS (宿主机 S3) | 189 云盘 | 按 WAL 归档 |
+| 宿主机 RustFS | RustFS 数据（不含 kopiur 桶） | Kopia → OpenList (集群 S3) | 189 云盘 | 每天 03:30 |
 | 宿主机 Compose | Compose 数据 | Kopia → OpenList (集群 S3) | 189 云盘 | 1 小时 |
 | 宿主机本地 | 用户数据 (`/Volumes/<USER_DATA>`) | Kopia Local → 外接 USB HDD | 本地 | 每小时 |
 | VPS 服务数据 | VPS 数据 | Kopia → OpenList (VPS 本地 S3) | 189 云盘 | 4 小时 |

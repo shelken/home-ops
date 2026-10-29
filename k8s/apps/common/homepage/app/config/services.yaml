@@ -56,9 +56,9 @@
           url: http://prometheus-operated.observability.svc.cluster.local:9090
 
 - 存储:
-    - Minio:
-        icon: minio-light.png
-        href: https://minio-ui.${INTERNAL_DOMAIN}
+    - RustFS:
+        icon: rustfs.svg
+        href: https://rustfs-ui.${INTERNAL_DOMAIN}
         description:
 
 - 文章:

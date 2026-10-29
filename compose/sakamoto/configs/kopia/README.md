@@ -6,7 +6,7 @@
 
 | 服务 | 仓库类型 | 备份源 | 目标 | 端口 |
 |------|---------|--------|------|------|
-| kopia (云端) | S3 (OpenList) | compose, minio（不含 `kopiur` 桶） | 189 云盘 | 51515 |
+| kopia (云端) | S3 (OpenList) | compose, rustfs（不含 `kopiur` 桶） | 189 云盘 | 51515 |
 | kopia-local (本地) | 文件系统 | sakamoto-data 用户数据 | BackUp3T | 51516 |
 
 调度见 `policy.json` 与 `local/policy.json`，运行时用 `kopia policy list` 读。
@@ -37,7 +37,7 @@ Kopia 策略采用层级继承机制：
 | `@sakamoto` | retention, compression, files.ignore | sakamoto 主机级别 |
 | `@vps` | retention, compression, files.ignore | vps 主机级别 |
 | `shelken@sakamoto:/backup/compose` | scheduling | compose 备份调度 |
-| `shelken@sakamoto:/backup/minio` | scheduling | minio 备份调度 |
+| `shelken@sakamoto:/backup/minio` | scheduling | rustfs 数据备份调度 |
 | `shelken@vps:/backup/data` | scheduling | VPS 数据备份调度 |
 
 调度间隔见 `policy.json`。
@@ -133,7 +133,7 @@ kopia snapshot list --all
 - `/backup/sakamoto-data/折腾` - 个人文件
 - `/backup/sakamoto-data/synogy-data` - 群晖数据
 - `/backup/sakamoto-data/k8s/storage` - K8s 应用数据
-- `/backup/sakamoto-data/Devlopment/docker/data/minio` - MinIO 对象存储数据
+- `/backup/sakamoto-data/Devlopment/docker/data/minio` - RustFS 对象存储数据
 
 **排除规则**：
 - `media/Downloads/qbittorrent` - 下载文件可重新下载
@@ -163,4 +163,4 @@ open http://sakamoto.lan:51516
 | 仓库密码 | KOPIA_REPO_PASSWORD | KOPIA_LOCAL_REPO_PASSWORD |
 | 备份目标 | 189 云盘（异地） | BackUp3T（本地） |
 | 恢复速度 | 较慢（网络） | 快速（本地磁盘） |
-| 备份内容 | Docker + MinIO | 用户数据 |
+| 备份内容 | Docker + RustFS | 用户数据 |

@@ -2,7 +2,7 @@
 
 集群卷备份使用 [Kopiur](https://github.com/home-operations/kopiur) + Kopia：
 
-- 本地仓库 `sakamoto`：集群外 MinIO 的 `kopiur` 桶，每小时一次，供细粒度回滚
+- 本地仓库 `sakamoto`：集群外 RustFS 的 `kopiur` 桶，每小时一次，供细粒度回滚
 - 云端仓库 `cloud-openlist`：集群内 OpenList S3 的 `kopia` 桶 `kopiur/` 前缀，由集群级 SnapshotReplication 每天复制本地快照
 
 取舍见 [ADR-0008](adr/0008-kopiur-cloud-snapshotreplication.md)
