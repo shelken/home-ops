@@ -79,6 +79,7 @@ task secret:azure-creds-rotate years=1
 
 
 ### 历史初始化流程存档
+
 ```bash
 az login
 

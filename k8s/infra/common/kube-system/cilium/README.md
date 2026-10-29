@@ -2,6 +2,7 @@
 
 > 状态：本地站点正常（`sakamoto-k8s` / `homelab-1` / `yuuko-k8s` 与 `router-mine` 建立 eBGP 对等）
 > 跨地域部分（`router-home` 经 ZeroTier 中继）已断开
+
 ### router-mine (192.168.6.1)
 
 [/etc/bird.conf](../../../../../router/bird/mine.conf)

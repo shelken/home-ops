@@ -129,6 +129,7 @@ dns-sd -G v4 <hostname>.local
 2. 在设备上重新设置主机名
 
 macOS 修复命令：
+
 ```bash
 sudo scutil --set ComputerName "your-name"
 sudo scutil --set LocalHostName "your-name"

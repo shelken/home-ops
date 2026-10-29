@@ -1,13 +1,17 @@
 # GPU
 
 > PVE 虚拟化环境下的显卡驱动安装、vGPU 分配与直通配置
+
 ## NVIDIA
 
 ### vGPU 虚拟化
 
 - [vGPU 驱动安装与补丁教程](https://gitlab.com/polloloco/vgpu-proxmox)
 - [自建 fastapi-dls 授权许可服务](https://git.collinwebdesigns.de/oscar.krause/fastapi-dls)
+- [fastapi-dls Docker Hub 镜像](https://hub.docker.com/r/collinwebdesigns/fastapi-dls)
+- [vGPU 驱动网盘资源（佛西网盘）](https://alist.homelabproject.cc/foxipan/vGPU/16.8)
 - [英伟达官方驱动归档](https://www.nvidia.com/en-us/drivers/)
+
 #### 宿主机
 
 根据教程，宿主机安装patch之后的driver、 解锁消费级显卡、 覆盖配置要使用的profile
@@ -94,6 +98,7 @@ lspci -nnk | grep -A5 NVI
 # ffmpeg
 ffmpeg -decoders | grep cuvid
 ```
+
 https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#with-apt-ubuntu-debian
 [k3s中配置nvidia-container-toolkit](https://docs.k3s.io/advanced#nvidia-container-runtime)
 

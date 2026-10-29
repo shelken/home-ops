@@ -21,6 +21,7 @@ rm etc_sudoers.d_lima
 ```
 
 在 Lima 配置文件中指定桥接网卡与 MAC 地址：
+
 ```yaml
 networks:
 - lima: bridged
@@ -33,6 +34,7 @@ networks:
 ## 数据盘配置
 
 将 Lima 虚拟磁盘存储目录软链接至外置高速存储：
+
 ```bash
 # 将lima的硬盘位置软链接到外置ssd
 rm -rf ~/.lima/_disks

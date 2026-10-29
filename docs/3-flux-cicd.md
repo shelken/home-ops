@@ -2,6 +2,7 @@
 
 > 项目使用 `flux-operator` 与 `flux-instance` 声明式管理 Flux 组件，不再使用 CLI 的 `flux bootstrap` 初始化
 > 参考文档：[Flux GitOps Guide](https://fschoenberger.dev/homelab/04-flux-git-ops/)
+
 ```bash
 # 进入仓库根目录后 mise 自动提供 flux
 ```

@@ -37,7 +37,7 @@
 | [RustFS](./13-rustfs.md) | S3 存储和访问策略记录 |
 | [网络](./14-network.md) | IPv6、node-ip 等网络记录 |
 | [GPU](./15-gpu.md) | GPU 驱动、插件和直通记录 |
-| [重建后检查](./16-重建后需要手动的操作.md) | 节点重建后的自动化验证与检查项 |
+| [重建后检查](./16-重建后检查.md) | 节点重建后的自动化验证与检查项 |
 | [CrowdSec](./18-crowdsec.md) | CrowdSec LAPI、VPS agent、bouncer 和 AppSec 运维 |
 | [VPS IP 变更](./19-vps-ip-change.md) | VPS 地址变化后的处理清单 |
 | [Lima 群晖数据恢复](./20-lima-synology-recovery.md) | 黑群晖坏盘经 Lima 直通后只读挂载恢复数据 |

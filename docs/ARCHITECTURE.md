@@ -189,6 +189,7 @@ K8s 节点本机 DNS (Ansible):
 ### 流量路径
 
 ```mermaid
+
 graph LR
     subgraph INTERNET["互联网"]
         Client["客户端"]
@@ -234,11 +235,13 @@ CN / HK + VPS IP"]
 
     Envoy_External --> GeoIP
     GeoIP --> HTTPRoute
+
 ```
 
 ### 内网入口与旁路由 DNS
 
 ```mermaid
+
 graph LR
     subgraph LAN["家庭内网<br/>192.168.6.0/24"]
         Client["局域网设备"]
@@ -272,6 +275,7 @@ graph LR
     K8sGW -->|"A → LB IP"| Envoy_Internal
     TS_Client --> TS_Subnet
     TS_Subnet --> Envoy_Internal
+
 ```
 
 ### 内网记录归属
@@ -288,10 +292,12 @@ graph LR
 检查方式：
 
 ```bash
+
 task router:dns:diff
 ssh <ROUTER> 'cat /etc/dnsmasq.conf'
 ssh <ROUTER> 'ls -la /etc/dnsmasq-home-ops.d'
 ssh <ROUTER> 'cat /etc/dnsmasq-home-ops.d/*'
+
 ```
 
 后端与所有权决策见 [ADR-0003：集群服务 DNS 由 k8s-gateway 动态应答](adr/0003-internal-dns-via-gateway.md)。
@@ -306,8 +312,11 @@ ssh <ROUTER> 'cat /etc/dnsmasq-home-ops.d/*'
 - **不发布到公网**：Cloudflare 的 ExternalDNS 只观测 `envoy-external`，公网没有内部域记录。在家用网络内直接 `dig` 会被本机网络拦截而返回内网地址，复核用 DoH：
 
   ```bash
+
   curl -s -H 'accept: application/dns-json' 'https://cloudflare-dns.com/dns-query?name=x.<INTERNAL_DOMAIN>&type=A'
+
   # 公网应为 Status 3（NXDOMAIN）
+
   ```
 
 - **解析路径**：
@@ -338,6 +347,7 @@ ssh <ROUTER> 'cat /etc/dnsmasq-home-ops.d/*'
 ## 5. VPS Caddy 路由
 
 ```mermaid
+
 graph TB
     subgraph VPS["VPS"]
         Caddy["VPS Caddy（443）"]
@@ -366,6 +376,7 @@ graph TB
     Caddy --> sbtools
     Caddy --> dhp
     Caddy -->|"to_host"| derp
+
 ```
 
 | 域名 | 路由目标 | 说明 |
@@ -384,6 +395,7 @@ graph TB
 ## 6. 监控与日志采集
 
 ```mermaid
+
 graph LR
     subgraph VPS["VPS"]
         NE_VPS["node-exporter"]
@@ -416,6 +428,7 @@ graph LR
 
     Gatus --> TS_SVC
     Gatus --> VPS_Public["VPS 公网 URL"]
+
 ```
 
 ### 采集目标
@@ -434,6 +447,7 @@ graph LR
 ## 7. 备份链路
 
 ```mermaid
+
 graph TB
     subgraph K8S["k3s 集群"]
         PVC["PVC (Longhorn)"]
@@ -478,6 +492,7 @@ graph TB
     VPS_Data --> VPS_Kopia
     VPS_Kopia --> VPS_OpenList
     VPS_OpenList --> Cloud
+
 ```
 
 ### 备份配置
@@ -500,6 +515,7 @@ graph TB
 ## 8. Flux 部署链路
 
 ```mermaid
+
 graph TB
     GIT["GitHub: shelken/home-ops (main)"]
 
@@ -566,6 +582,7 @@ graph TB
     HELM --> WORKLOAD
     WORKLOAD --> POD
     HELM --> OBJ
+
 ```
 
 ### 部署顺序

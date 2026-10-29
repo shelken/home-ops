@@ -7,7 +7,9 @@
 ## Ubuntu 24.04 Server (Noble)
 
 选择版本时需确认内核版本与当前集群匹配，参考 Ubuntu 官方 [发布历史](https://ubuntu.com/about/release-cycle#ubuntu-kernel-release-cycle)
+
 ### 下载镜像
+
 ```bash
 ssh pve
 
@@ -25,6 +27,7 @@ qemu-img resize ubuntu-24.04.qcow2 32G
 ```
 
 ### 创建虚拟机模板
+
 ```bash
 export TEMPLATE_ID=1800
 export TEMPLATE_NAME=ubuntu-24-04-homelab-template
@@ -74,6 +77,7 @@ qm template $TEMPLATE_ID
 ```
 
 ### 克隆并启动工作节点实例
+
 ```bash
 export CURRENT_VM_ID=110
 

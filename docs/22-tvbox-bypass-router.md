@@ -62,6 +62,7 @@ if [ "$count" -eq 1 ]; then
 - DNS 与 routing 规则
 - DNS 上游配置建议
 - 连通性探测与 IPv6 防火墙策略
+
 ## 每次升级后网络不通的原因
 
 升级用 restore 会恢复旧 network 配置。项目默认单网口是 DHCP 客户端，所以 `network.lan.proto` 会被覆盖回 dhcp。再刷一次，在升级命令里选择恢复配置，它又把旧的 LAN 配置带回来了。

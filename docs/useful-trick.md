@@ -3,6 +3,7 @@
 ## CloudNativePG 立即备份
 
 ### 创建一次性备份
+
 ```bash
 kubectl apply -f - <<EOF
 apiVersion: postgresql.cnpg.io/v1
@@ -19,6 +20,7 @@ EOF
 ```
 
 ### 查看备份状态
+
 ```bash
 # 查看所有备份
 kubectl get backups -n <namespace>
