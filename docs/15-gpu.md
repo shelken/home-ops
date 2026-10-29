@@ -17,8 +17,10 @@
 目前稳定使用17.6没有问题. 旧的16.8也测试正常
 
 ```bash
-./NVIDIA-Linux-x86_64-550.163.02-vgpu-kvm.run --apply-patch ~/vgpu-proxmox/550.163.02.patch
-./NVIDIA-Linux-x86_64-550.163.02-vgpu-kvm-custom.run --dkms -m=kernel
+# 根据所选 vGPU 驱动版本设置变量
+export VGPU_DRIVER_VERSION="<VGPU_DRIVER_VERSION>"
+./NVIDIA-Linux-x86_64-${VGPU_DRIVER_VERSION}-vgpu-kvm.run --apply-patch ~/vgpu-proxmox/${VGPU_DRIVER_VERSION}.patch
+./NVIDIA-Linux-x86_64-${VGPU_DRIVER_VERSION}-vgpu-kvm-custom.run --dkms -m=kernel
 ```
 
 宿主机覆盖的配置示例
@@ -47,7 +49,7 @@ ansible-playbook ansible/playbooks/install-nvidia.yaml
 #rsync传输文件
 rsync -avzP <NVIDIA_DRIVER_RUN_FILE> <SSH_USER>@192.168.6.111:~/
 
-sudo ./NVIDIA-Linux-x86_64-550.163.01-grid.run --silent --no-questions --accept-license --disable-nouveau
+sudo ./NVIDIA-Linux-x86_64-${GRID_DRIVER_VERSION}-grid.run --silent --no-questions --accept-license --disable-nouveau
 ```
 
 #### 授权激活（fastapi-dls）
@@ -76,7 +78,8 @@ UEFI情况下，VM关闭「安全启动」
 然后进入安装
 
 ```bash
-sudo apt install nvidia-headless-570-server
+# 安装与当前硬件架构适配的无头驱动包
+sudo apt install nvidia-headless-server
 sudo reboot
 ```
 

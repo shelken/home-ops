@@ -1,9 +1,10 @@
 # kube-prometheus-stack
 
-## Other Device Deployments
+## 外部节点部署
+
+在外部主机（如 VPS）运行的 node-exporter 配置示例（镜像版本与配置定义以 [`compose/vps/docker-compose.yml`](../../../../../compose/vps/docker-compose.yml) 为准）：
 
 ### node-exporter
-
 ```yaml
 services:
   node-exporter:
@@ -15,7 +16,7 @@ services:
       - '--web.listen-address=0.0.0.0:9100'
       - >-
         --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
-    image: prom/node-exporter:v1.12.1
+    image: prom/node-exporter:${NODE_EXPORTER_VERSION:-latest}
     networks:
       - homelab
     ports:

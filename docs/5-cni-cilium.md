@@ -12,10 +12,11 @@
 因 k3s 禁用了内置 Flannel 与 kube-proxy，集群引导初期需先安装 Cilium 为 Pod 提供网络，随后交付 Flux 接管：
 
 ```bash
-# 与 bootstrap/helmfile.yaml 一致（chart 与 values 路径都取自该处）；
-# 版本以 Flux 中定义的 k8s/infra/common/kube-system/cilium/app/ocirepository.yaml 为准
-helm install cilium oci://ghcr.io/home-operations/charts-mirror/cilium --version 1.18.6 --namespace kube-system -f k8s/infra/common/kube-system/cilium/app/values.yaml
-helm upgrade cilium oci://ghcr.io/home-operations/charts-mirror/cilium --version 1.18.6 --namespace kube-system -f k8s/infra/common/kube-system/cilium/app/values.yaml
+# 与 bootstrap/helmfile.yaml 及 k8s/infra/common/kube-system/cilium/app/ocirepository.yaml 保持一致
+CILIUM_VERSION=$(yq '.spec.ref.tag' k8s/infra/common/kube-system/cilium/app/ocirepository.yaml)
+
+helm install cilium oci://ghcr.io/home-operations/charts-mirror/cilium --version "$CILIUM_VERSION" --namespace kube-system -f k8s/infra/common/kube-system/cilium/app/values.yaml
+helm upgrade cilium oci://ghcr.io/home-operations/charts-mirror/cilium --version "$CILIUM_VERSION" --namespace kube-system -f k8s/infra/common/kube-system/cilium/app/values.yaml
 
 cilium status --wait
 

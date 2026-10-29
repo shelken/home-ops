@@ -5,8 +5,11 @@
 > 注：高优先级的 `immich-server` 与 `vaultwarden` (anubis) metrics 现已配置落地
 ## 概述
 
-共发现 33 个使用 app-template 的 HelmRelease，其中仅 1 个配置了 serviceMonitor。
+通过以下命令获取当前使用 `app-template` 且未声明 `serviceMonitor` 的服务清单：
 
+```bash
+find k8s/apps/common -name "helmrelease.yaml" | xargs grep -l "app-template"
+```
 ## 已配置 serviceMonitor 的服务
 
 | 服务 | 状态 |

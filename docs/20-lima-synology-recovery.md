@@ -4,7 +4,7 @@
 
 ## 前置条件
 
-需要 Lima >= v2.2.0 才支持 `blockDevices`（VZ 驱动下直通宿主块设备）。brew stable 已是 v2.2.1，可直接使用；仅在 Lima 早于 v2.2.0 时才需临时切换到 CI 构建。
+需要 Lima >= v2.2.0 才支持 `blockDevices`（VZ 驱动下直通宿主块设备）。通过 `limactl version` 确认版本；满足要求直接使用，早于 v2.2.0 时才需通过 `lima-switch` 临时切换到 CI 构建
 
 ```bash
 # 切到 CI 构建（一次性，恢复完可 revert）
@@ -43,7 +43,7 @@ images:
 
 ### Lima 版本要求（>= v2.2.0）
 
-`blockDevices` 在 v2.2.0 才合入；brew stable 已提供 v2.2.1，Lima 早于 v2.2.0 时才需要改用 CI 构建。
+`blockDevices` 在 v2.2.0 起合入，通过 `limactl version` 查看本地版本；低于要求时才需通过 CI 构建临时接入
 
 ```bash
 # 用 lima-switch 临时切到 CI 构建

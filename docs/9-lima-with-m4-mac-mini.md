@@ -9,8 +9,8 @@
 ```bash
 git clone https://github.com/lima-vm/socket_vmnet
 cd socket_vmnet
-# Change "v1.2.2" to the actual latest release in https://github.com/lima-vm/socket_vmnet/releases
-git checkout v1.2.2
+# 检出最新 release tag（或参考 https://github.com/lima-vm/socket_vmnet/releases）
+git checkout $(git describe --tags $(git rev-list --tags --max-count=1))
 make
 sudo make PREFIX=/opt/socket_vmnet install.bin
 # Set up the sudoers file for launching socket_vmnet from Lima
