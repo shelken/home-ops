@@ -1,20 +1,26 @@
-# Kopia 配置说明
+# 维护 VPS Kopia 配置
 
-## 文件结构
+日常维护按[共享维护步骤](../../../sakamoto/configs/kopia/README.md)执行，VPS 的配置来源如下
 
-| 文件 | 说明 |
-|------|------|
-| `repository.config.tpl` | VPS 的云端 WebDAV 连接模板，与另一台宿主机连接同一个 139 `main` 库 |
-| `policy.json` | 符号链接 → `../../../sakamoto/configs/kopia/policy.json` |
+- [连接模板](repository.config.tpl)定义本机 WebDAV 入口
+- [Compose 服务](../../docker-compose.yml)定义挂载、口令注入，以及对本机 `openlist` 的健康依赖
+- [环境模板](../../.env.tpl)引用本机 BWS 条目
+- [共享策略](../../../sakamoto/configs/kopia/policy.json)通过本目录的 `policy.json` 符号链接复用，同步方式见[部署任务](../../../../.taskfile/compose.yaml)
 
-## 配置共享
+## 配置本机存储服务
 
-VPS 和 sakamoto 共享同一个 Kopia 仓库和策略配置：
+部署前，在 VPS 的 `openlist` 网页面板中配置与集群一致的 139 存储、账号根目录和 WebDAV 权限。确认本机入口的 `main` 子目录指向同一个云端仓库
 
-- **仓库密码**：两台机器各自从本机 BWS 条目读取 `KOPIA_MAIN_PASSWORD`，取值保持一致；Compose 将其作为 `KOPIA_PASSWORD` 传入 Kopia。
-- **策略文件**：通过符号链接共享，rsync 使用 `-L` 参数同步实际内容
-- **WebDAV 凭据**：各自读取本机 BWS 条目中的 `OPENLIST_WEBDAV_USERNAME` 和 `OPENLIST_WEBDAV_PASSWORD`；账号根目录为 `/cloud/139/backup/kopia`，连接 URL 以 `/dav/main` 结尾。
-- **集群仓库**：kopiur 连接独立的 `/dav/kopiur`，凭据仅从 `volsync-template` 引入。
-- **首次切换**：先初始化新的 `main` 仓库，再强制重建两台宿主机的 Kopia 服务；主机策略保留 `zstd-fastest`。
+用户名和密码与本机 BWS 条目保持一致。另一台实例的网页配置不会自动同步到 VPS
 
-详细配置说明请参考：[sakamoto/kopia/README.md](../../../sakamoto/configs/kopia/README.md)
+## 更新凭据并部署
+
+在仓库根目录执行以下命令。部署保留依赖检查，等待本机 `openlist` 健康后再启动 Kopia
+
+```bash
+sec-run task secret:keys secret=compose-vps
+sec-run task secret:edit secret=compose-vps
+sec-run task compose:deploy:vps -- --force-recreate kopia
+```
+
+共享仓库的口令一致性、首次初始化和运行验证统一见共享维护步骤

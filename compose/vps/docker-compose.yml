@@ -425,6 +425,9 @@ services:
     networks:
       - homelab
     restart: always
+    depends_on:
+      openlist:
+        condition: service_healthy
     labels:
       - homepage.group=VPS
       - homepage.name=kopia

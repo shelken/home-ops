@@ -1,172 +1,74 @@
-# Kopia 配置说明
+# 维护 Kopia 备份配置
 
-## 概述
+在仓库根目录执行 `task` 命令，在目标主机的 Compose 目录执行 `docker compose` 命令
 
-本目录包含两个 Kopia 备份服务的配置：
+## 找到配置来源
 
-| 服务 | 仓库类型 | 备份源 | 目标 | 端口 |
-|------|---------|--------|------|------|
-| kopia (云端) | WebDAV | compose, RustFS（不含 `kopiur` 桶） | 139 云盘的 `main` 库 | 51515 |
-| kopia-local (本地) | 文件系统 | sakamoto-data 用户数据 | BackUp3T | 51516 |
+- [Compose 服务](../../docker-compose.yml)定义备份卷、端口、容器环境变量和配置挂载
+- [环境模板](../../.env.tpl)定义本机 BWS 字段引用
+- [云端连接模板](repository.config.tpl)定义共享 `main` 仓库的入口，[云端策略](policy.json)定义调度、保留、压缩和排除规则
+- [本地连接模板](local/repository.config.tpl)与[本地策略](local/policy.json)定义 `kopia-local` 的仓库和备份范围
+- [启动脚本](entrypoint.sh)定义连接检查、策略导入和通知配置
+- [集群云端清单](../../../../k8s/infra/common/kopiur-system/kopiur/repository-cloud/kustomization.yaml)定义独立的 `kopiur` 仓库与集中复制
 
-调度见 `policy.json` 与 `local/policy.json`，运行时用 `kopia policy list` 读。
+两台宿主机通过各自的存储入口访问同一个 `main` 仓库，口令值必须一致，各自从本机 BWS 条目引入凭据。VPS 使用本机的存储服务，配置前提见 [VPS 配置入口](../../../vps/configs/kopia/README.md)
 
-云端 WebDAV 账号以 `/cloud/139/backup/kopia` 为根目录。两台宿主机连接 `/dav/main`，集群 kopiur 连接 `/dav/kopiur`，两者是独立仓库。本地 RustFS 仓库保持原后端。
+集群凭据由[云端 ExternalSecret](../../../../k8s/infra/common/kopiur-system/kopiur/repository-cloud/externalsecret.yaml)引入，与宿主机分开维护
 
-宿主机分别从 BWS 的 `compose-sakamoto` 和 `compose-vps` 读取 `KOPIA_MAIN_PASSWORD`、`OPENLIST_WEBDAV_USERNAME`、`OPENLIST_WEBDAV_PASSWORD`。两台宿主机的主库口令必须一致，Compose 将 `KOPIA_MAIN_PASSWORD` 作为 Kopia 标准环境变量 `KOPIA_PASSWORD` 传入容器。集群使用 `volsync-template` 中的 `KOPIA_PASSWORD`，不读取宿主机条目。
+## 更新凭据
 
-首次切换时，须先初始化新的 `main` 仓库，再强制重建两台宿主机的 Kopia 服务。主机策略保留 `zstd-fastest`。集群的云端复制先暂停，待 `yun139` 全局压缩设为 `zstd` 并验证后，再通过 Git 解除暂停。189 旧库保留原连接格式和口令供恢复使用。
-
-## 文件结构
-
-| 文件 | 说明 |
-|------|------|
-| `repository.config.tpl` | 云端 WebDAV 连接模板，使用 bws:// 占位符；URL 由 `MAIN_DOMAIN` 渲染并以 `/dav/main` 结尾 |
-| `policy.json` | 云端备份策略配置（VPS 通过符号链接共享此文件） |
-| `local/repository.config.tpl` | 本地存储库连接配置（文件系统类型，无占位符，渲染时原样直通） |
-| `local/policy.json` | 本地备份策略配置（白名单路径 + 排除规则） |
-
-## 云端备份 (kopia)
-
-### policy.json 配置结构
-
-Kopia 策略采用层级继承机制：
-
-```
-(global) → @hostname → user@hostname → user@hostname:/path
-```
-
-### 策略覆盖结构
-
-| 策略目标 | 覆盖项 | 说明 |
-|---------|---------|------|
-| `@sakamoto` | retention, compression, files.ignore | sakamoto 主机级别 |
-| `@vps` | retention, compression, files.ignore | vps 主机级别 |
-| `shelken@sakamoto:/backup/compose` | scheduling | compose 备份调度 |
-| `shelken@sakamoto:/backup/minio` | scheduling | rustfs 数据备份调度 |
-| `shelken@vps:/backup/data` | scheduling | VPS 数据备份调度 |
-
-调度间隔见 `policy.json`。
-
-### 排除规则语法
-
-- `cache` - 匹配任意位置的 cache 目录
-- `/cache` - 仅匹配根目录下的 cache 目录
-- `*.log` - 匹配所有 .log 文件
-
-### 设计原则
-
-- **统一策略**：retention 和 compression 在 @hostname 级别配置，所有路径继承
-- **独立调度**：每个备份路径单独配置 scheduling，互不影响
-- **幂等导入**：容器启动时执行 `kopia policy import`，自动覆盖更新
-- **共享仓库**：两台宿主机通过 WebDAV 连接 139 云盘的同一个 `main` 库。
-- **不封装 kopiur 桶**：`@sakamoto` 忽略 `/kopiur`，集群 PVC 的异地副本由 SnapshotReplication 复制到独立的 `kopiur` 库。改动 `policy.json` 后需强制重建 kopia 容器才会重新导入。
-
-## 遇到的问题和修正
-
-### 1. repository.config 的挂载方式
-
-**问题**：仓库配置需要落在 Kopia 读取的固定路径上
-
-**修正**：由 compose `configs:` 挂载到 `/config/repository.config`，`entrypoint.sh` 不复制配置文件（见 `docker-compose.yml` 的 `configs` 段与 `entrypoint.sh`）
-
-### 2. Kopia Server 需要 --insecure 标志
-
-**问题**：不加 `--insecure` 时，服务器会因 TLS 未配置而不稳定
-
-**修正**：添加 `--insecure` 标志
-```yaml
-exec kopia server start --insecure --address=0.0.0.0:51515 ...
-```
-
-### 3. 环境变量在 shell command 中展开
-
-**问题**：docker-compose 的 `${}` 会在 compose 解析时展开，而非运行时
-
-**修正**：使用 `$${}` 进行转义，让变量在容器 shell 中展开
-```yaml
---server-username=$${KOPIA_SERVER_USERNAME}
-```
-
-### 4. VPS 和 sakamoto 共享仓库密码
-
-**问题**：两台机器使用不同的 BWS secret，但需要相同的仓库密码
-
-**修正**：两台机器各自的 `.env.tpl` 引用本机 BWS 条目中的 `KOPIA_MAIN_PASSWORD`，取值在 BWS 侧保持一致（见 `compose/sakamoto/.env.tpl` 与 `compose/vps/.env.tpl`）。
-
-### 5. 符号链接同步问题
-
-**问题**：rsync 默认同步符号链接本身，导致远程服务器链接失效
-
-**修正**：在 Taskfile 的 rsync 命令添加 `-L` 参数，跟随符号链接复制实际内容
-```yaml
-rsync -avzL --delete ...
-```
-
-### 6. OpenList 环境变量前缀
-
-使用`--no-prefix` 统一不用 `OPENLIST_`前缀
-
-
-### 7. Kopia 多客户端同步延迟
-
-**问题**：多个 Kopia 客户端连接同一仓库时，新快照不能立即被其他客户端看到
-
-**原因**：Kopia 使用 Epoch Manager，默认 20 分钟刷新一次索引
-
-**修正**：重启 kopia 容器可强制刷新，或等待 20 分钟自动同步
-
-## 测试命令
+先查看字段名，再编辑对应的 BWS 条目
 
 ```bash
-# 预估备份大小（dry-run）
-kopia snapshot estimate /backup/data
-
-# 手动创建快照
-kopia snapshot create /backup/data
-
-# 查看所有快照
-kopia snapshot list --all
+sec-run task secret:keys secret=compose-sakamoto
+sec-run task secret:edit secret=compose-sakamoto
 ```
 
-## 本地备份 (kopia-local)
+口令字段及其容器变量映射以环境模板和 Compose 服务为准
 
-### 备份范围
+## 更新配置并重建服务
 
-**备份路径**（白名单模式）：
-- `/backup/sakamoto-data/media` - 照片、音乐、视频、电子书等
-- `/backup/sakamoto-data/Work` - 工作文件
-- `/backup/sakamoto-data/折腾` - 个人文件
-- `/backup/sakamoto-data/synogy-data` - 群晖数据
-- `/backup/sakamoto-data/k8s/storage` - K8s 应用数据
-- `/backup/sakamoto-data/Devlopment/docker/data/minio` - RustFS 对象存储数据
-
-**排除规则**：
-- `media/Downloads/qbittorrent` - 下载文件可重新下载
-- `media/Software/VM` - 虚拟机可重建
-- 系统文件（.DS_Store, .Spotlight-V100, .Trashes 等）
-
-### 首次初始化
-
-本地备份使用独立仓库，首次需要手动创建：
+修改连接模板或对应的策略文件后，执行目标主机的部署任务
 
 ```bash
-# 1. 在 BWS 中设置 KOPIA_LOCAL_REPO_PASSWORD
-# 2. 创建仓库目录
-ssh sakamoto "mkdir -p /Volumes/BackUp3T/kopia-local-repo"
-
-# 3. 启动容器（会自动创建仓库）
-docker compose up -d kopia-local
-
-# 4. 访问 Web UI
-open http://sakamoto.lan:51516
+sec-run task compose:deploy:sakamoto -- --no-deps --force-recreate kopia
 ```
 
-### 与云端备份的区别
+更新本地备份时，将末尾的服务名改为 `kopia-local`
 
-| 特性 | 云端备份 | 本地备份 |
-|------|---------|---------|
-| 仓库密码 | KOPIA_MAIN_PASSWORD | KOPIA_LOCAL_REPO_PASSWORD |
-| 备份目标 | 189 云盘（异地） | BackUp3T（本地） |
-| 恢复速度 | 较慢（网络） | 快速（本地磁盘） |
-| 备份内容 | Docker + RustFS | 用户数据 |
+配置文件通过 Compose `configs` 挂载。修改文件内容后仍需强制重建容器，才能加载新内容。[部署任务](../../../../.taskfile/compose.yaml)负责渲染模板、跟随符号链接同步文件和清理本地渲染产物
+
+## 验证运行结果
+
+在目标主机查询仓库、策略和快照，不在本文保存状态输出
+
+```bash
+docker compose exec kopia kopia repository status
+docker compose exec kopia kopia policy list
+docker compose exec kopia kopia snapshot list --all
+```
+
+检查压缩或保留策略时，从 `policy list` 选择目标，再执行 `policy show`。全局策略不包含主机和路径的覆盖项
+
+```bash
+docker compose exec kopia kopia policy show --global
+docker compose exec kopia kopia policy show '@<host>'
+```
+
+将 `@<host>` 替换为实际策略目标。检查本地备份时，将服务名改为 `kopia-local`
+
+## 首次连接新仓库
+
+先初始化宿主机的新仓库，再启动服务。启动脚本只检查连接，不会自动建库。共享的 `main` 只需初始化一次，后续客户端连接已有仓库
+
+集群仓库由 Kopiur 的 bootstrap 负责创建和连接，创建权限在[仓库声明](../../../../k8s/infra/common/kopiur-system/kopiur/repository-cloud/clusterrepository.yaml)中维护。等待仓库 Ready 后，再验证策略并启用复制
+
+复用旧缓存切换仓库后，检查新库是否已有策略。启动脚本的策略与通知指纹不包含仓库身份，重建容器不会清空持久化缓存。缺少策略时，使用[启动脚本中的导入命令](entrypoint.sh)导入，再查询实际策略
+
+集群复制的暂停状态和策略复制选项以 [SnapshotReplication](../../../../k8s/infra/common/kopiur-system/kopiur/repository-cloud/snapshotreplication.yaml) 为准。复制未携带源策略时，先配置并验证目标库的压缩策略，再通过 Git 启用复制
+
+读取历史仓库时，保留原来的后端类型、目录布局和口令。修改连接类型不会转换存量数据
+
+## 排查客户端同步延迟
+
+另一客户端暂时看不到新快照时，先比较两端 `repository status` 的仓库身份。确认连接同一仓库后，再重新连接受影响的客户端并查询快照

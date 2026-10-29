@@ -2,7 +2,7 @@
   "storage": {
     "type": "webdav",
     "config": {
-      "url": "https://drive.{{bws://compose-vps/MAIN_DOMAIN}}/dav/main",
+      "url": "http://openlist:80/dav/main",
       "username": "bws://compose-vps/OPENLIST_WEBDAV_USERNAME",
       "password": "bws://compose-vps/OPENLIST_WEBDAV_PASSWORD"
     }
