@@ -81,6 +81,7 @@
 (internal-sites) {
   @ui_root {
     host minio-ui.{args[0]}
+    method GET HEAD
     path /
   }
   redir @ui_root /rustfs/console/ 308
