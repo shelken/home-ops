@@ -58,7 +58,7 @@
 - 存储:
     - RustFS:
         icon: rustfs.svg
-        href: https://minio-ui.${INTERNAL_DOMAIN}
+        href: https://rustfs-ui.${INTERNAL_DOMAIN}
         description:
 
 - 文章:

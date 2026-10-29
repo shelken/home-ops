@@ -80,13 +80,15 @@
 # 站点清单只有一份，后缀由调用方传入
 (internal-sites) {
   @ui_root {
-    host minio-ui.{args[0]}
+    host minio-ui.{args[0]} rustfs-ui.{args[0]}
     method GET HEAD
     path /
     not header Authorization *
   }
   redir @ui_root /rustfs/console/ 308
 
+  import internal-access rustfs-ui    http://127.0.0.1:9001       empty empty {args[0]}
+  import internal-access rustfs       http://127.0.0.1:9000       empty empty {args[0]}
   import internal-access minio-ui     http://127.0.0.1:9001       empty empty {args[0]}
   import internal-access minio        http://127.0.0.1:9000       empty empty {args[0]}
   import internal-access nvidia-dls   https://127.0.0.1:5100      empty skip-tls-verify {args[0]}
