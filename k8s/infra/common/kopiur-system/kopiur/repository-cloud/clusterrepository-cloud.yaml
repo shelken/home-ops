@@ -1,6 +1,6 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/home-operations/kopiur/main/deploy/crds/clusterrepositories.yaml
-# 云端仓库：每天一次直接写入集群内 OpenList 的 S3，替代宿主机 Kopia 对 MinIO kopiur 桶的二次封装。
+# 云端仓库：每天一次直接写入集群内 OpenList 的 S3，替代宿主机 Kopia 对 RustFS kopiur 桶的二次封装。
 # 本地仓库每小时一次，产生的小 pack 在维护合并时重写；云端只收每日快照，日常上传量只有净增量
 apiVersion: kopiur.home-operations.com/v1alpha1
 kind: ClusterRepository
