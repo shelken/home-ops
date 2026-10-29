@@ -6,4 +6,5 @@ resources:
   # - ./cluster-test.yaml
   - ./objectstore.yaml
   - ./scheduledbackup.yaml
+  - ./backup-verify.yaml
   - ./service.yaml
