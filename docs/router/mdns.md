@@ -8,7 +8,7 @@
 
 - 主网设备可以发现 IoT 网段的 Home Assistant
 - Apple 设备可以通过 HomeKit 连接 IoT 网段的智能家居桥接器
-- hass小米可以直接控制设备
+- Home Assistant 可以直接发现并控制局域网米家智能设备
 
 ## 安装
 
@@ -54,7 +54,7 @@ rlimit-nproc=3
 | `allow-interfaces` | `br-lan.6,br-lan.50` | 只在这两个 VLAN 接口上监听和广播 |
 | `enable-reflector` | `yes` | 启用 mDNS 反射，跨接口转发服务发现 |
 | `reflect-ipv` | `no` | 不在 IPv4 与 IPv6 之间转发 mDNS（跨协议反射） |
-| `check-response-ttl` | `no` | 必须 no ，否则go2rtc不知道为何无法反射 |
+| `check-response-ttl` | `no` | 设置为 `no`，否则会导致 go2rtc 跨网段服务发现失败 |
 
 ## 服务管理
 
@@ -122,7 +122,7 @@ dns-sd -G v4 <hostname>.local
 
 ### 设备名被自动改成 xxx-2
 
-**原因**: 跨网段切换时 mDNS 冲突，设备自动重命名。
+**原因**: 跨网段切换时 mDNS 冲突，设备自动重命名
 
 **解决**:
 1. 重启 avahi: `/etc/init.d/avahi-daemon restart`
@@ -137,5 +137,5 @@ sudo killall -9 mDNSResponder
 
 ## 相关文档
 
-- [VLAN 配置](./vlan.md) - VLAN 网络划分
-- [BGP 配置](./bgp.md) - BGP 路由配置
+- [VLAN 配置](./vlan.md)：VLAN 网络划分
+- [BGP 配置](./bgp.md)：BGP 路由配置

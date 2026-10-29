@@ -1,19 +1,15 @@
-## Cilium CNI
+# Cilium CNI 部署与运维
 
-### link
+## 参考链接
 
 - [Run your Kubernetes Cluster on “Bare Metal” with Cilium CNI — Part. 1](https://itnext.io/run-your-kubernetes-cluster-on-bare-metal-with-cilium-cni-part-1-e88028800d90)
 - [bare-metal-kubernetes-part-2-cilium-and-firewalls](https://datavirke.dk/posts/bare-metal-kubernetes-part-2-cilium-and-firewalls/)
 - [bootstrapping-k3s-with-cilium](https://blog.stonegarden.dev/articles/2024/02/bootstrapping-k3s-with-cilium/)
+- [Cilium 官方安装指南](https://docs.cilium.io/en/stable/gettingstarted/k8s-install-default/#install-cilium)
 
+## 安装与引导
 
-### 实践
-
-#### 安装
-
-因为我们已经禁用flannel，那么我们需要在集群中安装cilium，才能启动flux。
-
-> [link](https://docs.cilium.io/en/stable/gettingstarted/k8s-install-default/#install-cilium)
+因 k3s 禁用了内置 Flannel 与 kube-proxy，集群引导初期需先安装 Cilium 为 Pod 提供网络，随后交付 Flux 接管：
 
 ```bash
 # 与 bootstrap/helmfile.yaml 一致（chart 与 values 路径都取自该处）；
@@ -32,6 +28,6 @@ flux resume hr cilium -n kube-system
 #     retries: -1
 ```
 
-### ipam
+## IPAM 模式
 
-ipam.mode 无法随意切换变更，如果要变更最好是建立新的集群
+Cilium 的 `ipam.mode` 在集群初始化后无法直接就地切换，若需变更应在新建集群时规划

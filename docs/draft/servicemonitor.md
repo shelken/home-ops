@@ -2,7 +2,7 @@
 
 > 排查时间: 2025-12-11
 > 排查范围: `k8s/apps/common` 目录下使用 `app-template` 的 HelmRelease
-
+> 注：高优先级的 `immich-server` 与 `vaultwarden` (anubis) metrics 现已配置落地
 ## 概述
 
 共发现 33 个使用 app-template 的 HelmRelease，其中仅 1 个配置了 serviceMonitor。

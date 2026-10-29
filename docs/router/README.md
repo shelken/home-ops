@@ -1,6 +1,6 @@
 # 路由器配置文档
 
-本目录包含主路由器 (`router-mine`) 的各项配置文档。
+本目录包含主路由器 (`router-mine`) 的各项配置文档
 
 ## 设备信息
 
@@ -45,7 +45,7 @@
 └─────────────────────────────────────────────────────────────┘
 ```
 
-图中远程路由器链路（ZeroTier）已断开，当前只有本地三个 K8s 节点与 router-mine 建立 BGP。
+图中远程路由器链路（ZeroTier）已断开，当前由本地三个 K8s 节点与 router-mine 建立 BGP
 
 ## 快速命令
 
@@ -76,27 +76,18 @@ task router:dns:diff   # 可选：只读检查 home-ops 专用目录
 task router:dae:diff   # 可选：只读检查旁路由 dae；配置中的链接已脱敏
 ```
 
-日常只运行对应的 `sync`；它会先自动执行同一功能的只读 `diff`，完整展示差异，再确认和
-生效。独立 `diff` 只用于排障、审阅和自动检查。
+日常运行对应的 `sync`，会自动执行对应只读 `diff` 展示差异，再确认生效。独立 `diff` 用于排障、审阅与自动化巡检
 
-BIRD 完全由 home-ops 管理，`bgp:sync` 整体同步 `/etc/bird.conf`。dnsmasq 保留 LuCI、UCI
-和基础配置的手工管理，home-ops 持续同步只完整管理 `/etc/dnsmasq-home-ops.d`。具体机制
-与验证方式见 [DNS 配置](./dns.md)。
+BIRD 完全由 home-ops 管理，`bgp:sync` 整体同步 `/etc/bird.conf`。dnsmasq 保留 LuCI、UCI 和基础配置的手工管理，home-ops 只完整管理专用目录 `/etc/dnsmasq-home-ops.d`。具体机制与验证方式见 [DNS 配置](./dns.md)
 
-各功能在 `router/<功能>/spec.py` 声明受管文件、校验、生效与验证命令，由 `router/declare.py`
-统一执行 diff 与 sync：先在远端暂存目录校验全部候选文件，再原子替换有变化的文件。
+各功能在 `router/<功能>/spec.py` 声明受管文件、校验、生效与验证命令，由 `router/declare.py` 统一执行 diff 与 sync：先在远端暂存目录校验全部候选文件，再原子替换有变化的文件
 
-旁路由 dae 的选型与回滚见 [ADR-0007](../adr/0007-bypass-router-dae-declarative.md)。配置在
-`router/dae/config.sops.dae`，用 `sops router/dae/config.sops.dae` 直接编辑 dae 原文。期望状态是 daed
-停止并禁用、dae 启用并运行，首次 sync 即完成切换，会短暂中断所有经旁路由的出网。
+旁路由 dae 的选型与回滚见 [ADR-0007](../adr/0007-bypass-router-dae-declarative.md)。配置在 `router/dae/config.sops.dae`，用 `sops router/dae/config.sops.dae` 直接编辑 dae 原文。期望状态为 daed 停止并禁用、dae 启用并运行，首次 sync 即完成切换，会短暂中断所有经旁路由的出网流量
 
-dae 没有 Web UI，切换节点、改规则都要改仓库再 sync。dae 不会自动刷新订阅，`router/dae/dae.init` 另起一个 procd 实例，每 6 小时执行一次 `hot_reload`。dae 二进制和 init 脚本由 sync 下发，opkg 升级 dae 包会覆盖 `/usr/bin/dae` 与 `/etc/init.d/dae`，下一次 sync 检测到差异后换回来。
+dae 没有 Web UI，切换节点与修改规则需修改仓库后 sync。dae 默认不自动刷新订阅，由 `router/dae/dae.init` 的独立 procd 实例每 6 小时执行一次 `hot_reload`。dae 二进制与 init 脚本由 sync 下发，opkg 升级如果覆盖文件，会在下一次 sync 时自动恢复
 
-dae 配置含订阅与节点凭据。`declare.py` 对标记为 `sensitive` 的文件，无论是否在终端运行，
-diff 和远端报错中的 `scheme://...` 链接一律替换为 `scheme://<已隐藏#哈希>`；哈希不同即链接有变化。
-agent 只用 `task router:dae:diff` 审查变更，不执行 `sops -d`、`sops <文件>`，不读取旁路由上的
-`/etc/dae/config.dae`；需要原文时由人用 `sops router/dae/config.sops.dae` 查看。
+dae 配置包含订阅与节点凭据。`declare.py` 对标记为 `sensitive` 的文件执行脱敏，diff 和报错中的 `scheme://...` 链接统一替换为 `scheme://<已隐藏#哈希>`。Agent 仅使用 `task router:dae:diff` 审查变更，禁止读取或解密敏感配置
 
 ## 相关文档
 
-- [跨地域节点互联架构](../17-add-remote-node.md) - 完整的 BGP 全互联方案（含 Cilium 配置）
+- [跨地域节点互联架构（历史）](../17-add-remote-node.md)：完整的 BGP 全互联方案（含 Cilium 配置）

@@ -1,10 +1,10 @@
-# lima
+# Lima on Mac mini 虚拟机配置
 
-[sakamoto 配置文件](/lima/sakamoto.yaml)
+参考配置：[`lima/sakamoto.yaml`](../lima/sakamoto.yaml)
 
-## 网络
+## 桥接网络配置
 
-需要桥接网络的话，安装[socket_vmnet](https://lima-vm.io/docs/config/network/vmnet/)
+启用物理局域网桥接需预先编译安装 [socket_vmnet](https://lima-vm.io/docs/config/network/vmnet/)：
 
 ```bash
 git clone https://github.com/lima-vm/socket_vmnet
@@ -20,8 +20,7 @@ sudo install -o root etc_sudoers.d_lima /etc/sudoers.d/lima
 rm etc_sudoers.d_lima
 ```
 
-配置文件里加上
-
+在 Lima 配置文件中指定桥接网卡与 MAC 地址：
 ```yaml
 networks:
 - lima: bridged
@@ -29,10 +28,11 @@ networks:
   macAddress: "52:55:55:37:34:56"
 ```
 
-第一次进入之后记下macAddress, 或者自定义一个，然后固定。~~使用路由器给MAC地址分配固定ip~~(使用lima配置文件固定ip)
+固定 MAC 地址以确保 IP 稳定，并在 Lima 配置内显式绑定 IP
 
-## 添加硬盘
+## 数据盘配置
 
+将 Lima 虚拟磁盘存储目录软链接至外置高速存储：
 ```bash
 # 将lima的硬盘位置软链接到外置ssd
 rm -rf ~/.lima/_disks

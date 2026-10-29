@@ -4,35 +4,25 @@
 
 [HomeLab 中 K3s 的 IPv6 配置](https://yadom.in/archives/k3s-ipv6-configuration.html)
 
-### 防火墙与ipv6后缀的固定
+### 防火墙与 IPv6 后缀固定
 
-> 此配置为所有设备获取公网ipv6时配置
+所有设备获取公网 IPv6 时的后缀固定策略：
 
-tvbox 关闭隐私ipv6与启用 eui-64 地址：
+- 启用 EUI-64 生成固定后缀（`addr-gen-mode=eui64`）
+- 关闭 IPv6 临时隐私扩展（`ip6-privacy=0`），避免动态变化地址干扰 DDNS 解析与防火墙放行
 
-addr-gen-mode=eui64 意味着接收的ipv6后缀为固定的mac生成的。
-关闭 ip6-privacy 意味着不再使用一个动态的v6地址来发起请求，则eth0接口有且仅有一个v6地址，这方便我们ddns和防火墙配置。
+防火墙规则仅放行固定后缀目的地址：
 
-```bash
-nmcli connection modify "Armbian ethernet" ipv6.addr-gen-mode eui64
-nmcli connection modify "Armbian ethernet" ipv6.ip6-privacy 0
-nmcli connection reload
-nmcli connection up "Armbian ethernet"
-```
+目的地：`::[实际 EUI-64 后缀]/::ffff:ffff:ffff:ffff` 端口 `443`
 
-防火墙配置仅允许该后缀
-
-目的地：`::[实际eui64地址]/::ffff:ffff:ffff:ffff` 端口 443
+> 注：历史 Armbian 阶段通过 nmcli 配置（`ipv6.addr-gen-mode eui64`、`ipv6.ip6-privacy 0`）；当前旁路由固件统一使用 ImmortalWrt
 
 ### NAT6
 
 > 主路由获取公网，内部所有设备仅获取内网ipv6
 >
 
-路由器主要两点：配置路由，将`2000::/3`的出网指向拥有ipv6的接口上，并且要指定gateway就是上游的gateway链路地址，但是这个可以变化的，因此
-
-使用插件nat6助手更好点。然后第二点是配置经过wan接口的所有出网流量进行源伪装，即把源所有替换为路由器公网的v6 ip
-
+主路由获取公网 IPv6 后，局域网下发 ULA 或通过 NAT6 进行源地址伪装，并将 `2000::/3` 默认路由指向 WAN 上游网关
 
 ### ansible k3s node-ip
 

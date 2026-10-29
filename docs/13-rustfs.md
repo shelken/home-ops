@@ -1,8 +1,8 @@
 # RustFS 对象存储
 
-宿主机 sakamoto 上运行的 RustFS 1.0.0 独立分布式对象存储实例，承接家庭集群与宿主机的全部 S3 存储需求。
+宿主机 sakamoto 上运行的 RustFS 独立对象存储实例，承接家庭集群与宿主机的全部 S3 存储需求
 
-- **配置定义**：[compose/sakamoto/docker-compose.yml](../compose/sakamoto/docker-compose.yml)
+- **配置定义**：[`compose/sakamoto/docker-compose.yml`](../compose/sakamoto/docker-compose.yml)
 - **S3 API 端点**：`https://rustfs.${INTERNAL_DOMAIN}`（端口 `9000`）
 - **Web 控制台**：`https://rustfs-ui.${INTERNAL_DOMAIN}/rustfs/console/`（端口 `9001`）
 - **健康检查接口**：`/health/ready`（返回 HTTP 200）
@@ -22,7 +22,7 @@
 
 ## 运维与常用管理命令 (mc)
 
-RustFS 完整兼容 AWS S3v4 API 与 MinIO Client (`mc`) 管理命令。全程在开发机通过本地 `mc` 操作，严禁直接执行 `mc alias list` 以免在终端回显密钥。
+RustFS 完整兼容 AWS S3v4 API 与 MinIO Client (`mc`) 管理命令。全程在开发机通过本地 `mc` 操作，严禁直接执行 `mc alias list` 以免在终端回显密钥凭据
 
 ### 1. 配置管理别名
 

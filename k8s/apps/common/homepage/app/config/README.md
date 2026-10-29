@@ -1,10 +1,10 @@
-#
+# Homepage OpenWrt Widget 配置
 
-## openwrt
+## OpenWrt
 
-> [文档](https://gethomepage.dev/widgets/services/openwrt/#authorization)
+参考上游文档：[Homepage OpenWrt Widget](https://gethomepage.dev/widgets/services/openwrt/#authorization)
 
-`/usr/share/rpcd/acl.d/` 添加 acl
+在 `/usr/share/rpcd/acl.d/homepage.json` 添加 ACL 配置：
 
 ```json
 {
@@ -22,15 +22,13 @@
 }
 ```
 
-防止升级不备份这个文件，给这个文件加上备份
+在 `/etc/sysupgrade.conf` 添加备份保留项，避免固件升级丢失配置：
 
 ```bash
 grep -qw homepage.json /etc/sysupgrade.conf || echo "/usr/share/rpcd/acl.d/homepage.json" >> /etc/sysupgrade.conf
 ```
 
-添加用户
-
-`/etc/config/rpcd`
+在 `/etc/config/rpcd` 中配置只读账号：
 
 ```conf
 config login

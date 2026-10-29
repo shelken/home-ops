@@ -1,14 +1,8 @@
-# 跨地域节点互联架构 (BGP 全互联方案)
+# 跨地域节点互联架构（历史方案）
 
-> **状态：跨地域部分已断开**。router-home 离线，`router_home` 的 BGP 对等已注释。
->
-> `yuuko-k8s` 已迁回本地站点，现为 `192.168.6.81`，与 router-mine 的 BGP 会话正常运行；其 Pod 网段由 Cilium 从 `10.42.0.0/16` 池分配，下图保留的是迁移前的 `10.42.3.0/24`。
->
-> 下文拓扑与 Pod 网段描述的是迁移前的异地布局，保留作为历史参考。
+> **状态：历史参考**。远程站点与中继路由已离线，相关 BGP 对等配置已清理。`yuuko-k8s` 节点已迁回局域网本地，当前与 `router-mine` 正常建立内网 eBGP 会话，Pod CIDR 统一纳入本地池管理
 
-本文档记录了将异地节点（`yuuko-k8s`）接入本地 K3s 集群并实现 **Native Routing (原生路由)** 的架构方案。
-
-此方案通过在两端路由器上运行 BGP 协议，打通了跨地域的 Pod 网络，实现了无需手动维护静态路由、无需 Overlay 封装的高性能三层互通。
+本文档记录历史异地节点通过 ZeroTier 与 BGP 实现跨地域 Native Routing（原生路由）的架构设计
 
 ## 1. 网络拓扑
 
@@ -139,6 +133,6 @@ spec:
 
 ## 5. 相关文档
 
-- [路由器 BGP 配置](./router/bgp.md) - BIRD 完整配置文件
-- [路由器 VLAN 配置](./router/vlan.md) - VLAN 网络划分
-- [路由器配置索引](./router/README.md) - 所有路由器配置汇总
+- [路由器 BGP 配置](./router/bgp.md)：BIRD 完整配置文件
+- [路由器 VLAN 配置](./router/vlan.md)：VLAN 网络划分
+- [路由器配置索引](./router/README.md)：所有路由器配置汇总

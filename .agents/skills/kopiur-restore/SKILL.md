@@ -5,11 +5,11 @@ description: PVC 丢失/数据损坏、定点恢复、切到云端仓库恢复�
 
 # Kopiur restore
 
-恢复由备份组件 `k8s/components/kopiur/backup` 声明完成：PVC `dataSourceRef` → 同名 `Restore` → volume populator 自动填充。**不需要恢复脚本**，目标是让 Flux 重建 PVC。
+恢复由备份组件 `k8s/components/kopiur/backup` 声明完成：PVC `dataSourceRef` → 同名 `Restore` → volume populator 自动填充。无需额外恢复脚本，目标是驱动 Flux 重建 PVC
 
-模型、云端切换步骤、演练结论见 `docs/11-kopiur.md`，不在此重复。
+模型、云端切换步骤与演练结论见 `docs/11-kopiur.md`
 
-**完成标准**：`Restore` Ready → PVC Bound → HR/Pod Ready → 挂载有预期数据。
+**完成标准**：`Restore` Ready → PVC Bound → HR/Pod Ready → 挂载包含预期数据
 
 ## Gate：infra → apps
 
@@ -32,7 +32,7 @@ kubectl get ks infra apps -n flux-system
 
 ## 步骤
 
-1. 确认有快照：本地仓库策略 `${APP}`（云端副本由集群级 `SnapshotReplication` `sakamoto-to-cloud` 推到云端仓库，已没有各应用的 `${APP}-cloud` 策略）
+1. 确认存在有效快照：本地仓库策略 `${APP}`（云端副本由集群级 `SnapshotReplication` `sakamoto-to-cloud` 推送至云端仓库，无独立 `${APP}-cloud` 策略）
 
    ```bash
    kubectl get snapshots.kopiur.home-operations.com -n <ns> \
@@ -46,11 +46,11 @@ kubectl get ks infra apps -n flux-system
 
 ## 卡住时
 
-- `Restore` 停在 `MissingRecordedIdentity`：从云端恢复时 catalog 约 5 分钟后才接管云端快照，等待即可，期间不会产出空卷
-- 删除 Kustomization 不删备份：快照默认 `onScheduleDelete: Retain`，数据留在仓库并被接管为 `adopted`
-- 死 `Restore`、faulted PVC、孤立 cache PVC（`kopiur-cache-<app>`）要先清掉，再让 populator 重拉
-- `onMissingSnapshot: Continue`：没有快照时会建出空 PVC，首次部署正常；恢复后若数据为空，先回到步骤 1
-- CNPG 不走本 SOP，使用 barman
+- `Restore` 处于 `MissingRecordedIdentity` 状态：从云端恢复时 catalog 需约 5 分钟接管云端快照，等待即可，期间不会产出空卷
+- 删除 Kustomization 不会导致备份丢失：快照默认声明 `onScheduleDelete: Retain`，数据持久保留在仓库并被接管为 `adopted`
+- 失效的 `Restore`、faulted PVC 或孤立 cache PVC（`kopiur-cache-<app>`）需先清理，再由 populator 重新拉取
+- `onMissingSnapshot: Continue`：无快照时会创建空 PVC，首次部署属正常行为；恢复后若数据为空需先排查步骤 1
+- CNPG 数据库恢复不走本 SOP，使用 Barman 机制
 - `security` 命名空间的 crowdsec 使用特权 mover（UID/GID 0），命名空间已标注 `kopiur.home-operations.com/privileged-movers: "true"`
 
 ## 指针

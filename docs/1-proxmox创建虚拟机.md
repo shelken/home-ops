@@ -4,14 +4,10 @@
 
 - [Proxmox VE - How to build an Ubuntu 22.04 Template (Updated Method)](https://www.youtube.com/watch?v=MJgIm03Jxdo)
 
-## 24.04-server noble
+## Ubuntu 24.04 Server (Noble)
 
-> [!note] 选择版本时需注意内核版本是否与当前集群匹配
->
-> 可以看Ubuntu的官方的内核 [发布历史](https://ubuntu.com/about/release-cycle#ubuntu-kernel-release-cycle)
-
-### download image
-
+选择版本时需确认内核版本与当前集群匹配，参考 Ubuntu 官方 [发布历史](https://ubuntu.com/about/release-cycle#ubuntu-kernel-release-cycle)
+### 下载镜像
 ```bash
 ssh pve
 
@@ -19,7 +15,7 @@ cd /var/lib/vz/template/iso
 
 wget -c https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-amd64.img -O ubuntu-24.04-server-cloudimg-amd64.img
 
-## 检查完整
+## 完整性校验与格式转换
 wget -qO- https://cloud-images.ubuntu.com/releases/noble/release/SHA256SUMS | grep ubuntu-24.04-server-cloudimg-amd64.img | sha256sum -c
 
 mv ubuntu-24.04-server-cloudimg-amd64.img ubuntu-24.04.qcow2
@@ -28,8 +24,7 @@ qemu-img resize ubuntu-24.04.qcow2 32G
 
 ```
 
-### 创建 VM template
-
+### 创建虚拟机模板
 ```bash
 export TEMPLATE_ID=1800
 export TEMPLATE_NAME=ubuntu-24-04-homelab-template
@@ -37,9 +32,9 @@ export TEMPLATE_CI_USER="<CI_USER>"
 export TEMPLATE_CI_PASS="<CI_PASSWORD>"
 export SSH_PUBLIC_KEY="<SSH_PUBLIC_KEY>"
 
-# note
-# 使用 net1 而不是 net0 可以生成 eth1 设备名（期望与lima的设备统一）
-# 可以使用`qm cloudinit dump 110 network`提前验证生成的network
+# 说明：
+# 使用 net1 而不是 net0 可生成 eth1 设备名，与 Lima 虚拟网卡设备命名保持统一
+# 执行 `qm cloudinit dump 110 network` 可提前验证生成的网络配置
 qm create $TEMPLATE_ID \
   --name $TEMPLATE_NAME \
   --bios ovmf \
@@ -65,7 +60,7 @@ qm create $TEMPLATE_ID \
 
 
 ```bash
-## disk 操作
+## 导入磁盘与转为模板
 qm importdisk $TEMPLATE_ID ubuntu-24.04.qcow2 local-lvm
 
 # 普通hdd
@@ -78,12 +73,11 @@ qm set $TEMPLATE_ID --boot order=scsi0
 qm template $TEMPLATE_ID
 ```
 
-6. 启动
-
+### 克隆并启动工作节点实例
 ```bash
 export CURRENT_VM_ID=110
 
-# 克隆模板（$TEMPLATE_ID=1800）成新的110实例
+# 克隆模板（$TEMPLATE_ID=1800）为新的 110 节点实例
 qm clone $TEMPLATE_ID $CURRENT_VM_ID --name "homelab-$CURRENT_VM_ID"
 
 # 静态ip
@@ -94,16 +88,15 @@ qm set $CURRENT_VM_ID --cores 4
 qm set $CURRENT_VM_ID --memory 14336
 qm disk resize $CURRENT_VM_ID scsi0 +300G
 
-# gpu
-## 很重要的启动参数，不然driver安装不了
+# GPU 直通配置
+## 关键启动参数，避免驱动安装失败
 qm set $CURRENT_VM_ID --args "-cpu host,kvm=off"
-## 不要给显示器显示
+## 关闭虚拟显示输出
 qm set $CURRENT_VM_ID --vga none
-## intel
+## Intel 核显直通
 qm set $CURRENT_VM_ID --hostpci0 0000:00:02,pcie=1,rombar=0
-## nvidia
+## NVIDIA 显卡直通
 qm set $CURRENT_VM_ID --hostpci1 0000:01:00.0,mdev=nvidia-49,pcie=1,rombar=0
-
 # 用ssh尝试连接
 
 qm start $CURRENT_VM_ID
@@ -111,11 +104,9 @@ qm terminal $CURRENT_VM_ID
 ```
 
 
-### 额外操作
+### Cloud-Init 磁盘维护
 
-增删 cloud-init
-
-如果原来是ide0
+若原有接口为 ide0，可切换为 scsi 接口：
 
 ```bash
 qm set $CURRENT_VM_ID --delete ide0

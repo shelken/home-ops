@@ -7,19 +7,19 @@ description: 在 containers 仓库创建无后端轻量前端应用，并串起 
 
 ## 触发场景
 
-用户要求创建无后端、单一目的的前端应用时使用：简单应用、小工具、展示页、SPA、simple-service。
+用户要求创建无后端、单一目的的前端应用时使用：轻量前端、小工具、展示页或 SPA
 
-如果需求包含后端 API、数据库、PVC、复杂认证或长期状态存储，先指出它不属于 simple-service，再确认是否仍按轻量前端服务处理。
+若需求包含后端 API、数据库、PVC、复杂认证或长期状态存储，应先提示超出 simple-service 范围，再按普通服务处理
 
 ## 总流程
 
-1. 在 `containers` 仓库复制模板到 `apps/simple-<service-name>/`；simple-service 应用统一使用 `simple-` 前缀。
-2. 清理模板占位内容，只保留当前服务需要的代码、文案和配置。
-3. 本地验证：npm build、Docker build、Docker 预览/health check。
-4. 启动本地 Docker 预览后停下，让用户审阅页面；用户确认后再继续 home-ops。
-5. 提交并推送 `containers`，等待 CI 产出镜像。
-6. 在 `home-ops` 添加 GitOps 部署资源，注册到 `k8s/apps/common/simple-service/ks.yaml`，并确认 `k8s/apps/common/kustomization.yaml` 引用了 `simple-service/ks.yaml`（未引用时该组不会部署）。
-7. 运行 kustomize 渲染验证，并告诉用户线上链接：`https://simple-<service-name>.${MAIN_DOMAIN}`。
+1. 在 `containers` 仓库复制模板到 `apps/simple-<service-name>/`，应用名统一使用 `simple-` 前缀
+2. 清理模板占位内容，仅保留当前服务必需的代码、文案与配置
+3. 本地验证：执行 npm build、Docker build 与本地健康检查
+4. 启动本地 Docker 预览供人工确认，确认通过后再配置 home-ops
+5. 提交并推送 `containers` 仓库，等待 CI 构建镜像并产出摘要
+6. 在 `home-ops` 添加 GitOps 部署资源，注册到 `k8s/apps/common/simple-service/ks.yaml`，并确认 `k8s/apps/common/kustomization.yaml` 引用了 `simple-service/ks.yaml`（未引用时该组不会部署）
+7. 运行 kustomize 渲染验证，产出访问地址：`https://simple-<service-name>.${MAIN_DOMAIN}`
 
 ## containers 创建步骤
 
@@ -29,11 +29,11 @@ cp -r templates/simple-service apps/simple-<service-name>
 
 随后必须更新：
 
-- `apps/simple-<service-name>/docker-bake.hcl`：`APP` 改为 `simple-<service-name>`。
-- `apps/simple-<service-name>/package.json`：`name` 改为 `simple-<service-name>`。
-- `apps/simple-<service-name>/index.html`：更新 `<title>` 和 meta description。
-- `apps/simple-<service-name>/src/App.tsx`：删除 starter UI，替换为当前服务界面。
-- `apps/simple-<service-name>/AGENTS.md`：删除模板创建流程等临时内容，只保留该服务长期规则。
+- `apps/simple-<service-name>/docker-bake.hcl`：`APP` 更新为 `simple-<service-name>`
+- `apps/simple-<service-name>/package.json`：`name` 更新为 `simple-<service-name>`
+- `apps/simple-<service-name>/index.html`：更新 `<title>` 与 meta description
+- `apps/simple-<service-name>/src/App.tsx`：删除模板示例 UI，替换为实际业务界面
+- `apps/simple-<service-name>/AGENTS.md`：删除模板初始化引导，仅保留长期维护规则
 
 ## containers 本地验证
 
@@ -69,12 +69,12 @@ k8s/apps/common/simple-service/simple-<service-name>/
 
 部署约定：
 
-- 使用现有 `app-template` HelmRelease 模式。
-- 镜像使用 `docker-bake.hcl` 里的 semver；CI 出 digest 后再固定为 `semver@digest`，不使用 `rolling` 部署。
-- 容器端口使用模板 Nginx 的 `8080`。
-- route hostname 使用独立子域名。
-- 不需要后端、密钥、PVC 时，不创建无关资源。
-- Pod securityContext 沿用 common 普通 app 约定：`runAsNonRoot: true`、`runAsUser/runAsGroup/fsGroup: 1000`、`fsGroupChangePolicy: OnRootMismatch`。
+- 使用现有 `app-template` HelmRelease 模式
+- 镜像版本使用 `docker-bake.hcl` 中的 semver，待 CI 产出 digest 后固定为 `semver@digest`，不使用 `rolling` 镜像
+- 容器端口固定为模板 Nginx 的 `8080`
+- route hostname 使用独立子域名
+- 无后端、密钥或 PVC 需求时，严禁创建冗余资源
+- Pod securityContext 沿用 common 规范：`runAsNonRoot: true`、`runAsUser/runAsGroup/fsGroup: 1000`、`fsGroupChangePolicy: OnRootMismatch`
 
 验证：
 

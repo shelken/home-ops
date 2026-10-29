@@ -1,7 +1,7 @@
 # BGP 路由配置 (BIRD)
 
-> **状态：本地站点正常**（sakamoto-k8s / homelab-1 / yuuko-k8s 与 router-mine eBGP）。
-> 跨地域部分（router-home 经 ZeroTier 中继）已断开。下文拓扑图中的远程站点、以及「预期结果」小节里的跨地域路由，均保留作历史参考。
+> **状态：本地站点正常**（`sakamoto-k8s` / `homelab-1` / `yuuko-k8s` 与 `router-mine` 建立 eBGP 对等）
+> 跨地域部分（`router-home` 经 ZeroTier 中继）已断开。下文拓扑图中的远程站点与历史跨地域路由仅供参考
 
 本文档记录了主路由器 (`router-mine`) 和远程路由器 (`router-home`) 的 BGP 配置，用于实现跨地域 Pod 网络互通。
 
@@ -82,7 +82,7 @@ task router:bgp:sync
 task --yes router:bgp:sync
 ```
 
-`bgp:sync` 先跑 `bird -p` 校验新配置，通过才替换 `/etc/bird.conf` 并执行 `birdc configure`（软重配，不中断既有会话）。校验失败则原文件不动。
+`bgp:sync` 先执行 `bird -p` 校验新配置，通过后原子替换 `/etc/bird.conf` 并触发 `birdc configure`（软重载，不中断既有连接会话）。校验失败则保持原配置不变
 
 ### router-home (远程路由器，已断开)
 
@@ -145,6 +145,6 @@ K8s 侧的 BGP 配置请参考：[跨地域节点互联架构](../17-add-remote-
 
 ## 相关文档
 
-- [VLAN 配置](./vlan.md) - VLAN 网络划分
-- [mDNS 配置](./mdns.md) - 跨 VLAN 的 mDNS 反射配置
-- [跨地域节点互联](../17-add-remote-node.md) - 完整的 BGP 全互联方案
+- [VLAN 配置](./vlan.md)：VLAN 网络划分
+- [mDNS 配置](./mdns.md)：跨 VLAN 的 mDNS 反射配置
+- [跨地域节点互联（历史）](../17-add-remote-node.md)：BGP 互联历史方案

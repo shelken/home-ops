@@ -35,20 +35,9 @@
 
 ## 我的配置选择
 
-## daed 专项配置
+最初需求是单网口作为 LAN，使用固定 IP，开启 DHCP server 直连管理。上游项目默认将单网口作为 DHCP 客户端。
 
-daed 相关内容已拆到 [23-daed-on-tvbox.md](23-daed-on-tvbox.md)：
-
-- BTF 内核选择
-- Hysteria2 no-obfs 兼容性
-- DNS 与 routing 规则
-- DNS 上游建议
-- 健康检查与 IPv6
-
-
-最初需求是单网口做 LAN，固定 IP，开 DHCP server，直连管理。项目默认把单网口当 DHCP 客户端。场景不同，我改了配置。
-
-修改位置：`files/etc/uci-defaults/99-custom.sh` 的单网口分支。
+修改位置：`files/etc/uci-defaults/99-custom.sh` 的单网口分支：
 
 ```sh
 if [ "$count" -eq 1 ]; then
@@ -62,10 +51,17 @@ if [ "$count" -eq 1 ]; then
     uci commit dhcp
 ```
 
-不改 WAN/WAN6，不禁用。
+保持 WAN 与 WAN6 原样，不执行禁用。IP 默认来源为 `192.168.100.1`，支持通过 Workflow UI 自定义
 
-IP 来源：默认 192.168.100.1。也可以用 Workflow UI 自定义（写入 `/etc/config/custom_router_ip.txt`）。
+## daed / dae 专项配置
 
+透明代理与路由分流配置详见 [23-daed-on-tvbox.md](23-daed-on-tvbox.md)：
+
+- BTF 内核版本选择
+- Hysteria2 协议与混淆支持
+- DNS 与 routing 规则
+- DNS 上游配置建议
+- 连通性探测与 IPv6 防火墙策略
 ## 每次升级后网络不通的原因
 
 升级用 restore 会恢复旧 network 配置。项目默认单网口是 DHCP 客户端，所以 `network.lan.proto` 会被覆盖回 dhcp。再刷一次，在升级命令里选择恢复配置，它又把旧的 LAN 配置带回来了。
@@ -94,15 +90,12 @@ kmod-usb-serial-wwan
 
 ophub 官方 ImageBuilder 的默认包列表里这些驱动已经带了。
 
-## 升级命令
+## 固件升级
 
-脚本在 `scripts/update-tvbox.sh`。
+通过 sysupgrade 或专用刷写工具升级固件。
 
-```bash
-scripts/update-tvbox.sh ~/Downloads/固件.img.gz
-```
+跨大版本（例如 25.x 升级至 24.10，涉及包管理器切换）时不保留旧配置
 
-跨大版本（25.x → 24.10，涉及 apk 和 opkg 切换）时不保留配置。
 
 ## 升级后网络不通的恢复
 

@@ -1,13 +1,12 @@
-## BGP Configuration
+# Cilium BGP 与网络配置
 
-> **状态：本地站点正常**（sakamoto-k8s / homelab-1 / yuuko-k8s 与 router-mine eBGP）。
-> 跨地域部分（router-home 经 ZeroTier 中继）已断开。
-
+> 状态：本地站点正常（`sakamoto-k8s` / `homelab-1` / `yuuko-k8s` 与 `router-mine` 建立 eBGP 对等）
+> 跨地域部分（`router-home` 经 ZeroTier 中继）已断开
 ### router-mine (192.168.6.1)
 
 [/etc/bird.conf](../../../../../router/bird/mine.conf)
 
-逐节点显式 neighbor（无网段接受），节点：sakamoto-k8s / homelab-1 / yuuko-k8s。
+逐节点显式配置 neighbor（无网段接受），本地节点：`sakamoto-k8s`、`homelab-1`、`yuuko-k8s`
 
 ```mermaid
 graph TD
@@ -21,15 +20,15 @@ graph TD
     R_Mine -- "eBGP (LAN)" --> Yuuko
 ```
 
-### router-home (192.168.191.10，已断开)
+### router-home（已断开）
 
-[/etc/bird.conf](../../../../../router/bird/home.conf)
+参考配置：[`router/bird/home.conf`](../../../../../router/bird/home.conf)
 
-### Firewall Configuration
+### 防火墙规则
 
-`/etc/config/firewall` (On Router-Mine)
+主路由防火墙配置：`/etc/config/firewall`
 
-`NOTRACK` 告诉 netfilter 不要跟踪这些包的状态，不要在 conntrack 表里创建条目，直接放行。这样它就不会因为“没看到回程包”而丢弃后续的 ACK/TLS 数据了
+`NOTRACK` 告知 Netfilter 跳过连接跟踪，避免因为非对称路由（未看到回程包）丢弃后续 ACK/TLS 握手数据：
 
 ```conf
 config rule
@@ -41,7 +40,7 @@ config rule
 	option target 'NOTRACK'
 ```
 
-对于本地和远程站点之间的Pod CIDR（‘ 10.42.0.0/16 ‘）流量，确保在’ lan ’和‘ zt ’区域之间启用‘转发’
+对于本地站点 Pod CIDR（`10.42.0.0/16`）流量，确保相应接口区域之间启用转发规则
 
 ```bash
 # Check BIRD status

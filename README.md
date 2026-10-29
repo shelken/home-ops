@@ -30,7 +30,7 @@
 
 # home-ops
 
-Homelab GitOps 仓库。Kubernetes 集群、基础设施组件、应用、外部 Compose 服务、备份和运维文档都从这里管理。
+Homelab GitOps 仓库。Kubernetes 集群、基础设施组件、应用、外部 Compose 服务、备份和运维文档统一由此管理
 
 ## 架构摘要
 
@@ -38,11 +38,11 @@ Homelab GitOps 仓库。Kubernetes 集群、基础设施组件、应用、外部
 - GitOps：Flux CD v2
 - 网络：Cilium、Multus、Envoy Gateway、External-DNS
 - 密钥：SOPS、External Secrets、Bitwarden Secrets Manager
-- 存储：Longhorn、CloudNativePG、SMB
+- 存储：Longhorn、OpenEBS、CloudNativePG、SMB
 - 备份：kopiur、RustFS、Kopia
 - 外部服务：`compose/sakamoto/`、`compose/vps/`
 
-完整架构见 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)。
+完整架构见 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 
 ## 文档入口
 
@@ -72,12 +72,12 @@ Homelab GitOps 仓库。Kubernetes 集群、基础设施组件、应用、外部
 
 ## 工作原则
 
-- 常规变更走 Git + Flux，不直接 `kubectl apply`。
-- 资源删除必须先确认目标和影响范围。
-- 本地未提交/未推送的文件不是集群状态。
-- 新增或禁用 `k8s/apps/common/` 应用时，同步维护 `.renovate/packageRules.json5`。
-- 需要暴露单独地址时，优先确认 LoadBalancer、Multus、Gateway、External-DNS 的责任边界。
-- 需要容器镜像时固定版本和 digest，并交给 Renovate 后续更新。
+- 常规变更走 Git 与 Flux，不直接 `kubectl apply`
+- 资源删除必须先确认目标和影响范围
+- 本地未提交与未推送的文件不代表集群状态
+- 新增或禁用 `k8s/apps/common/` 应用时，同步维护 `.renovate/packageRules.json5`
+- 需要暴露单独地址时，优先确认 LoadBalancer、Multus、Gateway、External-DNS 的责任边界
+- 需要容器镜像时固定版本和 digest，由 Renovate 自动跟踪更新
 
 ## 常用命令
 
@@ -85,4 +85,4 @@ Homelab GitOps 仓库。Kubernetes 集群、基础设施组件、应用、外部
 task --list
 ```
 
-更多命令见 [`Taskfile.yaml`](Taskfile.yaml) 和 `.taskfile/`。
+更多命令见 [`Taskfile.yaml`](Taskfile.yaml) 和 `.taskfile/`

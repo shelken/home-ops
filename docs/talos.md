@@ -15,10 +15,11 @@ talosctl apply-config --insecure --nodes $WORKER_IP --file _out/worker.yaml
 
 ```
 
-添加新的worker
+## 扩容工作节点
+
+克隆 PVE 虚拟机模板并下发 Worker 配置：
 
 ```bash
 qm clone 1003 116 --name talos-2
-
 talosctl apply-config --insecure --nodes $WORKER_IP --file _out/worker.yaml
 ```

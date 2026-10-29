@@ -6,7 +6,7 @@
 
 - [Compose 服务](../../docker-compose.yml)定义备份卷、端口、容器环境变量和配置挂载
 - [环境模板](../../.env.tpl)定义本机 BWS 字段引用
-- [云端连接模板](repository.config.tpl)定义共享 `main` 仓库的入口，[云端策略](policy.json)定义调度、保留、压缩和排除规则
+- [云端连接模板](repository.config.tpl)定义共享 `main` 仓库入口，[云端策略](policy.json)定义调度、保留、压缩和排除规则
 - [本地连接模板](local/repository.config.tpl)与[本地策略](local/policy.json)定义 `kopia-local` 的仓库和备份范围
 - [启动脚本](entrypoint.sh)定义连接检查、策略导入和通知配置
 - [集群部署入口](../../../../k8s/infra/common/kopiur-system/kopiur/ks.yaml)定义云端仓库先就绪、集中复制后同步的依赖顺序
@@ -20,8 +20,8 @@
 先查看字段名，再编辑对应的 BWS 条目
 
 ```bash
-sec-run task secret:keys secret=compose-sakamoto
-sec-run task secret:edit secret=compose-sakamoto
+task secret:keys secret=compose-sakamoto
+task secret:edit secret=compose-sakamoto
 ```
 
 口令字段及其容器变量映射以环境模板和 Compose 服务为准
@@ -31,7 +31,7 @@ sec-run task secret:edit secret=compose-sakamoto
 修改连接模板或对应的策略文件后，执行目标主机的部署任务
 
 ```bash
-sec-run task compose:deploy:sakamoto -- --no-deps --force-recreate kopia
+task compose:deploy:sakamoto -- --no-deps --force-recreate kopia
 ```
 
 更新本地备份时，将末尾的服务名改为 `kopia-local`

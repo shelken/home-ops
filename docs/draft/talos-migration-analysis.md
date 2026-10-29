@@ -1,6 +1,6 @@
 # Talos 迁移分析：从 k3s 到 Talos Linux
 
-> **状态**: 草稿 - 待决策
+> **状态**: 草稿（待决策）
 > **创建日期**: 2025-12
 > **参考**: [onedr0p/home-ops](https://github.com/onedr0p/home-ops)
 

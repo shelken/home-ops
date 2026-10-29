@@ -77,9 +77,11 @@ uci set dhcp.@dnsmasq[0].dns_redirect='0'
 uci commit dhcp
 /etc/init.d/dnsmasq restart
 /etc/init.d/firewall restart
+# 运行 daed 实例：
 /etc/init.d/daed restart
+# 若已迁移至独立 dae：
+/etc/init.d/dae restart
 ```
-
 验证：
 
 ```sh

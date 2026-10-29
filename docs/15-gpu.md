@@ -1,23 +1,13 @@
 # GPU
 
-> 以下都是在PVE上的显卡相关操作
-
+> PVE 虚拟化环境下的显卡驱动安装、vGPU 分配与直通配置
 ## NVIDIA
 
-### vGPU
+### vGPU 虚拟化
 
->
-> [vgpu 开启教程（驱动安装）](https://gitlab.com/polloloco/vgpu-proxmox)
->
-> [自建vgpu认证服务教程](https://git.collinwebdesigns.de/oscar.krause/fastapi-dls)
->
-> [fastapi-dls docker hub image](https://hub.docker.com/r/collinwebdesigns/fastapi-dls)
->
-> [佛西网盘资源（vgpu相关驱动）](https://alist.homelabproject.cc/foxipan/vGPU/16.8)
->
-> [英伟达 driver 官方](https://www.nvidia.com/en-us/drivers/)
->
-
+- [vGPU 驱动安装与补丁教程](https://gitlab.com/polloloco/vgpu-proxmox)
+- [自建 fastapi-dls 授权许可服务](https://git.collinwebdesigns.de/oscar.krause/fastapi-dls)
+- [英伟达官方驱动归档](https://www.nvidia.com/en-us/drivers/)
 #### 宿主机
 
 根据教程，宿主机安装patch之后的driver、 解锁消费级显卡、 覆盖配置要使用的profile
@@ -60,10 +50,9 @@ rsync -avzP <NVIDIA_DRIVER_RUN_FILE> <SSH_USER>@192.168.6.111:~/
 sudo ./NVIDIA-Linux-x86_64-550.163.01-grid.run --silent --no-questions --accept-license --disable-nouveau
 ```
 
-处理licence
+#### 授权激活（fastapi-dls）
 
-部署一个 fastapi-dls 服务，当前配置见 [`compose/sakamoto/docker-compose.yml`](../compose/sakamoto/docker-compose.yml) 的 `nvidia-dls` 服务。
-
+集群内运行 `fastapi-dls` 服务，配置参考 [`compose/sakamoto/docker-compose.yml`](../compose/sakamoto/docker-compose.yml) 中的 `nvidia-dls` 服务：
 ```bash
 export MAIN_DOMAIN=
 sudo curl --insecure -L -X GET https://nvidia-dls.$MAIN_DOMAIN/-/client-token -o /etc/nvidia/ClientConfigToken/client_configuration_token_$(date '+%d-%m-%Y-%H-%M-%S').tok
@@ -120,11 +109,9 @@ sudo reboot
 ./NVIDIA-Linux-x86_64-535.247.01.run --no-kernel-module
 ```
 
-### 分配
+### 节点标签分配
 
-```bash
-k label node [node] nvidia.com/gpu.present=true
-```
+当前工作节点 GPU 标签已由 Ansible 声明式管理（见 [`ansible/inventory/host_vars/homelab-1.yaml`](../ansible/inventory/host_vars/homelab-1.yaml)），无需手动执行 `kubectl label`
 
 ## INTEL
 
@@ -147,11 +134,9 @@ sudo apt install linux-firmware
 lspci -nnk | grep -B5 i915
 ```
 
-### 分配
+### Intel 核显标签分配
 
-```bash
-k label node [node] intel.feature.node.kubernetes.io/gpu=true
-```
+同上，已由 Ansible 自动分配标签 `intel.feature.node.kubernetes.io/gpu=true`
 
 ## Intel
 
