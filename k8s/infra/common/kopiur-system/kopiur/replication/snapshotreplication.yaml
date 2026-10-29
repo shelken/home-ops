@@ -10,8 +10,6 @@ metadata:
   name: sakamoto-to-cloud
   namespace: kopiur-system
 spec:
-  # 首次复制前须在 yun139 设置全局 zstd 策略，再通过 Git 解除暂停。
-  suspend: true
   sourceRef:
     kind: ClusterRepository
     name: sakamoto
