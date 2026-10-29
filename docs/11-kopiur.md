@@ -3,7 +3,7 @@
 集群卷备份使用 [Kopiur](https://github.com/home-operations/kopiur) + Kopia：
 
 - 本地仓库 `sakamoto`：集群外 MinIO 的 `kopiur` 桶，每小时一次，供细粒度回滚
-- 云端仓库 `cloud-openlist`：集群内 OpenList S3 的 `kopia` 桶 `kopiur/` 前缀，异地副本，由集群级 SnapshotReplication 每天复制本地仓库的最新快照过去
+- 云端仓库 `cloud-openlist`：集群内 OpenList S3 的 `kopia` 桶 `kopiur/` 前缀，作为云端副本，由集群级 SnapshotReplication 每天复制本地仓库的最新快照过去
 
 取舍见 [ADR-0008](adr/0008-kopiur-cloud-snapshotreplication.md)
 
@@ -43,12 +43,13 @@ spec:
 
 组件自动创建：PVC（`IfNotPresent` 保护已有卷）、本地 SnapshotPolicy 与 SnapshotSchedule（`H * * * *`，按对象错峰）、Restore CR
 
-## 云端异地副本
+## 云端副本
 
-不在应用组件里声明，集群级单一资源 `k8s/infra/common/kopiur-system/kopiur/repository-cloud/snapshotreplication.yaml`，源是 `sakamoto`，目标是 `cloud-openlist`。复制只搬快照清单与它引用的内容，不产生卷快照、暂存克隆与 mover 卷
+不在应用组件里声明，集群级单一资源 `k8s/infra/common/kopiur-system/kopiur/repository-cloud/snapshotreplication.yaml`，源是 `sakamoto`，目标是 `cloud-openlist`。复制只搬快照清单与它引用的内容，不产生卷快照与暂存克隆
 
 - 手动触发用 `task kopiur:replicate`。它直接给该资源打 `run-requested` 注解，绕过每日 04:15 的窗口；一次成功的手动复制会顺延下一个自动窗口，槽位由 `status.lastReplicated` 决定
 - 改造前的 `${APP}-cloud` 直写快照不会被删除，也不在本复制 `pruning` 的范围内，会一直留着：旧 SnapshotSchedule 的 `deletion.onScheduleDelete` 默认 `Retain`，调度删除只删 Snapshot CR，kopia 快照留在目标仓库并由 catalog 接管为 `discovered`
+- 副本 CR 的 `deletionPolicy` 是 `Delete`，删掉它就删掉目标仓库里对应的快照；删复制对象本身不会删数据
 
 ## 恢复
 
@@ -62,7 +63,7 @@ spec:
 
 ```yaml
   patches:
-    - target: {kind: Restore, name: <app>}
+    - target: {kind: Restore}
       patch: |
         - op: add
           path: /spec/repository
@@ -70,13 +71,14 @@ spec:
         - op: replace
           path: /spec/source
           value:
-            identity: {username: <USER>, hostname: <HOST>, sourcePath: /pvc/<app>}
+            identity: {username: <应用名>, hostname: <命名空间>, sourcePath: /pvc/<应用名>}
         - op: replace
           path: /spec/policy/onMissingSnapshot
           value: Fail
 ```
 
-- `<USER>`、`<HOST>` 从副本 CR 的 `status.snapshot.identity` 读，见「查看快照」。`source.identity` 没有对象可推导仓库，所以要显式给 `spec.repository`
+- 选择器只按 `kind` 写。Flux 先跑 kustomize 构建，patch 在这一步生效，之后才替换 `${APP}`，所以按 `name` 选不中模板里的 Restore，patch 会静默跳过
+- 身份默认是 `应用名@命名空间:/pvc/应用名`，也可以用「查看快照」的 `USER`、`HOST`、`PATH` 核对。`source.identity` 没有对象可推导仓库，所以要显式给 `spec.repository`
 - `onMissingSnapshot` 必须改成 `Fail`，否则身份没匹配上时会安静地建出空卷
 - 同时把 `kopiur-repository` 的 `wait` 改成 `false`，让应用不再等本地仓库；本地仓库恢复后 revert
 
@@ -98,7 +100,7 @@ task kopiur:snapshots APP=plex  # 按应用过滤
 
 或访问 Kopia WebUI：`https://kopia.<DOMAIN>`，它同样只连接本地仓库
 
-云端仓库（异地副本，都在 `kopiur-system`）：
+云端仓库（副本都在 `kopiur-system`）：
 
 ```bash
 kubectl -n kopiur-system get snapshot -l kopiur.home-operations.com/origin=replicated \

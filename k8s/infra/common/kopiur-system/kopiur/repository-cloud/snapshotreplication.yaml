@@ -1,6 +1,6 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/home-operations/kopiur/main/deploy/crds/snapshotreplications.yaml
-# 云端异地副本改为集中复制：应用侧不再直写 cloud 仓库（已移除各应用的 ${APP}-cloud 策略）。
+# 云端副本改为集中复制：应用侧不再直写 cloud 仓库（已移除各应用的 ${APP}-cloud 策略）。
 # 复制把本地仓库每个身份的最新快照搬到云端，天然每天一份，省掉每个应用一次的卷快照与克隆。
 # 时区不写死：复制调度的优先级是 spec.schedule.timezone → 源仓库 scheduleDefaults.timezone
 # （sakamoto 已设）→ UTC，因此 cron 仍按本地时钟在低峰 04:15 触发。

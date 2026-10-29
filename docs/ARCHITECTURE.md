@@ -489,7 +489,7 @@ graph TB
 | 链路 | 备份源 | 存储后端 | 目标 | 调度 |
 |------|--------|---------|------|------|
 | k8s PVC（本地） | Longhorn VolumeSnapshot | Kopiur（Kopia mover）→ MinIO (宿主机 S3, bucket kopiur) | 宿主机本地 | 每小时 |
-| k8s PVC（异地副本） | 本地仓库 `sakamoto` 的最新快照 | Kopiur SnapshotReplication（`kopia snapshot migrate`）→ OpenList (集群 S3, bucket kopia, prefix kopiur/) | 189 云盘 | 每天 |
+| k8s PVC（云端副本） | 本地仓库 `sakamoto` 的最新快照 | Kopiur SnapshotReplication（`kopia snapshot migrate`）→ OpenList (集群 S3, bucket kopia, prefix kopiur/) | 189 云盘 | 每天 |
 | PostgreSQL | CNPG 集群 | Barman → MinIO (宿主机 S3) | 189 云盘 | 按 WAL 归档 |
 | 宿主机 MinIO | MinIO 数据（不含 kopiur 桶） | Kopia → OpenList (集群 S3) | 189 云盘 | 每天 03:30 |
 | 宿主机 Compose | Compose 数据 | Kopia → OpenList (集群 S3) | 189 云盘 | 1 小时 |

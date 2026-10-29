@@ -68,7 +68,7 @@ tasks:
         msg: "需要先安装 krew（可通过 mise install 安装）"
 
   trigger:
-    desc: "手动触发一次本地快照备份。APP=<app> [NAMESPACE=default] [WAIT=true]。云端异地副本见 task kopiur:replicate"
+    desc: "手动触发一次本地快照备份。APP=<app> [NAMESPACE=default] [WAIT=true]。云端副本见 task kopiur:replicate"
     silent: true
     requires:
       vars: [APP]
@@ -113,12 +113,20 @@ tasks:
     cmds:
       - |
         set -euo pipefail
-        if which kubectl-kopiur >/dev/null 2>&1 || which kopiur >/dev/null 2>&1; then
-          WAIT_FLAG=""
-          if [ "{{.WAIT}}" = "true" ]; then
-            WAIT_FLAG="--wait"
-          fi
-          kubectl kopiur replication run {{.REPLICATION}} -n {{.KOPIUR_NS}} --kind snapshot $WAIT_FLAG
+        WAIT_FLAG=""
+        if [ "{{.WAIT}}" = "true" ]; then
+          WAIT_FLAG="--wait"
+        fi
+        # kubectl 只认 kubectl-<name> 前缀的插件；独立的 kopiur 二进制要直接调用
+        if which kubectl-kopiur >/dev/null 2>&1; then
+          CMD="kubectl kopiur"
+        elif which kopiur >/dev/null 2>&1; then
+          CMD="kopiur"
+        else
+          CMD=""
+        fi
+        if [ -n "$CMD" ]; then
+          $CMD replication run {{.REPLICATION}} -n {{.KOPIUR_NS}} --kind snapshot $WAIT_FLAG
         else
           kubectl annotate snapshotreplication {{.REPLICATION}} -n {{.KOPIUR_NS}} \
             "kopiur.home-operations.com/run-requested=$(date -u +%Y-%m-%dT%H:%M:%SZ)" --overwrite
