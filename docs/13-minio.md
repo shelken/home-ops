@@ -14,7 +14,6 @@
 - 两份 Kopia 策略均忽略 `.rustfs.sys`。云端审计使用一次性容器执行策略导入和 `kopia snapshot create /backup/minio --upload-limit-mb=100`，确认上传量小于 50 MB 后才启动常驻服务
 - 云端索引读取失败时保持云端服务停止，独立恢复本地备份。若 OpenList 返回通用 500，继续检查实际下载链接；189 网盘可对历史索引返回 `InfoSecurityErrorCode`。此时不得删除或重命名内容寻址的仓库文件
 - RustFS 接收业务写入后，回退必须通过 S3 接口保存并回填新增对象；不得把底层对象目录当作普通文件直接混合回填。保留原始冷备，直到恢复验证完成
-- 控制台根路径重定向仅匹配不带 `Authorization` 的 `GET` 和 `HEAD`。STS 登录使用 `POST /`，桶列表使用带签名的 `GET /`；二者均须保留原请求路径
 
 健康接口为 `/health/ready`，控制台入口为 `/rustfs/console/`。监控名称与原有域名保留，以维持探针历史和客户端配置
 
