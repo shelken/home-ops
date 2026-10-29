@@ -14,16 +14,6 @@ metadata:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: azure-creds
-  namespace: external-secrets
-stringData:
-  ClientID: azure://shelken-homelab/azure-creds/ClientID
-  ClientSecret: azure://shelken-homelab/azure-creds/ClientSecret
-
----
-apiVersion: v1
-kind: Secret
-metadata:
   name: bitwarden-access-token
   namespace: external-secrets
 stringData:

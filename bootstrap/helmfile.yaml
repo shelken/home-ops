@@ -39,19 +39,6 @@ releases:
     chart: oci://ghcr.io/external-secrets/charts/external-secrets
     version: 2.11.0
     values: ['../k8s/infra/common/external-secrets/external-secrets/app/values.yaml']
-    hooks:
-      - # Apply cluster secret store
-        events: ['postsync']
-        command: kubectl
-        args:
-          - apply
-          - --namespace=external-secrets
-          - --server-side
-          - --field-manager=kustomize-controller
-          - --filename
-          - ../k8s/infra/common/external-secrets/external-secrets/azure/clustersecretstore.yaml
-          - --wait=true
-        showlogs: true
     needs: ['cert-manager/cert-manager']
 
   - name: flux-operator

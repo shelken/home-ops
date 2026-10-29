@@ -14,7 +14,7 @@
 - 在集群部署 shadowsocks-rust server。
 - 使用 multus-ipv6 分配独立 v6 地址。
 - 端口 55483 TCP，method `2022-blake3-aes-256-gcm`。
-- 密码通过 Azure KeyVault → ExternalSecret 注入。
+- 密码通过 Bitwarden Secrets Manager → ExternalSecret 注入。
 - 以 `app-template` chart 部署，目录 `k8s/infra/common/network/external/ss-rust/`。
 - 跟随已有外部入口（caddy-external）的 GitOps 流程。
 
@@ -64,7 +64,7 @@ k8s/infra/common/network/external/ss-rust/
 - **Service**: 不需要 ClusterIP Service（四层透传，直用 multus 接口地址）
 - **Probes**: TCP probe on 55483
 - **Config**: JSON 格式配置文件挂载 ConfigMap，password 字段引用环境变量 `${SS_PASSWORD}`
-- **密码**: Azure KeyVault → ExternalSecret → 容器环境变量 `SS_PASSWORD`
+- **密码**: Bitwarden Secrets Manager → ExternalSecret → 容器环境变量 `SS_PASSWORD`
 - **加密**: `2022-blake3-aes-256-gcm`，key 由 `ssservice genkey -m "2022-blake3-aes-256-gcm"` 生成
 
 ### 配置示例
@@ -100,13 +100,13 @@ k8s.v1.cni.cncf.io/networks: |
 ## 密钥管理
 
 1. 本地运行 `ssservice genkey -m "2022-blake3-aes-256-gcm"` 生成 32 字节 Base64 key。
-2. 写入 Azure KeyVault `shelken-homelab`，key 名 `ss-rust`。
+2. 写入 Bitwarden Secrets Manager 项目，secret 名 `ss-rust`，值为包含 `PASSWORD` 的 JSON 对象。
 3. ExternalSecret 读取并注入到 Pod 环境变量 `SS_PASSWORD`。
 
 ## 依赖
 
 - `multus` (network namespace)
-- `azure-store` (ExternalSecret ClusterStore)
+- `bitwarden-store` (ExternalSecret ClusterStore)
 - Flux GitRepository `flux-system`
 
 ## 验证方式
