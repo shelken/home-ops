@@ -4,7 +4,7 @@ kind: ScheduledBackup
 metadata:
   name: &name immich-db
 spec:
-  suspend: true
+  suspend: false
   schedule: "@daily"
   immediate: true
   backupOwnerReference: self
