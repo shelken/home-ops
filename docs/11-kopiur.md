@@ -1,11 +1,11 @@
 # Kopiur 备份
 
-集群卷备份使用 [Kopiur](https://github.com/home-operations/kopiur) + Kopia，同一个备份组件为每个应用生成两套策略：
+集群卷备份使用 [Kopiur](https://github.com/home-operations/kopiur) + Kopia：
 
 - 本地仓库 `sakamoto`：集群外 MinIO 的 `kopiur` 桶，每小时一次，供细粒度回滚
-- 云端仓库 `cloud-openlist`：集群内 OpenList S3 的 `kopia` 桶 `kopiur/` 前缀，每天一次，保留 7 天，作为异地副本
+- 云端仓库 `cloud-openlist`：集群内 OpenList S3 的 `kopia` 桶 `kopiur/` 前缀，由集群级 SnapshotReplication 每天复制本地快照
 
-取舍见 [ADR-0006](adr/0006-kopiur-cloud-daily-repository.md)
+取舍见 [ADR-0008](adr/0008-kopiur-cloud-snapshotreplication.md)
 
 依赖：
 - Longhorn（服务数据存储）
@@ -41,7 +41,11 @@ spec:
       # KOPIUR_PGID: "0"
 ```
 
-组件自动创建：PVC（`IfNotPresent` 保护已有卷）、本地与云端两套 SnapshotPolicy 和 SnapshotSchedule（本地 `H * * * *`，云端 `H 4 * * *`，均按对象错峰）、Restore CR。云端策略使用临时缓存卷，容量由 `KOPIUR_CLOUD_CACHE_CAPACITY` 覆盖
+组件自动创建：PVC（`IfNotPresent` 保护已有卷）、本地 SnapshotPolicy 与 SnapshotSchedule（`H * * * *`，按对象错峰）、Restore CR
+
+## 云端副本
+
+集群级单一资源 `k8s/infra/common/kopiur-system/kopiur/repository-cloud/snapshotreplication.yaml`，源 `sakamoto`，目标 `cloud-openlist`。`task kopiur:replicate` 手动触发，绕过每日窗口，成功后顺延下一个自动窗口
 
 ## 恢复
 
@@ -51,22 +55,11 @@ spec:
 
 ### 本地仓库不可用时切到云端
 
-提交一次 Git，改两行：
+没有 `${APP}-cloud` 策略可切。在该应用的 `ks.yaml` 里给 `Restore` 打补丁，数据源指向 `cloud-openlist`：`source.identity` 用 `应用名@命名空间:/pvc/应用名`，并显式给 `spec.repository`；`policy.onMissingSnapshot` 改 `Fail`，否则身份没匹配上会建出空卷；选择器只按 `kind: Restore` 写，Flux 先构建后替换 `${APP}`，按 `name` 选不中
 
-```diff
-# k8s/components/kopiur/backup/restore.yaml
--      name: ${APP}
-+      name: ${APP}-cloud
-# k8s/infra/common/kopiur-system/kopiur/ks.yaml（kopiur-repository）
--  wait: true
-+  wait: false
-```
+同时把 `kopiur-repository` 的 `wait` 改成 `false`，本地仓库恢复后 revert
 
-- 第一行让所有 `Restore` 改从云端策略取快照，只有 PVC 被重建的应用会真正恢复
-- 第二行让应用的 Kustomization 不再因本地仓库 NotReady 而停止 reconcile
-- 本地仓库恢复后 revert 该提交
-
-2026-10-22 已用 qui 演练第一行：删除 qui 的 Kustomization 后，从云端快照恢复，文件与快照一致。演练时本地仓库正常，第二行未实测
+~~2026-10-22 用 qui 演练从云端恢复成功~~ 切的是已删除的 `${APP}-cloud` 策略，新路径未演练
 
 - 删除 Kustomization 不会删除备份：快照默认 `onScheduleDelete: Retain`，CR 被删后数据仍在仓库，随后由 catalog 接管为 `adopted` 快照
 - 恢复会先停在 `MissingRecordedIdentity` 等待约 5 分钟，直到 catalog 接管云端快照后才拉取数据，期间不会产出空卷
@@ -84,12 +77,10 @@ task kopiur:snapshots APP=plex  # 按应用过滤
 
 或访问 Kopia WebUI：`https://kopia.<DOMAIN>`，它同样只连接本地仓库
 
-云端仓库：
+云端仓库（副本都在 `kopiur-system`）：
 
 ```bash
-kubectl get snapshots.kopiur.home-operations.com -A \
-  -o custom-columns='NS:.metadata.namespace,NAME:.metadata.name,POLICY:.spec.policyRef.name,PHASE:.status.phase' \
-  | grep -- '-cloud '
+kubectl -n kopiur-system get snapshot -l kopiur.home-operations.com/origin=replicated
 ```
 
 ## 查看数据

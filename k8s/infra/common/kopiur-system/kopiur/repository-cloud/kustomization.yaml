@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - ./externalsecret-cloud.yaml
   - ./clusterrepository-cloud.yaml
+  - ./snapshotreplication.yaml

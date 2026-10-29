@@ -6,6 +6,8 @@ version: "3"
 
 vars:
   KOPIA_EXEC: kubectl exec -n kopiur-system deploy/kopia --
+  KOPIUR_NS: kopiur-system
+  REPLICATION: sakamoto-to-cloud
 
 tasks:
   snapshots:
@@ -66,23 +68,17 @@ tasks:
         msg: "需要先安装 krew（可通过 mise install 安装）"
 
   trigger:
-    desc: "手动触发一次快照备份。APP=<app> [TARGET=cloud|local] [NAMESPACE=default] [WAIT=true]"
+    desc: "手动触发一次本地快照备份。APP=<app> [NAMESPACE=default] [WAIT=true]。云端副本见 task kopiur:replicate"
     silent: true
     requires:
       vars: [APP]
     vars:
-      TARGET: '{{.TARGET | default "cloud"}}'
       NAMESPACE: '{{.NAMESPACE | default "default"}}'
       WAIT: '{{.WAIT | default "true"}}'
     cmds:
       - |
         set -euo pipefail
-        NS="{{.NAMESPACE}}"; APP="{{.APP}}"; TARGET="{{.TARGET}}"
-        if [ "$TARGET" = "cloud" ]; then
-          POLICY="${APP}-cloud"
-        else
-          POLICY="${APP}"
-        fi
+        NS="{{.NAMESPACE}}"; APP="{{.APP}}"; POLICY="${APP}"
         echo "▶ 触发备份: namespace=$NS, policy=$POLICY"
         if which kubectl-kopiur >/dev/null 2>&1 || which kopiur >/dev/null 2>&1; then
           WAIT_FLAG=""
@@ -108,3 +104,38 @@ tasks:
             kubectl get snapshot -n "$NS" "$SNAP_NAME" -w
           fi
         fi
+
+  replicate:
+    desc: "手动触发一次异地复制（本地仓库 → 云端）。WAIT=false 只发起不等待"
+    silent: true
+    vars:
+      WAIT: '{{.WAIT | default "true"}}'
+    cmds:
+      - |
+        set -euo pipefail
+        WAIT_FLAG=""
+        if [ "{{.WAIT}}" = "true" ]; then
+          WAIT_FLAG="--wait"
+        fi
+        # kubectl 只认 kubectl-<name> 前缀的插件；独立的 kopiur 二进制要直接调用
+        if which kubectl-kopiur >/dev/null 2>&1; then
+          CMD="kubectl kopiur"
+        elif which kopiur >/dev/null 2>&1; then
+          CMD="kopiur"
+        else
+          CMD=""
+        fi
+        if [ -n "$CMD" ]; then
+          $CMD replication run {{.REPLICATION}} -n {{.KOPIUR_NS}} --kind snapshot $WAIT_FLAG
+        else
+          kubectl annotate snapshotreplication {{.REPLICATION}} -n {{.KOPIUR_NS}} \
+            "kopiur.home-operations.com/run-requested=$(date -u +%Y-%m-%dT%H:%M:%SZ)" --overwrite
+          echo "✔ 已提交复制请求，进度见 status.manualRun"
+          if [ "{{.WAIT}}" = "true" ]; then
+            echo "▶ 正在等待复制完成 (Ctrl+C 可退出监听，后台继续运行)..."
+            kubectl get snapshotreplication {{.REPLICATION}} -n {{.KOPIUR_NS}} -w
+          fi
+        fi
+    preconditions:
+      - sh: kubectl get snapshotreplication {{.REPLICATION}} -n {{.KOPIUR_NS}}
+        msg: "kopiur-system/{{.REPLICATION}} SnapshotReplication 不存在（infra 未就绪？）"
