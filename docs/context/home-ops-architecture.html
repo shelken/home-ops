@@ -318,14 +318,14 @@
         <text x="1114" y="401" fill="#1c1917" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">集群外服务</text>
         <text x="1114" y="417" fill="#57534e" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">compose/vps · compose/sakamoto</text>
         <text x="1114" y="431" fill="#57534e" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">VPS: Caddy · Fluent Bit · CrowdSec</text>
-        <text x="1114" y="445" fill="#57534e" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">sakamoto: Caddy · MinIO · Kopia</text>
+        <text x="1114" y="445" fill="#57534e" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">sakamoto: Caddy · RustFS · Kopia</text>
 
         <rect x="1016" y="484" width="196" height="72" rx="6" fill="#faf7f2" />
         <rect x="1016" y="484" width="196" height="72" rx="6" fill="rgba(28,25,23,0.05)" stroke="#57534e" stroke-width="1" />
         <rect x="1024" y="492" width="48" height="12" rx="2" fill="transparent" stroke="rgba(87,83,78,0.40)" stroke-width="0.8" />
         <text x="1048" y="501" fill="#57534e" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">BACKUP</text>
         <text x="1114" y="521" fill="#1c1917" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">备份目标</text>
-        <text x="1114" y="537" fill="#57534e" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">Kopia repository · object storage / MinIO</text>
+        <text x="1114" y="537" fill="#57534e" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">Kopia repository · object storage / RustFS</text>
       </svg>
     </div>
 
@@ -355,7 +355,7 @@
         <h3>集群外协作面</h3>
         <ul>
           <li>OpenWrt 提供 VLAN 划分、mDNS 反射与 BGP，承接家庭网络语义。</li>
-          <li><code>compose/vps</code> 承接公网代理、日志采集和 VPS 备份；<code>compose/sakamoto</code> 承接内部代理、MinIO、镜像代理与本地/云端备份。</li>
+          <li><code>compose/vps</code> 承接公网代理、日志采集和 VPS 备份；<code>compose/sakamoto</code> 承接内部代理、RustFS、镜像代理与本地/云端备份。</li>
           <li>业务层覆盖家庭自动化、媒体、知识与通用工具，典型例子见 Home Assistant、Jellyfin、Memos、Frigate。</li>
         </ul>
       </section>
