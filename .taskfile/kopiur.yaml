@@ -129,7 +129,5 @@ tasks:
           fi
         fi
     preconditions:
-      - sh: which kubectl
-        msg: "kubectl not found"
       - sh: kubectl get snapshotreplication {{.REPLICATION}} -n {{.KOPIUR_NS}}
         msg: "kopiur-system/{{.REPLICATION}} SnapshotReplication 不存在（infra 未就绪？）"
