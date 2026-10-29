@@ -9,7 +9,7 @@
 - [云端连接模板](repository.config.tpl)定义共享 `main` 仓库的入口，[云端策略](policy.json)定义调度、保留、压缩和排除规则
 - [本地连接模板](local/repository.config.tpl)与[本地策略](local/policy.json)定义 `kopia-local` 的仓库和备份范围
 - [启动脚本](entrypoint.sh)定义连接检查、策略导入和通知配置
-- [集群云端清单](../../../../k8s/infra/common/kopiur-system/kopiur/repository-cloud/kustomization.yaml)定义独立的 `kopiur` 仓库与集中复制
+- [集群部署入口](../../../../k8s/infra/common/kopiur-system/kopiur/ks.yaml)定义云端仓库先就绪、集中复制后同步的依赖顺序
 
 两台宿主机通过各自的存储入口访问同一个 `main` 仓库，口令值必须一致，各自从本机 BWS 条目引入凭据。VPS 使用本机的存储服务，配置前提见 [VPS 配置入口](../../../vps/configs/kopia/README.md)
 
@@ -65,7 +65,7 @@ docker compose exec kopia kopia policy show '@<host>'
 
 复用旧缓存切换仓库后，检查新库是否已有策略。启动脚本的策略与通知指纹不包含仓库身份，重建容器不会清空持久化缓存。缺少策略时，使用[启动脚本中的导入命令](entrypoint.sh)导入，再查询实际策略
 
-集群复制的暂停状态和策略复制选项以 [SnapshotReplication](../../../../k8s/infra/common/kopiur-system/kopiur/repository-cloud/snapshotreplication.yaml) 为准。复制未携带源策略时，先配置并验证目标库的压缩策略，再通过 Git 启用复制
+集群复制的暂停状态和策略复制选项以 [SnapshotReplication](../../../../k8s/infra/common/kopiur-system/kopiur/replication/snapshotreplication.yaml) 为准。复制未携带源策略时，先配置并验证目标库的压缩策略，再通过 Git 启用复制
 
 读取历史仓库时，保留原来的后端类型、目录布局和口令。修改连接类型不会转换存量数据
 
