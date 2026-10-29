@@ -25,6 +25,7 @@
         "/Downloads",
         "/Software/VM",
         ".minio.sys",
+        ".rustfs.sys",
         "kopia-backup"
       ]
     }

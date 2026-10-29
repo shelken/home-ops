@@ -4,6 +4,7 @@ kind: ScheduledBackup
 metadata:
   name: &name postgres
 spec:
+  suspend: true
   schedule: "@daily"
   immediate: true
   backupOwnerReference: self

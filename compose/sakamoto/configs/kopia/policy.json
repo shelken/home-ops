@@ -26,6 +26,7 @@
         "/kopia",
         "/kopia-local",
         ".minio.sys",
+        ".rustfs.sys",
         "/kopia-backup",
         "/kopiur"
       ]
