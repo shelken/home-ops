@@ -46,19 +46,21 @@ ansible-playbook ansible/playbooks/install-nvidia.yaml
 ```
 
 ```bash
-#rsync传输文件
-rsync -avzP <NVIDIA_DRIVER_RUN_FILE> <SSH_USER>@192.168.6.111:~/
+# rsync 传输驱动安装文件（版本以 ansible/playbooks/install-nvidia.yaml 为准）
+export GRID_DRIVER_VERSION="<GRID_DRIVER_VERSION>"
+rsync -avzP "NVIDIA-Linux-x86_64-${GRID_DRIVER_VERSION}-grid.run" <SSH_USER>@192.168.6.111:~/
 
 sudo ./NVIDIA-Linux-x86_64-${GRID_DRIVER_VERSION}-grid.run --silent --no-questions --accept-license --disable-nouveau
 ```
 
 #### 授权激活（fastapi-dls）
 
-集群内运行 `fastapi-dls` 服务，配置参考 [`compose/sakamoto/docker-compose.yml`](../compose/sakamoto/docker-compose.yml) 中的 `nvidia-dls` 服务：
+授权服务 `fastapi-dls` 以 Docker Compose 运行在宿主机 sakamoto，服务名 `nvidia-dls`，定义见 [`compose/sakamoto/docker-compose.yml`](../compose/sakamoto/docker-compose.yml)。在 VM 中获取 client token 并启用 `nvidia-gridd`：
+
 ```bash
 export MAIN_DOMAIN=
 sudo curl --insecure -L -X GET https://nvidia-dls.$MAIN_DOMAIN/-/client-token -o /etc/nvidia/ClientConfigToken/client_configuration_token_$(date '+%d-%m-%Y-%H-%M-%S').tok
-sudo service nvidia-gridd enable --now
+sudo systemctl enable --now nvidia-gridd
 sudo reboot
 
 # 检查
@@ -78,8 +80,9 @@ UEFI情况下，VM关闭「安全启动」
 然后进入安装
 
 ```bash
-# 安装与当前硬件架构适配的无头驱动包
-sudo apt install nvidia-headless-server
+# 列出当前系统可用分支，选择已验证分支安装（如 570-server 验证通过）
+apt-cache search --names-only '^nvidia-headless-[0-9]+-server$'
+sudo apt install nvidia-headless-<BRANCH>-server
 sudo reboot
 ```
 
@@ -141,11 +144,9 @@ lspci -nnk | grep -B5 i915
 
 同上，已由 Ansible 自动分配标签 `intel.feature.node.kubernetes.io/gpu=true`
 
-## Intel
+### 宿主机内核模块配置
 
 ```bash
-# 宿主机
-
 # 手动加载模块
 sudo modprobe i915
 

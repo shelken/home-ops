@@ -1,6 +1,6 @@
 # 文档索引
 
-本目录记录 home-ops 的架构、部署、网络、存储、运维和历史设计。公开文档采用脱敏运维版：隐藏公网域名、公网 IP、系统/SSH 登录用户名、密钥路径和私有服务 URL；保留公开 GitHub 仓库链接、内网网段、节点名、设备名和架构关系，方便排障
+本目录记录 home-ops 的架构、部署、网络、存储、运维和历史设计。公开文档采用半公开运维版：隐藏公网域名、公网 IP、系统/SSH 登录用户名、密钥路径和私有服务 URL；保留公开 GitHub 仓库链接、内网网段、节点名、设备名和架构关系，方便排障
 
 ## 核心入口
 
@@ -13,6 +13,7 @@
 | [运维笔记](./operations-notes.md) | Flux、Cilium、Multus、SMB 等常见排障入口 |
 | [路由器配置](./router/README.md) | OpenWrt、BGP、VLAN、mDNS 相关配置 |
 | [尸检报告](../postmortems/README.md) | 已发生事故的根因、误判和复盘规则 |
+
 ## 部署与基础设施
 
 | 文档 | 用途 |
@@ -36,18 +37,19 @@
 | [RustFS](./13-rustfs.md) | S3 存储和访问策略记录 |
 | [网络](./14-network.md) | IPv6、node-ip 等网络记录 |
 | [GPU](./15-gpu.md) | GPU 驱动、插件和直通记录 |
-| [重建后手动操作](./16-重建后需要手动的操作.md) | 重建集群后仍需人工处理的事项 |
+| [重建后检查](./16-重建后需要手动的操作.md) | 节点重建后的自动化验证与检查项 |
 | [CrowdSec](./18-crowdsec.md) | CrowdSec LAPI、VPS agent、bouncer 和 AppSec 运维 |
 | [VPS IP 变更](./19-vps-ip-change.md) | VPS 地址变化后的处理清单 |
-| [Lima 群晖数据恢复](./20-lima-synology-recovery.md) | 群晖多盘 RAID 应急挂载与数据恢复 |
-| [中兴 F50 调试笔记](./21-f50-notes.md) | 随身 Wi-Fi 串口、网络与自动化守护 |
+| [Lima 群晖数据恢复](./20-lima-synology-recovery.md) | 黑群晖坏盘经 Lima 直通后只读挂载恢复数据 |
+| [中兴 F50 笔记](./21-f50-notes.md) | 电源与网线插拔顺序 |
 | [TVBox 旁路由配置](./22-tvbox-bypass-router.md) | 电视盒子刷 ImmortalWrt 做旁路由完整记录 |
-| [TVBox 旁路由运行 dae](./23-daed-on-tvbox.md) | 旁路由透明代理部署、DNS 分流与故障排查 |
+| [TVBox 旁路由运行 dae](./23-daed-on-tvbox.md) | daed 内核 BTF、Hysteria2 兼容、DNS 与路由经验 |
+
 ## 历史和草案
 
 | 文档 | 状态 |
 |------|------|
-| [跨地域节点互联（历史）](./17-add-remote-node.md) | 异地 WireGuard 互联历史方案（节点已迁回内网运行 eBGP） |
+| [跨地域节点互联](./17-add-remote-node.md) | 历史方案：异地节点经 ZeroTier 与 BGP 互联，节点已迁回内网 |
 | [Talos](./talos.md) | 草案/调研 |
 | [Talos 迁移分析](./draft/talos-migration-analysis.md) | 草案/调研 |
 | [ServiceMonitor 排查报告](./draft/servicemonitor.md) | 草案/历史排查 |

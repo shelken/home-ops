@@ -41,11 +41,11 @@ description: 在 home-ops 仓库中为 k3s 集群新增服务的完整流程：�
 
    判断服务技术特征（HTTP、DB、密钥、持久化、Route），选择最贴近的参考目录
 2. **编写 `ks.yaml`**：`dependsOn` 只写真实前置，`components` 只写用到的能力
-3. **编写 `helmrelease.yaml`**：优先使用 app-template，镜像、环境变量、Service、Route、持久化与资源按需补齐
+3. **编写 `helmrelease.yaml`**：优先使用 app-template，镜像、环境变量、Service、Route、持久化、探针与资源按需补齐
 4. **编写 `kustomization.yaml`**：只引用真实存在的文件，需生成 ConfigMap 时配置 `configMapGenerator`
 5. **编写 `externalsecret.yaml`**：按下文「Secret 注入决策」确认模式，`store` 固定为 `bitwarden-store`，`dataFrom.extract.key` 使用真实 BWS secret 名（BWS 忽略 `property` 且不支持 `dataFrom.find`，详见 `docs/6-secrets.md`），`target.template.data` 仅暴露实际消费的键
 6. **写入 BWS**：使用 `task secret:set-key` 写入（依赖 `BWS_ACCESS_TOKEN`），`task secret:keys` 验证，禁止读取 secret 原文
-7. **注册**：加入对应层级 `kustomization.yaml` 并保持字母排序：
+7. **注册**：加入对应层级 `kustomization.yaml` 并沿用该文件现有排序风格：
    - apps 服务 → `k8s/apps/common/kustomization.yaml`
    - infra 服务 → 对应 category 层，如 `k8s/infra/common/network/external/kustomization.yaml`
 8. **验证**：执行三层 `kustomize build`：
@@ -54,7 +54,7 @@ description: 在 home-ops 仓库中为 k3s 集群新增服务的完整流程：�
 
 ### 2. 提交审查
 
-代码编写完成后由用户审查确认，再提交合并
+代码编写完成后停在工作区，等用户审查同意再提交并提 PR
 
 ### 3. 部署观测
 

@@ -3,8 +3,6 @@
 ```bash
 # 需本机已安装 talosctl（本仓库 mise 未纳入）
 
-talosctl gen config talos-proxmox-cluster https://$CONTROL_PLANE_IP:6443 --output-dir _out
-
 # 镜像 Schematic ID 与版本按需通过 Talos Image Factory (https://factory.talos.dev) 生成
 export TALOS_VERSION="<TALOS_VERSION>"
 export TALOS_SCHEMATIC_ID="<TALOS_SCHEMATIC_ID>"

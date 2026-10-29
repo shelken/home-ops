@@ -8,8 +8,9 @@
 通过以下命令获取当前使用 `app-template` 且未声明 `serviceMonitor` 的服务清单：
 
 ```bash
-find k8s/apps/common -name "helmrelease.yaml" | xargs grep -l "app-template"
+find k8s/apps/common -name "helmrelease.yaml" | xargs grep -l "app-template" | xargs grep -L "serviceMonitor"
 ```
+
 ## 已配置 serviceMonitor 的服务
 
 | 服务 | 状态 |
@@ -20,8 +21,8 @@ find k8s/apps/common -name "helmrelease.yaml" | xargs grep -l "app-template"
 
 | 服务 | 说明 | Metrics 端口/路径 |
 |------|------|-------------------|
-| **immich-server** | 已声明 metrics 端口，启用了 `IMMICH_METRICS_INCLUDE: all` | 8081 |
-| **vaultwarden** | anubis 组件暴露了 `METRICS_BIND: ":8924"` | 8924 |
+| ~~**immich-server**~~ | 已在 `k8s/apps/common/immich/` 落地配置 | 8081 |
+| ~~**vaultwarden**~~ | 已在 `k8s/components/anubis/helmrelease.yaml` 落地配置 | 8924 |
 
 ### 配置示例
 

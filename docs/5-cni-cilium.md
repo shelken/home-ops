@@ -12,21 +12,15 @@
 因 k3s 禁用了内置 Flannel 与 kube-proxy，集群引导初期需先安装 Cilium 为 Pod 提供网络，随后交付 Flux 接管：
 
 ```bash
-# 与 bootstrap/helmfile.yaml 及 k8s/infra/common/kube-system/cilium/app/ocirepository.yaml 保持一致
-CILIUM_VERSION=$(yq '.spec.ref.tag' k8s/infra/common/kube-system/cilium/app/ocirepository.yaml)
-
-helm install cilium oci://ghcr.io/home-operations/charts-mirror/cilium --version "$CILIUM_VERSION" --namespace kube-system -f k8s/infra/common/kube-system/cilium/app/values.yaml
-helm upgrade cilium oci://ghcr.io/home-operations/charts-mirror/cilium --version "$CILIUM_VERSION" --namespace kube-system -f k8s/infra/common/kube-system/cilium/app/values.yaml
+# 引导期只安装 Cilium：版本、chart 来源与 values 均统一取自 bootstrap/helmfile.yaml
+helmfile -f bootstrap/helmfile.yaml -l name=cilium sync
 
 cilium status --wait
 
-# 如果出现flux helmrrelease卡住(cilium升级)导致后面的kustomization无法执行
+# 若出现 Flux HelmRelease 卡住（Cilium 升级）导致后续 Kustomization 无法执行
 flux suspend hr cilium -n kube-system
 flux resume hr cilium -n kube-system
-#或者在 HelmReleases 中让这个无限尝试（当前 install.remediation.retries 已是 -1；upgrade 为 2）
-# install:
-#   remediation:
-#     retries: -1
+# 若仍反复卡住，可在 HelmRelease 中将 upgrade.remediation.retries 调整为 -1（当前为 2，install 已配置为 -1）
 ```
 
 ## IPAM 模式

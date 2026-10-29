@@ -8,7 +8,7 @@
 
 集群采用分层目录架构：`k8s/apps` 与 `k8s/infra` 分别由 `common`（跨集群复用声明）与集群名目录（如 `staging`）组成，`k8s/clusters/<集群名>` 提供 Flux 入口 Kustomization
 
-集群初始化统一执行 `task init`（自动完成 `task secret:bootstrap` 并通过 `helmfile -f bootstrap/helmfile.yaml sync` 部署 flux-operator 与 flux-instance）。以下 CLI `flux bootstrap` 仅保留作历史参考
+集群初始化统一执行 `task init`（自动完成 `task secret:bootstrap` 并通过 `helmfile -f bootstrap/helmfile.yaml sync` 部署 cilium、coredns、cert-manager、external-secrets、flux-operator 与 flux-instance 等自举组件）。以下 CLI `flux bootstrap` 仅保留作历史参考
 
 ```bash
 # 在 GitHub 创建当前仓库使用的 token

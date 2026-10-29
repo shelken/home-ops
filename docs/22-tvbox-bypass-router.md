@@ -51,7 +51,7 @@ if [ "$count" -eq 1 ]; then
     uci commit dhcp
 ```
 
-保持 WAN 与 WAN6 原样，不执行禁用。IP 默认来源为 `192.168.100.1`，支持通过 Workflow UI 自定义
+保持 WAN 与 WAN6 原样，不执行禁用。IP 默认来源为 `192.168.100.1`，支持通过 Workflow UI 自定义，写入目标文件的 `/etc/config/custom_router_ip.txt`
 
 ## daed / dae 专项配置
 
@@ -92,9 +92,7 @@ ophub 官方 ImageBuilder 的默认包列表里这些驱动已经带了。
 
 ## 固件升级
 
-通过 sysupgrade 或专用刷写工具升级固件。
-
-跨大版本（例如 25.x 升级至 24.10，涉及包管理器切换）时不保留旧配置
+跨大版本（如 25.x → 24.10，涉及 apk 与 opkg 切换）时不保留旧配置
 
 
 ## 升级后网络不通的恢复

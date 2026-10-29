@@ -15,7 +15,7 @@ description: 在 containers 仓库创建无后端轻量前端应用，并串起 
 
 1. 在 `containers` 仓库复制模板到 `apps/simple-<service-name>/`，应用名统一使用 `simple-` 前缀
 2. 清理模板占位内容，仅保留当前服务必需的代码、文案与配置
-3. 本地验证：执行 npm build、Docker build 与本地健康检查
+3. 本地验证：执行 npm run build、Docker build 与本地健康检查
 4. 启动本地 Docker 预览供人工确认，确认通过后再配置 home-ops
 5. 提交并推送 `containers` 仓库，等待 CI 构建镜像并产出摘要
 6. 在 `home-ops` 添加 GitOps 部署资源，注册到 `k8s/apps/common/simple-service/ks.yaml`，并确认 `k8s/apps/common/kustomization.yaml` 引用了 `simple-service/ks.yaml`（未引用时该组不会部署）

@@ -1,6 +1,6 @@
 # 跨地域节点互联架构（历史方案）
 
-> **状态：历史参考**。远程站点与中继路由已离线，相关 BGP 对等配置已清理。`yuuko-k8s` 节点已迁回局域网本地，当前与 `router-mine` 正常建立内网 eBGP 会话，Pod CIDR 统一纳入本地池管理
+> **状态：历史参考**。远程站点与中继路由已离线，相关 BGP 对等配置已在 `router/bird/mine.conf` 中注释（`home.conf` 保留为历史参考）。`yuuko-k8s` 节点已迁回局域网本地，当前与 `router-mine` 正常建立内网 eBGP 会话，Pod CIDR 统一纳入本地池管理
 
 本文档记录历史异地节点通过 ZeroTier 与 BGP 实现跨地域 Native Routing（原生路由）的架构设计
 

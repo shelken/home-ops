@@ -28,7 +28,7 @@ networks:
   macAddress: "52:55:55:37:34:56"
 ```
 
-固定 MAC 地址以确保 IP 稳定，并在 Lima 配置内显式绑定 IP
+固定 MAC 地址以确保 IP 稳定（寻址由 Lima 经 cloud-init 下发，见 ADR-0001）
 
 ## 数据盘配置
 
