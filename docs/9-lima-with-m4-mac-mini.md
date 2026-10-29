@@ -42,9 +42,10 @@ mkdir -p /Volumes/sakamoto-data/k8s/lima/_disks && ln -s /Volumes/sakamoto-data/
 limactl disk create longhorn --size 1024G
 ```
 
-在配置里加上
+在配置里加上（`format: false` 不可省：Lima 会把脏盘当未初始化盘做 mkfs，覆盖 Longhorn 数据，见 [postmortems/019](../postmortems/019-lima-dirty-disk-mkfs-destroys-longhorn.md)）
 
 ```yaml
 additionalDisks:
-  - "longhorn"
+  - name: "longhorn"
+    format: false
 ```

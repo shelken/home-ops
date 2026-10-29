@@ -16,7 +16,7 @@ description: Kubernetes 事故取证流程。Use when 服务离线但没告警�
 3. **查变更**：对齐 GitOps 期望、集群当前状态、最近提交/PR/Release。完成标准：能说明“本地工作区、Git、集群”三者是否一致。
 4. **查历史**：历史日志优先 Victoria Logs；`kubectl logs` 只补当前/previous 容器细节。完成标准：跨 Pod/跨时间窗统计来自持久日志，而不是只看当前 Pod。
 5. **跑六段**：探测 → 采集 → 规则 → 路由 → 通知 → 外部网络旁路。完成标准：断点落在一个明确段，且能说明为什么不是其它段。
-6. **写发现**：如果仓库有 `docs/DISCOVERY.md`，每个新事实先查是否已记录；没有就追加。完成标准：重要证据不只留在对话里。
+6. **写发现**：如果仓库根目录有 `DISCOVERY.md`，每个新事实先查是否已记录；没有就追加。完成标准：重要证据不只留在对话里。
 7. **给结论**：输出时间线、断点、排除项、下一步；需要变更时只给 GitOps/声明式方案，不执行 `kubectl apply`。
 
 ## Workflows
@@ -79,7 +79,7 @@ description: Kubernetes 事故取证流程。Use when 服务离线但没告警�
 涉及外部 API 超时、`router-dns-proxy`、家宽出口、代理 DNS、Wi‑Fi 中继时，补这条旁路线。
 
 - 普通公网 RTT 正常，不代表代理 DNS 正常；DNS、代理、出口要拆开测。
-- `53` 正常、`15355` 正常，不代表 `15353` 正常。
+- 路由器 dnsmasq 的 `53` 正常，不代表它转给集群 k8s-gateway 的主域/内部域解析正常；两层要分开测。
 - 集群内 HTTP/ICMP 正常，但外部域名/DNS 慢时，优先查路由器、代理 DNS、上游 DNS、WAN/WWAN。
 
 ## Output format
@@ -91,7 +91,7 @@ description: Kubernetes 事故取证流程。Use when 服务离线但没告警�
 - 最近变更判断：有无关联、是否建议 GitOps 回退或声明式修复。
 - 证据命令与关键输出。
 - “为什么不是其它段”的排除依据。
-- 已更新或需要更新的 `docs/DISCOVERY.md` / postmortem 记录。
+- 已更新或需要更新的根目录 `DISCOVERY.md` / postmortem 记录。
 - 如涉及路由器/出口，单独说明是基础出网、DNS、代理 DNS 还是无线链路问题。
 
 ## Advanced

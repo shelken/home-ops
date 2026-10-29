@@ -281,7 +281,7 @@ kubectl -n network logs deploy/zte-mifi-healer --since=24h
 .agents/skills/k8s-incident-analysis/scripts/router-network-snapshot.sh <ROUTER_HOST>
 ```
 
-可选环境变量：`WWAN_GW` `WAN_GW` `TEST_IP` `PROXY_DOMAIN` `DIRECT_DOMAIN` `UPSTREAM_DNS`。
+可选环境变量：`WWAN_IF` `WAN_IF` `WWAN_GW` `WAN_GW` `TEST_IP` `PROXY_DOMAIN` `DIRECT_DOMAIN` `UPSTREAM_DNS`。
 
 ### 7.2 监控链路日志汇总
 
@@ -353,7 +353,7 @@ ssh <ROUTER_HOST> 'ls -la /etc/dnsmasq-home-ops.d; cat /etc/dnsmasq-home-ops.d/*
 - UCI `confdir` 应保持未设置；`/etc/dnsmasq.conf` 的接入点额外加载专用目录
 - LuCI/UCI 和手工配置应保留；home-ops 只完整管理 `/etc/dnsmasq-home-ops.d`
 - k8s-gateway 不可用时，集群服务名称无法解析
-- 专用目录中的 `int.hosts` 不依赖集群，集群挂了仍应能解析
+- 专用目录中的 `30-bootstrap.conf` 用 `local=`/`address=` 本地权威应答集群外自举记录，不依赖集群，集群挂了仍应能解析
 
 分流规则与自举记录见 `docs/router/dns.md`；后端与所有权决策见 `docs/adr/0003-internal-dns-via-gateway.md`。
 
@@ -370,7 +370,7 @@ ssh <ROUTER_HOST> 'ls -la /etc/dnsmasq-home-ops.d; cat /etc/dnsmasq-home-ops.d/*
 
 1. `ping <WWAN_GW>` 正常，但 `<WWAN_GW>` 的 DNS 固定慢：上游路由器 DNS 差。
 2. `ping <WWAN_GW>` 自己就抖，同时有 `BEACON-LOSS`：无线中继链路差。
-3. 普通 RTT 正常，但本地 `127.0.0.1` 查代理域名慢：本地代理 DNS 栈或其上游慢。
+3. 普通 RTT 正常，但本地 `127.0.0.1` 查代理域名慢：dnsmasq 上游解析路径（含旁路由 dae 的 DNS 分流）慢，不是基础出网慢。
 4. `wwan` 比 `wan` 普通 RTT 更低，不代表它的上游 DNS 更好；基础出网与 DNS 质量要分开判断。
 
 ## 8) Audit log / 手动操作追溯

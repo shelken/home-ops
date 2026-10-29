@@ -4,7 +4,7 @@
 
 > 目前限制：目前集群单栈ipv4 无法direct（通过ipv6）
 >
-> 可尝试使用proxyclass来定义创建的资源，为class加上multus
+> 处理方式：用 proxyclass 定义创建的资源，为 class 加上 multus（已落地在 `k8s/infra/common/network/tailscale/proxy/`，ipv6 网卡定义见 `k8s/infra/common/network/multus/networks/ipv6.yaml`）
 
 - [文档](https://github.com/tailscale/tailscale/tree/main/docs/k8s)
 - [文档](https://tailscale.com/kb/1282/docker)

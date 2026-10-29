@@ -279,9 +279,9 @@ graph LR
 - **集群内权威**：`k8s-gateway` 根据 HTTPRoute、Service 与 Ingress 动态应答
 - **主域未命中记录**：由 `k8s-gateway` 转发到公网递归
 - **内部域未命中记录**：由 `k8s-gateway` 直接在内存返回 NXDOMAIN/NODATA，不向外递归也不回踢路由器（消除转发死循环）
-- **集群外自举**：`router/dnsmasq/dnsmasq-int.hosts` 下发到 home-ops 专用目录，
-  由同目录的 `20-hosts.conf` 加载
-- **路由器分流**：`router/dnsmasq/conf.d/` 与自举 hosts 统一下发到
+- **集群外自举**：`router/dnsmasq/conf.d/30-bootstrap.conf.tpl` 下发为 home-ops 专用目录中的
+  `30-bootstrap.conf`，用 `address=` 与 `local=` 对记录名本地权威应答（A 与 AAAA 都不转发）
+- **路由器分流**：`router/dnsmasq/conf.d/` 下的配置统一下发到
   `/etc/dnsmasq-home-ops.d`，`/etc/dnsmasq.conf` 中的机器级接入点加载该目录
 - **OpenWrt 所有权**：UCI `confdir` 保持未设置，默认临时目录及 LuCI/UCI 手工配置继续生效
 
@@ -314,11 +314,11 @@ ssh <ROUTER> 'cat /etc/dnsmasq-home-ops.d/*'
 
   | 客户端 | 路径 |
   |---|---|
-  | LAN 设备、VPS | 路由器或 VPS 的 dnsmasq → k8s-gateway；集群外自举名称为路由器 `int.hosts` 的精确记录 |
+  | LAN 设备、VPS | 路由器或 VPS 的 dnsmasq → k8s-gateway；集群外自举名称为路由器 `30-bootstrap.conf` 中的 `address=` 记录 |
   | K8s 节点 | 经旁路由 dae 转回主路由，见 [ADR-0004](adr/0004-k8s-node-dns-daed-routing.md) |
   | SFM 客户端 | 由 proxy 仓库的 sing-box 配置在本地静态应答，不依赖家庭 DNS，见 [proxy #46](https://github.com/shelken/proxy/issues/46) |
 
-- **入口 IP 变化**：路由器 `int.hosts` 与各客户端的静态应答要同时更新，否则两侧指向不同入口
+- **入口 IP 变化**：路由器 `30-bootstrap.conf` 与各客户端的静态应答要同时更新，否则两侧指向不同入口
 
 ### 入口一览
 
@@ -358,10 +358,8 @@ graph TB
 
     subgraph CLUSTER["集群"]
         Envoy["envoy-external"]
-        Envoy_CPA["envoy-external（CPA SNI）"]
     end
 
-    Caddy -->|"cpa"| Envoy_CPA
     Caddy -->|"*（默认）"| Envoy
     Caddy --> mosdns
     Caddy --> subconv
@@ -373,7 +371,6 @@ graph TB
 | 域名 | 路由目标 | 说明 |
 |------|---------|------|
 | `*`（默认） | → Tailscale → envoy-external | 大部分服务 |
-| `cpa` | → Tailscale → envoy-external（CPA SNI） | CPA 协议专用 |
 | `sub` | → 本地 sub-converter:25500 | 订阅转换 |
 | `subs` | → 本地 sbtools-server:8080 | 配置交付服务 |
 | `derp` | → 宿主机 :8666（Caddy 经 172.20.0.1 回打） | Tailscale 中继 |
@@ -489,7 +486,7 @@ graph TB
 | 链路 | 备份源 | 存储后端 | 目标 | 调度 |
 |------|--------|---------|------|------|
 | k8s PVC（本地） | Longhorn VolumeSnapshot | Kopiur（Kopia mover）→ RustFS (宿主机 S3, bucket kopiur) | 宿主机本地 | 每小时 |
-| k8s PVC（云端副本） | 本地仓库 `sakamoto` 的最新快照 | Kopiur SnapshotReplication（`kopia snapshot migrate`）→ OpenList (集群 S3, bucket kopia, prefix kopiur/) | 189 云盘 | 每天 |
+| k8s PVC（云端副本） | 本地仓库 `sakamoto` 的最新快照 | Kopiur SnapshotReplication（`kopia snapshot migrate`）→ ClusterRepository `yun139`（WebDAV → 集群 OpenList `/dav/kopiur`） | 189 云盘 | 每天 |
 | PostgreSQL | CNPG 集群 | Barman → RustFS (宿主机 S3) | 189 云盘 | 按 WAL 归档 |
 | 宿主机 RustFS | RustFS 数据（不含 kopiur 桶） | Kopia → OpenList (集群 S3) | 189 云盘 | 每天 03:30 |
 | 宿主机 Compose | Compose 数据 | Kopia → OpenList (集群 S3) | 189 云盘 | 1 小时 |

@@ -16,6 +16,7 @@ LB IP range: `192.168.69.0/24`
 | immich-db              | `192.168.69.56` | Immich 数据库             |        |
 | seafile-db             | `192.168.69.57` | Seafile 数据库            |        |
 | mosquitto              | `192.168.69.59` | MQTT 服务                 |        |
+| cli-proxy-api          | `192.168.69.60` | CLI Proxy API 服务        |        |
 | victoria-logs          | `192.168.69.66` | 接收外部设备日志          |        |
 | crowdsec               | `192.168.69.67` | 外部 agent / bouncer 连接 |        |
 

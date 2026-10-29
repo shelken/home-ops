@@ -15,10 +15,11 @@ services:
       - '--web.listen-address=0.0.0.0:9100'
       - >-
         --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
-    image: quay.io/prometheus/node-exporter:v1.9.1
-    network_mode: host
+    image: prom/node-exporter:v1.12.1
+    networks:
+      - homelab
     ports:
-      - '9100:9100'
+      - '${DEPLOY_HOST}:9100:9100/tcp'
     restart: always
     volumes:
       - /:/host/root:ro

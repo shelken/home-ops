@@ -158,9 +158,9 @@ Pod 未就绪时检查日志定位问题。
 ### 关键细节
 
 - **Flux postBuild.substitute 与配置文件 `${}` 冲突** — 当配置文件的 `${ENV_VAR}` 被 Flux 提前替换时（因为 Flux 在构建阶段对所有 YAML 做 `${VAR}` 替换），有两种解法：
-  - **`kustomize.toolkit.fluxcd.io/substitute: disabled`** 注解：加在 ks.yaml 的 metadata.annotations 上，禁用整个 Kustomization 的变量替换。代价是所有 `${VAR}`（包括 `${TIMEZONE}` 等）都失效，需在 HelmRelease 中用 YAML anchor 或硬编码替代。
-  - **`$$` 转义**：在 YAML 值里用 `$${VAR}`，kustomize 输出时转成 `${VAR}`，运行时程序自己解析。不影响 Kustomization 其他 `${VAR}` 的替换。这个 Kustomization 还用到 `${TIMEZONE}` 等其他变量时优先用这种方式。
-  选择原则：Kustomization 没有其他 `${VAR}` 依赖 → 用 annotation；还有其他 `${VAR}` 依赖 → 用 `$$` 转义。
+  - **`kustomize.toolkit.fluxcd.io/substitute: disabled`**：资源级排除，Flux 只跳过带该注解的资源。配置文件走 ConfigMap 时写在 `kustomization.yaml` 的 `generatorOptions.annotations` 上（如 gatus、go2rtc、caddy-external），其余资源的 `${VAR}` 照常替换。
+  - **`$$` 转义**：在 YAML 值里用 `$${VAR}`，kustomize 输出时转成 `${VAR}`，运行时程序自己解析。不影响 Kustomization 其他 `${VAR}` 的替换。这个 Kustomization 还用到 `${TIMEZONE}` 等其他变量时优先用这种方式（如 crowdsec、ss-rust）。
+  需要整个 Kustomization 都拿不到 postBuild 变量时，才在 ks.yaml 的 metadata.labels 加 `substitution.flux/disabled: "true"`，集群层 patch 按该标签跳过变量注入（见 `docs/ARCHITECTURE.md` §8）。
 - **多个 ExternalSecret 写同一个 target Secret** → 不接受。改成用一个 ExternalSecret 合并多个 `extract`（如 authelia 同时 extract `authelia` + `mail` + `cloudnative-pg`）。
 - **Bootstrap 阶段的 azure:// 占位符** — 只剩 `azure-creds` 一处，用于 bootstrap 阶段（先有鸡蛋问题），与服务无关，不需要关心。服务的 secret 一律写 BWS。
 

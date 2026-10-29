@@ -26,7 +26,7 @@ task secret:bootstrap # 初始化集群所需的 secret
 
 ## Bitwarden Secrets Manager
 
-集群内所有 ExternalSecret 与 PushSecret 都使用 ClusterSecretStore `bitwarden-store`，数据源是 BWS 项目，进度见 [#1666](https://github.com/shelken/home-ops/issues/1666)。`azure-store` 仍保留，但集群内已无使用者；Azure KeyVault 只剩 `azure-creds` 和它的轮换任务。bootstrap 与 compose 模板也都读 BWS（`azure-creds` 除外），运维命令写入的同样是 BWS
+集群内所有 ExternalSecret 与 PushSecret 都使用 ClusterSecretStore `bitwarden-store`，数据源是 BWS 项目。迁移已完成（[#1666](https://github.com/shelken/home-ops/issues/1666) 已关闭），剩余收尾（删除 `azure-store`、`azure-creds` 与 Key Vault 相关内容）见 [#1675](https://github.com/shelken/home-ops/issues/1675)。`azure-store` 仍保留，但集群内已无使用者；Azure KeyVault 只剩 `azure-creds` 和它的轮换任务。bootstrap 与 compose 模板也都读 BWS（`azure-creds` 除外），运维命令写入的同样是 BWS
 
 BWS provider 与 Azure 的差异，写 ExternalSecret 时要遵守：
 

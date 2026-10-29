@@ -3,7 +3,7 @@
 集群卷备份使用 [Kopiur](https://github.com/home-operations/kopiur) + Kopia：
 
 - 本地仓库 `sakamoto`：集群外 RustFS 的 `kopiur` 桶，每小时一次，供细粒度回滚
-- 云端仓库 `cloud-openlist`：集群内 OpenList S3 的 `kopia` 桶 `kopiur/` 前缀，由集群级 SnapshotReplication 每天复制本地快照
+- 云端仓库 `yun139`：OpenList 暴露的 139 网盘 WebDAV（`/dav/kopiur`），由集群级 SnapshotReplication `sakamoto-to-cloud` 每天复制本地快照；旧的 `cloud-openlist`（OpenList S3 的 `kopia` 桶 `kopiur/` 前缀）已改为 `mode: ReadOnly` 且停用维护，不再是复制目标
 
 取舍见 [ADR-0008](adr/0008-kopiur-cloud-snapshotreplication.md)
 
@@ -45,7 +45,7 @@ spec:
 
 ## 云端副本
 
-集群级单一资源 `k8s/infra/common/kopiur-system/kopiur/repository-cloud/snapshotreplication.yaml`，源 `sakamoto`，目标 `cloud-openlist`。`task kopiur:replicate` 手动触发，绕过每日窗口，成功后顺延下一个自动窗口
+集群级单一资源 `k8s/infra/common/kopiur-system/kopiur/replication/snapshotreplication.yaml`（`sakamoto-to-cloud`），源 `sakamoto`，目标 `yun139`。`task kopiur:replicate` 手动触发，绕过每日窗口，成功后顺延下一个自动窗口
 
 ## 恢复
 
@@ -55,7 +55,7 @@ spec:
 
 ### 本地仓库不可用时切到云端
 
-没有 `${APP}-cloud` 策略可切。在该应用的 `ks.yaml` 里给 `Restore` 打补丁，数据源指向 `cloud-openlist`：`source.identity` 用 `应用名@命名空间:/pvc/应用名`，并显式给 `spec.repository`；`policy.onMissingSnapshot` 改 `Fail`，否则身份没匹配上会建出空卷；选择器只按 `kind: Restore` 写，Flux 先构建后替换 `${APP}`，按 `name` 选不中
+没有 `${APP}-cloud` 策略可切。在该应用的 `ks.yaml` 里给 `Restore` 打补丁，数据源指向 `yun139`：`source.identity` 用 `应用名@命名空间:/pvc/应用名`，并显式给 `spec.repository`；`policy.onMissingSnapshot` 改 `Fail`，否则身份没匹配上会建出空卷；选择器只按 `kind: Restore` 写，Flux 先构建后替换 `${APP}`，按 `name` 选不中
 
 同时把 `kopiur-repository` 的 `wait` 改成 `false`，本地仓库恢复后 revert
 
@@ -75,7 +75,7 @@ task kopiur:snapshots           # 全量
 task kopiur:snapshots APP=plex  # 按应用过滤
 ```
 
-或访问 Kopia WebUI：`https://kopia.<DOMAIN>`，它同样只连接本地仓库
+或访问 Kopia WebUI：`https://kopia.<INTERNAL_DOMAIN>`（HTTPRoute 挂在 envoy-internal 上），它同样只连接本地仓库
 
 云端仓库（副本都在 `kopiur-system`）：
 

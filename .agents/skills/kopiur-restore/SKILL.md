@@ -32,7 +32,7 @@ kubectl get ks infra apps -n flux-system
 
 ## 步骤
 
-1. 确认有快照：本地策略 `${APP}`，云端策略 `${APP}-cloud`
+1. 确认有快照：本地仓库策略 `${APP}`（云端副本由集群级 `SnapshotReplication` `sakamoto-to-cloud` 推到云端仓库，已没有各应用的 `${APP}-cloud` 策略）
 
    ```bash
    kubectl get snapshots.kopiur.home-operations.com -n <ns> \

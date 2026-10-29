@@ -5,7 +5,7 @@
 参考来源：
 
 - bjw-s-labs 组件：https://github.com/bjw-s-labs/home-ops/tree/main/kubernetes/components/anubis
-- Anubis v1.25.0 默认 policy：https://github.com/TecharoHQ/anubis/blob/v1.25.0/data/meta/default-config.yaml
+- Anubis v1.28.2 默认 policy：https://github.com/TecharoHQ/anubis/blob/v1.28.2/data/meta/default-config.yaml
 
 ## 参考仓库有、本仓库已补齐的配置
 
@@ -44,7 +44,7 @@ bots:
 
 ### 与 Anubis 官方默认 policy 的差别
 
-官方 v1.25.0 默认 policy 等价于只导入：
+官方 v1.28.2 默认 policy 等价于只导入：
 
 ```yaml
 bots:

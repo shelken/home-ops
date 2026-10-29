@@ -53,7 +53,7 @@ rlimit-nproc=3
 | :--- | :--- | :--- |
 | `allow-interfaces` | `br-lan.6,br-lan.50` | 只在这两个 VLAN 接口上监听和广播 |
 | `enable-reflector` | `yes` | 启用 mDNS 反射，跨接口转发服务发现 |
-| `reflect-ipv` | `no` | 不修改反射记录的 IP 版本 |
+| `reflect-ipv` | `no` | 不在 IPv4 与 IPv6 之间转发 mDNS（跨协议反射） |
 | `check-response-ttl` | `no` | 必须 no ，否则go2rtc不知道为何无法反射 |
 
 ## 服务管理

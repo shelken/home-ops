@@ -7,11 +7,11 @@
 # 进入仓库根目录后 mise 自动提供 flux
 ```
 
-创建staging cluster，分别创建infra和apps目录，按照官方的目录结构，apps中分为base和对应cluster名字。infra中分为controllers和configs。cluster则根据实际集群名。
+创建staging cluster。按官方目录结构：`k8s/apps` 与 `k8s/infra` 各分 `common`（所有集群共用）和集群名目录（`staging`），`k8s/clusters/<集群名>` 放该集群的 Kustomization 入口。
 
 在cluster例如staging，分别引用apps和infra的资源路径。
 
-然后使用flux bootstrap，引用对应repo。
+初始化改走 `task init`（`task secret:bootstrap` + `helmfile -f bootstrap/helmfile.yaml sync`，装 flux-operator 与 flux-instance）。以下 `flux bootstrap` 为存档步骤，可能过时。
 
 ```bash
 # 在 GitHub 创建当前仓库使用的 token
@@ -28,8 +28,8 @@ flux bootstrap github \
 # 如果使用 SSH，可以带上 --private-key-file=<SSH_PRIVATE_KEY_PATH> 参数，去掉 token-auth
 # --private 如果是私有仓库的话加上
 
-# 将sops-secret放过去
-task deploy-secret
+# 将 sops-age / git-token-auth 等 bootstrap secret 放过去（见 bootstrap/resources.yaml）
+task secret:bootstrap
 
 ```
 

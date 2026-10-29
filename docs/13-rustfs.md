@@ -15,7 +15,7 @@
 |---|---|---|
 | `cloudnative-pg` | CloudNative-PG (`postgres` / `immich-db`) | 生产主库与应用库的物理全量备份与实时 WAL 归档流 |
 | `kopiur` | Kopiur 集群卷备份 | 集群 PVC 的每小时本地快照仓库（基于 Kopia pack 存储） |
-| `kopia-backup` | 宿主机本地与云端备份 | 历史归档仓库桶 |
+| `kopia-backup` | `task kopia:migrate-*` 冷迁移 | 旧集群卷备份仓库桶，现仅作冷迁移源 |
 | `test` | 接口测试与探针验证 | 作为 S3 协议连通性与写入功能验收基准 |
 
 ---

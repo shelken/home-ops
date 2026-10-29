@@ -58,7 +58,7 @@ qm create $TEMPLATE_ID \
   --serial0 socket \
   --ciuser "$TEMPLATE_CI_USER" \
   --cipassword $(openssl passwd -5 "$TEMPLATE_CI_PASS") \
-  --ciupgrade: 0 \
+  --ciupgrade 0 \
   --sshkeys <(echo "$SSH_PUBLIC_KEY")
 
 ```
@@ -83,7 +83,7 @@ qm template $TEMPLATE_ID
 ```bash
 export CURRENT_VM_ID=110
 
-# 克隆 1002 模板 成新的110实例
+# 克隆模板（$TEMPLATE_ID=1800）成新的110实例
 qm clone $TEMPLATE_ID $CURRENT_VM_ID --name "homelab-$CURRENT_VM_ID"
 
 # 静态ip
