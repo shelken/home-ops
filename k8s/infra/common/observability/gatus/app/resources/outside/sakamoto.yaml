@@ -25,11 +25,11 @@ endpoints:
     name: sakamoto-caddy
     url: "tcp://sakamoto.lan:443"
   - <<: *common-mirror
-    name: minio-local
+    name: rustfs-local
     url: "tcp://sakamoto.lan:9000"
-  - name: minio-domain
+  - name: rustfs-domain
     group: sakamoto
-    url: https://minio.${INTERNAL_DOMAIN}/minio/health/live
+    url: https://rustfs.${INTERNAL_DOMAIN}/health/ready
     interval: 1m
     ui:
       hide-hostname: true
