@@ -89,6 +89,7 @@ services:
     environment:
       TZ: Asia/Shanghai
       MAIN_DOMAIN: ${MAIN_DOMAIN}
+      GODEBUG: multipathtcp=0
       CLOUDFLARE_API_TOKEN: ${CADDY_CLOUDFLARE_API_TOKEN}
       CROWDSEC_LOCAL_API_URL: ${CROWDSEC_LOCAL_API_URL}
       CROWDSEC_CADDY_BOUNCER_API_KEY: ${CROWDSEC_CADDY_BOUNCER_API_KEY}
@@ -110,6 +111,8 @@ services:
       nofile:
         soft: 65536
         hard: 65536
+    sysctls:
+      net.mptcp.enabled: "0"
     deploy:
       replicas: 1
 

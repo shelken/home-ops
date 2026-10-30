@@ -97,6 +97,7 @@ spec:
             env:
               TZ: ${TIMEZONE}
               MAIN_DOMAIN: ${MAIN_DOMAIN}
+              GODEBUG: multipathtcp=0
               CROWDSEC_API_KEY:
                 valueFrom:
                   secretKeyRef:
