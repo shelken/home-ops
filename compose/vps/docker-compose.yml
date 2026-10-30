@@ -229,7 +229,7 @@ services:
 
   fluent-bit:
     # :latest 配 deploy 的 pull --policy missing 会冻结成未知快照，固定为与集群 chart appVersion 一致的版本
-    image: ghcr.io/fluent/fluent-bit:5.1.3
+    image: ghcr.io/fluent/fluent-bit:5.1.5
     container_name: fluent-bit
     networks:
       - homelab
