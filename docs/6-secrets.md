@@ -12,11 +12,10 @@ task secret:bootstrap    # 渲染并应用集群自举所需 Secret
 
 ## 初始化所需 Secret
 
-`task secret:bootstrap` 会根据 [`bootstrap/resources.yaml`](../bootstrap/resources.yaml) 创建集群引导阶段需要的 namespace 和 K8s Secret。外部密钥值由 [`scripts/secret-inject.py`](../scripts/secret-inject.py) 按占位符渲染：除 `azure-creds` 用 `azure://` 从 Azure KeyVault 读取外，其余都用 `bws://` 从 Bitwarden Secrets Manager 读取。渲染脚本两种占位符都支持，可在同一个文件中混用，所以执行 `task secret:bootstrap` 时 `az` 登录和 BWS 环境变量都要就绪
+`task secret:bootstrap` 会根据 [`bootstrap/resources.yaml`](../bootstrap/resources.yaml) 创建集群引导阶段需要的 namespace 和 K8s Secret。外部密钥值由 [`scripts/secret-inject.py`](../scripts/secret-inject.py) 按 `bws://` 占位符从 Bitwarden Secrets Manager 读取。执行前必须配置 `BWS_ACCESS_TOKEN`，并通过 mise 注入 `BWS_PROJECT_ID`
 
 | 外部 secret key | 集群内资源 | 用途 | 备注 |
 |-----------------|------------|------|------|
-| `azure-creds` | `external-secrets/azure-creds` | External Secrets 访问 Azure KeyVault | 唯一仍读 Azure KeyVault 的 bootstrap 项；`azure-store` 保留，轮换见下文 |
 | `bitwarden-access-token` | `external-secrets/bitwarden-access-token` | External Secrets 访问 Bitwarden Secrets Manager | 值取自 BWS 中同名 secret（`bws://bitwarden-access-token`），集群内 key 为 `token`，供 `bitwarden-store` 认证使用 |
 | `flux-instance` | `flux-system/git-token-auth` | Flux instance 拉取 Git 仓库 | `flux-instance` 是 BWS secret 名；集群内 Secret 名是 `git-token-auth` |
 | `sops` | `flux-system/sops-age` | Flux 解密 SOPS 加密资源 | `sops` 是 BWS secret 名；集群内 Secret 名是 `sops-age` |
@@ -24,13 +23,13 @@ task secret:bootstrap    # 渲染并应用集群自举所需 Secret
 
 ## Bitwarden Secrets Manager
 
-集群内所有 ExternalSecret 与 PushSecret 都使用 ClusterSecretStore `bitwarden-store`，数据源是 BWS 项目。迁移已完成（[#1666](https://github.com/shelken/home-ops/issues/1666) 已关闭），剩余收尾（删除 `azure-store`、`azure-creds` 与 Key Vault 相关内容）见 [#1675](https://github.com/shelken/home-ops/issues/1675)。`azure-store` 仍保留，但集群内已无使用者；Azure KeyVault 只剩 `azure-creds` 和它的轮换任务。bootstrap 与 compose 模板也都读 BWS（`azure-creds` 除外），运维命令写入的同样是 BWS
+集群内所有 ExternalSecret 与 PushSecret 都使用 ClusterSecretStore `bitwarden-store`，数据源是 BWS 项目。bootstrap、compose 模板和 `task secret:*` 的读写也使用 BWS。仓库不再提供 Azure Key Vault 的 store、bootstrap 凭据或轮换任务
 
-BWS provider 与 Azure 的行为差异：
+BWS provider 的使用约束：
 
 - `remoteRef.key` 为 secret 名；`property` 与 `version` 会被忽略，取到的始终为整段值。若需消费 JSON 字段，使用 `dataFrom.extract` 提取整个 JSON，再通过 `target.template.data` 映射
 - 不支持 `dataFrom.find`
-- `bitwarden-store` 处于 Ready 仅说明 provider 连接正常，可用性以具体 ExternalSecret 同步成功为准
+- `bitwarden-store` 处于 Ready 只说明 store 校验通过，实际可用性以具体 ExternalSecret 同步成功为准
 - 单一项目内出现同名 secret 会导致 ESO 报错
 
 渲染脚本 `scripts/secret-inject.py` 约定：
@@ -62,107 +61,16 @@ task secret:delete [key=<name>]                   # 不带 key 时用 fzf 选择
 
 > [doc](https://external-secrets.io/latest/introduction/overview/)
 > [quick-start](https://external-secrets.io/latest/introduction/getting-started)
-> [azure-key-vault](https://external-secrets.io/latest/provider/azure-key-vault/)
+> [Bitwarden Secrets Manager provider](https://external-secrets.io/latest/provider/bitwarden-secrets-manager/)
 
-### azure-creds 轮换
+## Azure 资源保留范围
 
-`azure-creds` 是 External Secrets 访问 Azure KeyVault 的 bootstrap 凭据，KeyVault 中保存 JSON：`ClientID` 和 `ClientSecret`。它是唯一仍存放在 KeyVault 的 secret，`azure-creds-list` 与 `azure-creds-rotate` 是仅针对 Azure 的任务，其余 `task secret:*` 读写的都是 BWS。Azure App client secret 不能原地续期；正确流程是新增 credential、写回 KeyVault、同步 bootstrap Secret、重启 ESO，确认正常后删除旧 credential。
+仓库收尾只删除闲置的 Azure 声明、注入支持和运维工具。合并后，Flux 会回收 `azure-store` Kustomization、ClusterSecretStore 和原 Azure PrometheusRule；通用同步失败告警保留在 BWS 规则文件中
 
-同一个 Azure App 只轮换 credential 时不需要重新分配 RBAC；原来的 Service Principal 角色仍然有效。只有新建 App/SP 时，才需要重新执行 KeyVault RBAC 分配。
+以下资源不随本次 PR 删除：
 
-```bash
-task secret:azure-creds-list
+- Azure Key Vault 及其中的 secret，包括 `azure-creds`
+- Azure App、credential、Service Principal 和 Key Vault RBAC 授权
+- 集群中的 `external-secrets/azure-creds` Secret，由旧 bootstrap 创建，不在 Flux inventory 中，删除前必须单独确认
 
-# 会自动：新增 credential -> 写回 KeyVault -> task secret:bootstrap -> 重启 ESO -> 验证 ExternalSecret -> 删除旧 credential
-task secret:azure-creds-rotate years=1
-```
-
-
-### 历史初始化流程存档
-
-```bash
-az login
-
-# 创建 key vault 和资源组：
-# ref：https://azure.github.io/azure-workload-identity/docs/quick-start.html#3-create-an-azure-key-vault-and-secret
-
-# 查询自己的相关资源
-az account show --query tenantId # tenantId
-az group list --query "[].name" # resourceGroupName
-az group list # subscriptionId
-az keyvault list --query "[].name" # keyVaultName
-az keyvault list --query "[].id" # role assignment scope
-az keyvault show --name shelken-homelab --query location # key vault location
-az ad app list --display-name [your-app-name] --query "[].appId" # 查询相关app的appid
-az ad app list --query '[].{name: displayName, appid: appId}' # app 列表
-az ad signed-in-user show # 查看当前自己的id信息，方便分配角色
-
-# 创建新的 key vault
-az keyvault create --name $newVaultName --resource-group $resourceGroup --location $location
-
-# 创建一个app
-az ad app create --display-name [your-app-name] --query appId -o tsv
-
-# 根据app创建一个ServicePrincipal
-az ad sp create --id $appid
-
-# 上面两步可以简化成；create-for-rbac 会直接把client secret也一并生成。
-az ad sp create-for-rbac -n [your-app-name]
-
-
-# 仅读取： 给sp分配「Key Vault Secrets User」的角色
-az role assignment create \
-        --role "Key Vault Secrets User" \
-        --assignee $appid \
-        --scope $vaultScope
-
-# 读写： 给sp分配「Key Vault Secrets Officer」的角色
-az role assignment create \
-        --role "Key Vault Secrets Officer" \
-        --assignee $appid \
-        --scope $vaultScope
-
-# 分配自己，object-id
-az role assignment create --role "Key Vault Secrets Officer" --assignee-object-id $myObjectId --scope $scope
-
-# 查询sp被分配角色
-# az role assignment list --assignee $appid --all --output table
-
-# 查询sp的clientid（即appid）
-# az ad sp show --id $appid --query appId -o tsv
-
-# 生成一个client secret
-# NOTE: 如果使用create-for-rbac，那不需要重新生成。
-# 无论是sp还是app生成的client secret，都可以使用。建议直接用app命令
-az ad app credential reset \
-  --id <appId 或 app 的 objectId> \
-  --append \
-  --display-name "<描述用途的名字>" \
-  --years <有效年数> \
-  --query password \
-  -o tsv
-
-az ad sp credential reset \
-  --id <appId 或 app 的 objectId> \
-  --append \
-  --display-name "<描述用途的名字>" \
-  --years <有效年数> \
-  --query password \
-  -o tsv
-
-# 查询当前app生成的所有clientsecret
-az ad app credential list --id $appid
-
-# 删除不用的app
-az ad app delete --id [appid]
-
-```
-
-```bash
-# k8s 创建一个secret name=[azure-creds]
-kubectl create secret -n external-secrets generic azure-creds \
---from-literal=ClientID=XXXXX \
---from-literal=ClientSecret=XXXXX --dry-run=client -o yaml \
-| kubectl apply -f -
-
-```
+保留 Azure 云端资源用于后续人工清理，集群没有自动回退到 Azure 的配置。后续删除必须单独确认；BWS 切换后更新的值不会反向同步到 Azure，因此保留的数据不保证与 BWS 当前值一致

@@ -3,20 +3,11 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: external-secrets-azure-store-rules
+  name: external-secrets-rules
 spec:
   groups:
-    - name: external-secrets.azure-store.rules
+    - name: external-secrets.rules
       rules:
-        - alert: ExternalSecretsAzureStoreNotReady
-          expr: |
-            clustersecretstore_status_condition{name="azure-store", condition="Ready", status="False"} == 1
-          for: 5m
-          annotations:
-            summary: Azure KeyVault SecretStore 不可用
-            description: External Secrets 的 azure-store 处于 NotReady，可能导致依赖 KeyVault 的 Secret 无法同步。
-          labels:
-            severity: critical
         - alert: ExternalSecretsSyncErrors
           expr: |
             increase(controller_runtime_reconcile_errors_total{controller="externalsecret"}[10m]) > 0

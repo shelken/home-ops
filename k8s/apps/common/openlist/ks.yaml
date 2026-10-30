@@ -16,8 +16,6 @@ spec:
       ANUBIS_TARGET: http://openlist:80
       KOPIUR_CAPACITY: 5Gi
   dependsOn:
-    # - name: azure-store
-    #   namespace: external-secrets
     - name: kopiur-repository
       namespace: kopiur-system
   interval: 1h

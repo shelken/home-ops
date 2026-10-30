@@ -135,7 +135,7 @@ path: ./k8s/apps/common/aistudio-proxy-api/app
 
 - cilium
 - volsync
-- 如配置需要 ExternalSecret，再依赖 azure-store / external-secrets
+- 如配置需要 ExternalSecret，再依赖 bitwarden-store / external-secrets
 
 服务形态：
 

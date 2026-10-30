@@ -161,7 +161,7 @@ Pod 未就绪时检查 Pod Events 与容器日志定位问题
   - **`$$` 转义**：在 YAML 值里用 `$${VAR}`，kustomize 输出时转成 `${VAR}`，运行时程序自己解析。不影响 Kustomization 其他 `${VAR}` 的替换。该 Kustomization 仍需消费 `${TIMEZONE}` 等变量时优先采用此方式（如 crowdsec、ss-rust）
   需要整个 Kustomization 都跳过 postBuild 变量时，在 ks.yaml 的 metadata.labels 添加 `substitution.flux/disabled: "true"`，集群层 patch 按该标签跳过变量注入（见 `docs/ARCHITECTURE.md` §8）
 - **多个 ExternalSecret 写入同一目标 Secret**：使用单一 ExternalSecret 合并多个 `extract`（如 authelia 同时 extract `authelia`、`mail` 与 `cloudnative-pg`）
-- **Bootstrap 阶段的 azure:// 占位符**：仅保留 `azure-creds` 用于集群初次引导，普通服务密钥一律写入 BWS
+- **Bootstrap 阶段的占位符**：统一使用 `bws://<name>[/<json_key>]`，基础凭据来源见 `bootstrap/resources.yaml`
 
 ## Anti-patterns
 

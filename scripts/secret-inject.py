@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""渲染模板中的多来源占位符，裸写或 {{scheme://...}} 包裹均可。
+"""渲染模板中的 BWS 占位符，裸写或 {{bws://...}} 包裹均可。
 
 来源:
-  azure://<vault>/<secret>[/<json_key>]  Azure KeyVault，调用 az
-  bws://<name>[/<json_key>]              Bitwarden Secrets Manager，调用 bws，
-                                         需要环境变量 BWS_ACCESS_TOKEN、BWS_PROJECT_ID
+  bws://<name>[/<json_key>]  Bitwarden Secrets Manager，调用 bws，
+                            需要环境变量 BWS_ACCESS_TOKEN、BWS_PROJECT_ID
 
 用法:
   secret-inject.py print <file>    # 渲染到 stdout（管道场景，如 kubectl apply）
@@ -20,10 +19,9 @@ import re
 import subprocess
 import sys
 import tempfile
-from collections.abc import Callable
 from functools import cache
 from pathlib import Path
-from typing import NamedTuple, NoReturn
+from typing import NoReturn
 
 
 def die(msg: str) -> NoReturn:
@@ -38,17 +36,6 @@ def run(cmd: list[str], what: str) -> str:
         die(f"'{cmd[0]}' 未安装或不在 PATH 中")
     except subprocess.CalledProcessError as e:
         die(f"{what} 失败: {e.stderr.strip()}")
-
-
-@cache
-def fetch_azure(vault: str, secret: str) -> str:
-    print(f"获取: azure://{vault}/{secret}", file=sys.stderr)
-    out = run(
-        ["az", "keyvault", "secret", "show", "--vault-name", vault]
-        + ["--name", secret, "--query", "value", "-o", "tsv"],
-        f"az 获取 {vault}/{secret}",
-    )
-    return out.rstrip("\n")
 
 
 @cache
@@ -85,32 +72,10 @@ def fetch_bws(name: str) -> str:
     return matches[0]
 
 
-class Source(NamedTuple):
-    fetch: Callable[..., str]
-    # 定位符段数；其后的路径整体作为 json_key
-    locator_parts: int
-
-
-SOURCES: dict[str, Source] = {
-    "azure": Source(fetch_azure, 2),
-    "bws": Source(fetch_bws, 1),
-}
-
-_REF_HEAD = "(?:" + "|".join(map(re.escape, SOURCES)) + ")://"
-# 优先匹配 {{scheme://...}} 包裹形式，避免裸匹配在包裹形式内提前截断；捕获组含 scheme 前缀
+# 优先匹配包裹形式，避免裸匹配提前截断。
 PLACEHOLDER = re.compile(
-    r"\{\{(" + _REF_HEAD + r"[^{}]+)\}\}|(" + _REF_HEAD + r"[A-Za-z0-9._/-]+)"
+    r"\{\{(bws://[^{}]+)\}\}|(bws://[A-Za-z0-9._/-]+)"
 )
-
-
-def parse_ref(ref: str) -> tuple[str, tuple[str, ...], str | None]:
-    scheme, _, rest = ref.partition("://")
-    n = SOURCES[scheme].locator_parts
-    parts = rest.split("/", n)
-    if len(parts) < n:
-        die(f"占位符不完整: {ref}")
-    json_key = parts[n] if len(parts) > n else None
-    return scheme, tuple(parts[:n]), json_key
 
 
 def extract_json_key(label: str, value: str, json_key: str) -> str:
@@ -131,11 +96,11 @@ def extract_json_key(label: str, value: str, json_key: str) -> str:
 
 
 def resolve(ref: str) -> str:
-    scheme, locator, json_key = parse_ref(ref)
-    value = SOURCES[scheme].fetch(*locator)
-    if json_key is None:
+    name, separator, json_key = ref.removeprefix("bws://").partition("/")
+    value = fetch_bws(name)
+    if not separator:
         return value
-    return extract_json_key(f"{scheme}://{'/'.join(locator)}", value, json_key)
+    return extract_json_key(f"bws://{name}", value, json_key)
 
 
 def render_text(text: str) -> str:
