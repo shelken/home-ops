@@ -155,5 +155,14 @@
         commitMessageTopic: "{{{groupName}}} group",
       },
     },
+    {
+      description: "Fluent Bit Group",
+      groupName: "Fluent Bit",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/fluent-bit/"],
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
   ],
 }
