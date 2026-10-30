@@ -1,37 +1,3 @@
----
-# yaml-language-server: $schema=https://raw.githubusercontent.com/home-operations/kopiur/main/deploy/crds/clusterrepositories.yaml
-
-apiVersion: kopiur.home-operations.com/v1alpha1
-kind: ClusterRepository
-metadata:
-  name: cloud-openlist
-spec:
-  allowedNamespaces:
-    all: true
-  mode: ReadOnly
-  credentialProjection:
-    allowed: true
-  backend:
-    s3:
-      auth:
-        secretRef:
-          name: kopiur-repository-cloud-secret
-          namespace: kopiur-system
-      bucket: kopia
-      endpoint: openlist.default.svc.cluster.local:5246
-      prefix: kopiur/
-      tls:
-        disableTls: true
-  encryption:
-    passwordSecretRef:
-      name: kopiur-repository-cloud-secret
-      namespace: kopiur-system
-      key: KOPIA_PASSWORD
-  maintenance:
-    enabled: false
-  scheduleDefaults:
-    timezone: ${TIMEZONE}
----
 # yaml-language-server: $schema=https://raw.githubusercontent.com/home-operations/kopiur/main/deploy/crds/clusterrepositories.yaml
 apiVersion: kopiur.home-operations.com/v1alpha1
 kind: ClusterRepository
