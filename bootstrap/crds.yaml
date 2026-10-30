@@ -1,7 +1,7 @@
 ---
 # yaml-language-server: $schema=https://json.schemastore.org/helmfile
 
-# This helmfile is for extracting and installing Custom Resource Definitions (CRDs) from Helm charts.
+# task init-crd extracts all CRDs from the pinned Helm charts below.
 # It is not intended to be used with helmfile apply or helmfile sync.
 
 helmDefaults:
@@ -48,3 +48,8 @@ releases:
     namespace: database
     chart: oci://ghcr.io/cloudnative-pg/charts/plugin-barman-cloud
     version: 0.8.1
+
+  - name: dragonfly-operator
+    namespace: database
+    chart: oci://ghcr.io/dragonflydb/dragonfly-operator/helm/dragonfly-operator
+    version: v1.6.1
