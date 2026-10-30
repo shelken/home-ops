@@ -1,0 +1,19 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: external-secrets-rules
+spec:
+  groups:
+    - name: external-secrets.rules
+      rules:
+        - alert: ExternalSecretsSyncErrors
+          expr: |
+            increase(controller_runtime_reconcile_errors_total{controller="externalsecret"}[10m]) > 0
+          for: 10m
+          annotations:
+            summary: ExternalSecret 同步持续失败
+            description: External Secrets 在最近 10 分钟持续出现同步错误，请检查 ESO 日志和对应 ExternalSecret 状态。
+          labels:
+            severity: warning
