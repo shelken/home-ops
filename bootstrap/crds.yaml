@@ -52,4 +52,4 @@ releases:
   - name: dragonfly-operator
     namespace: database
     chart: oci://ghcr.io/dragonflydb/dragonfly-operator/helm/dragonfly-operator
-    version: v1.6.1
+    version: v1.7.1
