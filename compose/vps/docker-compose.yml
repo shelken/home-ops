@@ -231,6 +231,9 @@ services:
     networks:
       - homelab
     restart: always
+    command:
+      - "-c"
+      - "/fluent-bit/etc/fluent-bit.yaml"
     environment:
       TZ: Asia/Shanghai
       VICTORIA_LOGS_HOST: ${VICTORIA_LOGS_HOST}
@@ -238,9 +241,7 @@ services:
       HOSTNAME: vps-cc
     configs:
       - source: fluent_bit_config
-        target: /fluent-bit/etc/fluent-bit.conf
-      - source: fluent_bit_parsers
-        target: /fluent-bit/etc/parsers.conf
+        target: /fluent-bit/etc/fluent-bit.yaml
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /var/log/caddy:/var/log/caddy:ro
@@ -474,9 +475,7 @@ configs:
   dhp_mirror_config:
     file: ./configs/mirror-config.yaml
   fluent_bit_config:
-    file: ./configs/fluent-bit/fluent-bit.conf
-  fluent_bit_parsers:
-    file: ./configs/fluent-bit/parsers.conf
+    file: ./configs/fluent-bit/fluent-bit.yaml
   kopia_repository_config:
     file: ./configs/kopia/repository.config
   kopia_policy:
