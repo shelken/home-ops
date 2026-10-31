@@ -439,6 +439,42 @@ pre_eval:
 
 这些都会扩大安全豁免范围。
 
+## Caddy 层跳过 AppSec（WebDAV）
+
+v4、v6 入口的 Caddyfile 对 `drive` 域名的 `/dav` 不调用 `appsec`，`crowdsec` 的 IP decision 检查保留，其他路径照常检查：
+
+```text
+compose/vps/configs/caddy/Caddyfile
+k8s/infra/common/network/external/caddy-external/app/helmrelease.yaml
+```
+
+```caddyfile
+@waf not {
+  host drive.{$MAIN_DOMAIN}
+  path /dav /dav/*
+}
+route {
+  crowdsec
+  appsec @waf
+}
+```
+
+原因：
+
+- WebDAV `PROPFIND` 带 `text/xml` body，命中 CRS `901340`，这是开启 body 检查的控制规则，不是攻击特征
+- 单条 out-of-band 事件累计后生成 4h ban，封的是出口 IP，影响全部子域名
+- 按规则 ID 排除只覆盖一条规则，备份的二进制 PUT 仍会触发其他规则，也会碰到 AppSec 请求体上限，超限默认 drop
+- 该路径由 OpenList 做 Basic 认证，属于机器对机器流量，跳过 AppSec 的风险可接受
+
+新增类似的机器对机器路径时，沿用同一个具名 matcher，不要退回到全局 allowlist
+
+生效方式：
+
+- v6：ConfigMap 变更由 reloader 重启 `caddy-external`
+- v4：只改 Caddyfile 不会重建容器，需 `task compose:deploy:vps -- --force-recreate`，或在 VPS 上对 `caddy` 容器执行 `caddy reload`
+
+排查时先区分 401、403、429 和 ban，封禁不一定留下 access log，见 [postmortem 005](../postmortems/005-crowdsec-appsec-self-ban-vps-probes.md)
+
 ## 修改与部署流程
 
 ### 修改 VPS CrowdSec 配置
