@@ -136,6 +136,33 @@ sudo scutil --set LocalHostName "your-name"
 sudo killall -9 mDNSResponder
 ```
 
+### HomeKit 可发现但控制失败
+
+mDNS 只能证明发现链路正常，HomeKit 控制走的是 HAP TCP，两者相互独立；zeroconf 页面能看到设备，不代表控制链路正常。出问题时按顺序验证 mDNS 发现、HAP TCP 端口、客户端到 IoT 网段的实际路由、路由器 conntrack 源地址，不要直接改 Home Assistant、Multus 或底层 nft 规则
+
+```bash
+# 1. mDNS 发现
+dns-sd -B _hap._tcp local.
+# 2. HAP TCP 端口
+nc -vz <HASS_BRIDGE_HOST>.local <HAP_PORT>
+# 3. 客户端到 IoT 网段的实际路由
+route -n get <HASS_IOT_IP>
+# 4. 路由器 conntrack 源地址
+ssh <ROUTER> "cat /proc/net/nf_conntrack | grep '<HASS_IOT_IP>' | grep 'dport=<HAP_PORT>'"
+```
+
+常见故障是第 3 步 gateway 为旁路由地址、第 4 步 src 已被改成旁路由地址：LAN 客户端默认网关是旁路由，访问 IoT 网段时也被送进旁路由，旁路由对 LAN 转发开启 masquerade 后源地址被改写
+
+处理是在主路由 LAN DHCP 保留默认网关为旁路由，同时下发到 IoT 网段的精确路由。option 121 是 DHCP Classless Static Route，`121,<目标网段>,<网关>` 表示给客户端下发「`<目标网段>` via `<网关>`」，让访问该网段的流量走主路由而非旁路由
+
+```bash
+uci add_list dhcp.lan.dhcp_option='121,<IOT_SUBNET>,<LAN_ROUTER_IP>'
+uci commit dhcp
+/etc/init.d/dnsmasq restart
+```
+
+客户端重新获取 DHCP 后，`route -n get <HASS_IOT_IP>` 的 gateway 应从旁路由变为主路由，conntrack 的 src 也恢复为客户端自身地址。旁路由防火墙需放行 masq/NAT，见 [22-tvbox-bypass-router.md](../22-tvbox-bypass-router.md) 的「旁路由防火墙」小节
+
 ## 相关文档
 
 - [VLAN 配置](./vlan.md)：VLAN 网络划分

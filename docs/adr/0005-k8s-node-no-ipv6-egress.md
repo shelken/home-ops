@@ -5,7 +5,7 @@ status: accepted
 
 # K8s 节点不使用 RA 下发的 IPv6 默认网关，出网只走 IPv4 经旁路由
 
-K8s 节点的 systemd-networkd drop-in 对所有网卡设置 `[IPv6AcceptRA] UseGateway=false`，节点没有 IPv6 默认路由，访问境外双栈服务（Codeberg、GitHub、镜像仓库）时 IPv6 立即失败并回退 IPv4，经旁路由 dae 出网。此前 RA 下发的默认路由让节点的 AAAA 流量绕过旁路由直连 F50，被限速到约 35 KB/s，曾导致 Helm 5 分钟超时与回滚（[postmortem 027](../../postmortems/027-node-ipv6-ra-route-bypasses-daed.md)）。承接 [ADR-0004](0004-k8s-node-dns-daed-routing.md)：节点的 IPv4 默认路由与 DNS 已指向旁路由，IPv6 是唯一绕过旁路由的出口
+K8s 节点的 systemd-networkd drop-in 对所有网卡设置 `[IPv6AcceptRA] UseGateway=false`，节点没有 IPv6 默认路由，访问境外双栈服务（Codeberg、GitHub、镜像仓库）时 IPv6 立即失败并回退 IPv4，经旁路由 dae 出网。此前 RA 下发的默认路由让节点的 AAAA 流量绕过旁路由直连 F50，被限速到约 35 KB/s，曾导致 Helm 5 分钟超时与回滚（检查方式见 [dns-settings.md](../dns-settings.md) 的检查小节）。承接 [ADR-0004](0004-k8s-node-dns-daed-routing.md)：节点的 IPv4 默认路由与 DNS 已指向旁路由，IPv6 是唯一绕过旁路由的出口
 
 ## Considered Options
 

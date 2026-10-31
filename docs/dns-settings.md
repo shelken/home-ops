@@ -28,14 +28,22 @@
 
 ```bash
 resolvectl status
+ip -4 route show default
 ip -6 route show default
+sudo grep -H -E '^(ROUTER|DNS|CLASSLESS_ROUTES)=' /run/systemd/netif/leases/*
+curl -4 -s -o /dev/null -w '%{http_code} %{time_total}s\n' -m 8 https://<DUAL_STACK_HOST>
+curl -6 -s -o /dev/null -w '%{http_code} %{time_total}s\n' -m 8 https://<DUAL_STACK_HOST>
 ```
 
 预期：
 
 - 默认 IPv4 路由网卡的 DNS 为 `1.1.1.1 8.8.8.8`，没有 IPv6 DNS server
 - Lima 的 NAT 网卡可能仍列出自己的 DNS server，只要 `DNSDefaultRoute=false` 就不会作为默认解析路径
+- `ip -4 route show default` 与 `ip -6 route show default` 分别确认 IPv4 与 IPv6 的默认路由来源，只对齐一边会留下绕过旁路由的出口
 - `ip -6 route show default` 无输出
+- lease 里 `ROUTER=` 是 DHCP option 3、`DNS=` 是 option 6，两者各自独立，网关指向旁路由不代表 DNS 也经旁路由
+- 使用 DHCP option 121 时，必须把 default route 也写进 121：支持 RFC 3442 的客户端见到 121 后会按 classless routes 处理路由，121 里缺 default route 时 option 3 的默认网关不生效
+- 排查境外服务慢或超时时，先对比 `curl -4` 与 `curl -6`，再看路由与 DNS；单栈正常不代表双栈正常
 
 ## 修复
 

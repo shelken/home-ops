@@ -407,6 +407,13 @@ kubectl -n security exec deploy/crowdsec-lapi -- cscli decisions list -a | grep 
 
 - `Kind: crowdsec`、`Machine: vps-cc`、`datasource_type: appsec`：本地 VPS AppSec 生成。
 - `Source: CAPI`：来自 CrowdSec Central API 公共情报。
+- 判断自家出口 IP 要多源交叉：国内回显服务、代理出口回显服务、VPS Caddy access log 里的 `client_ip`，只用一个国外回显服务会因代理分流给出错误出口
+
+```bash
+curl -s https://<CN_ECHO_ENDPOINT>
+curl -s https://<PROXY_ECHO_ENDPOINT>
+ssh <VPS_HOST> 'grep -F "<HOST>" /var/log/caddy/access.log | tail -n 5'
+```
 
 ## 自定义 AppSec 排除规则
 
@@ -473,7 +480,7 @@ route {
 - v6：ConfigMap 变更由 reloader 重启 `caddy-external`
 - v4：只改 Caddyfile 不会重建容器，需 `task compose:deploy:vps -- --force-recreate`，或在 VPS 上对 `caddy` 容器执行 `caddy reload`
 
-排查时先区分 401、403、429 和 ban，封禁不一定留下 access log，见 [postmortem 005](../postmortems/005-crowdsec-appsec-self-ban-vps-probes.md)
+排查时先区分 401、403、429 和 ban：401 死在 AppSec 认证，403 来自业务或 Caddy，429 来自限流，ban 只表现为超时且不一定留下 access log，不要因为 access log 里没有请求就断言请求没发出
 
 ## 修改与部署流程
 

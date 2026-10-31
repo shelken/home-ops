@@ -600,6 +600,7 @@ graph TB
 
 - **变量注入**：所有子 Kustomization 自动获得 `cluster-secrets`（Secret）和 `cluster-settings`（ConfigMap）中的 postBuild 变量。可通过标签 `substitution.flux/disabled: "true"` 跳过。
 - **SOPS 解密**：所有子 Kustomization 自动获得 SOPS age 解密能力。
-- **等待策略**：两层均 `wait: false`，顺序由 `apps.dependsOn: infra` 保证（成因见 [024](../postmortems/024-flux-wait-recursion-retry-gap-freezes-apps.md)）
+- **等待策略**：两层均 `wait: false`，顺序由 `apps.dependsOn: infra` 保证。父级 `wait: true` 会把全部孙级健康递归纳入父级 Ready，单个子级局部失败即被放大为整层冻结，需要顺序时用子级 `dependsOn`
 - **失败重试**：子级须声明 `retryInterval`，巡检 `scripts/verify-ks-retry-interval.sh`
+- **HelmRelease 重试**：每个 HelmRelease 显式声明 `install.remediation.retries: -1`（upgrade 另配 `cleanupOnFail`）；默认值 `0` 会让一次 install/upgrade 失败永久停在 `Stalled: True` 终态，并被上层 healthCheck 短路成整链阻塞
 - **HelmRelease**：最终通过 `app-template` chart（OCIRepository）或直接 Helm chart 部署 Pod。

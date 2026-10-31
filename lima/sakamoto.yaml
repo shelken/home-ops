@@ -86,7 +86,7 @@ provision:
       netplan apply || true
       # Lima cidata 20-rootless-base.sh 无条件 loginctl enable-linger，
       # 但本机 k3s 用 root containerd，不需要 rootless user manager 常驻。
-      # 关闭 linger 避免 systemd 255 mountinfo churn 堆积内存（见 postmortem 015、issue #1301）。
+      # 关闭 linger 避免 systemd 255 mountinfo churn 堆积内存（见 issue #1301）。
       loginctl disable-linger shelken 2>/dev/null || true
 
       # 关闭 mDNS（issue #1471）：Lima cidata 的 06-enable-mdns-on-systemd.sh
