@@ -162,7 +162,7 @@ printf 'session secret stored\n'
 kustomize build <app-dir>
 kustomize build k8s/infra/staging
 kustomize build k8s/apps/staging
-pre-commit run --files <modified-files>
+prek run --files <modified-files>
 ```
 
 部署严格按顺序：

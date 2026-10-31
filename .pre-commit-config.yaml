@@ -1,27 +1,23 @@
+# 由 prek 执行的钩子配置（沿用 pre-commit 兼容的 YAML 格式）。
+# 纯文本检查用 `repo: builtin`（prek 原生实现，离线、不克隆仓库、不建环境）。
+# 其余检查复用 mise.toml 已装的工具，故仍为 `repo: local` + `language: system`。
 default_stages:
   - pre-commit
 
 repos:
-  - repo: local
+  - repo: builtin
     hooks:
-      - id: check-merge-conflicts
-        name: check-merge-conflicts
-        entry: check-merge-conflict
-        language: system
+      - id: check-merge-conflict
         types: [text]
 
       - id: end-of-file-fixer
-        name: end-of-file-fixer
-        entry: end-of-file-fixer
-        language: system
         types: [text]
 
-      - id: trim-trailing-whitespace
-        name: trim-trailing-whitespace
-        entry: trailing-whitespace-fixer
-        language: system
+      - id: trailing-whitespace
         types: [text]
 
+  - repo: local
+    hooks:
       - id: yamllint
         name: yamllint
         entry: yamllint --config-file .yamllint
