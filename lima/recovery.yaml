@@ -21,13 +21,20 @@ hostResolver:
   enabled: false
 
 images:
-  # 固定到 20260518 版本 + digest，避免每次对比上游最新并重下
-  - location: "https://cloud-images.ubuntu.com/releases/noble/release-20260518/ubuntu-24.04-server-cloudimg-arm64.img"
+  # 固定到 20260927 版本 + digest，避免每次对比上游最新并重下
+  # 全仓库统一 Ubuntu 26.04（resolute）：与 lima 官方 template:_images/ubuntu-26.04 同一份 release
+  - location: "https://cloud-images.ubuntu.com/releases/resolute/release-20260927/ubuntu-26.04-server-cloudimg-arm64.img"
     arch: "aarch64"
-    digest: "sha256:6a61b967ba4a27dd1966f835a67643073ed55c2860ce3dc1cb0517282e6b8bec"
+    digest: "sha256:63a93bd5a8d76e33b15ceb5daa3657bd79be804748051ab178e643b0f5da22e7"
   # 回退——如果上面链接被删，走滚动 release（不带 digest，会重下）
-  - location: "https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-arm64.img"
+  - location: "https://cloud-images.ubuntu.com/releases/resolute/release/ubuntu-26.04-server-cloudimg-arm64.img"
     arch: "aarch64"
+
+# 26.04 首次启动把网卡改名成配置里的 interface 名会失败（LP #2136392），
+# 不做 optional 时 systemd-networkd-wait-online 会白等约 120s。
+# 这是 lima 官方 template:_images/ubuntu-26.04 注入的参数；本文件内联镜像不会继承，故显式声明。
+param:
+  internal_netplanOptional: "true"
 
 containerd:
   system: false
