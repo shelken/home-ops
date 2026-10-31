@@ -60,9 +60,10 @@ endpoints:
       - "[CONNECTED] == true"
   - <<: *common
     name: anytls
-    url: "tcp://ts-node-vps.network.svc:5444"
+    url: http://ts-node-vps.network.svc:2575/containers/anytls/top?ps_args=-o%20pid
     conditions:
-      - "[CONNECTED] == true"
+      - "[STATUS] == 200"
+      - "len([BODY].Processes) > 0"
   - <<: *common
     name: hysteria2
     url: http://ts-node-vps.network.svc:2575/containers/hysteria2/top?ps_args=-o%20pid
