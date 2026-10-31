@@ -17,7 +17,7 @@ home-ops 是使用 Flux 管理 Kubernetes 集群与集群外服务的 GitOps 配
 - 排障、运维、恢复或不清楚架构与入口 → [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)，依赖顺序与等待策略见其中「Flux 部署链路」
 - 写代码、改配置、新增应用、决定文件归属 → [CODING_STANDARDS.md](CODING_STANDARDS.md)
 - 找文档、确认文档归属 → [docs/README.md](docs/README.md)
-- 排查历史事故与已知坑 → [postmortems/README.md](postmortems/README.md)
+- 排查历史事故与已知坑 → 先按症状查 [docs/operations-notes.md](docs/operations-notes.md)，再查 [postmortems/README.md](postmortems/README.md) 的症状表；事故分析命令见 `.agents/skills/k8s-incident-analysis/`
 - 在 compose/、ansible/、.taskfile/ 下工作 → 先读对应目录的 AGENTS.md
 
 ## 布局

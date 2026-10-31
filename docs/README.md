@@ -12,7 +12,7 @@
 | [运维实用技巧](./useful-trick.md) | 常用运维命令、CNPG 快速诊断与 Envoy Gateway 调试 |
 | [运维笔记](./operations-notes.md) | Flux、Cilium、Multus、SMB 等常见排障入口 |
 | [路由器配置](./router/README.md) | OpenWrt、BGP、VLAN、mDNS 相关配置 |
-| [尸检报告](../postmortems/README.md) | 已发生事故的根因、误判和复盘规则 |
+| [尸检报告](../postmortems/README.md) | 根因不显然、会复发、护栏落不进代码的事故，按症状检索 |
 
 ## 部署与基础设施
 
@@ -58,7 +58,7 @@
 ## 维护规则
 
 - 新增长期有效文档时，优先把入口加到本索引
-- 临时排查结论不直接堆进 README；先写入对应服务文档或 postmortem
+- 临时排查结论不直接堆进 README；先写入对应服务文档的故障模式或排障小节，只有根因不显然、会复发且护栏落不进代码时才写 postmortem
 - 涉及公网域名、公网 IP、系统/SSH 登录用户名、密钥路径、私有服务 URL 时使用占位符；公开 GitHub 仓库链接不需要脱敏
 - 涉及直接删除资源、绕过 GitOps 或 bootstrap 例外命令时，必须在文档中标明适用场景和风险
 - 排障与分析时可读取并使用真实值，脱敏只约束写出的内容

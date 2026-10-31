@@ -1,27 +1,8 @@
 # Postmortems
 
-- [001 · volsync stale snapshot blocks init](./001-volsync-stale-snapshot-blocks-init.md)
-- [002 · passwall incomplete dns recovery misses sing-box](./002-passwall-stale-monitor-lock-breaks-dns-recovery.md)
-- [003 · smb error](./003-smb-error.md)
-- [004 · prompp panic lock leak](./004-prompp-panic-lock-leak.md)
-- [005 · crowdsec appsec self ban blocks vps probes](./005-crowdsec-appsec-self-ban-vps-probes.md)
-- [006 · gatus sidecar multi match wrong endpoint](./006-gatus-sidecar-multi-match-wrong-endpoint.md)
-- [007 · volsync burst overloads longhorn control plane](./007-volsync-burst-overloads-longhorn-control-plane.md)
-- [008 · volsync fsGroup chown CPU spike](./008-volsync-fsgroup-chown-cpu-spike.md)
-- [009 · envoy gateway logs query parser](./009-envoy-gateway-logs-query-parser.md)
-- [010 · daed dns routing saved but not reloaded](./010-daed-dns-routing-not-reloaded.md)
-- [011 · envoy geoip inplace mmdb reload](./011-envoy-geoip-inplace-mmdb-reload.md)
-- [012 · bypass router snat breaks homekit path](./012-bypass-router-homekit-snat.md)
-- [013 · k8s dhcp dns route confusion](./013-k8s-dhcp-dns-route-confusion.md)
-- [014 · vps mss blackhole after migration](./014-vps-mss-blackhole-after-migration.md)
-- [015 · netplan file conflict disrupts control plane](./015-netplan-file-conflict-disrupts-control-plane.md)
-- [016 · cpa gatus docker mtu tailscale](./016-cpa-gatus-docker-mtu-tailscale.md)
-- [019 · lima dirty disk mkfs destroys longhorn](./019-lima-dirty-disk-mkfs-destroys-longhorn.md)
-- [020 · helmrelease retries exceeded stalled cascade](./020-helmrelease-retries-exceeded-stalled-cascade.md)
-- [021 · etcd arg duration string crashloop](./021-etcd-arg-duration-string-crashloop.md)
-- [022 · lima guestagent chrony clock oscillation](./022-lima-guestagent-chrony-clock-oscillation.md)
-- [023 · mac clock ntp direct diagnosis pitfalls](./023-mac-clock-ntp-direct-diagnosis-pitfalls.md)
-- [024 · flux wait recursion retry gap freezes apps](./024-flux-wait-recursion-retry-gap-freezes-apps.md)
-- [025 · longhorn downgrade deadlock](./025-longhorn-downgrade-deadlock.md)
-- [027 · node ipv6 ra route bypasses daed](./027-node-ipv6-ra-route-bypasses-daed.md)
-- [028 · router aaaa leak couples bootstrap dns to cluster](./028-router-aaaa-leak-couples-bootstrap-dns-to-cluster.md)
+只保留根因不显然、会复发、护栏落不进代码的事故。其余教训在对应运维文档或 `.agents/skills/k8s-incident-analysis/REFERENCE.md`，排障时先按症状查文档
+
+| 症状关键词 | 组件 | 报告 |
+| --- | --- | --- |
+| `NodeClockNotSynchronising`、`node_timex_maxerror_seconds` 跳到 16s、sntp 读数符号反读 | 时钟 / NTP | [023](./023-mac-clock-ntp-direct-diagnosis-pitfalls.md) |
+| `downgrading ... is not supported`、`pending-rollback`、`failed calling webhook "validator.longhorn.io"` | Longhorn | [025](./025-longhorn-downgrade-deadlock.md) |

@@ -1,51 +1,50 @@
-# 宿主 Mac 时钟 NTP 直连收尾中的测量陷阱
+# 宿主 Mac 与 Lima 节点时钟 NTP 诊断：测量陷阱与双时钟写入者
 
 **日期**: 2026-09-26
-**影响**: 022 修完 guest 振荡后，宿主侧收尾（#1485）多耗约 6 小时：连续多轮"劫持源/全局模式/规则不生效"的错误假设，规则实际早已生效。
-**发现人**: 用户对"全局模式"结论的直接否定触发全面复核。
+**症状关键词**: `NodeClockNotSynchronising`、`node_timex_maxerror_seconds` 跳到 16s、`node_timex_sync_status` 每 10s 归零、`settimeofday` 步进、sntp 读数符号反读、TUN 代理劫持 NTP
+**影响**: 节点时钟告警持续触发，宿主侧收尾验收连续多轮误判，实际规则早已生效
 
-## 问题
-
-022 定位到宿主 Mac 的 NTP 源被 TUN 代理带偏后，修复链（proxy#44、subconverter#1/#2 端口规则）当晚即合并生效。但验收阶段连续 6 小时无法确认收敛，先后提出"代理出口钟假应答""FlClash 全局模式""Apple 域名走节点"三个错误理论，每个都能拟合观测数据——最后发现规则从重启内核那一刻起就在正常工作，全部矛盾源于**测量方法自身的四个缺陷**。
-
-## 现象
+## 症状
 
 ```bash
-# 坑 1 的起点：同一时刻，sntp 说 Mac 快 0.58s，pairwise 说慢 0.6s
-sntp -t 3 203.107.6.88        # → +0.58（被误读为"假源应答"）
-# 坑 4 的表现：连续观察轮次间差值无规律摆动（-0.58 → -0.75 → -0.46）
-# 坑 2 的掩盖：连接页只能看到被探测的那条流
-#   sntp（数值 IP）→ DstPort(123) → MyDirect[DIRECT]  ✓
-#   timed（time.apple.com）→ fake-ip → 域名规则先命中 → 根本不走 DST-PORT
+# 告警条件（node-exporter）
+min_over_time(node_timex_sync_status[5m]) == 0 and node_timex_maxerror_seconds >= 16
+# VM 内每 10s 一条成功步进、drift 恒定；内核侧同窗 sync 1→0、maxerror 0.083→16
+journalctl -u lima-guestagent | grep "synchronized with host"
+# 同一时刻两种测法给出相反结论
+sntp -t 3 <NTP_SERVER>   # 数值 IP，结果被误读成假源应答
 ```
 
 ## 根因
 
-**错误假设记录**（按时间序，每个都"有证据支撑"）：
+- VM 内有两个时钟写入者：chrony 与虚拟化同步代理互相破坏，代理步进污染 chrony 测量，chrony 的错误频率补偿又保证代理每 10s 都有 >100ms 偏差可踩，形成自持振荡
+- 代理的 `settimeofday` 触发 `do_settimeofday64 → TK_CLEAR_NTP → ntp_clear()`，置 `STA_UNSYNC` 并把 maxerror 重置 16s，正好命中告警的两个条件；`node_timex_maxerror_seconds` 跳到 16s 是有进程调用 `settimeofday` 的指纹，优先查虚拟化同步代理
+- 宿主 Mac 的 NTP 源被 TUN 代理带偏，是振荡的初始驱动力；`timed` 是偶发校正加长时间自由漂移（实测 −20ppm 量级），不做连续锁相，按「稳定 <100ms」验收 stock `timed` 不可达成
+- `sntp` 输出的 offset 是「服务器 − 本地」，正值表示本地落后；按「本地 − 服务器」解读，会把直连生效的诚实读数读成劫持
 
-1. **sntp 符号反读**：`sntp` 输出 offset = 服务器 − 本地（正值 = 本地落后），按"本地 − 服务器"解读后，+0.58 被当成"应答方时钟在真值 −1.3s"，推出"代理出口劫持"理论——而 +0.58 恰恰是直连生效的诚实读数。
-2. **单流证据过度外推**：连接页实拍证明的是**被探测的那条流**（数值 IP → DST-PORT），timed 实际走 `time.apple.com`（域名）——fake-ip-filter 只有 `*.lan`，域名带 fake-ip 进规则引擎，**Apple 域名列表排在 DST-PORT 之前先命中**。端口规则对 timed 的流从未参与匹配。
-3. **把 UI 状态当运行时**：FlClash 数据库 `profiles.current_group_name = GLOBAL` 被当成"全局模式"铁证——实际只是代理页最后浏览的组标签，模式一直是 rule。用户当场否定。
-4. **参照系污染**：pairwise 测量从本地工作站发起，而工作站自己的钟也在漂。多轮间 ±0.15s 的"摆动"大半是参照系抖动，不是被测机行为。
+## 排查陷阱
 
-**实际约束**：
+- 数值 IP 探测命不中域名规则，连接页实拍只证明被探测的那条流；要验证「某条分流规则生效」，探测必须与真实流量同构（同域名），否则 fake-ip 走的路径不一致
+- GUI 客户端数据库里的字段只是界面状态，不等于运行模式；代理类客户端改订阅后必须重启内核进程，判断依据是 core 进程启动时间，不是配置文件 mtime
+- 跨轮比较绝对差值是参照系抖动；发起测量的机器要先自证诚实（`chronyc tracking` RMS <1ms），多机轮测用同一轮内两两夹测
+- 多个理论都能拟合数据时不要反复换叙事，去设计能一锤定音的观测
 
-- macOS `timed` 是"偶发校正 + 长时间自由漂移"（实测 −20ppm 量级），**不做连续锁相**——±0.1~0.7s/数小时的游走是天性，验收标准"稳定 <100ms"对 stock timed 不可达成。
-- FlClash 更新订阅只重写 `config.yaml`，**不重载内核**；core 进程参数只有 IPC socket，磁盘配置 ≠ 运行配置。
-- 客户端白名单/代理链路里，`api.ip.sb` 这类出口探测的对照（"家宽 IP vs VPS IP"）会被 daed `fallback: proxy` 污染——参考机自己的非 CN 流量也走 VPS。
+```bash
+# pairwise 夹测：以一台机器为公共参考，两次本地时间戳夹一次远端时间取中位差
+# 参考钟偏差在两次相减时抵消，不依赖 NTP 就能排出各机的相对序
+# 透明劫持判定：往 TEST-NET 死地址（无 NTP 服务）发 NTP 查询，有应答即有透明劫持
+sntp -t 3 192.0.2.1
+```
 
 ## 修复
 
-1. 符号自检后全部读数重排：Mac 时钟实际单调追赶真值（0.65s → 0.08s，~300ms/h），规则链路早已生效。
-2. 验收指标改为**双源交叉**：配对实测（Mac − 自家 VM 诚实钟，本地钟在差值中抵消）+ hostagent drift，弃用 sntp 翻转法。
-3. guest 终态：两台 VM 离真值 0.3~0.4ms、`sync=1`（#1485 已关闭）。
-4. 宿主 Mac 残余自由游走记录为已知行为，可选跟进 = Mac 侧 chrony 替代 timed。
+- 部署 systemd drop-in 剥离虚拟化同步代理的 `CAP_SYS_TIME`（保留端口转发等其余功能），清空被步进污染的 `chrony.drift` 后重启
+- 走 TUN/代理的设备，NTP（UDP 123）必须直连（`DEST-PORT,123` 进直连规则），代理上下行不对称会直接制造钟差
+- 验收改用双源交叉：pairwise 夹测加宿主侧 hostagent drift，不拿经过可疑路径的 `sntp` 结果当基准
 
-## 预防
+## 护栏
 
-- 解读 `sntp`/`ntpdate` 读数前先做**符号自检**：offset = server − local，正值 = 本地落后。拿一台 `chronyc tracking` RMS <1ms 的参考机跑一次即可锚定符号，再开始解读。
-- fake-ip 客户端（FlClash/mihomo TUN）上验证"某条规则生效"，探测必须**与真实流量同构**（同域名，让 fake-ip/域名匹配路径一致）；数值 IP 探测命中不了域名规则，连接页实拍哪条流就看哪条流的结论。
-- TUN 类 GUI 客户端（FlClash/sing-box GUI）改订阅后**必须重启内核进程**才算生效；判断依据是 core 进程启动时间，不是配置文件 mtime。
-- GUI 客户端数据库字段（如 `current_group_name`）在当运行时证据前，先向用户求证对应 GUI 状态——UI 状态与运行模式是两套存储。
-- 测钟差的发起方必须先自证诚实（RMS offset）；多机轮测用**同一轮内两两夹测**（本地钟在差值中抵消），不要用"绝对差值跨轮比较"。
-- 给"多个理论都能拟合"的数据做裁决时，优先设计**能一锤定音的观测**（本例：连接页实拍、双探针同窗对照），不要在叙事之间反复横跳。
+- 凡 VM 内跑 NTP 服务，必须只有一个时钟写入者；代理的改时钟能力剥离在 `ansible/playbooks/tasks/ntp.yaml`，drift 重置在其 handler 与 `ansible/playbooks/setup-time.yaml`
+- 时钟类修复必须做重启回归：被污染的 drift 与内核状态会持久化，重启后不再出现步进、`sync=1`、无 maxerror 尖峰才算修复
+- 告警 `NodeClockNotSynchronising` 与 `node_timex_maxerror_seconds >= 16` 同时出现时，先查虚拟化同步代理，不要先换 NTP 源
+- 宿主 `timed` 的自由游走是已知行为；无法写进代码：stock `timed` 不做连续锁相，无法用配置保证 <100ms，收敛只能换 chrony

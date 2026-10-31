@@ -44,10 +44,18 @@ mkdir -p /Volumes/sakamoto-data/k8s/lima/_disks && ln -s /Volumes/sakamoto-data/
 limactl disk create longhorn --size 1024G
 ```
 
-在配置里加上（`format: false` 不可省：Lima 会把脏盘当未初始化盘做 mkfs，覆盖 Longhorn 数据，见 [postmortems/019](../postmortems/019-lima-dirty-disk-mkfs-destroys-longhorn.md)）
+在配置里加上（`format: false` 不可省：Lima 会把脏盘当未初始化盘做 mkfs，覆盖 Longhorn 数据；被覆盖后的磁盘重新纳入见 [运维笔记的 Longhorn 小节](operations-notes.md#longhorn)）
 
 ```yaml
 additionalDisks:
   - name: "longhorn"
     format: false
 ```
+
+## 网络与磁盘变更注意
+
+- 改网络前先列 `/etc/netplan/` 全部文件并确认每个文件的写入方：Lima 节点的接口命名、寻址与 `route-metric` 由 Lima 经 cloud-init 下发，Ansible 只写 DNS drop-in 与 VLAN，见 [ADR-0001](adr/0001-lima-network-ownership.md)。netplan 会合并所有文件，同一接口上静态与 DHCP 配置并存会造成默认路由冲突、桥接地址消失
+- 改完用 `ls /etc/netplan/`、`ip -br a`、`ip route`、`netplan get` 四者一致核对，`limactl list` 显示 Running 不代表 guest 网络就绪
+- 用 `ip -d link` 区分接口名与 altname：`enp0s1` 可能只是 `eth0` 的 altname，看到 `renamed from` 不要直接判定接口改名
+- 离线挂载 guest 磁盘前必须先停 VM，运行中挂载会造成 ext4 损坏
+- 单控制面场景下，未定位根因不得重启宿主机，重启会打断取证并延长中断

@@ -77,6 +77,16 @@ curl -sG 'http://<VL_ENDPOINT>/select/logsql/query' \
 - 先 `fields _time,_msg`，再逐步加字段。
 - 关键词优先用“组件状态词 + 目标名”，例如：`success=false`、`Notify success`、`BEACON-LOSS`、`router-dns-proxy`。
 - Victoria Logs 返回的是 **stream+json**，通常是一行一个 JSON，不要假设它是普通数组 JSON。
+- 带特殊字符的字段名（如 `:authority`）先判断能否裸写，有同义字段时优先换无特殊字符的那一个，例如用 `requested_server_name` 筛同一个值
+- field value 变量用 `field:$var` / `field:=$var`，由插件展开成 `field:in(...)`；只有真正来自 textbox 的正则输入才放进 regexp filter
+- 面板报 `cannot read regexp for field ...` 或 `cannot parse query arg` 时，先分清是直连查询、Grafana 插件，还是 dashboard 变量展开三类问题，不要把同一类报错都归到 VictoriaLogs 解析器
+- 先用最小 query 验证字段语法，再拼完整 dashboard；改完用 Grafana 的 `api/ds/query` 验证 expr 能返回结果，不要只看面板
+
+```bash
+curl -sG 'http://<VL_ENDPOINT>/select/logsql/query' \
+  --data-urlencode 'query=requested_server_name:<DOMAIN> response_code:200' \
+  --data-urlencode 'limit=5'
+```
 
 ### 3.1 Envoy Gateway 403 / GeoIP / RBAC
 
@@ -180,6 +190,13 @@ Gatus 相关经验：
 - `router-dns-proxy` 这种 DNS 检测，先分清是 **真实解析慢/超时**，还是你配置的 `[RESPONSE_TIME] < N` 成功阈值过紧。
 - 对 DNS 端点来说，`[CONNECTED] == true`、`[DNS_RCODE] == NOERROR`、`[RESPONSE_TIME]` 是三类不同信号，不要混成一个结论。
 - 如果需要对历史多 Pod 时间线做统计，优先用 Victoria Logs，不要只看当前 `kubectl logs`。
+- `HTTPRoute` 有多个 `matches` 时，必须显式写 `gatus.home-operations.com/endpoint`，不要让 sidecar 自动挑路径：多匹配的 HTTPRoute 里不是每个路径都适合做健康检查
+- 手工访问正常但 Gatus 失败时，先确认 Gatus 实际探测的 URL，再看 sidecar 启动期的 watch 报错；健康检查用稳定接口，不要用文件路径或公开内容路径
+
+```bash
+kubectl -n <NS> logs deploy/<GATUS_SIDECAR> --since-time=<START_UTC> | grep 'updated endpoint'
+curl -IL https://<DOMAIN>/<HEALTH_PATH>
+```
 
 ### 4.1 Gatus runtime snapshot（无持久化优先）
 
@@ -235,6 +252,24 @@ scrape_samples_scraped{job="gatus"}
   3. `up{job="..."}` 或 `scrape_samples_scraped{job="..."}`
 - 如果应用日志有历史事件，但 Prometheus 只在更晚时间才出现样本，先判定为 **抓取盲区/监控面缺口**，而不是业务没故障。
 - 查规则时不要只看表达式，要看 `health`、`lastError` 和 `for` 是否真能满足。
+
+进程活着不等于可用：`/metrics` 有响应不代表可用，`/-/ready`、`query=up`、`status/tsdb` 这些功能路径要一起打，进程在但查询超时立刻抓 goroutine 栈
+
+```bash
+curl -m 10 'http://127.0.0.1:<PORT>/-/ready'
+curl -m 60 'http://127.0.0.1:<PORT>/api/v1/query?query=up'
+curl -m 20 'http://127.0.0.1:<PORT>/api/v1/status/tsdb'
+curl -m 10 'http://127.0.0.1:<PORT>/debug/pprof/goroutine?debug=2'
+```
+
+先查当前容器再看 `--previous`：panic 后卡在 deferred 路径的进程不会退出，「当前容器半死但未退出」只能从当前容器的日志、pprof 和功能路径看出来
+
+启动报 `opening storage failed: lock DB directory: resource temporarily unavailable` 时，先查谁持有锁，不要删 lock 文件
+
+```bash
+sudo fuser -v <DB_LOCK>
+sudo pgrep -af '/bin/prometheus'
+```
 
 ## 6) Alertmanager：发件端与收件端必须成对看
 
@@ -483,6 +518,15 @@ done | sort -u
 6. AM 有记录，接收端也有记录，但动作无效：接收端业务逻辑失败或幂等判断吞掉了动作。
 7. 集群内 HTTP/ICMP 正常，但外部域名/DNS 慢：优先查路由器、代理 DNS、上游 DNS、WAN/WWAN。
 8. 监控组件高重启 / scrape 全面缺口：优先判定为监控平面故障。
+9. 多个定时任务共享同一个整点 cron：`jitter` 只削峰不等于错峰，先算任务数 × 启动窗口 × 最长时长，再看是否与下一轮重叠；随机化声明不等于生效，要确认实际 Pod 真带上了 jitter
+10. 批处理窗口内业务 Pod CPU 不高但节点 CPU 高：`fsGroup` 没配 `fsGroupChangePolicy` 时默认 `Always`，kubelet 每次挂载递归 chown，CPU 记在 kubelet/宿主机而不是业务 Pod
+
+```bash
+kubectl get cronjob -A -o custom-columns='NS:.metadata.namespace,NAME:.metadata.name,SCHEDULE:.spec.schedule'
+kubectl get pod -A -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.initContainers[*].name}{"\n"}{end}' | grep -i jitter
+kubectl get events -A | grep -E 'VolumePermissionChangeInProgress'
+ssh <CONTROL_PLANE_NODE> 'sudo pidstat -u -p $(pidof k3s-server) 1 60'
+```
 
 ## 10) 常见绕弯
 

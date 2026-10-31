@@ -55,4 +55,12 @@ dig @<ROUTER_IP> <CLUSTER_SERVICE_IN_MAIN_DOMAIN> A
 dig @<ROUTER_IP> <BOOTSTRAP_NAME> A
 ```
 
-集群不可用时，集群服务名称无法解析；`30-bootstrap.conf` 中的集群外自举名称仍由路由器本地回答。
+集群不可用时，集群服务名称无法解析；`30-bootstrap.conf` 中的集群外自举名称仍由路由器本地回答
+
+判断解析失败原因前，先确认失败进程用的是哪个解析器：musl 报 `Try again` 或 `Name does not resolve`，glibc 报 `Temporary failure in name resolution`，Go 纯解析器不会输出这些文本。musl 的 `getaddrinfo` 对 A/AAAA 任一失败即判整名失败，报错文本本身就指向解析器类型
+
+```bash
+ssh <NODE> 'grep "trying next host" /var/lib/rancher/k3s/agent/containerd/containerd.log | tail -n 20'
+```
+
+k3s containerd 的逐端点失败与回退只写进 `containerd.log`，不进 journal，排查镜像拉取时不要只看 `journalctl`

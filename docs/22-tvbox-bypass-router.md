@@ -141,6 +141,8 @@ LAN → WAN/Internet
 masq/NAT 开启
 ```
 
+LAN 客户端默认网关指向旁路由时，访问仍应走主路由的内网网段（如 IoT 网段）也会经过旁路由，被 masq 改源成旁路由地址；给客户端下发到该网段的精确路由让它不经旁路由，见 [router/mdns.md](router/mdns.md) 的「HomeKit 可发现但控制失败」
+
 ## 主路由 IPv6 RA relay 下发的 DNS 会绕过 TVBox/daed
 
 旁路由模型依赖客户端 DNS 走 TVBox 转发路径，再经 daed 处理。如果客户端同时从主路由 RA relay 收到运营商 IPv6 DNS，macOS 等系统可能优先使用 IPv6 DNS，链路变为：

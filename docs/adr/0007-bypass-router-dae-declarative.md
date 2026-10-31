@@ -5,7 +5,7 @@ status: accepted
 
 # 旁路由用上游 release 的 dae 取代 daed，配置由仓库声明式下发
 
-旁路由的透明代理从 daed 换成 dae，二进制、init 脚本和整份配置都由 `task router:dae:sync` 从仓库下发。daed 把配置存在 SQLite 里，Git 管不到，postmortem 010 的 UI 状态与运行状态不一致也源于此。dae 二进制用上游 release，版本钉在 `router/dae/version.yaml` 由 Renovate 升级，不用 opkg 包，因为 ImmortalWrt 24.10 稳定分支禁止大版本升级，包停在 1.0.0，比 daed 内嵌的内核还旧。运维细节见 [路由器配置](../router/README.md)
+旁路由的透明代理从 daed 换成 dae，二进制、init 脚本和整份配置都由 `task router:dae:sync` 从仓库下发。daed 把配置存在 SQLite 里，Git 管不到，UI 状态与运行状态不一致也源于此。dae 二进制用上游 release，版本钉在 `router/dae/version.yaml` 由 Renovate 升级，不用 opkg 包，因为 ImmortalWrt 24.10 稳定分支禁止大版本升级，包停在 1.0.0，比 daed 内嵌的内核还旧。运维细节见 [路由器配置](../router/README.md)
 
 ## Considered Options
 
