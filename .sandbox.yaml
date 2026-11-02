@@ -1,0 +1,7 @@
+imports:
+  - src: ~/.kube/home-ops.yaml
+    target: ~/.kube/home-ops.yaml
+
+# 允许访问家里的服务
+network:
+  - "192.168.6.80:6443"
