@@ -29,22 +29,22 @@ spec:
           labels:
             severity: critical
 
-        - alert: HelmReleaseReconciliationFailure
+        - alert: HelmReleaseStalled
           expr: |-
-            gotk_resource_info{customresource_kind="HelmRelease", ready!="True"} == 1
+            gotk_resource_info{customresource_kind="HelmRelease", stalled="True"} == 1
           for: 5m
           annotations:
             summary: >-
-              HelmRelease {{ $labels.name }} in {{ $labels.exported_namespace }} is not ready
+              HelmRelease {{ $labels.name }} in {{ $labels.exported_namespace }} is stalled
           labels:
             severity: critical
 
-        - alert: KustomizationReconciliationFailure
+        - alert: KustomizationStalled
           expr: |-
-            gotk_resource_info{customresource_kind="Kustomization", ready!="True"} == 1
+            gotk_resource_info{customresource_kind="Kustomization", stalled="True"} == 1
           for: 5m
           annotations:
             summary: >-
-              Kustomization {{ $labels.name }} in {{ $labels.exported_namespace }} is not ready
+              Kustomization {{ $labels.name }} in {{ $labels.exported_namespace }} is stalled
           labels:
             severity: critical

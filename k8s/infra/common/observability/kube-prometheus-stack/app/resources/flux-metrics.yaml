@@ -53,6 +53,11 @@ kube-state-metrics:
                   suspended:
                     - spec
                     - suspend
+                  stalled:
+                    - status
+                    - conditions
+                    - "[type=Stalled]"
+                    - status
                   revision:
                     - status
                     - lastAppliedRevision
@@ -87,6 +92,11 @@ kube-state-metrics:
                   suspended:
                     - spec
                     - suspend
+                  stalled:
+                    - status
+                    - conditions
+                    - "[type=Stalled]"
+                    - status
                   revision:
                     - status
                     - history
