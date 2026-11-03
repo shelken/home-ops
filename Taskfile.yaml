@@ -13,7 +13,6 @@ includes:
   sops: .taskfile/sops.yaml
   secret: .taskfile/secret.yaml
   flux: .taskfile/flux.yaml
-  compose: .taskfile/compose.yaml
   kopia: .taskfile/kopia.yaml
   kopiur: .taskfile/kopiur.yaml
   lms: .taskfile/lms.yaml

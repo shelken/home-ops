@@ -2,7 +2,7 @@
 
 宿主机 sakamoto 上运行的 RustFS 独立对象存储实例，承接家庭集群与宿主机的全部 S3 存储需求
 
-- **配置定义**：[`compose/sakamoto/docker-compose.yml`](../compose/sakamoto/docker-compose.yml)
+- **配置定义**：nix-config: `hosts/sakamoto/apps/compose.yaml`（服务 `rustfs`）
 - **S3 API 端点**：`https://rustfs.${INTERNAL_DOMAIN}`（端口 `9000`）
 - **Web 控制台**：`https://rustfs-ui.${INTERNAL_DOMAIN}/rustfs/console/`（端口 `9001`）
 - **健康检查接口**：`/health/ready`（返回 HTTP 200）

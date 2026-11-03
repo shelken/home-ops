@@ -4,7 +4,7 @@
 
 ## 目录结构
 
-- `.taskfile/`: 按领域拆分的 Taskfile（compose / lima / cluster / k8s 等）
+- `.taskfile/`: 按领域拆分的 Taskfile（lima / cluster / k8s 等）
 - `.taskfile/scripts/`: 被 task 调用的 shell（仅放多 task 共用或逻辑过重不宜内嵌的脚本）
 - `Taskfile.yaml`（仓库根）: 入口，`includes` 挂载本目录各文件
 

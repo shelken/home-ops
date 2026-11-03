@@ -59,7 +59,7 @@ sudo ./NVIDIA-Linux-x86_64-${GRID_DRIVER_VERSION}-grid.run --silent --no-questio
 
 #### 授权激活（fastapi-dls）
 
-授权服务 `fastapi-dls` 以 Docker Compose 运行在宿主机 sakamoto，服务名 `nvidia-dls`，定义见 [`compose/sakamoto/docker-compose.yml`](../compose/sakamoto/docker-compose.yml)。在 VM 中获取 client token 并启用 `nvidia-gridd`：
+授权服务 `fastapi-dls` 以 Docker Compose 运行在宿主机 sakamoto，服务名 `nvidia-dls`，定义见 nix-config: `hosts/sakamoto/apps/compose.yaml`。在 VM 中获取 client token 并启用 `nvidia-gridd`：
 
 ```bash
 export MAIN_DOMAIN=

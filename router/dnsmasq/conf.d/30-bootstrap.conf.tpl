@@ -8,7 +8,7 @@
 # 连锁锁死在 UpgradeFailed。自举记录的存在意义就是集群挂了也要能解析，必须在
 # 本层对全部记录类型闭合。
 #
-# 名字集合是 compose/sakamoto/configs/caddy/Caddyfile 里 internal-access 行的投影：
+# 名字集合是 nix-config 的 hosts/sakamoto/apps/configs/caddy/Caddyfile 里 internal-access 行的投影：
 # 那边加一个站点，这里加一行。域名在本层是字面量（无 Flux 注入，同
 # ansible/playbooks/resource/registries.yaml）。
 #
