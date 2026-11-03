@@ -7,7 +7,7 @@
 - [ ] `dnscontrol`（更新 DNS 解析记录并推送到上游）
 - [ ] Loon / Clash / Quantumult X 客户端订阅链接与代理节点配置
 - [ ] 开发者本地 SSH 配置文件（`~/.ssh/config`）
-- [ ] Tailscale DERP 节点配置（`compose/vps/docker-compose.yml`）
+- [ ] Tailscale DERP 节点配置（nix-config 的 `hosts/vps/vps-cc/apps/derp.nix`）
 
 ## 常见问题
 

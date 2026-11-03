@@ -23,7 +23,7 @@ home-ops 是使用 Flux 管理 Kubernetes 集群与集群外服务的 GitOps 配
 ## 布局
 
 - `k8s/`: Flux 集群声明（clusters、infra、apps、components）
-- `compose/`、`router/`、`lima/`: 集群外 Compose 服务、路由器配置源、Lima VM（见 [lima/README.md](lima/README.md)）
+- `compose/`、`router/`、`lima/`: 集群外 Compose 服务（只剩 sakamoto）、路由器配置源、Lima VM（见 [lima/README.md](lima/README.md)）；VPS 上的容器不在本仓库，由 NixOS 声明管理（见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)）
 - `ansible/`、`bootstrap/`: 节点配置自动化、集群引导
 - `.taskfile/`、`scripts/`、`.renovate/`: task 命令入口、运维脚本、依赖升级配置
 - `docs/`、`postmortems/`: 文档索引、尸检报告

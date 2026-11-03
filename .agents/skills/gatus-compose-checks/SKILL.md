@@ -8,8 +8,8 @@ description: 从 home-ops 的 Docker Compose 服务补齐 Gatus outside 健康�
 ## Quick start
 
 1. 读取现有 Gatus outside 配置：`k8s/infra/common/observability/gatus/app/resources/outside/*.yaml`
-2. 读取目标 Compose 服务：`compose/vps/docker-compose.yml` 与 `compose/sakamoto/docker-compose.yml`
-3. 对比服务、端口、Caddy 路由与 Compose `healthcheck`
+2. 读取目标服务声明：VPS 侧在 nix-config 的 `hosts/vps/vps-cc/apps/`（一个服务一个文件），sakamoto 侧是 `compose/sakamoto/docker-compose.yml`
+3. 对比服务、端口、Caddy 路由与服务自带的健康检查声明
 4. 从集群内现有 Pod 测试端点连通性，再编辑对应 outside YAML
 5. 校验 YAML 语法并运行 `kustomize build`
 

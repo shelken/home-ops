@@ -9,9 +9,6 @@ vars:
   SAKAMOTO_HOST:
     sh: '"{{.INV}}" sakamoto'
   SAKAMOTO_COMPOSE_DIR: "~/homelab-compose"
-  VPS_HOST:
-    sh: '"{{.INV}}" vps-cc'
-  VPS_COMPOSE_DIR: "/opt/homelab-compose"
 
 tasks:
   # ==================== sakamoto ====================
@@ -43,36 +40,6 @@ tasks:
   logs:sakamoto:
     desc: "查看 sakamoto 服务日志"
     cmd: ssh {{.SAKAMOTO_HOST}} "cd {{.SAKAMOTO_COMPOSE_DIR}} && docker compose logs -f --tail=100"
-
-  # ==================== VPS ====================
-  # Tip: 若仅修改了 configs 挂载的配置文件（如 Caddyfile），Docker Compose 默认不会重建容器或重载配置，
-  # 需传 -- --force-recreate 触发容器重建，或进容器执行原生 reload。
-  deploy:vps:
-    desc: "部署到 VPS (可选参数: -- --force-recreate)"
-    cmds:
-      - task: :compose:_deploy
-        vars:
-          HOST: "{{.VPS_HOST}}"
-          REMOTE_DIR: "{{.VPS_COMPOSE_DIR}}"
-          LOCAL_DIR: "{{.COMPOSE_DIR}}/vps"
-          EXTRA_ARGS: "{{.CLI_ARGS}}"
-
-  sync:vps:
-    desc: "仅同步配置到 VPS（不重启服务）"
-    cmds:
-      - task: :compose:_sync
-        vars:
-          HOST: "{{.VPS_HOST}}"
-          REMOTE_DIR: "{{.VPS_COMPOSE_DIR}}"
-          LOCAL_DIR: "{{.COMPOSE_DIR}}/vps"
-
-  status:vps:
-    desc: "查看 VPS 服务状态"
-    cmd: ssh {{.VPS_HOST}} "cd {{.VPS_COMPOSE_DIR}} && docker compose ps"
-
-  logs:vps:
-    desc: "查看 VPS 服务日志"
-    cmd: ssh {{.VPS_HOST}} "cd {{.VPS_COMPOSE_DIR}} && docker compose logs -f --tail=100"
 
   # ==================== 内部任务 ====================
   _deploy:

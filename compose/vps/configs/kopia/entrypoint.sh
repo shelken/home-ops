@@ -1,1 +1,0 @@
-../../../sakamoto/configs/kopia/entrypoint.sh

@@ -176,7 +176,7 @@
 
       <use href="#ico-server" x="14" y="14" />
       <text x="40" y="26" font-size="12" font-weight="700" fill="#cad3f5">VPS Edge Server</text>
-      <text x="40" y="42" class="font-mono" font-size="9" fill="#8087a2">公网独立主机 · Docker Compose</text>
+      <text x="40" y="42" class="font-mono" font-size="9" fill="#8087a2">公网独立主机 · NixOS 声明</text>
 
       <!-- 公网入口 -->
       <g transform="translate(14, 56)">
@@ -517,7 +517,7 @@
       </g>
       <g transform="translate(12, 72)">
         <rect width="526" height="34" rx="3" fill="#1e2030" />
-        <text x="10" y="15" font-size="9.5" font-weight="600" fill="#a6da95">VPS Compose / 主机数据</text>
+        <text x="10" y="15" font-size="9.5" font-weight="600" fill="#a6da95">VPS 容器数据 / 主机数据</text>
         <text x="10" y="29" class="font-mono" font-size="9" fill="#8087a2">Kopia compose 1h · VPS 数据 4h</text>
       </g>
       <g transform="translate(12, 112)">
@@ -534,7 +534,7 @@
         <rect width="642" height="82" rx="5" fill="#181926" stroke="#a6da95" stroke-width="0.8" />
         <text x="12" y="22" font-size="11" font-weight="700" fill="#a6da95">189 云盘 · 天翼云</text>
         <text x="188" y="22" class="font-mono" font-size="9" fill="#8087a2">异地 offsite S3 · 唯一的场外副本</text>
-        <text x="12" y="42" class="font-mono" font-size="9" fill="#cad3f5">接收: 集群 PVC/CNPG（经宿主机 RustFS）· VPS Compose 1h / 数据 4h · 宿主机 Compose 1h / RustFS 6h</text>
+        <text x="12" y="42" class="font-mono" font-size="9" fill="#cad3f5">接收: 集群 PVC/CNPG（经宿主机 RustFS）· VPS 容器 1h / 数据 4h · 宿主机 Compose 1h / RustFS 6h</text>
         <text x="12" y="59" class="font-mono" font-size="9" fill="#8bd5ca">经集群 OpenList 与 VPS 本地 OpenList 两个 S3 网关上传</text>
         <text x="12" y="76" class="font-mono" font-size="9" fill="#8087a2">bucket kopiur / cloudnative-pg · 端到端加密 · 防本地物理损毁</text>
       </g>

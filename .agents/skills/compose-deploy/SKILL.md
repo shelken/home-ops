@@ -1,45 +1,43 @@
 ---
 name: compose-deploy
-description: Use when 部署/更新 VPS 或 sakamoto
+description: Use when 部署/更新 sakamoto 的 Compose 服务
 ---
 
-# Compose Deploy (VPS / sakamoto)
+# Compose Deploy (sakamoto)
 
 ## Overview
 
-在 home-ops 仓库中部署或更新 VPS 与 sakamoto 的 Docker Compose 服务。进入仓库后 mise 自动加载运行环境，直接执行对应 Task
+在 home-ops 仓库中部署或更新 sakamoto 的 Docker Compose 服务。进入仓库后 mise 自动加载运行环境，直接执行对应 Task
+
+VPS 的业务容器不在本仓库：它们由 nix-config 的 `hosts/vps/vps-cc/apps/` 以 NixOS 的 `virtualisation.oci-containers` 声明，部署走那边的 `just deploy vps-cc`
 
 ## When to Use
 
-- 部署或更新 VPS 与 sakamoto 的 Compose 服务
+- 部署或更新 sakamoto 的 Compose 服务
 - 仅同步配置文件（不重启容器）
-- 查看 Compose 服务运行日志与状态
+- 查看 sakamoto Compose 服务运行日志与状态
 - 遇到 `task: command not found` 时自举依赖
 
 **When NOT to use**
 
+- 部署或更新 VPS 容器（去 nix-config，读那边的 `docs/user-guide/06-containers.md`）
 - 操作 K8s、Flux 或 Ansible 时
-- 执行非 Compose 相关运维任务时
 
 ## Core Pattern
 
 ```bash
 cd {home-ops-dir}
-task compose:deploy:vps
+task compose:deploy:sakamoto
 ```
 
 ## Quick Reference
 
-| 目的                 | 命令                            |
-| -------------------- | ------------------------------- |
-| 部署 VPS             | `task compose:deploy:vps`       |
-| 部署 sakamoto        | `task compose:deploy:sakamoto`  |
-| 仅同步 VPS 配置      | `task compose:sync:vps`         |
-| 仅同步 sakamoto 配置 | `task compose:sync:sakamoto`    |
-| VPS 日志             | `task compose:logs:vps`         |
-| VPS 状态             | `task compose:status:vps`       |
-| sakamoto 日志        | `task compose:logs:sakamoto`    |
-| sakamoto 状态        | `task compose:status:sakamoto`  |
+| 目的            | 命令                           |
+| --------------- | ------------------------------ |
+| 部署 sakamoto   | `task compose:deploy:sakamoto` |
+| 仅同步配置      | `task compose:sync:sakamoto`   |
+| 查看日志        | `task compose:logs:sakamoto`   |
+| 查看状态        | `task compose:status:sakamoto` |
 
 > 需要强制重建容器时：在 deploy 命令后追加 `-- --force-recreate`
 

@@ -62,7 +62,7 @@ spec:
 
 - 删除 Kustomization 不会清除快照：快照默认策略为 `onScheduleDelete: Retain`，CR 移除后数据依然保留在仓库，后续由 Catalog 接管为 `adopted`
 - 恢复过程初期若停留在 `MissingRecordedIdentity` 属正常等待（约 5 分钟），待 Catalog 完成快照接管后即开始拉取数据，不会产生空卷
-OpenList 自身的云端副本要经 OpenList 读取。集群与 sakamoto 主机同时损坏时，只能临时用 VPS 上的 OpenList 读取云端仓库，前提是开放其 S3 端口 5246（当前只发布 5244）
+OpenList 自身的云端副本要经 OpenList 读取。集群与 sakamoto 主机同时损坏时，只能临时用 VPS 上的另一个 OpenList 实例读取云端仓库，走它的 WebDAV 端口（只发布到 tailnet 地址；早期需要在 VPS 上额外开 S3 端口 5246 的写法已作废，宿主机与集群的 kopia 都统一走 WebDAV）
 
 ## 查看快照
 

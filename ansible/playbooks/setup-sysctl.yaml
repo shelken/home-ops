@@ -1,6 +1,6 @@
 ---
-# 仅 k8s。VPS 的 sysctl 由 site-others.yml 内 hosts:vps 的 play 负责，
-# 避免 site.yml 误接 others.ini 时经 k8s:vps 打到 VPS。
+# 仅 k8s（hosts.ini）。集群外主机不再由 ansible 配置：
+# VPS 已整盘换 NixOS、由 nix-config 声明，其余分组只做 SSH 运维。
 - name: sysctl
   hosts: k8s
   become: true

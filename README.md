@@ -40,7 +40,7 @@ Homelab GitOps 仓库。Kubernetes 集群、基础设施组件、应用、外部
 - 密钥：SOPS、External Secrets、Bitwarden Secrets Manager
 - 存储：Longhorn、OpenEBS、CloudNativePG、SMB
 - 备份：kopiur、RustFS、Kopia
-- 外部服务：`compose/sakamoto/`、`compose/vps/`
+- 外部服务：`compose/sakamoto/`（VPS 侧的业务容器已迁到 nix-config 的 NixOS 声明）
 
 完整架构见 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 
@@ -64,7 +64,6 @@ Homelab GitOps 仓库。Kubernetes 集群、基础设施组件、应用、外部
 | `k8s/infra/common/` | 基础设施部署 |
 | `k8s/components/` | 可复用组件模板 |
 | `compose/sakamoto/` | sakamoto Docker Compose 服务 |
-| `compose/vps/` | VPS Docker Compose 服务 |
 | `bootstrap/` | 集群引导资源 |
 | `ansible/` | 节点初始化和系统配置 |
 | `.taskfile/` | Task 子任务定义 |

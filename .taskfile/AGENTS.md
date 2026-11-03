@@ -33,7 +33,7 @@
 ## 数据与分组（写 task 时）
 
 - k8s 节点：`ansible/inventory/hosts.ini` 的 `controllers` / `workers`
-- 集群外主机：`ansible/inventory/others.ini`；注意分组语义——`vps` 可 bootstrap，`endpoint` / `router` / `hypervisor` 仅连接与运维，不要把「枚举用并集」当成可批量配置的目标集
+- 集群外主机：`ansible/inventory/others.ini`；注意分组语义——`vps`、`endpoint` / `router` / `hypervisor` 都是仅连接与运维，VPS 换 NixOS 后不再接受 ansible 配置，不要把「枚举用并集」当成可批量配置的目标集
 - control-plane 虚拟机生命周期：复用已有 `lima:*`，不要在 cluster 里重写一份 Lima 操作
 - worker 虚拟机：PVE 侧按 guest IP 与 cloud-init `ipconfig` 反查 VMID，不写死 VMID
 
