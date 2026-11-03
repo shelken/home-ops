@@ -28,3 +28,16 @@ spec:
               Flux instance {{ $labels.name }} is not ready
           labels:
             severity: critical
+
+        - alert: FluxResourceStalled
+          expr: |-
+            gotk_resource_info{customresource_kind=~"HelmRelease|Kustomization", stalled="True", suspended!="true"} == 1
+          for: 5m
+          annotations:
+            summary: >-
+              {{ $labels.customresource_kind }} {{ $labels.name }} in {{ $labels.exported_namespace }} is stalled
+            description: >-
+              Run kubectl -n {{ $labels.exported_namespace }} describe {{ $labels.customresource_kind | toLower }} {{ $labels.name }};
+              check status.conditions and Events.
+          labels:
+            severity: critical
