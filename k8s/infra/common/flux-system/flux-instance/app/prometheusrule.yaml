@@ -29,22 +29,15 @@ spec:
           labels:
             severity: critical
 
-        - alert: HelmReleaseStalled
+        - alert: FluxResourceStalled
           expr: |-
-            gotk_resource_info{customresource_kind="HelmRelease", stalled="True"} == 1
+            gotk_resource_info{customresource_kind=~"HelmRelease|Kustomization", stalled="True", suspended!="true"} == 1
           for: 5m
           annotations:
             summary: >-
-              HelmRelease {{ $labels.name }} in {{ $labels.exported_namespace }} is stalled
-          labels:
-            severity: critical
-
-        - alert: KustomizationStalled
-          expr: |-
-            gotk_resource_info{customresource_kind="Kustomization", stalled="True"} == 1
-          for: 5m
-          annotations:
-            summary: >-
-              Kustomization {{ $labels.name }} in {{ $labels.exported_namespace }} is stalled
+              {{ $labels.customresource_kind }} {{ $labels.name }} in {{ $labels.exported_namespace }} is stalled
+            description: >-
+              Run kubectl -n {{ $labels.exported_namespace }} describe {{ $labels.customresource_kind | toLower }} {{ $labels.name }};
+              check status.conditions and Events.
           labels:
             severity: critical
