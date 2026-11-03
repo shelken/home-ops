@@ -42,14 +42,17 @@ k8s/infra/common/security/crowdsec/app/externalsecret.yaml
 k8s/infra/common/security/crowdsec/app/pvc.yaml
 ```
 
-### VPS agent / bouncer
+### VPS agent / bouncer（NixOS 声明）
+
+VPS 侧容器不在本仓库，由 `nix-config` 的 NixOS 声明管理（`virtualisation.oci-containers`）：
 
 ```text
-compose/vps/docker-compose.yml
-compose/vps/configs/crowdsec/acquis.d/all.yaml
-compose/vps/configs/crowdsec/crowdsec-firewall-bouncer.yaml
-compose/vps/configs/crowdsec/appsec-configs/jellyfin-exclusions.yaml
-compose/vps/configs/caddy/Caddyfile
+nix-config: hosts/vps/vps-cc/apps/crowdsec-agent/default.nix
+nix-config: hosts/vps/vps-cc/apps/crowdsec-agent/acquis-all.yaml
+nix-config: hosts/vps/vps-cc/apps/crowdsec-agent/jellyfin-exclusions.yaml
+nix-config: hosts/vps/vps-cc/apps/crowdsec-firewall-bouncer/default.nix
+nix-config: hosts/vps/vps-cc/apps/crowdsec-firewall-bouncer/crowdsec-firewall-bouncer.yaml
+nix-config: hosts/vps/vps-cc/apps/caddy/Caddyfile
 ```
 
 ## 集群 LAPI 配置
@@ -102,7 +105,7 @@ VPS agent = VPS 日志采集与 v4 AppSec
 
 ## VPS CrowdSec agent
 
-VPS compose 里 `crowdsec-agent` 使用这些 collections：
+VPS（NixOS 声明）里 `crowdsec-agent` 使用这些 collections：
 
 ```text
 crowdsecurity/linux
@@ -264,17 +267,20 @@ kubectl -n security exec deploy/crowdsec-lapi -- cscli bouncers list
 kubectl -n security exec deploy/crowdsec-lapi -- cscli bouncers inspect <BOUNCER_NAME>
 ```
 
-### VPS compose 状态
+### VPS（NixOS 声明）状态
 
 ```bash
-task compose:status:vps
-ssh <VPS_HOST> 'cd <REMOTE_COMPOSE_DIR> && docker compose ps crowdsec-agent crowdsec-firewall-bouncer caddy'
+ssh <VPS_HOST> 'systemctl is-active docker-crowdsec-agent docker-crowdsec-firewall-bouncer docker-caddy'
+ssh <VPS_HOST> 'docker ps | grep -E "crowdsec|caddy"'
 ```
+
+更新声明后在 `nix-config` 仓库执行 `just deploy vps-cc` 部署。
 
 ### VPS agent 日志
 
 ```bash
 ssh <VPS_HOST> 'docker logs crowdsec-agent --since 30m'
+ssh <VPS_HOST> 'journalctl -u docker-crowdsec-agent --since 30m'
 ssh <VPS_HOST> 'docker exec crowdsec-agent cscli appsec-configs list'
 ssh <VPS_HOST> 'docker exec crowdsec-agent cscli collections list'
 ```
@@ -291,7 +297,7 @@ ssh <VPS_HOST> 'docker exec crowdsec-agent cscli bouncers list'
 ### VPS firewall bouncer
 
 ```bash
-ssh <VPS_HOST> 'cd <REMOTE_COMPOSE_DIR> && docker compose logs --tail=200 crowdsec-firewall-bouncer'
+ssh <VPS_HOST> 'docker logs crowdsec-firewall-bouncer --since 30m'
 ssh <VPS_HOST> 'sudo iptables -S DOCKER-USER | head -80'
 ssh <VPS_HOST> 'sudo ip6tables -S DOCKER-USER | head -80'
 ```
@@ -420,7 +426,7 @@ ssh <VPS_HOST> 'grep -F "<HOST>" /var/log/caddy/access.log | tail -n 5'
 当前 v4、v6 AppSec 都加载 Jellyfin 播放进度接口排除：
 
 ```text
-compose/vps/configs/crowdsec/appsec-configs/jellyfin-exclusions.yaml
+nix-config: hosts/vps/vps-cc/apps/crowdsec-agent/jellyfin-exclusions.yaml
 k8s/infra/common/security/crowdsec/app/helmrelease.yaml
 ```
 
@@ -451,7 +457,7 @@ pre_eval:
 v4、v6 入口的 Caddyfile 对 `drive` 域名的 `/dav` 不调用 `appsec`，`crowdsec` 的 IP decision 检查保留，其他路径照常检查：
 
 ```text
-compose/vps/configs/caddy/Caddyfile
+nix-config: hosts/vps/vps-cc/apps/caddy/Caddyfile
 k8s/infra/common/network/external/caddy-external/app/helmrelease.yaml
 ```
 
@@ -478,7 +484,7 @@ route {
 生效方式：
 
 - v6：ConfigMap 变更由 reloader 重启 `caddy-external`
-- v4：只改 Caddyfile 不会重建容器，需 `task compose:deploy:vps -- --force-recreate`，或在 VPS 上对 `caddy` 容器执行 `caddy reload`
+- v4：Caddyfile 由 NixOS 声明挂载进容器，改完要在 `nix-config` 里 `just deploy vps-cc` 重建 `caddy` 容器才生效；容器内 `caddy reload` 读到的仍是旧挂载，不能替代重建
 
 排查时先区分 401、403、429 和 ban：401 死在 AppSec 认证，403 来自业务或 Caddy，429 来自限流，ban 只表现为超时且不一定留下 access log，不要因为 access log 里没有请求就断言请求没发出
 
@@ -486,15 +492,16 @@ route {
 
 ### 修改 VPS CrowdSec 配置
 
-1. 修改 `compose/vps/configs/crowdsec/...`。
+1. 在 `nix-config` 仓库修改 `hosts/vps/vps-cc/apps/crowdsec-agent/`（或 `crowdsec-firewall-bouncer/`、`caddy/`）下的声明。
 2. 本地校验 YAML：
 
    ```bash
    python3 - <<'PY'
    import yaml
    for p in [
-       'compose/vps/configs/crowdsec/acquis.d/all.yaml',
-       'compose/vps/docker-compose.yml',
+       'hosts/vps/vps-cc/apps/crowdsec-agent/acquis-all.yaml',
+       'hosts/vps/vps-cc/apps/crowdsec-agent/jellyfin-exclusions.yaml',
+       'hosts/vps/vps-cc/apps/crowdsec-firewall-bouncer/crowdsec-firewall-bouncer.yaml',
    ]:
        with open(p) as f:
            list(yaml.safe_load_all(f))
@@ -502,30 +509,20 @@ route {
    PY
    ```
 
-3. 同步 VPS：
+3. 部署（在 `nix-config` 仓库）：
 
    ```bash
-   task compose:sync:vps
+   just deploy vps-cc
    ```
 
-4. 重建 agent：
-
-   ```bash
-   ssh <VPS_HOST> 'cd <REMOTE_COMPOSE_DIR> && docker compose up -d crowdsec-agent'
-   ```
-
-5. 验证：
+4. 验证：
 
    ```bash
    ssh <VPS_HOST> 'docker exec crowdsec-agent cscli appsec-configs list'
    ssh <VPS_HOST> 'docker logs crowdsec-agent --since 2m | grep -i appsec'
    ```
 
-注意：`task compose:sync:vps` 会临时生成 `.env` 和模板渲染文件。命令中断后要确认本地没有残留敏感文件：
-
-```bash
-test -f compose/vps/.env && echo 'WARN .env exists' || echo '.env absent'
-```
+VPS 侧不再有 `.env` 渲染与 secret 注入步骤：机密由 `nix-config` 的 sops 下发（`sops.templates` 生成 env 文件，容器启动时读取），本仓库不需要再做残留文件检查。
 
 ## 外部参考
 

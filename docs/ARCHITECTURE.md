@@ -41,7 +41,7 @@ graph TB
         end
     end
 
-    VPS["VPS<br/>公网入口 · Docker Compose"]
+    VPS["VPS<br/>公网入口 · NixOS 声明"]
     VPS -.->|"Tailscale"| WORKER
 ```
 
@@ -125,7 +125,7 @@ graph LR
 
 ## 3. 服务分布
 
-> 本节只列主要 Compose 服务，不是完整容器清单；辅助容器以实际 `docker-compose.yml` 为准。
+> 本节只列主要服务，不是完整容器清单；VPS 上的容器由 nix-config 的 `hosts/vps/vps-cc/apps/` 声明，sakamoto 的以 `compose/sakamoto/docker-compose.yml` 为准。
 
 ```mermaid
 graph TB
@@ -144,7 +144,7 @@ Nvidia DLS
 dockerproxy (docker-socket-proxy :2575)"]
     end
 
-    subgraph COMPOSE_VPS["VPS · Docker Compose"]
+    subgraph NIXOS_VPS["VPS · NixOS 声明（oci-containers）"]
         CD_VPS["Caddy (公网入口 + TLS)
 CrowdSec (WAF + AppSec)
 dnsmasq (本机 DNS) / mosdns (DNS)
@@ -397,7 +397,7 @@ graph TB
 ```mermaid
 
 graph LR
-    subgraph VPS["VPS"]
+    subgraph VPS["VPS（NixOS 声明）"]
         NE_VPS["node-exporter"]
         CADDY_VPS["Caddy metrics"]
         FB_VPS["Fluent Bit<br/>VPS Caddy 日志"]
@@ -467,10 +467,10 @@ graph TB
         USB_HDD["外接 USB HDD"]
     end
 
-    subgraph VPS_BACKUP["VPS"]
+    subgraph VPS_BACKUP["VPS（NixOS 声明）"]
         VPS_Data["服务数据"]
         VPS_Kopia["Kopia"]
-        VPS_OpenList["OpenList (本地 S3)"]
+        VPS_OpenList["OpenList (WebDAV)"]
     end
 
     Cloud["139 移动云盘"]
@@ -507,7 +507,7 @@ graph TB
 | 宿主机本地 | 用户数据 (`/Volumes/<USER_DATA>`) | Kopia Local → 外接 USB HDD | 本地 | 每小时 |
 | VPS 服务数据 | VPS 数据 | Kopia → OpenList (VPS WebDAV) | 139 云盘 | 4 小时 |
 
-> Kopia 仓库配置通过 `.env.tpl` 从外部密钥管理注入，不提交到 Git
+> 集群外主机的 Kopia 仓库配置由各主机的密钥管理注入（VPS 侧在 nix-config 的 sops），不提交到 Git
 > 139 云盘是 OpenList 的运行时存储配置，不在 Git 内声明
 
 ---

@@ -48,11 +48,6 @@
       sourceUrl: "https://github.com/Tecnativa/docker-socket-proxy"
     },
     {
-      description: "derper 补充",
-      matchPackageNames: ["/kaaanata/derper-docker/"],
-      sourceUrl: "https://github.com/kaaanata/derper-docker"
-    },
-    {
       description: "anubis 补充",
       matchPackageNames: ["/techarohq/anubis/"],
       sourceUrl: "https://github.com/TecharoHQ/anubis"
@@ -66,16 +61,6 @@
       description: "caddy 补充",
       matchPackageNames: ["/shelken/caddy/"],
       sourceUrl: "https://github.com/caddyserver/caddy"
-    },
-    {
-      description: "hysteria2 补充",
-      matchPackageNames: ["/tobyxdd/hysteria/"],
-      sourceUrl: "https://github.com/apernet/hysteria"
-    },
-    {
-      description: "xray-core 补充",
-      matchPackageNames: ["/xtls/xray-core/"],
-      sourceUrl: "https://github.com/XTLS/Xray-core"
     },
     {
       description: "icloudpd/icloudpd 补充",

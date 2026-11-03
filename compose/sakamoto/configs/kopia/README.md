@@ -11,7 +11,7 @@
 - [启动脚本](entrypoint.sh)定义连接检查、策略导入和通知配置
 - [集群部署入口](../../../../k8s/infra/common/kopiur-system/kopiur/ks.yaml)定义云端仓库先就绪、集中复制后同步的依赖顺序
 
-两台宿主机通过各自的存储入口访问同一个 `main` 仓库，口令值必须一致，各自从本机 BWS 条目引入凭据。VPS 使用本机的存储服务，配置前提见 [VPS 配置入口](../../../vps/configs/kopia/README.md)
+两台宿主机通过各自的存储入口访问同一个 `main` 仓库，口令值必须一致。sakamoto 从本机 BWS 条目引入凭据；VPS 侧由 nix-config 的 sops 下发（`hosts/vps/vps-cc/apps/kopia/`），已不是本仓库的 Compose 服务
 
 集群凭据由[云端 ExternalSecret](../../../../k8s/infra/common/kopiur-system/kopiur/repository-cloud/externalsecret.yaml)引入，与宿主机分开维护
 

@@ -2,7 +2,8 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: "3"
 
-# VPS/compose 路径的 kopia 拉推。
+# VPS 主机数据（/data/docker）的 kopia 拉推：快照在共享仓库里，
+# 由 sakamoto 的 kopia 容器读取，落到 VPS 的数据目录。
 # 集群 PVC 恢复用 task kopiur:*（.taskfile/kopiur.yaml）。
 
 vars:
