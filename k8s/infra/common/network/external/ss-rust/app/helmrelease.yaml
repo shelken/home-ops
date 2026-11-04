@@ -105,7 +105,7 @@ spec:
           ddns:
             image:
               repository: docker.io/favonia/cloudflare-ddns
-              tag: 1.17.1
+              tag: 1.18.0
             env:
               TZ: ${TIMEZONE}
               CLOUDFLARE_API_TOKEN:
