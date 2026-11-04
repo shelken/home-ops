@@ -22,11 +22,21 @@ spec:
       neko-master:
         annotations:
           reloader.stakater.com/auto: "true"
-        containers:
-          app:
-            image:
+        initContainers:
+          # 启动脚本每次都会覆盖 public/runtime-config.js，那个目录在镜像里属 root；
+          # 把镜像自带的静态资源搬进可写卷，脚本原样跑即可，不改它的内容
+          seed-public:
+            image: &image
               repository: foru17/neko-master
               tag: 1.4.3@sha256:e0aadd60166db0791f4f7a0465626bcc6ab5dadb4204828ddbfc1893a167265b
+            command: ["sh", "-c", "cp -R /app/apps/web/.next/standalone/apps/web/public/. /seed/"]
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+        containers:
+          app:
+            image: *image
             env:
               TZ: ${TIMEZONE}
               DB_PATH: /app/data/stats.db
@@ -53,7 +63,7 @@ spec:
               readiness: *probes
             securityContext:
               allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: false
+              readOnlyRootFilesystem: true
               capabilities: { drop: ["ALL"] }
             resources:
               requests:
@@ -61,12 +71,14 @@ spec:
                 memory: 256Mi
               limits:
                 memory: 1Gi
-        pod:
-          securityContext:
-            # 启动脚本每次都会把 runtime-config.js 写进 /app/apps/web/.next/standalone/apps/web/public，
-            # 该目录在镜像里属 root；非 root 跑不起来
-            runAsUser: 0
-            runAsGroup: 0
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
     service:
       app:
         controller: neko-master
@@ -92,6 +104,26 @@ spec:
         globalMounts:
           - path: /app/data/geoip
             readOnly: true
+      # 启动脚本写 runtime-config.js 的目标目录
+      public:
+        type: emptyDir
+        advancedMounts:
+          neko-master:
+            app:
+              - path: /app/apps/web/.next/standalone/apps/web/public
+            seed-public:
+              - path: /seed
+      # Next.js 图像优化要往这里写，只读 rootfs 下缺它会抛 unhandledRejection
+      cache:
+        type: emptyDir
+        advancedMounts:
+          neko-master:
+            app:
+              - path: /app/apps/web/.next/standalone/apps/web/.next/cache
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
     route:
       app:
         annotations:
