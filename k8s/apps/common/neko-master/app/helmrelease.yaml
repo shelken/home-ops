@@ -120,10 +120,6 @@ spec:
           neko-master:
             app:
               - path: /app/apps/web/.next/standalone/apps/web/.next/cache
-      tmp:
-        type: emptyDir
-        globalMounts:
-          - path: /tmp
     route:
       app:
         annotations:
