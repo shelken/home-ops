@@ -5,6 +5,7 @@ components:
   - ../../components/common
 resources:
   # - affine/ks.yaml
+  - ai/stt-voice/ks.yaml
   - caches/ks.yaml
   - cli-proxy-api/ks.yaml
   - commandcode/ks.yaml

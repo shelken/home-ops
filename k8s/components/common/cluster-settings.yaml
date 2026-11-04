@@ -5,3 +5,4 @@ metadata:
 data:
   TIMEZONE: Asia/Shanghai
   ROUTER_IP: 192.168.6.1
+  YUUKO_IP: 192.168.6.10

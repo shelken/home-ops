@@ -1,0 +1,13 @@
+---
+endpoints:
+  - name: stt-voice
+    group: yuuko
+    url: "tcp://yuuko.lan:8900"
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[CONNECTED] == true"
+    alerts:
+      - type: custom
