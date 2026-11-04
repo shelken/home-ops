@@ -1,0 +1,137 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app neko-master
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      neko-master:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          # 启动脚本每次都会覆盖 public/runtime-config.js，那个目录在镜像里属 root；
+          # 把镜像自带的静态资源搬进可写卷，脚本原样跑即可，不改它的内容
+          seed-public:
+            image: &image
+              repository: foru17/neko-master
+              tag: 1.4.3@sha256:e0aadd60166db0791f4f7a0465626bcc6ab5dadb4204828ddbfc1893a167265b
+            command: ["sh", "-c", "cp -R /app/apps/web/.next/standalone/apps/web/public/. /seed/"]
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+        containers:
+          app:
+            image: *image
+            env:
+              TZ: ${TIMEZONE}
+              DB_PATH: /app/data/stats.db
+              # 默认 online 会把目标 IP 发给第三方接口
+              GEOIP_LOOKUP_PROVIDER: local
+              GEOIP_MMDB_DIR: /app/data/geoip
+              COOKIE_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: neko-master-secret
+                    key: COOKIE_SECRET
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: 3001
+                  initialDelaySeconds: 30
+                  periodSeconds: 10
+                  timeoutSeconds: 3
+                  failureThreshold: 6
+              readiness: *probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 50m
+                memory: 256Mi
+              limits:
+                memory: 1Gi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
+    service:
+      app:
+        controller: neko-master
+        ports:
+          http:
+            port: 3000
+            appProtocol: http
+    persistence:
+      # 统计库；不接 kopiur，单副本 longhorn-cache
+      data:
+        forceRename: *app
+        type: persistentVolumeClaim
+        storageClass: longhorn-cache
+        accessMode: ReadWriteOnce
+        size: 5Gi
+        globalMounts:
+          - path: /app/data
+      # 复用 geoip-updater DaemonSet 落在每个节点的 MMDB
+      geoip:
+        type: hostPath
+        hostPath: /data/envoy-geoip
+        hostPathType: Directory
+        globalMounts:
+          - path: /app/data/geoip
+            readOnly: true
+      # 启动脚本写 runtime-config.js 的目标目录
+      public:
+        type: emptyDir
+        advancedMounts:
+          neko-master:
+            app:
+              - path: /app/apps/web/.next/standalone/apps/web/public
+            seed-public:
+              - path: /seed
+      # Next.js 图像优化要往这里写，只读 rootfs 下缺它会抛 unhandledRejection
+      cache:
+        type: emptyDir
+        advancedMounts:
+          neko-master:
+            app:
+              - path: /app/apps/web/.next/standalone/apps/web/.next/cache
+    route:
+      app:
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: internal
+          gethomepage.dev/name: neko-master
+          gethomepage.dev/app: *app
+        hostnames: ["neko.${INTERNAL_DOMAIN}"]
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: http
