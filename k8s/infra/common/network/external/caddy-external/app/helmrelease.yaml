@@ -25,7 +25,11 @@ spec:
           Caddyfile: |-
             {
               # Global options
-              admin :2019
+              # 管理面无认证：原来是 `admin :2019`，而 Service 还导出了 admin 端口，
+              # 等于集群里任一无认证 pod 都能读生效配置（含替换后的 CrowdSec key）并 POST /load 重配 v6 入口。
+              # 全仓没有任何消费者（ScrapeConfig 只抓 VPS/sakamoto 的 2019，Homepage 没配它的 widget），直接关掉。
+              # 关掉后 Caddyfile 变更仍由 ConfigMap + Reloader 重建 pod 生效；要临时手动 reload 就改回 localhost:2019。
+              admin off
               log {
                 level DEBUG
               }
@@ -216,8 +220,6 @@ spec:
           http-quic:
             port: 443
             protocol: UDP
-          admin:
-            port: 2019
           health:
             port: 8080
     persistence:
