@@ -5,7 +5,8 @@
 vps-docker:
   conn:
     host: ts-node-vps.network.svc
-    port: 2575
+    # 2576 是只读的 label 列表（由 VPS 的容器声明渲染），不是 Docker API
+    port: 2576
     connectionTimeout: 5000
     timeout: 5000
 
