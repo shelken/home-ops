@@ -13,9 +13,9 @@ spec:
     - port: 9100
       protocol: TCP
       name: node-export
-    - port: 2575
+    - port: 2576
       protocol: TCP
-      name: docker-proxy
+      name: homepage-labels
     - port: 2019
       protocol: TCP
       name: caddy-metrics
