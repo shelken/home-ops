@@ -87,7 +87,7 @@ plugins:
   store-sources:
     - https://raw.githubusercontent.com/shelken/cpa-plugins/main/registry.json
 # Proxy URL. Supports socks5/http/https protocols. Example: socks5://user:pass@192.168.1.1:1080/
-proxy-url: "socks5://sakamoto.lan:7890/"
+# proxy-url: "socks5://sakamoto.lan:7890/"
 
 # When true, unprefixed model requests only use credentials without a prefix (except when prefix == model name).
 # 强制模型前缀:主会话使用付费的前缀,subagent使用free
