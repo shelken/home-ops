@@ -19,6 +19,9 @@ spec:
   values:
     #ref: https://github.com/tailscale/tailscale/blob/main/cmd/k8s-operator/deploy/chart/values.yaml
     operatorConfig:
+      extraEnv:
+        - name: TS_NO_LOGS_NO_SUPPORT
+          value: "true"
       hostname: "tailscale-operator"
       image:
         repository: ghcr.io/tailscale/k8s-operator

@@ -6,6 +6,9 @@ spec:
   statefulSet:
     pod:
       tailscaleContainer:
+        env:
+          - name: TS_NO_LOGS_NO_SUPPORT
+            value: "true"
         resources:
           limits:
             squat.ai/tun: "1"
