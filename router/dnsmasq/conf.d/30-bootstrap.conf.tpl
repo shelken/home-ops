@@ -18,8 +18,6 @@
 
 # local= 让该名字对所有记录类型本地闭合（含 AAAA 的 NODATA）；
 # address= 只约束 A 查询，AAAA 在 dnsmasq 2.91 仍会按 server= 转发（已实测）。
-local=/minio-ui.int.ooooo.space/
-local=/minio.int.ooooo.space/
 local=/rustfs-ui.int.ooooo.space/
 local=/rustfs.int.ooooo.space/
 local=/nvidia-dls.int.ooooo.space/
@@ -29,8 +27,6 @@ local=/quay-mirror.int.ooooo.space/
 local=/mirror-gcr-mirror.int.ooooo.space/
 local=/k8s-mirror.int.ooooo.space/
 
-address=/minio-ui.int.ooooo.space/192.168.6.144
-address=/minio.int.ooooo.space/192.168.6.144
 address=/nvidia-dls.int.ooooo.space/192.168.6.144
 address=/pve-mine.int.ooooo.space/192.168.6.144
 address=/rustfs-ui.int.ooooo.space/192.168.6.144
