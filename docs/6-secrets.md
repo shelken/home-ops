@@ -23,7 +23,7 @@ task secret:bootstrap    # 渲染并应用集群自举所需 Secret
 
 ## Bitwarden Secrets Manager
 
-集群内所有 ExternalSecret 与 PushSecret 都使用 ClusterSecretStore `bitwarden-store`，数据源是 BWS 项目。bootstrap、compose 模板和 `task secret:*` 的读写也使用 BWS。仓库不再提供 Azure Key Vault 的 store、bootstrap 凭据或轮换任务
+集群内所有 ExternalSecret 与 PushSecret 都使用 ClusterSecretStore `bitwarden-store`，数据源是 BWS 项目。bootstrap 和 `task secret:*` 的读写也使用 BWS。仓库不再提供 Azure Key Vault 的 store、bootstrap 凭据或轮换任务
 
 BWS provider 的使用约束：
 

@@ -195,4 +195,4 @@ postRenderers:
 
 - daed 的 wing.db 改动不触发自动 reload，DNS/routing 变更后须手动 reload 再验证
 - 被运行进程按路径反复读取的文件（如 Envoy 的 mmdb）必须写临时文件后原子 `mv` 替换，就地覆盖会在热重载窗口内产生异常状态
-- Docker Compose 只在服务定义变化时重建容器，只改 `configs:` 引用的文件不会重新加载，属同类问题（见 nix-config 的 `hosts/sakamoto/apps/README.md`）
+- Docker Compose 的服务 hash 不含 `configs:` 的文件路径与内容，只改这类文件不会重建容器，属同类问题；sakamoto 改用 `volumes:` 挂配置文件绕开（见 nix-config 的 `hosts/sakamoto/apps/README.md`）
