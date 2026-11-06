@@ -18,12 +18,12 @@ home-ops 是使用 Flux 管理 Kubernetes 集群与集群外服务的 GitOps 配
 - 写代码、改配置、新增应用、决定文件归属 → [CODING_STANDARDS.md](CODING_STANDARDS.md)
 - 找文档、确认文档归属 → [docs/README.md](docs/README.md)
 - 排查历史事故与已知坑 → 先按症状查 [docs/operations-notes.md](docs/operations-notes.md)，再查 [postmortems/README.md](postmortems/README.md) 的症状表；事故分析命令见 `.agents/skills/k8s-incident-analysis/`
-- 在 compose/、ansible/、.taskfile/ 下工作 → 先读对应目录的 AGENTS.md
+- 在 ansible/、.taskfile/ 下工作 → 先读对应目录的 AGENTS.md
 
 ## 布局
 
 - `k8s/`: Flux 集群声明（clusters、infra、apps、components）
-- `compose/`、`router/`、`lima/`: 集群外 Compose 服务（只剩 sakamoto）、路由器配置源、Lima VM（见 [lima/README.md](lima/README.md)）；VPS 上的容器不在本仓库，由 NixOS 声明管理（见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)）
+- `router/`、`lima/`: 路由器配置源、Lima VM（见 [lima/README.md](lima/README.md)）；集群外的容器都不在本仓库：VPS 与 sakamoto 的服务由 nix-config 声明（见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)）
 - `ansible/`、`bootstrap/`: 节点配置自动化、集群引导
 - `.taskfile/`、`scripts/`、`.renovate/`: task 命令入口、运维脚本、依赖升级配置
 - `docs/`、`postmortems/`: 文档索引、尸检报告

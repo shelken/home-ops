@@ -125,7 +125,7 @@ graph LR
 
 ## 3. 服务分布
 
-> 本节只列主要服务，不是完整容器清单；VPS 上的容器由 nix-config 的 `hosts/vps/vps-cc/apps/` 声明，sakamoto 的以 `compose/sakamoto/docker-compose.yml` 为准。
+> 本节只列主要服务，不是完整容器清单；VPS 上的容器由 nix-config 的 `hosts/vps/vps-cc/apps/` 声明，sakamoto 的由 nix-config 的 `hosts/sakamoto/apps/compose.yaml` 声明。
 
 ```mermaid
 graph TB

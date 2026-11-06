@@ -1,6 +1,6 @@
 ---
 name: gatus-compose-checks
-description: 从 home-ops 的 Docker Compose 服务补齐 Gatus outside 健康检查，并选择轻量、可从集群内验证的探测方式。Use when 用户要求对比 compose 与 Gatus、补充 outside endpoints、检查集群外 VPS/sakamoto 服务监控、或调整 Gatus health check 轻量化。
+description: 从 nix-config 声明的 Compose 服务补齐 Gatus outside 健康检查，并选择轻量、可从集群内验证的探测方式。Use when 用户要求对比 compose 与 Gatus、补充 outside endpoints、检查集群外 VPS/sakamoto 服务监控、或调整 Gatus health check 轻量化。
 ---
 
 # Gatus Compose Checks
@@ -8,7 +8,7 @@ description: 从 home-ops 的 Docker Compose 服务补齐 Gatus outside 健康�
 ## Quick start
 
 1. 读取现有 Gatus outside 配置：`k8s/infra/common/observability/gatus/app/resources/outside/*.yaml`
-2. 读取目标服务声明：VPS 侧在 nix-config 的 `hosts/vps/vps-cc/apps/`（一个服务一个文件），sakamoto 侧是 `compose/sakamoto/docker-compose.yml`
+2. 读取目标服务声明：都在 nix-config 里，VPS 侧是 `hosts/vps/vps-cc/apps/`（一个服务一个文件），sakamoto 侧是 `hosts/sakamoto/apps/compose.yaml`
 3. 对比服务、端口、Caddy 路由与服务自带的健康检查声明
 4. 从集群内现有 Pod 测试端点连通性，再编辑对应 outside YAML
 5. 校验 YAML 语法并运行 `kustomize build`

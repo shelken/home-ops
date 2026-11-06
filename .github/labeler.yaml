@@ -4,11 +4,6 @@ area/apps:
       - any-glob-to-any-file:
           - k8s/apps/**/*
 
-area/compose:
-  - changed-files:
-      - any-glob-to-any-file:
-          - compose/**/*
-
 area/github:
   - changed-files:
       - any-glob-to-any-file:

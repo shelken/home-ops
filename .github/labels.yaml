@@ -3,9 +3,6 @@
 - name: area/apps
   color: "a6e3a1"
   description: "Pull requests that update applications"
-- name: area/compose
-  color: "a6e3a1"
-  description: "Pull requests that update compose"
 - name: area/github
   color: "a6e3a1"
   description: "Pull requests that update GitHub workflows"
