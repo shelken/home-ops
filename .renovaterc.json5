@@ -19,6 +19,8 @@
   ],
   dependencyDashboard: true,
   dependencyDashboardTitle: "Renovate Dashboard 🤖",
+  // main 未要求分支保持最新，behind-base-branch 会在 main 每次前进后重基并重跑所有开放 PR
+  rebaseWhen: "conflicted",
   ignorePaths: ["**/*.sops.*", "mise.toml"],
   "ansible-galaxy": {
     managerFilePatterns: ["/(^|/)ansible/requirements\\.ya?ml$/"],
