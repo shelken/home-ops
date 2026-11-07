@@ -50,6 +50,10 @@ k3s_server:
       "image-gc-high-threshold=55",
       "feature-gates=ImageVolume=true",
       "allowed-unsafe-sysctls=net.ipv6.*", # 给 tailscale 等使用
+      # 缺省时 Pod 可吃满整机内存，etcd 页缓存被挤压后续约超时，k3s 会自行退出；
+      # system-reserved 让 Pod 总量有上限，给 k3s 与页缓存留空间，eviction-hard 让 kubelet 先于内核驱逐 Pod
+      "system-reserved=memory=4500Mi",
+      "eviction-hard=memory.available<500Mi,nodefs.available<5%,imagefs.available<5%", # 覆盖默认值，磁盘两项须重复
     ] # 镜像回收
   node-ip: "{{ ansible_host }}"
   node-label:
