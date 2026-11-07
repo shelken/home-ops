@@ -22,6 +22,21 @@
       schedule: ["before 6am on Monday"],
     },
     {
+      // 暂时只放无状态、无 CRD、滑动重启即可恢复的组件；存储、网络、带 CRD 的 operator 不纳入
+      description: "Auto-merge low-risk chart patches weekly",
+      matchDatasources: ["docker"],
+      automerge: true,
+      automergeType: "pr",
+      matchUpdateTypes: ["patch"],
+      matchPackageNames: [
+        "/coredns/charts/coredns/",
+        "/stakater/charts/reloader/",
+        "/prometheus-blackbox-exporter/",
+      ],
+      ignoreTests: false,
+      schedule: ["before 6am on Monday"],
+    },
+    {
       description: "Auto-merge Ansible collections",
       matchDatasources: ["galaxy-collection"],
       automerge: true,
