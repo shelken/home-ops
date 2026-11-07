@@ -5,10 +5,10 @@
       description: "Auto-merge GitHub Actions",
       matchManagers: ["github-actions"],
       automerge: true,
-      automergeType: "branch",
+      automergeType: "pr",
       matchUpdateTypes: ["minor", "patch", "digest"],
       minimumReleaseAge: "3 days",
-      ignoreTests: true,
+      ignoreTests: false,
     },
     {
       // 每次升级都会重启 Prometheus 并让 apiserver 内存短时上升，集中到低峰窗口
@@ -27,7 +27,7 @@
       automerge: true,
       automergeType: "pr",
       matchUpdateTypes: ["minor", "patch"],
-      ignoreTests: true,
+      ignoreTests: false,
     },
     {
       description: "Auto-merge Ansible roles",
@@ -35,7 +35,7 @@
       automerge: true,
       automergeType: "pr",
       matchUpdateTypes: ["minor", "patch"],
-      ignoreTests: true,
+      ignoreTests: false,
     },
   ],
 }
