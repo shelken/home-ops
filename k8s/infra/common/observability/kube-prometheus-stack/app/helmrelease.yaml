@@ -138,6 +138,21 @@ spec:
         serviceMonitorSelectorNilUsesHelmValues: false
         retention: 7d
         retentionSize: 50GiB
+        # 控制面节点内存余量小，空间被挤占后 etcd 续约会超时；优先落在有 Longhorn 磁盘的节点，使卷副本跟随 Pod 迁移
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: node-role.kubernetes.io/control-plane
+                      operator: DoesNotExist
+            preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                preference:
+                  matchExpressions:
+                    - key: node.longhorn.io/create-default-disk
+                      operator: In
+                      values: ["true"]
         resources:
           requests:
             cpu: 300m
