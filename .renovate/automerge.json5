@@ -16,9 +16,21 @@
       automerge: true,
       automergeType: "pr",
       matchUpdateTypes: ["minor", "patch"],
-      matchPackageNames: ["/kube-prometheus-stack/", "/api-gateway/", "/grafana/"],
+      matchPackageNames: ["/api-gateway/", "/grafana/"],
       ignoreTests: false,
       rebaseWhen: "behind-base-branch",
+    },
+    {
+      // 每次升级都会重启 Prometheus 并让 apiserver 内存短时上升，集中到低峰窗口
+      description: "Auto-merge kube-prometheus-stack weekly",
+      matchDatasources: ["docker"],
+      automerge: true,
+      automergeType: "pr",
+      matchUpdateTypes: ["minor", "patch"],
+      matchPackageNames: ["/kube-prometheus-stack/"],
+      ignoreTests: false,
+      rebaseWhen: "behind-base-branch",
+      schedule: ["before 6am on Monday"],
     },
     {
       description: "Auto-merge Ansible collections",
