@@ -7,6 +7,8 @@ k3s_agent:
       "image-gc-high-threshold=55",
       "feature-gates=ImageVolume=true",
       "allowed-unsafe-sysctls=net.ipv6.*", # 给 tailscale 等使用
+      # 内存告急时由 kubelet 先驱逐 Pod，而不是由内核按 oom_score 直接杀进程；磁盘两项是被覆盖的默认值
+      "eviction-hard=memory.available<500Mi,nodefs.available<5%,imagefs.available<5%",
     ]
   # 节点特有标签（GPU 透传）由 host_vars 的 k3s_node_labels 提供，未定义则为空
   # role 渲染 config.yaml 变化时自动 notify 重启 k3s 生效；
