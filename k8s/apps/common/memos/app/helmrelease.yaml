@@ -34,7 +34,7 @@ spec:
           app:
             image:
               repository: ghcr.io/usememos/memos
-              tag: 0.30.0@sha256:71a5b4738d1bed96e92112004054f0888e92791b64eb78afd79077c96e6f9327
+              tag: 26.11.0@sha256:087e7dc6b76b31fcd1107a5767398b2a310ced209adb791efd8760c745dc8034
             env:
               TZ: ${TIMEZONE}
               # MEMOS_INSTANCE_URL: https://memos.${MAIN_DOMAIN}
