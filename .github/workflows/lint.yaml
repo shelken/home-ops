@@ -5,6 +5,9 @@ name: Lint
 on:
   pull_request:
     branches: ["main"]
+  # PR 的缓存只在自己的 merge ref 内可见；main 上跑一次才能让所有 PR 复用 mise 缓存
+  push:
+    branches: ["main"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
@@ -27,13 +30,26 @@ jobs:
 
       # 只装这几个：mise.toml 里还有 homeassistant-cli 与 mc，全量安装既不必要也很慢。
       # pipx 是 yamllint 的安装后端，必须在它之前装上（install: false 时不会自动带出来）
+      #
+      # 冷缓存时 mise 二进制及其签名校验文件都从 github.com/releases 匿名下载，
+      # GitHub 匿名流量故障（504）会直接让这一步失败。命中缓存则完全不联网，
+      # 所以工具装在 install 之后，要用 cache_save_post 才会被一并缓存。
       - name: Install mise
         uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
         with:
           install: false
+          cache_save_post: true
+          # 默认不把 token 传给后续步骤，下一步的 mise install 会匿名访问 GitHub
+          persist_github_token: true
 
       - name: Install lint tools
-        run: mise install pipx yamllint ruff shellcheck
+        run: |
+          for attempt in 1 2 3 4 5; do
+            mise install pipx yamllint ruff shellcheck && exit 0
+            echo "mise install failed (attempt ${attempt}/5)"
+            sleep $((attempt * 15))
+          done
+          exit 1
 
       - name: yamllint
         run: yamllint --config-file .yamllint $(git ls-files '*.yaml' '*.yml')
