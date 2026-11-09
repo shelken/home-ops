@@ -5,9 +5,6 @@ name: Lint
 on:
   pull_request:
     branches: ["main"]
-  # PR 的缓存只在自己的 merge ref 内可见；main 上跑一次才能让所有 PR 复用 mise 缓存
-  push:
-    branches: ["main"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
@@ -19,7 +16,7 @@ permissions:
 jobs:
   lint:
     name: Lint - Repository checks
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     steps:
@@ -28,28 +25,16 @@ jobs:
         with:
           persist-credentials: false
 
-      # 只装这几个：mise.toml 里还有 homeassistant-cli 与 mc，全量安装既不必要也很慢。
-      # pipx 是 yamllint 的安装后端，必须在它之前装上（install: false 时不会自动带出来）
-      #
-      # 冷缓存时 mise 二进制及其签名校验文件都从 github.com/releases 匿名下载，
-      # GitHub 匿名流量故障（504）会直接让这一步失败。命中缓存则完全不联网，
-      # 所以工具装在 install 之后，要用 cache_save_post 才会被一并缓存。
-      - name: Install mise
-        uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
-        with:
-          install: false
-          cache_save_post: true
-          # 默认不把 token 传给后续步骤，下一步的 mise install 会匿名访问 GitHub
-          persist_github_token: true
-
+      # 三个工具都从 PyPI 装，版本取自 mise.toml（本地与 CI 同一来源）。
+      # 不用 mise：它的二进制与签名文件只能匿名下载 github.com/releases，
+      # GitHub 匿名流量故障（504）时整个 job 会挂；runner 镜像里的版本又随镜像漂移
+      # （ubuntu-24.04 的 shellcheck 是 0.9.0）。shellcheck-py 的版本号是 <上游版本>.<打包修订>。
       - name: Install lint tools
         run: |
-          for attempt in 1 2 3 4 5; do
-            mise install pipx yamllint ruff shellcheck && exit 0
-            echo "mise install failed (attempt ${attempt}/5)"
-            sleep $((attempt * 15))
-          done
-          exit 1
+          pin() { sed -n "s/^$1 = \"\(.*\)\"/\1/p" mise.toml; }
+          pipx install "yamllint==$(pin yamllint)"
+          pipx install "ruff==$(pin ruff)"
+          pipx install "shellcheck-py==$(pin shellcheck).*"
 
       - name: yamllint
         run: yamllint --config-file .yamllint $(git ls-files '*.yaml' '*.yml')
