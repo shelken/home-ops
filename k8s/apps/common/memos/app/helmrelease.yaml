@@ -93,7 +93,7 @@ spec:
         advancedMounts:
           memos:
             app:
-              - path: /etc/secrets
+              - path: /etc/memos/config
                 readOnly: true
       tmp:
         type: emptyDir
