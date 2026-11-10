@@ -43,10 +43,24 @@ data:
         resolver kube-dns.kube-system.svc.cluster.local valid=300s ipv6=off;
         resolver_timeout 10s;
 
-        map $target_host $is_allowed {
-            default 0;
-            "cache.nixos.org" 1;
-            "nix-community.cachix.org" 1;
+        # 每个上游一个 upstream 块：proxy_pass 用变量直连域名时没有连接池，每个请求都要重新 TLS 握手
+        upstream cache_nixos_org {
+            zone cache_nixos_org 64k;
+            server cache.nixos.org:443 resolve;
+            keepalive 16;
+        }
+
+        upstream nix_community_cachix_org {
+            zone nix_community_cachix_org 64k;
+            server nix-community.cachix.org:443 resolve;
+            keepalive 16;
+        }
+
+        # 白名单：路径里的主机名 -> upstream 块名，空值即拒绝
+        map $target_host $backend {
+            default "";
+            "cache.nixos.org" cache_nixos_org;
+            "nix-community.cachix.org" nix_community_cachix_org;
         }
 
         server {
@@ -70,11 +84,13 @@ data:
                 set $target_host $1;
                 set $target_path $2;
 
-                if ($is_allowed = 0) {
+                if ($backend = "") {
                     return 403 "Domain not in whitelist";
                 }
 
-                proxy_pass https://$target_host$target_path$is_args$args;
+                proxy_pass https://$backend$target_path$is_args$args;
+                proxy_http_version 1.1;
+                proxy_set_header Connection "";
                 proxy_ssl_server_name on;
                 proxy_ssl_name $target_host;
                 proxy_ssl_protocols TLSv1.2 TLSv1.3;
