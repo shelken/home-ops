@@ -2,7 +2,7 @@
 version: "3"
 
 vars:
-  SECRET_STORE: "{{.ROOT_DIR}}/scripts/secret-store.py"
+  SECRET_STORE: "{{.ROOT_DIR}}/.taskfile/scripts/with-bws.sh {{.ROOT_DIR}}/scripts/secret-store.py"
   ZTE_SECRET_KEY: zte-mifi-exporter
   ZTE_CLI: k8s/infra/common/network/internal/zte-mifi-healer/app/resources/f50-cli.sh
 
