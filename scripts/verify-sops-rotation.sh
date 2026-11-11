@@ -71,7 +71,7 @@ fi
 
 # 3. 检查 BWS 里的私钥公钥是否与声明一致
 echo -e "\n${BLUE}--> 3. 验证 BWS (sops/SOPS_PRIVATE_KEY)${NC}"
-bws_priv=$("$ROOT_DIR/scripts/secret-store.py" show sops | jq -r .SOPS_PRIVATE_KEY 2>/dev/null || true)
+bws_priv=$("$ROOT_DIR/.taskfile/scripts/with-bws.sh" "$ROOT_DIR/scripts/secret-store.py" show sops | jq -r .SOPS_PRIVATE_KEY 2>/dev/null || true)
 if [ -n "$bws_priv" ]; then
   bws_pub=$(echo "$bws_priv" | age-keygen -y 2>/dev/null)
   assert_eq "BWS 私钥对应公钥 == .sops.yaml 定义" "$pub_home_ops" "$bws_pub"
