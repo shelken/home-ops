@@ -155,7 +155,7 @@ OpenList (S3 网关)
 Kopia (备份源)
 Fluent Bit (日志采集)
 dhp (Docker Registry pull-through)
-sub-converter / sbtools-server (订阅转换 · subs 域名)
+sbtools-server (配置交付 · subs 域名)
 node-exporter / dockerproxy"]
     end
 ```
@@ -354,7 +354,6 @@ graph TB
 
         subgraph LOCAL["Docker 本地服务<br/>172.20.0.0/16"]
             mosdns["vdns → mosdns:9053"]
-            subconv["sub → sub-converter:25500"]
             sbtools["subs → sbtools-server:8080"]
             dhp["dhp → dhp:5000"]
         end
@@ -372,7 +371,6 @@ graph TB
 
     Caddy -->|"*（默认）"| Envoy
     Caddy --> mosdns
-    Caddy --> subconv
     Caddy --> sbtools
     Caddy --> dhp
     Caddy -->|"to_host"| derp
@@ -382,7 +380,6 @@ graph TB
 | 域名 | 路由目标 | 说明 |
 |------|---------|------|
 | `*`（默认） | → Tailscale → envoy-external | 大部分服务 |
-| `sub` | → 本地 sub-converter:25500 | 订阅转换 |
 | `subs` | → 本地 sbtools-server:8080 | 配置交付服务 |
 | `derp` | → 宿主机 :8666（Caddy 经 172.20.0.1 回打） | Tailscale 中继 |
 | `dhp` | → 本地 dhp:5000 | Docker 镜像 pull-through 代理 |
