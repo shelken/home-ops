@@ -79,9 +79,9 @@ spec:
             resources:
               requests:
                 cpu: 10m
-                memory: 150Mi
+                memory: 384Mi
               limits:
-                memory: 500Mi
+                memory: 768Mi
     defaultPodOptions:
       enableServiceLinks: false
       affinity:
