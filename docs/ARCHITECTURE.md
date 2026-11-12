@@ -108,7 +108,7 @@ graph LR
 |------|------|------|
 | F50 ↔ 互联网 | WAN (移动数据) | F50 是主路由的互联网出口 |
 | 主路由 ↔ F50 | LAN | 主路由通过 F50 出网；F50 断线时 zte-mifi-healer 自动重连 |
-| 旁路由 ↔ 主路由 | LAN (VLAN 6) | 旁路由 (dae，配置由 `task router:dae:sync` 下发，见 [ADR-0007](adr/0007-bypass-router-dae-declarative.md))；自身默认路由仍指向主路由 |
+| 旁路由 ↔ 主路由 | LAN (VLAN 6) | 旁路由 (sing-box，配置由 nix-config 声明，dae 时期见 [ADR-0007](adr/0007-bypass-router-dae-declarative.md))；自身默认路由仍指向主路由 |
 | k3s 节点 / 宿主机 → 旁路由 | LAN (VLAN 6) | 默认网关指向 192.168.6.3 (dae)；节点主网卡 DNS 设为 1.1.1.1 触发 eBPF 嗅探分流 |
 | k3s 节点 IPv6 | LAN (VLAN 6) | 节点禁用 RA 默认网关，无 IPv6 出网，境外访问回退 IPv4 经旁路由（[ADR-0005](adr/0005-k8s-node-no-ipv6-egress.md)）；需要 IPv6 直连的 Pod 通过 `multus-ipv6` 在自己的网络命名空间里独立出入站 |
 | 宿主机 ↔ 主路由 | LAN (VLAN 6) | 192.168.6.0/24 |

@@ -2,7 +2,7 @@
 
 本文从 [22-tvbox-bypass-router.md](22-tvbox-bypass-router.md) 拆出，只记录 daed 相关经验。
 
-旁路由已改用 dae，配置由仓库下发（[ADR-0007](adr/0007-bypass-router-dae-declarative.md)）。daed 与 dae 共用同一内核与配置语法，下文的内核、白名单与路由规则经验仍然适用。
+旁路由曾改用 dae（[ADR-0007](adr/0007-bypass-router-dae-declarative.md)），现已改为 sing-box，由 nix-config 声明。daed 与 dae 共用同一内核与配置语法，下文的内核、白名单与路由规则经验作为历史记录保留。
 
 ## daed 与 ophub 内核 BTF 支持情况
 
