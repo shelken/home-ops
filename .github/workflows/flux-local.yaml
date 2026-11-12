@@ -117,9 +117,37 @@ jobs:
             ${{ steps.diff.outputs.diff }}
             ```
 
+  schema:
+    if: ${{ needs.filter.outputs.changed-files != '[]' }}
+    needs: filter
+    name: Flux Local - Schema
+    runs-on: ubuntu-26.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Render manifests
+        uses: docker://ghcr.io/allenporter/flux-local:v8.1.0
+        with:
+          args: >-
+            build all
+            --enable-helm
+            --skip-secrets
+            --output-file /github/workspace/rendered.yaml
+            /github/workspace/k8s/clusters/staging
+
+      # kubeconform 版本取自 mise.toml（本地与 CI 同一来源）
+      - name: Validate against CRD schemas
+        run: |
+          version=$(sed -n 's/^kubeconform = "\(.*\)"/\1/p' mise.toml)
+          KUBECONFORM="docker run --rm -i ghcr.io/yannh/kubeconform:v${version}" \
+            scripts/validate-schemas.sh rendered.yaml
+
   success:
     if: ${{ !cancelled() }}
-    needs: ["test", "diff"]
+    needs: ["test", "diff", "schema"]
     name: Flux Local - Success
     runs-on: ubuntu-26.04
     steps:
