@@ -65,24 +65,9 @@ ip route | grep 10.42
 
 ## 配置下发
 
-主路由 router-mine 的配置整体由 nix-config 的 `hosts/router-mine/` 声明并下发（DNS、DHCP、防火墙、BIRD、Avahi 等），home-ops 不再下发。旁路由 dae 存放在仓库顶层 `router/`，由 `.taskfile/router.yaml` 下发：
+主路由 router-mine 的配置整体由 nix-config 的 `hosts/router-mine/` 声明并下发（DNS、DHCP、防火墙、BIRD、Avahi 等），home-ops 不再下发。旁路由 hk1box 的透明代理（sing-box）同样由 nix-config 声明，home-ops 仓库里没有路由器或旁路由的下发代码
 
-```bash
-task router:dae:sync   # 默认入口：旁路由 dae 二进制、init 脚本、配置与服务状态
-task router:dae:diff   # 可选：只读检查旁路由 dae；配置中的链接已脱敏
-```
-
-日常运行 `sync`，会自动执行只读 `diff` 展示差异，再确认生效。独立 `diff` 用于排障、审阅与自动化巡检
-
-BIRD、Avahi、dnsmasq 的配置由 nix-config 声明，见 [ADR-0010](../adr/0010-router-bird-avahi-declared-in-nix-config.md) 与 [DNS 配置](./dns.md)
-
-各功能在 `router/<功能>/spec.py` 声明受管文件、校验、生效与验证命令，由 `router/declare.py` 统一执行 diff 与 sync：先在远端暂存目录校验全部候选文件，再原子替换有变化的文件
-
-旁路由 dae 的选型与回滚见 [ADR-0007](../adr/0007-bypass-router-dae-declarative.md)。配置在 `router/dae/config.sops.dae`，用 `sops router/dae/config.sops.dae` 直接编辑 dae 原文。期望状态为 daed 停止并禁用、dae 启用并运行，首次 sync 即完成切换，会短暂中断所有经旁路由的出网流量
-
-dae 没有 Web UI，切换节点与修改规则需修改仓库后 sync。dae 默认不自动刷新订阅，由 `router/dae/dae.init` 的独立 procd 实例每 6 小时执行一次 `hot_reload`。dae 二进制与 init 脚本由 sync 下发，opkg 升级如果覆盖文件，会在下一次 sync 时自动恢复
-
-dae 配置包含订阅与节点凭据。`declare.py` 对标记为 `sensitive` 的文件执行脱敏，diff 和报错中的 `scheme://...` 链接统一替换为 `scheme://<已隐藏#哈希>`。Agent 仅使用 `task router:dae:diff` 审查变更，禁止读取或解密敏感配置
+BIRD、Avahi、dnsmasq 的配置由 nix-config 声明，见 [ADR-0010](../adr/0010-router-bird-avahi-declared-in-nix-config.md) 与 [DNS 配置](./dns.md)。旁路由曾用 dae 并由本仓库下发，已被取代，见 [ADR-0007](../adr/0007-bypass-router-dae-declarative.md)
 
 ## 相关文档
 
