@@ -377,20 +377,17 @@ ssh <ROUTER_HOST> 'logread | grep -Ei "BEACON-LOSS|wpa_supplicant|dnsmasq" | tai
 
 ```bash
 ssh <ROUTER_HOST> 'netstat -lntup 2>/dev/null | grep -E ":53 "'
-ssh <ROUTER_HOST> 'uci show dhcp | grep -E "=server|confdir|addnhosts"'
-ssh <ROUTER_HOST> 'grep -A2 -B1 "BEGIN home-ops dnsmasq" /etc/dnsmasq.conf'
-ssh <ROUTER_HOST> 'ls -la /etc/dnsmasq-home-ops.d; cat /etc/dnsmasq-home-ops.d/*'
+ssh <ROUTER_HOST> 'uci show dhcp.@dnsmasq[0] | grep -E "\\.(server|address|address_as_local)="'
 ```
 
 判定经验：
 
 - 谁在听 53：应该只有 dnsmasq，出现别的监听者就是配置漂移
-- UCI `confdir` 应保持未设置；`/etc/dnsmasq.conf` 的接入点额外加载专用目录
-- LuCI/UCI 和手工配置应保留；home-ops 只完整管理 `/etc/dnsmasq-home-ops.d`
+- 分流（`server`）与自举记录（`address`）是 dnsmasq 的 UCI 选项，由 nix-config 声明；路由器上不应再有 `/etc/dnsmasq-home-ops.d`
 - k8s-gateway 不可用时，集群服务名称无法解析
-- 专用目录中的 `30-bootstrap.conf` 用 `local=`/`address=` 本地权威应答集群外自举记录，不依赖集群，集群挂了仍应能解析
+- 自举记录用 `address_as_local` 本地权威应答，不依赖集群，集群挂了仍应能解析
 
-分流规则与自举记录见 `docs/router/dns.md`；后端与所有权决策见 `docs/adr/0003-internal-dns-via-gateway.md`。
+分流规则与自举记录见 `docs/router/dns.md`；后端决策见 `docs/adr/0003-internal-dns-via-gateway.md`，所有权见 `docs/adr/0009-router-dnsmasq-declared-in-nix-config.md`。
 
 ### 7.5 Wi‑Fi 中继 / WWAN 的判定经验
 

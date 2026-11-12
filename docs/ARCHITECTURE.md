@@ -108,7 +108,7 @@ graph LR
 |------|------|------|
 | F50 ↔ 互联网 | WAN (移动数据) | F50 是主路由的互联网出口 |
 | 主路由 ↔ F50 | LAN | 主路由通过 F50 出网；F50 断线时 zte-mifi-healer 自动重连 |
-| 旁路由 ↔ 主路由 | LAN (VLAN 6) | 旁路由 (dae，配置由 `task router:dae:sync` 下发，见 [ADR-0007](adr/0007-bypass-router-dae-declarative.md))；自身默认路由仍指向主路由 |
+| 旁路由 ↔ 主路由 | LAN (VLAN 6) | 旁路由 (sing-box，配置由 nix-config 声明，dae 时期见 [ADR-0007](adr/0007-bypass-router-dae-declarative.md))；自身默认路由仍指向主路由 |
 | k3s 节点 / 宿主机 → 旁路由 | LAN (VLAN 6) | 默认网关指向 192.168.6.3 (dae)；节点主网卡 DNS 设为 1.1.1.1 触发 eBPF 嗅探分流 |
 | k3s 节点 IPv6 | LAN (VLAN 6) | 节点禁用 RA 默认网关，无 IPv6 出网，境外访问回退 IPv4 经旁路由（[ADR-0005](adr/0005-k8s-node-no-ipv6-egress.md)）；需要 IPv6 直连的 Pod 通过 `multus-ipv6` 在自己的网络命名空间里独立出入站 |
 | 宿主机 ↔ 主路由 | LAN (VLAN 6) | 192.168.6.0/24 |
@@ -283,24 +283,20 @@ graph LR
 - **集群内权威**：`k8s-gateway` 根据 HTTPRoute、Service 与 Ingress 动态应答
 - **主域未命中记录**：由 `k8s-gateway` 转发到公网递归
 - **内部域未命中记录**：由 `k8s-gateway` 直接在内存返回 NXDOMAIN/NODATA，不向外递归也不回踢路由器（消除转发死循环）
-- **集群外自举**：`router/dnsmasq/conf.d/30-bootstrap.conf.tpl` 下发为 home-ops 专用目录中的
-  `30-bootstrap.conf`，用 `address=` 与 `local=` 对记录名本地权威应答（A 与 AAAA 都不转发）
-- **路由器分流**：`router/dnsmasq/conf.d/` 下的配置统一下发到
-  `/etc/dnsmasq-home-ops.d`，`/etc/dnsmasq.conf` 中的机器级接入点加载该目录
-- **OpenWrt 所有权**：UCI `confdir` 保持未设置，默认临时目录及 LuCI/UCI 手工配置继续生效
+- **集群外自举**：路由器 dnsmasq 的 `address` 记录配合 `address_as_local`，对记录名本地权威应答（A 与 AAAA 都不转发）
+- **路由器分流**：dnsmasq 的 `server` 把主域与内部域转给 k8s-gateway
+- **所有权**：以上规则由 nix-config 的 `hosts/router-mine/home-ops/dns.nix` 声明，用 UCI 原生选项下发；home-ops 不再下发 dnsmasq 文件
 
 检查方式：
 
 ```bash
 
-task router:dns:diff
-ssh <ROUTER> 'cat /etc/dnsmasq.conf'
-ssh <ROUTER> 'ls -la /etc/dnsmasq-home-ops.d'
-ssh <ROUTER> 'cat /etc/dnsmasq-home-ops.d/*'
+ssh <ROUTER> 'uci show dhcp.@dnsmasq[0] | grep -E "\\.(server|address|address_as_local)="'
+dig @<ROUTER_IP> <BOOTSTRAP_NAME> A
 
 ```
 
-后端与所有权决策见 [ADR-0003：集群服务 DNS 由 k8s-gateway 动态应答](adr/0003-internal-dns-via-gateway.md)。
+后端决策见 [ADR-0003：集群服务 DNS 由 k8s-gateway 动态应答](adr/0003-internal-dns-via-gateway.md)，所有权见 [ADR-0009](adr/0009-router-dnsmasq-declared-in-nix-config.md)。
 旁路由分流与节点 DNS 策略见 [ADR-0004：K8s 节点 DNS 显式指向外部地址，经旁路由 dae 解析](adr/0004-k8s-node-dns-daed-routing.md)。
 
 ### 内部域契约
@@ -323,11 +319,11 @@ ssh <ROUTER> 'cat /etc/dnsmasq-home-ops.d/*'
 
   | 客户端 | 路径 |
   |---|---|
-  | LAN 设备、VPS | 路由器或 VPS 的 dnsmasq → k8s-gateway；集群外自举名称为路由器 `30-bootstrap.conf` 中的 `address=` 记录 |
+  | LAN 设备、VPS | 路由器或 VPS 的 dnsmasq → k8s-gateway；集群外自举名称为路由器 dnsmasq 的 `address` 记录 |
   | K8s 节点 | 经旁路由 dae 转回主路由，见 [ADR-0004](adr/0004-k8s-node-dns-daed-routing.md) |
   | SFM 客户端 | 由 proxy 仓库的 sing-box 配置在本地静态应答，不依赖家庭 DNS，见 [proxy #46](https://github.com/shelken/proxy/issues/46) |
 
-- **入口 IP 变化**：路由器 `30-bootstrap.conf` 与各客户端的静态应答要同时更新，否则两侧指向不同入口
+- **入口 IP 变化**：路由器的自举记录（nix-config 的 `home-ops/dns.nix`）与各客户端的静态应答要同时更新，否则两侧指向不同入口
 
 ### 入口一览
 
