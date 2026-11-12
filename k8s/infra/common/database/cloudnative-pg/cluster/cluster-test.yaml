@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://homelab-schemas-epg.pages.dev/postgresql.cnpg.io/cluster_v1.json
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/postgresql.cnpg.io/cluster_v1.json
 # ref: https://github.com/cloudnative-pg/charts/blob/main/charts/cluster/values.yaml
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
