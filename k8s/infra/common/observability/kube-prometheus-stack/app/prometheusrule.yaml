@@ -21,21 +21,23 @@ spec:
               疑似 VM 宿主内存压力或磁盘争用，控制器即将发生 leader election 失败
           labels:
             severity: warning
-        # VM 内存预算过紧时 guest 内 swap 开始消耗，是 OOM 与控制面卡顿前兆
-        - alert: ControlPlaneNodeSwapUsage
+        # 集群节点都未启用 swap，内存吃紧时直接进入 OOM，swap 用量永远是 0；
+        # 改看 PSI：有任务因等待内存而停顿的时间占比，是 OOM 与控制面卡顿的前兆
+        - alert: NodeMemoryPressure
           expr: |
-            (node_memory_SwapTotal_bytes - node_memory_SwapFree_bytes) / 1024 / 1024 > 256
+            rate(node_pressure_memory_waiting_seconds_total{kubernetes_node!=""}[5m]) > 0.1
           for: 5m
           annotations:
             summary: >-
-              节点 {{ $labels.kubernetes_node }} swap 已使用 {{ $value | printf "%.0f" }}MiB；
-              节点内存预算过紧
+              节点 {{ $labels.kubernetes_node }} 有 {{ $value | humanizePercentage }} 的时间
+              因等待内存而停顿；节点内存预算过紧
           labels:
             severity: warning
-        # kubelet image GC 高水位阈值为 55%，超限且无法释放时意味着结构性磁盘不足
+        # kubelet image GC 高水位阈值为 55%，超限且无法释放时意味着结构性磁盘不足；
+        # 镜像存放在根盘，只看根挂载点，避免把 /boot 或 Longhorn 数据盘误当镜像盘
         - alert: NodeImageFilesystemOverKubeletThreshold
           expr: |
-            max by(kubernetes_node) (1 - node_filesystem_avail_bytes{kubernetes_node!="",fstype!~"tmpfs|nsfs|squashfs|overlay"} / node_filesystem_size_bytes{kubernetes_node!="",fstype!~"tmpfs|nsfs|squashfs|overlay"}) * 100 > 55
+            max by(kubernetes_node) (1 - node_filesystem_avail_bytes{kubernetes_node!="",mountpoint="/"} / node_filesystem_size_bytes{kubernetes_node!="",mountpoint="/"}) * 100 > 55
           for: 15m
           annotations:
             summary: >-
