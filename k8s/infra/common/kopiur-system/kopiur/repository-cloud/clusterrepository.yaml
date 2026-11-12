@@ -9,7 +9,7 @@ spec:
   mode: ReadWrite
   bootstrap:
     failurePolicy:
-      activeDeadlineSeconds: 600
+      activeDeadlineSeconds: 660
   concurrency:
     maxConcurrentJobs: 1
   credentialProjection:
