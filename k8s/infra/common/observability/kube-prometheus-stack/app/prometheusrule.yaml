@@ -58,7 +58,7 @@ spec:
       rules:
         - alert: OpenWrtNetworkSpeedLow
           expr: |
-            node_network_speed_bytes{job="oepnwrt-mine", device=~"lan.*"} < 120000000
+            node_network_speed_bytes{job="openwrt-mine", device=~"lan.*"} < 120000000
           for: 5m
           annotations:
             summary: >-
