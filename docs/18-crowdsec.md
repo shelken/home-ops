@@ -341,14 +341,14 @@ PY'
 
 ```text
 vps-caddy    success=true
-subconverter success=false duration=10s
+dhp          success=false duration=10s
 derp         success=false duration=10s
 ```
 
 解释：
 
 - `vps-caddy` 检查通常是 `tcp://ts-node-vps.network.svc:443`，走 Tailscale proxy。
-- `subconverter` / `derp` 检查公网域名，走 VPS 公网入口。
+- `dhp` / `derp` 检查公网域名，走 VPS 公网入口。
 - 如果 VPS firewall bouncer DROP 了自家出口 IP，公网域名检查会超时，但 Tailscale TCP 检查仍可能成功。
 
 排查：

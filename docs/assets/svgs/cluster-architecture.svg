@@ -194,42 +194,37 @@
         </g>
         <g transform="translate(126, 0)">
           <rect width="118" height="52" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
-          <text x="10" y="20" font-size="9.5" font-weight="600" fill="#cad3f5">sub-converter</text>
-          <text x="10" y="36" class="font-mono" font-size="9" fill="#a5adcb">订阅转换 :25500</text>
+          <text x="10" y="20" font-size="9.5" font-weight="600" fill="#cad3f5">sbtools-server</text>
+          <text x="10" y="36" class="font-mono" font-size="9" fill="#a5adcb">subs 域名 :8080</text>
         </g>
       </g>
       <g transform="translate(14, 170)">
         <g transform="translate(0, 0)">
           <rect width="118" height="52" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
-          <text x="10" y="20" font-size="9.5" font-weight="600" fill="#cad3f5">sbtools-server</text>
-          <text x="10" y="36" class="font-mono" font-size="9" fill="#a5adcb">subs 域名 :8080</text>
+          <text x="10" y="20" font-size="9.5" font-weight="600" fill="#cad3f5">dhp :5000</text>
+          <text x="10" y="36" class="font-mono" font-size="9" fill="#a5adcb">镜像 pull-through</text>
         </g>
         <g transform="translate(126, 0)">
           <rect width="118" height="52" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
-          <text x="10" y="20" font-size="9.5" font-weight="600" fill="#cad3f5">dhp :5000</text>
-          <text x="10" y="36" class="font-mono" font-size="9" fill="#a5adcb">镜像 pull-through</text>
+          <text x="10" y="20" font-size="9.5" font-weight="600" fill="#cad3f5">anytls :5444</text>
+          <text x="10" y="36" class="font-mono" font-size="9" fill="#a5adcb">sing-box 代理出口</text>
         </g>
       </g>
       <g transform="translate(14, 230)">
         <g transform="translate(0, 0)">
           <rect width="118" height="52" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
-          <text x="10" y="20" font-size="9.5" font-weight="600" fill="#cad3f5">anytls :5444</text>
-          <text x="10" y="36" class="font-mono" font-size="9" fill="#a5adcb">sing-box 代理出口</text>
-        </g>
-        <g transform="translate(126, 0)">
-          <rect width="118" height="52" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
           <text x="10" y="20" font-size="9.5" font-weight="600" fill="#cad3f5">hysteria2</text>
           <text x="10" y="36" class="font-mono" font-size="9" fill="#a5adcb">:10357</text>
         </g>
-      </g>
-      <g transform="translate(14, 290)">
-        <g transform="translate(0, 0)">
+        <g transform="translate(126, 0)">
           <rect width="118" height="52" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
           <text x="10" y="20" font-size="9.5" font-weight="600" fill="#cad3f5">OpenList S3</text>
           <text x="10" y="36" class="font-mono" font-size="9" fill="#91d7e3">网盘 → S3 网关</text>
         </g>
-        <g transform="translate(126, 0)">
-          <rect width="118" height="52" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
+      </g>
+      <g transform="translate(14, 290)">
+        <g transform="translate(0, 0)">
+          <rect width="244" height="52" rx="4" fill="#181926" stroke="#363a4f" stroke-width="0.8" />
           <text x="10" y="20" font-size="9.5" font-weight="600" fill="#cad3f5">Kopia Agent</text>
           <text x="10" y="36" class="font-mono" font-size="9" fill="#a6da95">1h / 4h → 189</text>
         </g>
