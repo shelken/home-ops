@@ -60,6 +60,11 @@ spec:
           global:
             resolveTimeout: 5m
         externalUrl: https://alertmanager.${INTERNAL_DOMAIN}
+        # 不设置时 operator 默认请求 200Mi
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
         containers:
           - name: wechatrobot
             image: ghcr.io/shelken/alertmanager-wechatrobot:0.1.7
