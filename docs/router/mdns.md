@@ -10,16 +10,9 @@
 - Apple 设备可以通过 HomeKit 连接 IoT 网段的智能家居桥接器
 - Home Assistant 可以直接发现并控制局域网米家智能设备
 
-## 安装
-
-```bash
-opkg update
-opkg install avahi-nodbus-daemon avahi-utils
-```
-
 ## 配置文件
 
-**路径**: `/etc/avahi/avahi-daemon.conf`
+包与 `/etc/avahi/avahi-daemon.conf` 由 nix-config 的 `hosts/router-mine/home-ops/avahi.nix` 声明，用 `just router::push` 下发；配置有变化时 push 会重启 avahi（见 [ADR-0010](../adr/0010-router-bird-avahi-declared-in-nix-config.md)）。生效配置如下：
 
 ```ini
 [server]

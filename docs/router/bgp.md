@@ -46,20 +46,11 @@
 | **router-home** | 64515 | 远程中继网关 |
 | **Cilium (所有节点)** | 64514 | K8s Pod 网络 |
 
-## 安装
-
-```bash
-opkg update
-opkg install bird2
-```
-
 ## 配置文件
 
-配置文件放在仓库顶层 `router/bird/`，与 `.taskfile/router.yaml` 的 `bgp:diff` / `bgp:sync` 对应，属工具配置而非文档。
+BIRD 的包与 `/etc/bird.conf` 由 nix-config 的 `hosts/router-mine/home-ops/bird.nix` 声明，用 `just router::push` 下发（见 [ADR-0010](../adr/0010-router-bird-avahi-declared-in-nix-config.md)）。配置里的邻居地址取自 nix-config 的 `vars/networking.nix`，换节点 IP 在那里改。
 
 ### router-mine (本地路由器)
-
-[/etc/bird.conf](../../router/bird/mine.conf)
 
 当前邻居（逐节点显式声明，无网段接受）：
 
@@ -69,24 +60,11 @@ opkg install bird2
 | homelab_1 | 192.168.6.110 | 64514 |
 | yuuko_k8s | 192.168.6.81 | 64514 |
 
-### 下发配置
-
-```bash
-# 对比路由器运行中的配置与仓库版本（只读）
-task router:bgp:diff
-
-# 展示差异 → 确认 → 校验 → 热加载
-task router:bgp:sync
-
-# 跳过确认（供脚本/agent 调用）
-task --yes router:bgp:sync
-```
-
-`bgp:sync` 先执行 `bird -p` 校验新配置，通过后原子替换 `/etc/bird.conf` 并触发 `birdc configure`（软重载，不中断既有连接会话）。校验失败则保持原配置不变
+下发后 `just router::push` 先执行 `bird -p` 校验，通过才 `birdc configure`（软重载，不中断既有连接会话）。校验失败则 BIRD 继续运行旧配置
 
 ### router-home (远程路由器，已断开)
 
-[/etc/bird.conf](../../router/bird/home.conf)
+[router/bird/home.conf](../../router/bird/home.conf)
 
 
 ## 服务管理

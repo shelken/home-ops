@@ -5,7 +5,7 @@
 
 ### router-mine (192.168.6.1)
 
-[/etc/bird.conf](../../../../../router/bird/mine.conf)
+配置由 nix-config 的 `hosts/router-mine/home-ops/bird.nix` 声明，见 [BGP 配置](../../../../../docs/router/bgp.md)
 
 逐节点显式配置 neighbor（无网段接受），本地节点：`sakamoto-k8s`、`homelab-1`、`yuuko-k8s`
 
