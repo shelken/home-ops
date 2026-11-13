@@ -12,7 +12,9 @@ tasks:
       - |
         rendered=$(mktemp)
         trap 'rm -f "$rendered"' EXIT
-        flux-local build all --enable-helm --skip-secrets --output-file "$rendered" {{.ROOT_DIR}}/k8s/clusters/staging
+        flate build --path {{.ROOT_DIR}}/k8s/clusters/staging \
+          --supply {{.ROOT_DIR}}/.github/flate/inputs.yaml \
+          --skip-kinds Secret > "$rendered"
         {{.ROOT_DIR}}/scripts/validate-schemas.sh "$rendered"
 
   restart-failed-releases:
