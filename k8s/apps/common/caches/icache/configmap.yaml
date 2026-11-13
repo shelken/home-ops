@@ -56,6 +56,12 @@ data:
             keepalive 16;
         }
 
+        upstream github_com {
+            zone github_com 64k;
+            server github.com:443 resolve;
+            keepalive 16;
+        }
+
         # 白名单：路径里的主机名 -> upstream 块名，空值即拒绝
         map $target_host $backend {
             default "";
@@ -66,6 +72,37 @@ data:
         server {
             listen 8080;
             server_name _;
+
+            # 以下回源与缓存设置由所有代理 location 共用
+            proxy_http_version 1.1;
+            proxy_ssl_protocols TLSv1.2 TLSv1.3;
+            proxy_pass_request_headers off;
+
+            proxy_cache proxy_cache;
+            proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
+            proxy_cache_lock on;
+            proxy_cache_lock_timeout 5s;
+            proxy_cache_revalidate on;
+
+            # 缓存时长只由下面两行决定，不采信上游的缓存头。
+            # 3xx 不能进缓存：GitHub Releases 的 302 一旦被缓存，跟随跳转时就读不到 Location
+            proxy_ignore_headers Cache-Control Expires Set-Cookie X-Accel-Expires;
+            proxy_cache_valid 200 30d;
+            # 与 Nix 客户端自己的负缓存时长（narinfo-cache-negative-ttl，默认 1 小时）一致
+            proxy_cache_valid 404 1h;
+
+            # healthz 等非代理 location 不设置该变量，先给空值，避免每次探测都刷 uninitialized 告警
+            set $target_host "";
+            add_header X-Cache-Status $upstream_cache_status always;
+            add_header X-Target-Host $target_host always;
+
+            proxy_connect_timeout 10s;
+            proxy_read_timeout 60s;
+            proxy_send_timeout 60s;
+
+            proxy_buffering on;
+            proxy_buffer_size 16k;
+            proxy_buffers 8 16k;
 
             location = /healthz {
                 access_log off;
@@ -79,6 +116,40 @@ data:
                 return 200 "icache proxy running\n";
             }
 
+            # GitHub Releases 资产。只放行 releases/download，latest 这类会变的地址落到下面被拒绝。
+            # github.com 302 到带时效签名的存储地址：nginx 自己跟随，按原始路径缓存，客户端只拿到 200
+            location ~ ^/github\.com(/[^/]+/[^/]+/releases/download/.+)$ {
+                set $target_host github.com;
+                set $target_path $1;
+
+                proxy_pass https://github_com$target_path;
+                proxy_set_header Connection "";
+                proxy_set_header Host $target_host;
+                proxy_set_header Accept */*;
+                proxy_set_header User-Agent "Mozilla/5.0 (compatible; icache/1.0)";
+                proxy_ssl_server_name on;
+                proxy_ssl_name $target_host;
+                proxy_cache_key $target_host$target_path;
+
+                proxy_intercept_errors on;
+                error_page 301 302 303 307 308 = @github_release_asset;
+            }
+
+            # 缓存键必须与上面相同，下次请求才能在上面直接命中
+            location @github_release_asset {
+                set $asset_url $upstream_http_location;
+                if ($asset_url !~ "^https://release-assets\.githubusercontent\.com/") {
+                    return 502 "Unexpected redirect target";
+                }
+
+                proxy_pass $asset_url;
+                proxy_set_header Host $proxy_host;
+                proxy_set_header Accept */*;
+                proxy_set_header User-Agent "Mozilla/5.0 (compatible; icache/1.0)";
+                proxy_ssl_server_name on;
+                proxy_cache_key $target_host$target_path;
+            }
+
             # /<上游主机名>/<路径>
             location ~ ^/([^/]+)(/.*)?$ {
                 set $target_host $1;
@@ -89,40 +160,13 @@ data:
                 }
 
                 proxy_pass https://$backend$target_path$is_args$args;
-                proxy_http_version 1.1;
                 proxy_set_header Connection "";
-                proxy_ssl_server_name on;
-                proxy_ssl_name $target_host;
-                proxy_ssl_protocols TLSv1.2 TLSv1.3;
-
-                proxy_pass_request_headers off;
                 proxy_set_header Host $target_host;
                 proxy_set_header Accept */*;
                 proxy_set_header User-Agent "Mozilla/5.0 (compatible; icache/1.0)";
-
-                proxy_cache proxy_cache;
+                proxy_ssl_server_name on;
+                proxy_ssl_name $target_host;
                 proxy_cache_key $target_host$target_path$is_args$args;
-                proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
-                proxy_cache_lock on;
-                proxy_cache_lock_timeout 5s;
-                proxy_cache_revalidate on;
-
-                # 缓存时长只由下面两行决定，不采信上游的缓存头
-                proxy_ignore_headers Cache-Control Expires Set-Cookie X-Accel-Expires;
-                proxy_cache_valid 200 30d;
-                # 与 Nix 客户端自己的负缓存时长（narinfo-cache-negative-ttl，默认 1 小时）一致
-                proxy_cache_valid 404 1h;
-
-                add_header X-Cache-Status $upstream_cache_status always;
-                add_header X-Target-Host $target_host always;
-
-                proxy_connect_timeout 10s;
-                proxy_read_timeout 60s;
-                proxy_send_timeout 60s;
-
-                proxy_buffering on;
-                proxy_buffer_size 16k;
-                proxy_buffers 8 16k;
             }
         }
     }
