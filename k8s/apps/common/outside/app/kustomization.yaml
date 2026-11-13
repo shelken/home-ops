@@ -1,0 +1,9 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+# 集群外服务挂到 envoy-internal：每个服务一个文件（Service + EndpointSlice + HTTPRoute），
+# 地址取自 cluster-settings 的变量。HTTPRoute 一律关闭 gatus 探测：envoy-internal 路由的默认探测
+# 只验证域名没有经 external-dns 发布，对集群外服务没有意义
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./magpie.yaml

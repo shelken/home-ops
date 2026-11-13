@@ -1,0 +1,48 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/refs/heads/master/v1.34.1/service-v1.json
+# 不带 selector：后端由下面手写的 EndpointSlice 提供
+apiVersion: v1
+kind: Service
+metadata:
+  name: magpie
+spec:
+  ports:
+    - name: http
+      port: 3425
+      protocol: TCP
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/refs/heads/master/v1.34.1/endpointslice-discovery-v1.json
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: magpie
+  labels:
+    kubernetes.io/service-name: magpie
+    # 标明维护者：自建的 EndpointSlice 按官方约定设唯一值，与控制器生成的区分
+    endpointslice.kubernetes.io/managed-by: flux
+addressType: IPv4
+ports:
+  - name: http
+    port: 3425
+    protocol: TCP
+endpoints:
+  - addresses:
+      - ${MIO_IP}
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/gateway.networking.k8s.io/httproute_v1.json
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: magpie
+  annotations:
+    gatus.home-operations.com/enabled: "false"
+spec:
+  hostnames:
+    - magpie.${INTERNAL_DOMAIN}
+  parentRefs:
+    - name: envoy-internal
+      namespace: network
+  rules:
+    - backendRefs:
+        - name: magpie
+          port: 3425
