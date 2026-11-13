@@ -15,12 +15,13 @@ spec:
   credentialProjection:
     allowed: true
   backend:
-    webDav:
-      url: http://openlist.default.svc.cluster.local:80/dav/kopiur
-      auth:
-        secretRef:
-          name: kopiur-repository-cloud-secret
-          namespace: kopiur-system
+    # rclone 后端默认 atomicWrites：直接 PUT 最终名，绕开 openlist→139 改名静默失败（#1763）
+    rclone:
+      remotePath: "openlist:"
+      startupTimeout: 2m
+      configSecretRef:
+        name: kopiur-repository-cloud-secret
+        namespace: kopiur-system
   encryption:
     passwordSecretRef:
       name: kopiur-repository-cloud-secret
