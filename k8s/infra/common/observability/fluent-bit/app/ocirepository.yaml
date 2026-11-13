@@ -11,4 +11,5 @@ spec:
     operation: copy
   ref:
     tag: 0.58.3
+    digest: sha256:0bbd4067157c075a09a743a928adc8f21be3793405d810a2d2aa65214c47f51f
   url: oci://ghcr.io/fluent/helm-charts/fluent-bit

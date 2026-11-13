@@ -11,6 +11,7 @@ spec:
     operation: copy
   ref:
     tag: 0.20.1
+    digest: sha256:6f0057e98a90adf8827fcb4b7c6f843c6d59c678ea6a96bd73975ac3cba6f9f7
   url: oci://ghcr.io/home-operations/charts-mirror/nvidia-device-plugin
   # verify:
   #   provider: cosign

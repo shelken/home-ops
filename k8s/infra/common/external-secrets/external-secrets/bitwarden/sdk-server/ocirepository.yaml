@@ -9,4 +9,5 @@ spec:
     operation: copy
   ref:
     tag: v0.8.1
+    digest: sha256:f94c5e907b84a0c8b293ee8fb7aa79349b603c193ea00c3d01f40dee0ca05c62
   url: oci://ghcr.io/external-secrets/charts/bitwarden-sdk-server

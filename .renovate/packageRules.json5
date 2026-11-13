@@ -94,5 +94,12 @@
       ],
       changelogUrl: "https://manual.seafile.com/{{{newMajor}}}.0/changelog/server-changelog/"
     },
+    {
+      // CI 的 flate 只对固定 digest 的源做永久缓存，上游不可用时无关 PR 仍能完成校验
+      description: "Flux OCIRepository 固定 digest",
+      matchManagers: ["flux"],
+      matchDatasources: ["docker"],
+      pinDigests: true,
+    },
   ],
 }
