@@ -18,7 +18,7 @@ metadata:
   name: magpie
   labels:
     kubernetes.io/service-name: magpie
-    # 非 EndpointSlice 控制器管理，防止被控制器接管或清理
+    # 标明维护者：自建的 EndpointSlice 按官方约定设唯一值，与控制器生成的区分
     endpointslice.kubernetes.io/managed-by: flux
 addressType: IPv4
 ports:
@@ -35,10 +35,7 @@ kind: HTTPRoute
 metadata:
   name: magpie
   annotations:
-    # magpie 对不带 key 的远程请求返回 401，没有免认证的健康接口：401 即在线
-    gatus.home-operations.com/endpoint: |-
-      conditions:
-        - "[STATUS] == 401"
+    gatus.home-operations.com/enabled: "false"
 spec:
   hostnames:
     - magpie.${INTERNAL_DOMAIN}
