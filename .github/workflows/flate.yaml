@@ -11,7 +11,21 @@ on:
       - .taskfile/flux.yaml
       - scripts/validate-schemas.sh
       - scripts/check-deprecated-apis.sh
+      - scripts/summarize-flate-failures.sh
       - mise.toml
+  # main 上的运行负责产出缓存，PR 只能读取 main 分支保存的缓存
+  push:
+    branches: ["main"]
+    paths:
+      - k8s/**
+      - .github/workflows/flate.yaml
+      - .github/flate/**
+      - .taskfile/flux.yaml
+      - scripts/validate-schemas.sh
+      - scripts/check-deprecated-apis.sh
+      - scripts/summarize-flate-failures.sh
+      - mise.toml
+  workflow_dispatch: {}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
@@ -21,8 +35,8 @@ permissions:
   contents: read
 
 jobs:
-  test:
-    name: Flate - Test
+  validate:
+    name: Flate - Validate
     runs-on: ubuntu-26.04
     steps:
       - name: Checkout
@@ -35,13 +49,46 @@ jobs:
         with:
           version: "0.7.3"
           base: ""
+          cache: "true"
 
-      - name: Render and test all resources
-        run: >-
-          flate test
-          --path k8s/clusters/staging
+      # 一次渲染供下面所有检查共用；失败时仍保留部分产物，让静态检查独立给出结果
+      - name: Render manifests
+        id: render
+        continue-on-error: true
+        run: |
+          rc=0
+          flate build --no-progress \
+            --path k8s/clusters/staging \
+            --supply .github/flate/inputs.yaml \
+            --skip-kinds Secret > rendered.yaml 2> flate.log || rc=$?
+          cat flate.log
+          exit "$rc"
+
+      - name: Summarize render failures
+        if: ${{ steps.render.outcome == 'failure' }}
+        run: scripts/summarize-flate-failures.sh flate.log | tee -a "$GITHUB_STEP_SUMMARY"
+
+      # 已弃用版本只报告，已停止提供的版本会让检查失败
+      - name: Check deprecated API versions
+        if: ${{ !cancelled() }}
+        run: scripts/check-deprecated-apis.sh rendered.yaml
+
+      # kubeconform 版本取自 mise.toml（本地与 CI 同一来源）
+      - name: Validate against CRD schemas
+        if: ${{ !cancelled() }}
+        run: |
+          version=$(sed -n 's/^kubeconform = "\(.*\)"/\1/p' mise.toml)
+          KUBECONFORM="docker run --rm -i ghcr.io/yannh/kubeconform:v${version}" \
+            scripts/validate-schemas.sh rendered.yaml
+
+      - name: Require complete render
+        if: ${{ steps.render.outcome == 'failure' }}
+        run: |
+          echo "::error::渲染未完成，上面的检查只覆盖了部分资源"
+          exit 1
 
   diff:
+    if: ${{ github.event_name == 'pull_request' }}
     name: Flate - Diff
     runs-on: ubuntu-26.04
     permissions:
@@ -70,6 +117,7 @@ jobs:
         with:
           version: "0.7.3"
           base: ""
+          cache: "true"
 
       - name: Render changed resources and diff
         env:
@@ -110,42 +158,9 @@ jobs:
             ${{ steps.diff.outputs.diff }}
             ```
 
-  schema:
-    name: Flate - Schema
-    runs-on: ubuntu-26.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Setup flate
-        uses: home-operations/flate/action@bbb6ebc344da051752dbdb1b413860ceffcfb63d # v0.7.3
-        with:
-          version: "0.7.3"
-          base: ""
-
-      - name: Render manifests
-        run: >-
-          flate build
-          --path k8s/clusters/staging
-          --supply .github/flate/inputs.yaml
-          --skip-kinds Secret > rendered.yaml
-
-      # 已弃用版本只报告，已停止提供的版本会让检查失败
-      - name: Check deprecated API versions
-        run: scripts/check-deprecated-apis.sh rendered.yaml
-
-      # kubeconform 版本取自 mise.toml（本地与 CI 同一来源）
-      - name: Validate against CRD schemas
-        run: |
-          version=$(sed -n 's/^kubeconform = "\(.*\)"/\1/p' mise.toml)
-          KUBECONFORM="docker run --rm -i ghcr.io/yannh/kubeconform:v${version}" \
-            scripts/validate-schemas.sh rendered.yaml
-
   success:
     if: ${{ !cancelled() }}
-    needs: ["test", "diff", "schema"]
+    needs: ["validate", "diff"]
     name: Flate - Success
     runs-on: ubuntu-26.04
     steps:
@@ -154,4 +169,5 @@ jobs:
           RESULTS: ${{ toJSON(needs.*.result) }}
         run: |
           echo "$RESULTS"
-          jq -e 'all(.[]; . == "success")' <<< "$RESULTS"
+          # push 到 main 时 diff 作业被跳过
+          jq -e 'all(.[]; . == "success" or . == "skipped")' <<< "$RESULTS"
