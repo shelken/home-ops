@@ -48,5 +48,8 @@ jobs:
       - name: markdown relative links
         run: git ls-files -z '*.md' | xargs -0 python3 scripts/check-markdown-links.py
 
+      - name: schema comment versions
+        run: python3 scripts/check-schema-versions.py
+
       - name: registry mirror probes
         run: python3 scripts/check-registry-mirror-probes.py
