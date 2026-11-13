@@ -11,6 +11,7 @@ spec:
     operation: copy
   ref:
     tag: v1.17.7
+    digest: sha256:b0a99f86ddfc9c3474b17ed58c3baa3a5520d1a05884f984d8b820349d90b8c8
   url: oci://ghcr.io/rook/rook-ceph
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json

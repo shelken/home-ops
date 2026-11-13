@@ -27,7 +27,7 @@
 
 ## 镜像与依赖
 
-- 需要新镜像时用 crane 查询，版本固定为 semver@digest，升级交给 Renovate
+- 需要新镜像或 Flux chart 源时用 crane 查询 digest：镜像固定为 semver@digest，chart 的 `spec.ref` 同时写 `tag` 和 `digest`；升级交给 Renovate
 - 在 `k8s/apps/common/` 启用或禁用应用时，同步更新 `.renovate/packageRules.json5` 的 Disabled Packages：禁用加入该应用的镜像与包，启用时移除
 
 ## 密钥与安全
