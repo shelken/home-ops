@@ -68,7 +68,7 @@ spec:
             memory: 64Mi
         containers:
           - name: wechatrobot
-            image: ghcr.io/shelken/alertmanager-wechatrobot:0.1.7
+            image: ghcr.io/shelken/alertmanager-wechatrobot:0.1.7@sha256:b0c362eba16fe1f478e77a0d0d1768a0c6eeda7d67cd6739848d1d7570eb2f7e
             ports:
               - containerPort: 8060
             env:

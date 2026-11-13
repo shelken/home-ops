@@ -27,7 +27,7 @@ spec:
           sakamoto-clash-exporter: &common
             image:
               repository: ghcr.io/shelken/clash-exporter
-              tag: 0.0.5
+              tag: 0.0.5@sha256:0447afb07752eaaf34ec79462b8176becd4691fb1cfff88b9cec5134415651e5
             command:
               - "/app/clash-exporter"
               - "-collectTracing=false"
