@@ -1,0 +1,51 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/refs/heads/master/v1.34.1/service-v1.json
+# 不带 selector：后端由下面手写的 EndpointSlice 提供
+apiVersion: v1
+kind: Service
+metadata:
+  name: magpie
+spec:
+  ports:
+    - name: http
+      port: 3425
+      protocol: TCP
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/refs/heads/master/v1.34.1/endpointslice-discovery-v1.json
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: magpie
+  labels:
+    kubernetes.io/service-name: magpie
+    # 非 EndpointSlice 控制器管理，防止被控制器接管或清理
+    endpointslice.kubernetes.io/managed-by: flux
+addressType: IPv4
+ports:
+  - name: http
+    port: 3425
+    protocol: TCP
+endpoints:
+  - addresses:
+      - ${MIO_IP}
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/gateway.networking.k8s.io/httproute_v1.json
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: magpie
+  annotations:
+    # magpie 对不带 key 的远程请求返回 401，没有免认证的健康接口：401 即在线
+    gatus.home-operations.com/endpoint: |-
+      conditions:
+        - "[STATUS] == 401"
+spec:
+  hostnames:
+    - magpie.${INTERNAL_DOMAIN}
+  parentRefs:
+    - name: envoy-internal
+      namespace: network
+  rules:
+    - backendRefs:
+        - name: magpie
+          port: 3425
