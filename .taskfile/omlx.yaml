@@ -1,0 +1,43 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+# oMLX (yuuko) 服务生命周期
+# 安装/配置/升级归 nix-config(shelken.homelab.omlx);这里只做启停与观察
+# 服务形态为 brew services(launchd keep_alive,开机自启),start 后常驻
+
+vars:
+  INV: "{{.ROOT_DIR}}/.taskfile/scripts/inv.sh"
+  YUUKO_HOST:
+    sh: '"{{.INV}}" yuuko'
+  OMLX_LOG: "$(brew --prefix)/var/log/omlx.log"
+
+tasks:
+  start:
+    desc: "启动 oMLX 服务(常驻)"
+    silent: true
+    cmd: ssh {{.YUUKO_HOST}} "omlx start"
+
+  stop:
+    desc: "停止 oMLX 服务"
+    silent: true
+    cmd: ssh {{.YUUKO_HOST}} "omlx stop"
+
+  restart:
+    desc: "重启 oMLX 服务"
+    silent: true
+    cmds:
+      - task: stop
+      - task: start
+
+  status:
+    desc: "查看 oMLX 服务状态(未带 key 访问 /v1/models 预期 401,401 即存活)"
+    silent: true
+    cmd: |
+      ssh {{.YUUKO_HOST}} "brew services info omlx 2>/dev/null || true
+      curl -s -o /dev/null -w 'local /v1/models -> HTTP %{http_code}\n' http://127.0.0.1:8900/v1/models"
+
+  logs:
+    desc: "跟随 oMLX 服务日志"
+    silent: true
+    cmd: ssh {{.YUUKO_HOST}} "tail -n 100 -f {{.OMLX_LOG}}"
