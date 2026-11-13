@@ -10,6 +10,7 @@ on:
       - .github/flate/**
       - .taskfile/flux.yaml
       - scripts/validate-schemas.sh
+      - scripts/check-deprecated-apis.sh
       - mise.toml
 
 concurrency:
@@ -130,6 +131,10 @@ jobs:
           --path k8s/clusters/staging
           --supply .github/flate/inputs.yaml
           --skip-kinds Secret > rendered.yaml
+
+      # 已弃用版本只报告，已停止提供的版本会让检查失败
+      - name: Check deprecated API versions
+        run: scripts/check-deprecated-apis.sh rendered.yaml
 
       # kubeconform 版本取自 mise.toml（本地与 CI 同一来源）
       - name: Validate against CRD schemas
