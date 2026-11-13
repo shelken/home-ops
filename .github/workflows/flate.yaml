@@ -7,6 +7,7 @@ on:
     paths:
       - k8s/**
       - .github/workflows/flate.yaml
+      - .github/flate/**
       - .taskfile/flux.yaml
       - scripts/validate-schemas.sh
       - mise.toml
@@ -127,6 +128,7 @@ jobs:
         run: >-
           flate build
           --path k8s/clusters/staging
+          --supply .github/flate/inputs.yaml
           --skip-kinds Secret > rendered.yaml
 
       # kubeconform 版本取自 mise.toml（本地与 CI 同一来源）
