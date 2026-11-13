@@ -45,7 +45,9 @@ jobs:
         run: |
           scripts/check-deprecated-apis.sh rendered.yaml > api.txt || true
           python3 scripts/check-schema-versions.py > schema.txt || true
-          grep -A1 -E '\[(StaleValues|ConflictingProducers)\]' flate.log | grep -v '^--$' > diagnostics.txt || true
+          # flate 看不到 fluent-bit 配置里 tpl 对 .Values.logLevel 的引用，该条 StaleValues 是误报
+          grep -A1 -E '\[(StaleValues|ConflictingProducers)\]' flate.log | grep -v '^--$' |
+            awk '/StaleValues\] HelmRelease observability\/fluent-bit:/ {skip=1; next} skip {skip=0; next} {print}' > diagnostics.txt || true
 
           section() {
             if [[ -s $2 ]]; then
