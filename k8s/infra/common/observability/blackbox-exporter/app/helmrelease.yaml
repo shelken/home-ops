@@ -10,8 +10,8 @@ spec:
     mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
     operation: copy
   ref:
-    tag: 11.20.0
-    digest: sha256:f142e64d77b706ffd12fb44386c35f5e9672e1863f097dcf983fc74946b36f23
+    tag: 11.21.3
+    digest: sha256:128e142cda55d0d4ca4cc84dde39c0d325b9805645ba87885e664fecbdfb1599
   url: oci://ghcr.io/prometheus-community/charts/prometheus-blackbox-exporter
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
