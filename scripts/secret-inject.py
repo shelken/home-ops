@@ -7,7 +7,6 @@
 
 用法:
   secret-inject.py print <file>    # 渲染到 stdout（管道场景，如 kubectl apply）
-  secret-inject.py render <dir>    # 渲染目录下所有 *.tpl 到去掉 .tpl 后缀的同名文件（就地原子替换）
 
 同一批文件中每个引用只获取一次，bws 整个项目只调用一次 secret list；
 无占位符的模板静默原样输出。日志全部走 stderr，stdout 只有渲染结果，任何日志都不含 secret 值。
@@ -18,7 +17,6 @@ import os
 import re
 import subprocess
 import sys
-import tempfile
 from functools import cache
 from pathlib import Path
 from typing import NoReturn
@@ -107,41 +105,14 @@ def render_text(text: str) -> str:
     return PLACEHOLDER.sub(lambda m: resolve(m.group(1) or m.group(2)), text)
 
 
-def render_file(tpl: Path):
-    out = tpl.with_suffix("")
-    print(f"渲染: {tpl} -> {out}", file=sys.stderr)
-    content = render_text(tpl.read_text())
-    fd, tmp = tempfile.mkstemp(dir=out.parent, prefix=out.name + ".")
-    try:
-        with os.fdopen(fd, "w") as f:
-            f.write(content)
-        # mkstemp 固定 0600，会让 rsync 同步出非 root 容器读不了的配置；继承模板权限
-        os.chmod(tmp, tpl.stat().st_mode & 0o777)
-        os.replace(tmp, out)
-    except BaseException:
-        Path(tmp).unlink(missing_ok=True)
-        raise
-
-
 def main():
     args = sys.argv[1:]
-    if len(args) != 2 or args[0] not in ("print", "render"):
-        die(f"用法: {sys.argv[0]} print <file> | render <dir>")
-    mode, target = args
-    if mode == "print":
-        path = Path(target)
-        if not path.is_file():
-            die(f"文件不存在: {path}")
-        sys.stdout.write(render_text(path.read_text()))
-        return
-    root = Path(target)
-    if not root.is_dir():
-        die(f"目录不存在: {root}")
-    templates = sorted(p for p in root.rglob("*.tpl") if p.is_file())
-    if not templates:
-        die(f"目录下没有 *.tpl 文件: {root}")
-    for tpl in templates:
-        render_file(tpl)
+    if len(args) != 2 or args[0] != "print":
+        die(f"用法: {sys.argv[0]} print <file>")
+    path = Path(args[1])
+    if not path.is_file():
+        die(f"文件不存在: {path}")
+    sys.stdout.write(render_text(path.read_text()))
 
 
 if __name__ == "__main__":

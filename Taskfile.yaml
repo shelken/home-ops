@@ -20,7 +20,6 @@ includes:
   k8s: .taskfile/k8s.yaml
   cluster: .taskfile/cluster.yaml
   zte: .taskfile/zte.yaml
-  router: .taskfile/router.yaml
 
 tasks:
   default: task --list

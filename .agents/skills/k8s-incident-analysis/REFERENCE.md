@@ -402,7 +402,7 @@ ssh <ROUTER_HOST> 'uci show dhcp.@dnsmasq[0] | grep -E "\\.(server|address|addre
 
 1. `ping <WWAN_GW>` 正常，但 `<WWAN_GW>` 的 DNS 固定慢：上游路由器 DNS 差。
 2. `ping <WWAN_GW>` 自己就抖，同时有 `BEACON-LOSS`：无线中继链路差。
-3. 普通 RTT 正常，但本地 `127.0.0.1` 查代理域名慢：dnsmasq 上游解析路径（含旁路由 dae 的 DNS 分流）慢，不是基础出网慢。
+3. 普通 RTT 正常，但本地 `127.0.0.1` 查代理域名慢：dnsmasq 上游解析路径（含旁路由的 DNS 分流）慢，不是基础出网慢。
 4. `wwan` 比 `wan` 普通 RTT 更低，不代表它的上游 DNS 更好；基础出网与 DNS 质量要分开判断。
 
 ## 8) Audit log / 手动操作追溯

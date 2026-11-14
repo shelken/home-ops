@@ -1,5 +1,7 @@
 # TVBox 旁路由分担主路由流量
 
+> **状态：历史参考**。旁路由已换成 NixOS 上的 sing-box，由 nix-config 的 `hosts/hk1box/` 声明，下文的 ImmortalWrt 做法不再适用
+
 ## 需求转变过程
 
 最初想把 TVBox 当主路由用，单网口作为 LAN。发现 TVBox 缺 USB WAN 驱动，单网口做主路由不如原主路由稳。改为 TVBox 做旁路由，分担插件。

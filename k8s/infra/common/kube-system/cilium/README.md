@@ -21,10 +21,6 @@ graph TD
     R_Mine -- "eBGP (LAN)" --> Yuuko
 ```
 
-### router-home（已断开）
-
-参考配置：[`router/bird/home.conf`](../../../../../router/bird/home.conf)
-
 ### 防火墙规则
 
 主路由防火墙配置：`/etc/config/firewall`

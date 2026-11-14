@@ -188,11 +188,11 @@ postRenderers:
 抓包读到的 SYN mss 只是当时按哪份 MTU 切段的读数，改动应落回各口与路径的 MTU 声明
 
 - 供应商迁移、换机房、换上游、启用 DDoS 清洗后，把各口与路径 MTU 是否统一列为第一批检查项
-- 公网腿用 `interface_mtu` 声明统一，Docker 容器腿用 compose `driver.mtu` 与 Tailscale 的 1280 对齐
-- 改 Docker 网络 MTU 必须重建 network，`compose up` 不会更新已有 bridge 的 mtu
+- 公网腿用 `interface_mtu` 声明统一，Docker 容器腿用 `homelab` 网络的 MTU（nix-config 的 `docker-network-homelab` 单元）与 Tailscale 的 1280 对齐
+- 改 Docker 网络 MTU 必须重建 network，单元发现网络已存在就不动，不会更新已有 bridge 的 mtu
 
 ### 改完配置先确认运行进程是否已重载
 
-- daed 的 wing.db 改动不触发自动 reload，DNS/routing 变更后须手动 reload 再验证
+- 旁路由 sing-box 的配置由订阅拉取生成，更换订阅 URL 后不会自动重拉，需执行 `systemctl start sing-box-sub-update`（见 nix-config 的 `hosts/hk1box/README.md`）
 - 被运行进程按路径反复读取的文件（如 Envoy 的 mmdb）必须写临时文件后原子 `mv` 替换，就地覆盖会在热重载窗口内产生异常状态
 - Docker Compose 的服务 hash 不含 `configs:` 的文件路径与内容，只改这类文件不会重建容器，属同类问题；sakamoto 改用 `volumes:` 挂配置文件绕开（见 nix-config 的 `hosts/sakamoto/apps/README.md`）
