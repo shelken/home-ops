@@ -15,7 +15,7 @@
 
 目的地：`::[实际 EUI-64 后缀]/::ffff:ffff:ffff:ffff` 端口 `443`
 
-> 注：历史 Armbian 阶段通过 nmcli 配置（`ipv6.addr-gen-mode eui64`、`ipv6.ip6-privacy 0`）；当前旁路由固件统一使用 ImmortalWrt
+> 注：历史 Armbian 阶段通过 nmcli 配置（`ipv6.addr-gen-mode eui64`、`ipv6.ip6-privacy 0`）；旁路由现为 NixOS，由 nix-config 声明
 
 ### NAT6
 

@@ -40,7 +40,7 @@ Homelab GitOps 仓库。Kubernetes 集群、基础设施组件、应用、外部
 - 密钥：SOPS、External Secrets、Bitwarden Secrets Manager
 - 存储：Longhorn、OpenEBS、CloudNativePG、SMB
 - 备份：kopiur、RustFS、Kopia
-- 外部服务：集群外的容器都在 nix-config 声明（VPS 走 NixOS 的 oci-containers、sakamoto 走 Compose），本仓库只保留路由器配置、Lima VM 与节点自动化
+- 集群外配置：路由器、旁路由与集群外的容器都在 nix-config 声明（VPS 走 NixOS 的 oci-containers、sakamoto 走 Compose），本仓库只保留 Lima VM 与节点自动化
 
 完整架构见 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 

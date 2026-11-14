@@ -54,7 +54,7 @@ graph LR
 
     subgraph HOME["家庭内网"]
         Router["主路由<br/>OpenWrt<br/>192.168.6.1"]
-        BYPASS["旁路由<br/>dae<br/>192.168.6.3"]
+        BYPASS["旁路由<br/>sing-box<br/>192.168.6.3"]
 
         subgraph VLAN6["VLAN 6 · 主内网<br/>192.168.6.0/24"]
             SAKAMOTO["宿主机<br/>192.168.6.144"]
@@ -109,7 +109,7 @@ graph LR
 | F50 ↔ 互联网 | WAN (移动数据) | F50 是主路由的互联网出口 |
 | 主路由 ↔ F50 | LAN | 主路由通过 F50 出网；F50 断线时 zte-mifi-healer 自动重连 |
 | 旁路由 ↔ 主路由 | LAN (VLAN 6) | 旁路由 (sing-box，配置由 nix-config 声明，dae 时期见 [ADR-0007](adr/0007-bypass-router-dae-declarative.md))；自身默认路由仍指向主路由 |
-| k3s 节点 / 宿主机 → 旁路由 | LAN (VLAN 6) | 默认网关指向 192.168.6.3 (dae)；节点主网卡 DNS 设为 1.1.1.1 触发 eBPF 嗅探分流 |
+| k3s 节点 / 宿主机 → 旁路由 | LAN (VLAN 6) | 默认网关指向 192.168.6.3；节点主网卡 DNS 设为 1.1.1.1，由旁路由劫持 53 端口分流 |
 | k3s 节点 IPv6 | LAN (VLAN 6) | 节点禁用 RA 默认网关，无 IPv6 出网，境外访问回退 IPv4 经旁路由（[ADR-0005](adr/0005-k8s-node-no-ipv6-egress.md)）；需要 IPv6 直连的 Pod 通过 `multus-ipv6` 在自己的网络命名空间里独立出入站 |
 | 宿主机 ↔ 主路由 | LAN (VLAN 6) | 192.168.6.0/24 |
 | PVE ↔ 主路由 | LAN (VLAN 6) | 192.168.6.0/24 |
@@ -148,7 +148,7 @@ dockerproxy (docker-socket-proxy :2575)"]
         CD_VPS["Caddy (公网入口 + TLS)
 CrowdSec (WAF + AppSec)
 dnsmasq (本机 DNS) / mosdns (DNS)
-hysteria2 (供旁路由 dae)
+hysteria2 (供旁路由)
 anytls (sing-box :5444)
 DERP (中继，宿主机 :8666)
 OpenList (S3 网关)
@@ -181,7 +181,7 @@ VPS 本机 DNS:
                其他域名 -> 公网 DNS（1.1.1.1 / 8.8.8.8）
 
 K8s 节点本机 DNS (Ansible):
-  systemd-resolved -> 1.1.1.1 / 8.8.8.8 (经旁路由 dae 嗅探)
+  systemd-resolved -> 1.1.1.1 / 8.8.8.8 (经旁路由劫持分流)
                        ├── 境内域名 -> alidns (223.5.5.5) -> 直连
                        ├── 境外域名 -> 海外 DoH -> 走代理
                        └── 内网域名 (*.int 与 *.lan) -> 主路由 (192.168.6.1)
@@ -245,12 +245,12 @@ CN / HK + VPS IP"]
 graph LR
     subgraph LAN["家庭内网<br/>192.168.6.0/24"]
         Client["局域网设备"]
-        BYPASS["旁路由<br/>dae"]
+        BYPASS["旁路由<br/>sing-box"]
         Router["主路由<br/>DHCP + 内网 DNS 权威"]
     end
 
     subgraph DNSPATH["DNS 分流"]
-        DaeDNS["dae DNS routing<br/>dport(53) -> direct"]
+        SbDNS["sing-box DNS<br/>劫持 dport(53)"]
         RouterDNS["主路由 DNS<br/>内网域名"]
         ForeignDNS["DoH over proxy<br/>国外域名"]
         CNDNS["国内 DNS<br/>国内域名"]
@@ -267,10 +267,10 @@ graph LR
     end
 
     Client -->|"DNS"| BYPASS
-    BYPASS --> DaeDNS
-    DaeDNS --> RouterDNS
-    DaeDNS --> ForeignDNS
-    DaeDNS --> CNDNS
+    BYPASS --> SbDNS
+    SbDNS --> RouterDNS
+    SbDNS --> ForeignDNS
+    SbDNS --> CNDNS
     RouterDNS -->|"主域与内部域"| K8sGW
     K8sGW -->|"A → LB IP"| Envoy_Internal
     TS_Client --> TS_Subnet
@@ -297,7 +297,7 @@ dig @<ROUTER_IP> <BOOTSTRAP_NAME> A
 ```
 
 后端决策见 [ADR-0003：集群服务 DNS 由 k8s-gateway 动态应答](adr/0003-internal-dns-via-gateway.md)，所有权见 [ADR-0009](adr/0009-router-dnsmasq-declared-in-nix-config.md)。
-旁路由分流与节点 DNS 策略见 [ADR-0004：K8s 节点 DNS 显式指向外部地址，经旁路由 dae 解析](adr/0004-k8s-node-dns-daed-routing.md)。
+旁路由分流与节点 DNS 策略见 [ADR-0004：K8s 节点 DNS 显式指向外部地址，经旁路由解析](adr/0004-k8s-node-dns-daed-routing.md)。
 
 ### 内部域契约
 
@@ -320,7 +320,7 @@ dig @<ROUTER_IP> <BOOTSTRAP_NAME> A
   | 客户端 | 路径 |
   |---|---|
   | LAN 设备、VPS | 路由器或 VPS 的 dnsmasq → k8s-gateway；集群外自举名称为路由器 dnsmasq 的 `address` 记录 |
-  | K8s 节点 | 经旁路由 dae 转回主路由，见 [ADR-0004](adr/0004-k8s-node-dns-daed-routing.md) |
+  | K8s 节点 | 经旁路由转回主路由，见 [ADR-0004](adr/0004-k8s-node-dns-daed-routing.md) |
   | SFM 客户端 | 由 proxy 仓库的 sing-box 配置在本地静态应答，不依赖家庭 DNS，见 [proxy #46](https://github.com/shelken/proxy/issues/46) |
 
 - **入口 IP 变化**：路由器的自举记录（nix-config 的 `home-ops/dns.nix`）与各客户端的静态应答要同时更新，否则两侧指向不同入口
@@ -331,7 +331,7 @@ dig @<ROUTER_IP> <BOOTSTRAP_NAME> A
 |---|------|------|--------|------|------|
 | 1 | VPS Caddy (v4) | 公网 | A `*` → VPS → Tailscale | envoy-external | ✅ 活跃 |
 | 2 | caddy-external (v6) | 公网 | AAAA `*` → 集群 v6 | envoy-external | ✅ 活跃 |
-| 3 | envoy-internal | 内网 | 客户端 DNS → 旁路由 dae → 主路由 DNS → k8s-gateway → LB | envoy-internal | ✅ 活跃 |
+| 3 | envoy-internal | 内网 | 客户端 DNS → 旁路由 → 主路由 DNS → k8s-gateway → LB | envoy-internal | ✅ 活跃 |
 | 4 | Tailscale | 内网 | 直连 → subnet router | 集群服务 | ✅ 活跃 |
 | ~5~ | Cloudflare Tunnel | 无 | 无 | 无 | ❌ 已停用 |
 | ~6~ | NetBird | 无 | 无 | 无 | ❌ 已停用 |

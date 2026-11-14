@@ -14,7 +14,7 @@
 
 ## 原因
 
-- **DNS 指向 1.1.1.1 与 8.8.8.8**：这两个地址与节点不同网段，查询必须经默认网关到达旁路由，进入 dae 的 DNS 模块，按域名分流；内网域名由 dae 转回主路由解析。节点若沿用主路由 DHCP 下发的 DNS，查询经二层直达主路由，绕过旁路由。取舍与被否决的方案见 [ADR-0004](adr/0004-k8s-node-dns-daed-routing.md)，旁路由侧的限制见 [23-daed-on-tvbox.md](23-daed-on-tvbox.md)
+- **DNS 指向 1.1.1.1 与 8.8.8.8**：这两个地址与节点不同网段，查询必须经默认网关到达旁路由，被旁路由劫持进它的 DNS 模块，按域名分流；内网域名由旁路由转回主路由解析。节点若沿用主路由 DHCP 下发的 DNS，查询经二层直达主路由，绕过旁路由。取舍与被否决的方案见 [ADR-0004](adr/0004-k8s-node-dns-daed-routing.md)，旁路由现行配置见 nix-config 的 `modules/features/network/singbox-config/README.md`，dae 时期的限制见 [23-daed-on-tvbox.md](23-daed-on-tvbox.md)
 - **忽略 DHCPv6 与 RA 的 DNS**：节点曾从 IPv6 RA/DHCPv6 拿到运营商 DNS，解析被污染
 - **不接受 RA 默认网关**：节点从 RA 学到的 IPv6 默认路由绕过旁路由，境外双栈服务被限速直连，曾导致 Helm 超时回滚。取舍见 [ADR-0005](adr/0005-k8s-node-no-ipv6-egress.md)
 
@@ -22,7 +22,7 @@
 
 - 不修改 IP、网关、DHCP/static 模式、cloud-init 或 netplan 网络形态：Lima 节点的网卡归 Lima/cloud-init，PVE 节点归 cloud-init，这里只写 DNS 与 RA 的 drop-in
 - 不在主路由全局下发 DHCP DNS：非白名单设备的查询会直连公网，被污染并失去内网解析
-- 不使用 223.5.5.5 作触发地址：dae 对它 `must_direct`，跳过 DNS 模块
+- 不使用 223.5.5.5 作触发地址：旁路由对它直接放行，跳过 DNS 模块
 
 ## 检查
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 多处共用的 inventory 查询：只返回 ansible_host。
-# 单处使用的值（lima vm/config、router ssh、LB、workers）各自本地取，不进本脚本。
+# 单处使用的值（lima vm/config、LB、workers）各自本地取，不进本脚本。
 #
 # 用法: inv.sh <inventory-name>
 # 数据: ansible/inventory/{hosts,others}.ini

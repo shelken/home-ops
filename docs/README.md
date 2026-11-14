@@ -42,14 +42,14 @@
 | [VPS IP 变更](./19-vps-ip-change.md) | VPS 地址变化后的处理清单 |
 | [Lima 群晖数据恢复](./20-lima-synology-recovery.md) | 黑群晖坏盘经 Lima 直通后只读挂载恢复数据 |
 | [中兴 F50 笔记](./21-f50-notes.md) | 电源与网线插拔顺序 |
-| [TVBox 旁路由配置](./22-tvbox-bypass-router.md) | 电视盒子刷 ImmortalWrt 做旁路由完整记录 |
-| [TVBox 旁路由运行 dae](./23-daed-on-tvbox.md) | daed 内核 BTF、Hysteria2 兼容、DNS 与路由经验 |
 
 ## 历史和草案
 
 | 文档 | 状态 |
 |------|------|
 | [跨地域节点互联](./17-add-remote-node.md) | 历史方案：异地节点经 ZeroTier 与 BGP 互联，节点已迁回内网 |
+| [TVBox 旁路由配置](./22-tvbox-bypass-router.md) | 历史记录：电视盒子刷 ImmortalWrt 做旁路由，现已换成 nix-config 声明的 NixOS |
+| [TVBox 旁路由运行 dae](./23-daed-on-tvbox.md) | 历史记录：daed 内核 BTF、Hysteria2 兼容、DNS 与路由经验 |
 | [Talos](./talos.md) | 草案/调研 |
 | [Talos 迁移分析](./draft/talos-migration-analysis.md) | 草案/调研 |
 | [ServiceMonitor 排查报告](./draft/servicemonitor.md) | 草案/历史排查 |

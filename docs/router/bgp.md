@@ -62,10 +62,6 @@ BIRD 的包与 `/etc/bird.conf` 由 nix-config 的 `hosts/router-mine/home-ops/b
 
 下发后 `just router::push` 先执行 `bird -p` 校验，通过才 `birdc configure`（软重载，不中断既有连接会话）。校验失败则 BIRD 继续运行旧配置
 
-### router-home (远程路由器，已断开)
-
-[router/bird/home.conf](../../router/bird/home.conf)
-
 
 ## 服务管理
 

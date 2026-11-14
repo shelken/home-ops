@@ -7,8 +7,8 @@
 ### 网络
 
 **旁路由（Bypass router）**:
-运行透明代理的那台 TVBox，是 K8s 节点与客户端的 IPv4 默认网关和 DNS 分流入口
-_Avoid_: daed、dae（这两个是运行在旁路由上的程序，不是机器）
+运行透明代理的那台电视盒子，是 K8s 节点与客户端的 IPv4 默认网关和 DNS 分流入口
+_Avoid_: daed、dae、sing-box（这些是运行在旁路由上的程序，不是机器）
 
 **源站（Upstream registry）**:
 镜像原本所在的公开镜像仓库，例如 docker.io、ghcr.io、quay.io

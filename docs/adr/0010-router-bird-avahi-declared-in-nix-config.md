@@ -17,4 +17,4 @@ status: accepted
 - BIRD 的邻居地址取自 nix-config 的 `vars/networking.nix`，节点 IP 变化时改那里
 - nuci 对 `uci.files` 只写文件，不校验也不重载。校验与重载放在 nix-config 的 `just router::push`：先 `bird -p`，通过才 `birdc configure`；avahi 配置有变化时才重启
 - 失去 `declare.py` 的「先在暂存目录校验，再替换」：坏配置会先写到磁盘，`bird -p` 失败时 BIRD 继续运行旧配置，但磁盘上的文件需要手工修正
-- `router/bird/` 只保留历史参考 `home.conf`
+- 本仓库不再有 `router/` 目录，已断开站点的 BIRD 配置只留在 git 历史里
