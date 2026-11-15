@@ -64,7 +64,6 @@ Homelab GitOps 仓库。Kubernetes 集群、基础设施组件、应用、外部
 | `k8s/infra/common/` | 基础设施部署 |
 | `k8s/components/` | 可复用组件模板 |
 | `bootstrap/` | 集群引导资源 |
-| `ansible/` | 节点初始化和系统配置 |
 | `.taskfile/` | Task 子任务定义 |
 | `docs/` | 架构、部署和运维文档 |
 
