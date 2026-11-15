@@ -9,39 +9,17 @@ vars:
   TEST: "test"
 
 includes:
-  share: .taskfile/share.yaml
   sops: .taskfile/sops.yaml
   secret: .taskfile/secret.yaml
   flux: .taskfile/flux.yaml
   kopia: .taskfile/kopia.yaml
   kopiur: .taskfile/kopiur.yaml
   lms: .taskfile/lms.yaml
-  lima: .taskfile/lima.yaml
   k8s: .taskfile/k8s.yaml
-  cluster: .taskfile/cluster.yaml
   zte: .taskfile/zte.yaml
 
 tasks:
   default: task --list
-
-  bootstrap:
-    silent: true
-    desc: "k3s 部署"
-    cmds:
-      - cmd: |
-          echo "安装包，修改时区等系统设置调整"
-          ansible-playbook {{.ROOT_DIR}}/ansible/site.yml
-      - cmd: |
-          echo "配置 k3s(containerd) 镜像mirror源 等"
-          ansible-playbook {{.ROOT_DIR}}/ansible/playbooks/send-files.yml
-      - cmd: |
-          echo "部署k3s"
-          ansible-playbook {{.ROOT_DIR}}/ansible/playbooks/install-k3s.yaml
-
-  kubeconfig:
-    desc: "刷新本地 kubeconfig (~/.kube/home-ops.yaml)"
-    cmds:
-      - task: cluster:kubeconfig
 
   init-crd:
     silent: true
@@ -145,18 +123,6 @@ tasks:
       - kubectl wait --for=condition=Ready pod/{{.pod}} --timeout=60s
       - kubectl exec -it {{.pod}} -- /bin/sh
       - defer: kubectl delete pod {{.pod}} --ignore-not-found=true
-
-  check-time:
-    desc: "查看所有节点时间同步状态"
-    dir: "{{.ROOT_DIR}}/ansible"
-    silent: true
-    cmd: |
-      ansible all -b -m shell -a '
-        IP=$(chronyc sources | grep "^\^\*" | awk "{print \$2}") &&
-        NAME=$(chronyc sourcename $IP) &&
-        echo "时间: $(date '+%F %T')" &&
-        echo "同步源: $NAME ($IP)"
-      '
 
   cscli:
     silent: true
