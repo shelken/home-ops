@@ -139,7 +139,7 @@ curl -4 -I --connect-timeout 8 https://www.google.com
 
 1. **不能在主路由全局 DHCP 下发 Option 6（如 8.8.8.8）**：daed 配有客户端白名单（`!mac(...) && !sip(...) -> must_direct`）。全局下发会导致非白名单普通设备（手机、电视、IoT）的 DNS 查询直连公网，不仅遭受 GFW 投毒污染，而且彻底失去 `.lan` 与 `*.int` 内网解析。
 2. **不能指定 223.5.5.5 作为触发 IP**：daed 规则中硬编码了 `dip(223.5.5.5) && dport(53) -> must_direct`，发往该地址的 DNS 请求会被跳过嗅探，直连拿到国内污染 IP。
-3. **K8s 节点由 Ansible 统一收口**：在 `ansible/playbooks/tasks/k8s-dns.yaml` 中将主网卡显式配置为 `DNS=1.1.1.1 8.8.8.8` 并禁用 `[DHCPv4] UseDNS`。内网域名由 daed 的 DNS 规则自动回弹主路由，境外域名由 daed 加密 DoH 嗅探代理。具体权衡见 [ADR-0004](adr/0004-k8s-node-dns-daed-routing.md)。
+3. **K8s 节点由 nix-config 统一声明**：在 `hosts/k8s/common.nix` 中将主网卡显式配置为 `DNS=1.1.1.1 8.8.8.8` 并禁用 `[DHCPv4] UseDNS`。内网域名由 daed 的 DNS 规则自动回弹主路由，境外域名由 daed 加密 DoH 嗅探代理。具体权衡见 [ADR-0004](adr/0004-k8s-node-dns-daed-routing.md)。
 
 ## daed DNS 上游建议
 

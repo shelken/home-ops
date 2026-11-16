@@ -127,11 +127,7 @@ External Secrets 会对受管外部密钥打 tag。迁移未保留 tag 会导致
 
 ### 中文乱码
 
-宿主机可能缺少 CIFS 相关组件：
-
-```bash
-sudo apt-get install -y cifs-utils linux-modules-extra-$(uname -r)
-```
+节点可能缺少 CIFS 内核模块，用 `lsmod | grep cifs` 确认；模块由 nix-config 的 `k3s-node` 功能声明（`boot.kernelModules`）
 
 ### SMB 相关容器规律性重启
 

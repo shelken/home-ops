@@ -1,5 +1,5 @@
 ---
-# 主机清单须与 ansible/playbooks/resource/registries.yaml 中的外部镜像端点一致（lint 校验）
+# 主机清单须与 nix-config modules/features/homelab/k3s-node/registries.yaml 中的外部镜像端点一致（lint 校验）
 endpoints:
   - &common
     name: dhp

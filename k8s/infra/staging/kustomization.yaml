@@ -5,7 +5,6 @@ resources:
   - ../common/cert-manager
   - ../common/kube-system
   - ../common/external-secrets
-  - ../common/system-upgrade
   - ../common/longhorn-system
   # - ../common/rook-ceph
   - ../common/openebs-system

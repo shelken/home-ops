@@ -18,8 +18,8 @@
 
 | 文档 | 用途 |
 |------|------|
-| [Proxmox 创建虚拟机](./1-proxmox创建虚拟机.md) | PVE VM 模板和节点创建记录 |
-| [部署 k3s](./2-部署k3s.md) | k3s 安装与历史命令记录 |
+| [Proxmox 创建虚拟机](./1-proxmox创建虚拟机.md) | GPU worker 虚拟机的 PVE 侧设置 |
+| [部署 k3s](./2-部署k3s.md) | 节点部署入口与节点移除 |
 | [Flux GitOps](./3-flux-cicd.md) | Flux 引导、密钥和同步说明 |
 | [Cilium](./5-cni-cilium.md) | Cilium 安装、BGP 和网络相关记录 |
 | [密钥管理](./6-secrets.md) | SOPS、External Secrets 和 bootstrap secret |

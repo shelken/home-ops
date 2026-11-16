@@ -68,6 +68,6 @@ spec:
             summary: >-
               镜像端点 {{ $labels.name }} 域名解析失败
             description: >-
-              containerd 会回退到下一个镜像端点或源站，不会立即故障；确认域名已失效后从 ansible/playbooks/resource/registries.yaml 删除该端点。
+              containerd 会回退到下一个镜像端点或源站，不会立即故障；确认域名已失效后从 nix-config 的 modules/features/homelab/k3s-node/registries.yaml 删除该端点。
           labels:
             severity: warning

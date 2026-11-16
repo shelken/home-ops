@@ -43,31 +43,13 @@ framebuffer_reservation = 0x14000000
 
 #### vm
 
-然后虚拟机vm安装相关包和驱动
-
-```bash
-ansible-playbook ansible/playbooks/install-nvidia.yaml
-```
-
-```bash
-# rsync 传输驱动安装文件（版本以 ansible/playbooks/install-nvidia.yaml 为准）
-export GRID_DRIVER_VERSION="<GRID_DRIVER_VERSION>"
-rsync -avzP "NVIDIA-Linux-x86_64-${GRID_DRIVER_VERSION}-grid.run" <SSH_USER>@192.168.6.111:~/
-
-sudo ./NVIDIA-Linux-x86_64-${GRID_DRIVER_VERSION}-grid.run --silent --no-questions --accept-license --disable-nouveau
-```
+虚拟机里的 vGPU guest 驱动与 `nvidia` 容器运行时由 nix-config 声明，见 nix-config 的 `modules/features/homelab/k3s-nvidia-vgpu/README.md`。驱动版本、内核固定原因与授权令牌的位置都在那里
 
 #### 授权激活（fastapi-dls）
 
-授权服务 `fastapi-dls` 以 Docker Compose 运行在宿主机 sakamoto，服务名 `nvidia-dls`，定义见 nix-config: `hosts/sakamoto/apps/compose.yaml`。在 VM 中获取 client token 并启用 `nvidia-gridd`：
+授权服务 `fastapi-dls` 以 Docker Compose 运行在宿主机 sakamoto，服务名 `nvidia-dls`，定义见 nix-config: `hosts/sakamoto/apps/compose.yaml`。client token 存在节点的 sops 文件里，由 nix-config 部署并启用 `nvidia-gridd`，不再手动获取。在 VM 中检查：
 
 ```bash
-export MAIN_DOMAIN=
-sudo curl --insecure -L -X GET https://nvidia-dls.$MAIN_DOMAIN/-/client-token -o /etc/nvidia/ClientConfigToken/client_configuration_token_$(date '+%d-%m-%Y-%H-%M-%S').tok
-sudo systemctl enable --now nvidia-gridd
-sudo reboot
-
-# 检查
 sudo nvidia-smi -q | grep -i lic
 # 使用ffmpeg测试
 ffmpeg -hwaccel cuda -i ~/EP05_01m.mp4 -f null -
@@ -79,39 +61,6 @@ ffmpeg -hwaccel cuda -i ~/EP05_01m.mp4 -f null -
 >
 > 在系统2410, 2404，。各种版本 535 550 570 都试过，没用。跟romfile或者NVIDIA的限制可能有关
 
-UEFI情况下，VM关闭「安全启动」
-
-然后进入安装
-
-```bash
-# 列出当前系统可用分支，选择已验证分支安装（如 570-server 验证通过）
-apt-cache search --names-only '^nvidia-headless-[0-9]+-server$'
-sudo apt install nvidia-headless-<BRANCH>-server
-sudo reboot
-```
-
-安装driver后VM中检查：
-
-```bash
-lsmod | grep nvid
-lspci -nnk | grep -A5 NVI
-# ffmpeg
-ffmpeg -decoders | grep cuvid
-```
-
-https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#with-apt-ubuntu-debian
-[k3s中配置nvidia-container-toolkit](https://docs.k3s.io/advanced#nvidia-container-runtime)
-
-```bash
-curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
-  && curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
-    sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
-    sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
-sed -i -e '/experimental/ s/^#//g' /etc/apt/sources.list.d/nvidia-container-toolkit.list
-sudo apt install -y nvidia-container-runtime
-sudo reboot
-```
-
 ### LXC
 
 > 放弃在lxc上弄k3s，会有大量问题。至少在vm
@@ -122,42 +71,20 @@ sudo reboot
 
 ### 节点标签分配
 
-当前工作节点 GPU 标签已由 Ansible 声明式管理（见 [`ansible/inventory/host_vars/homelab-1.yaml`](../ansible/inventory/host_vars/homelab-1.yaml)），无需手动执行 `kubectl label`
+工作节点 GPU 标签由 nix-config 的 `hosts/k8s/homelab-1/default.nix` 声明（`shelken.k3s.nodeLabels`），无需手动执行 `kubectl label`
 
 ## INTEL
 
 ### 添加gpu到vm
 
-在完成pve直通intel gpu的一些操作之后，给vm添加pci
+在完成 pve 直通 intel gpu 的操作之后，给 vm 添加 pci。VM 内的固件与驱动由 nix-config 声明，见 `hosts/k8s/homelab-1/default.nix`。检查：
 
 ```bash
-# 然后确保存在 renderD128
+# 确保存在 renderD128
 ls -la /dev/dri
-
-# ubuntu cloudimage缺少相关i915的加载 需要安装
-sudo apt install linux-modules-extra-$(uname -r)
-sudo apt install linux-firmware
-```
-
-检查
-
-```bash
 lspci -nnk | grep -B5 i915
 ```
 
 ### Intel 核显标签分配
 
-同上，已由 Ansible 自动分配标签 `intel.feature.node.kubernetes.io/gpu=true`
-
-### 宿主机内核模块配置
-
-```bash
-# 手动加载模块
-sudo modprobe i915
-
-# 设置开机自动加载
-echo "i915" | sudo tee -a /etc/modules
-
-# 更新 initramfs
-sudo update-initramfs -u
-```
+标签 `intel.feature.node.kubernetes.io/gpu=true` 同样由 nix-config 声明

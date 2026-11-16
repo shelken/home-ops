@@ -40,7 +40,6 @@ Temporary Items
 
 kubeconfig
 _out/**
-.ansible/**
 .claude/settings.local.json
 
 # Auto Claude data directory

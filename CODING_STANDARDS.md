@@ -5,7 +5,7 @@
 ## 环境与远程操作
 
 - 环境变量与 CLI（含 kubeconfig）由 mise 管理，声明见根目录 `mise.toml`
-- SSH 执行命令优先用 IP 而非主机名，地址以 `ansible/inventory/hosts.ini` 为准
+- SSH 用 nix-config 生成的主机别名，地址以 nix-config 的 `vars/networking.nix` 为准
 
 ## 目录与模块归属
 

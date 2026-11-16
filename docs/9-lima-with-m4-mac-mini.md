@@ -1,35 +1,12 @@
 # Lima on Mac mini 虚拟机配置
 
-参考配置：[`lima/sakamoto.yaml`](../lima/sakamoto.yaml)
+Lima 实例配置由 nix-config 声明并生成（`system.build.limaYaml`），更新步骤见 nix-config 的 `hosts/k8s/README.md`，决策见 [ADR-0011](adr/0011-k8s-nodes-declared-in-nix-config.md)。以下是宿主机侧的准备与注意事项
 
 ## 桥接网络配置
 
-启用物理局域网桥接需预先编译安装 [socket_vmnet](https://lima-vm.io/docs/config/network/vmnet/)：
+桥接网卡走 Lima 的非托管模式：宿主用 launchd 常驻 `socket_vmnet`，Lima 实例配置里只写 socket 路径与固定 MAC。宿主不再手工编译 `socket_vmnet`，也不再安装 Lima 的 sudoers。准备、生效顺序与旧手工配置的清理见 nix-config 的「宿主的 socket_vmnet」小节：[`hosts/k8s/README.md`](https://github.com/shelken/nix-config/blob/main/hosts/k8s/README.md#宿主的-socket_vmnet)，原理见 [`modules/features/homelab/socket-vmnet/README.md`](https://github.com/shelken/nix-config/blob/main/modules/features/homelab/socket-vmnet/README.md)
 
-```bash
-git clone https://github.com/lima-vm/socket_vmnet
-cd socket_vmnet
-# 检出最新 release tag（或参考 https://github.com/lima-vm/socket_vmnet/releases）
-git checkout $(git describe --tags $(git rev-list --tags --max-count=1))
-make
-sudo make PREFIX=/opt/socket_vmnet install.bin
-# Set up the sudoers file for launching socket_vmnet from Lima
-limactl sudoers >etc_sudoers.d_lima
-less etc_sudoers.d_lima  # verify that the file looks correct
-sudo install -o root etc_sudoers.d_lima /etc/sudoers.d/lima
-rm etc_sudoers.d_lima
-```
-
-在 Lima 配置文件中指定桥接网卡与 MAC 地址：
-
-```yaml
-networks:
-- lima: bridged
-  interface: eth1
-  macAddress: "52:55:55:37:34:56"
-```
-
-固定 MAC 地址以确保 IP 稳定（寻址由 Lima 经 cloud-init 下发，见 ADR-0001）
+固定 MAC 地址以确保 IP 稳定：节点内按 MAC 命名网卡，路由器按 MAC 做 DHCP 保留
 
 ## 数据盘配置
 
@@ -54,8 +31,8 @@ additionalDisks:
 
 ## 网络与磁盘变更注意
 
-- 改网络前先列 `/etc/netplan/` 全部文件并确认每个文件的写入方：Lima 节点的接口命名、寻址与 `route-metric` 由 Lima 经 cloud-init 下发，Ansible 只写 DNS drop-in 与 VLAN，见 [ADR-0001](adr/0001-lima-network-ownership.md)。netplan 会合并所有文件，同一接口上静态与 DHCP 配置并存会造成默认路由冲突、桥接地址消失
-- 改完用 `ls /etc/netplan/`、`ip -br a`、`ip route`、`netplan get` 四者一致核对，`limactl list` 显示 Running 不代表 guest 网络就绪
+- 节点网络（接口命名、寻址、VLAN、DNS）由 nix-config 的 `hosts/k8s/common.nix` 声明，不在节点上手改
+- 改完用 `ip -br a`、`ip route`、`networkctl status` 核对，`limactl list` 显示 Running 不代表 guest 网络就绪
 - 用 `ip -d link` 区分接口名与 altname：`enp0s1` 可能只是 `eth0` 的 altname，看到 `renamed from` 不要直接判定接口改名
 - 离线挂载 guest 磁盘前必须先停 VM，运行中挂载会造成 ext4 损坏
 - 单控制面场景下，未定位根因不得重启宿主机，重启会打断取证并延长中断

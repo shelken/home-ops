@@ -226,14 +226,14 @@
         <text x="220" y="125" fill="#b5523a" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">GIT</text>
         <text x="312" y="188" fill="rgba(181,82,58,0.10)" font-size="34" font-family="'Geist Mono', monospace" text-anchor="end">01</text>
         <text x="258" y="150" fill="#1c1917" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">home-ops 仓库</text>
-        <text x="258" y="166" fill="#57534e" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">k8s/clusters · bootstrap · compose · ansible</text>
+        <text x="258" y="166" fill="#57534e" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">k8s/clusters · bootstrap · compose</text>
 
         <rect x="60" y="264" width="260" height="72" rx="6" fill="#faf7f2" />
         <rect x="60" y="264" width="260" height="72" rx="6" fill="#ffffff" stroke="#1c1917" stroke-width="1" />
         <rect x="68" y="272" width="52" height="12" rx="2" fill="transparent" stroke="rgba(28,25,23,0.40)" stroke-width="0.8" />
         <text x="94" y="281" fill="#1c1917" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">BOOTSTRAP</text>
-        <text x="190" y="300" fill="#1c1917" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Taskfile + Ansible</text>
-        <text x="190" y="316" fill="#57534e" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">install k3s · CRD · base files</text>
+        <text x="190" y="300" fill="#1c1917" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Taskfile</text>
+        <text x="190" y="316" fill="#57534e" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">CRD · base files</text>
 
         <rect x="60" y="352" width="260" height="72" rx="6" fill="#faf7f2" />
         <rect x="60" y="352" width="260" height="72" rx="6" fill="rgba(181,82,58,0.05)" stroke="rgba(181,82,58,0.50)" stroke-width="1" stroke-dasharray="4 4" />
@@ -335,8 +335,8 @@
         <h3>GitOps 主干</h3>
         <ul>
           <li>仓库入口在 <code>k8s/clusters/staging</code>，Flux 继续分发到 <code>k8s/infra/common</code> 与 <code>k8s/apps/common</code>。</li>
-          <li>Taskfile 与 Ansible 负责节点初装、CRD 与基础文件，不承担长期配置事实源角色。</li>
-          <li>仓库还承载 docs、compose、ansible、bootstrap，形成完整运维工作区。</li>
+          <li>Taskfile 负责 CRD 与基础文件，不承担长期配置事实源角色；节点系统与 k3s 由 nix-config 声明。</li>
+          <li>仓库还承载 docs、compose、bootstrap，形成完整运维工作区。</li>
         </ul>
       </section>
 

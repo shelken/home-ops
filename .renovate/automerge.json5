@@ -36,21 +36,5 @@
       ignoreTests: false,
       schedule: ["before 6am on Monday"],
     },
-    {
-      description: "Auto-merge Ansible collections",
-      matchDatasources: ["galaxy-collection"],
-      automerge: true,
-      automergeType: "pr",
-      matchUpdateTypes: ["minor", "patch"],
-      ignoreTests: false,
-    },
-    {
-      description: "Auto-merge Ansible roles",
-      matchDatasources: ["galaxy"],
-      automerge: true,
-      automergeType: "pr",
-      matchUpdateTypes: ["minor", "patch"],
-      ignoreTests: false,
-    },
   ],
 }

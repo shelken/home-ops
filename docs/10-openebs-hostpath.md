@@ -19,4 +19,4 @@ spec:
         basePath: *hostPath
 ```
 
-集群实际节点名称以 `ansible/inventory/hosts.ini` 为准（`sakamoto-k8s`、`homelab-1`、`yuuko-k8s`）
+集群实际节点名称以 `kubectl get nodes` 为准（`sakamoto-k8s`、`homelab-1`、`yuuko-k8s`）

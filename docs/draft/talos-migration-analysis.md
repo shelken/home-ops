@@ -21,10 +21,10 @@
 
 | 特性 | k3s (当前) | Talos |
 |------|------------|-------|
-| 操作系统 | 通用 Linux (Ubuntu) | 不可变、专用 Kubernetes OS |
-| 配置管理 | Ansible + cloud-init | 声明式 API (talosctl) |
+| 操作系统 | 通用 Linux (NixOS) | 不可变、专用 Kubernetes OS |
+| 配置管理 | nix-config 声明式 | 声明式 API (talosctl) |
 | 安全性 | 依赖 OS 配置 | 最小化攻击面，无 SSH |
-| 升级 | 手动或 system-upgrade-controller | 原子升级，A/B 分区 |
+| 升级 | 更新 nixpkgs 后 deploy | 原子升级，A/B 分区 |
 | 调试 | SSH 登录 | talosctl API |
 
 ### onedr0p 的选择理由
@@ -153,7 +153,7 @@ Lima 是为 macOS 设计的轻量级 Linux VM 方案：
 ```
 Lima + VZ:
 ┌─────────────────────────────────┐
-│       Guest OS (Ubuntu)         │
+│       Guest OS (NixOS)          │
 ├─────────────────────────────────┤
 │   Virtualization.framework      │  ← Apple 原生，最小开销
 ├─────────────────────────────────┤

@@ -24,9 +24,9 @@
 
 主路由获取公网 IPv6 后，局域网下发 ULA 或通过 NAT6 进行源地址伪装，并将 `2000::/3` 默认路由指向 WAN 上游网关
 
-### ansible k3s node-ip
+### k3s node-ip
 
 ```bash
-#查看默认的ipv6,前缀为路由的 ula地址 ，后缀为 eui64
-ansible all -m setup -a 'filter=ansible_default_ipv6'
+# 查看默认的ipv6,前缀为路由的 ula地址 ，后缀为 eui64
+ssh <节点> ip -6 addr show scope global
 ```

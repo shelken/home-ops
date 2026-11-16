@@ -85,14 +85,6 @@
       },
     },
     {
-      description: "Ansible Collections",
-      groupName: "Ansible Collections",
-      matchManagers: ["ansible-galaxy"],
-      group: {
-        commitMessageTopic: "{{{groupName}}} group",
-      },
-    },
-    {
       description: "Gatus Group",
       groupName: "Gatus",
       matchPackageNames: [
