@@ -87,6 +87,16 @@ spec:
               limits:
                 memory: 512Mi
     defaultPodOptions:
+      # GPU worker 重装期间不可用，固定在 arm64 节点
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/arch
+                    operator: In
+                    values:
+                      - arm64
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
