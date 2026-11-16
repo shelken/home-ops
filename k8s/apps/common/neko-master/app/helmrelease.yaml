@@ -28,7 +28,7 @@ spec:
           seed-public:
             image: &image
               repository: foru17/neko-master
-              tag: 1.4.3@sha256:e0aadd60166db0791f4f7a0465626bcc6ab5dadb4204828ddbfc1893a167265b
+              tag: 1.4.4@sha256:d764afea4ebcbc0b7304483ff53cc7f54493b91620177e91b5fad2a15e5329aa
             command: ["sh", "-c", "cp -R /app/apps/web/.next/standalone/apps/web/public/. /seed/"]
             securityContext:
               allowPrivilegeEscalation: false
