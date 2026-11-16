@@ -180,7 +180,7 @@ VPS 本机 DNS:
                INTERNAL_DOMAIN 与 MAIN_DOMAIN -> k8s-gateway（更具体的内部域规则优先）
                其他域名 -> 公网 DNS（1.1.1.1 / 8.8.8.8）
 
-K8s 节点本机 DNS (Ansible):
+K8s 节点本机 DNS (nix-config):
   systemd-resolved -> 1.1.1.1 / 8.8.8.8 (经旁路由劫持分流)
                        ├── 境内域名 -> alidns (223.5.5.5) -> 直连
                        ├── 境外域名 -> 海外 DoH -> 走代理

@@ -1,6 +1,6 @@
 # K8s 节点 DNS 与 IPv6 出网策略
 
-适用于 inventory `k8s` 组的全部节点。由 `ansible/playbooks/tasks/k8s-dns.yaml` 下发，入口是 `setup-network.yaml` 的 `dns` tag，落地为每个 netplan 网卡的 systemd-networkd drop-in `ansible-dns.conf`
+适用于全部 k8s 节点。由 nix-config 的 `hosts/k8s/common.nix` 声明，落地为 systemd-networkd 的网络配置
 
 ## 策略
 
@@ -10,8 +10,6 @@
 | 其他网卡 | `DNSDefaultRoute=false` |
 | 所有网卡 | 忽略 DHCPv4、DHCPv6、RA 下发的 DNS；忽略 RA 的搜索域；RA 不提供默认网关 |
 
-每次下发还会删除节点已学到的 RA IPv6 默认路由，并清理旧版本留下的 drop-in 文件
-
 ## 原因
 
 - **DNS 指向 1.1.1.1 与 8.8.8.8**：这两个地址与节点不同网段，查询必须经默认网关到达旁路由，被旁路由劫持进它的 DNS 模块，按域名分流；内网域名由旁路由转回主路由解析。节点若沿用主路由 DHCP 下发的 DNS，查询经二层直达主路由，绕过旁路由。取舍与被否决的方案见 [ADR-0004](adr/0004-k8s-node-dns-daed-routing.md)，旁路由现行配置见 nix-config 的 `modules/features/network/singbox-config/README.md`，dae 时期的限制见 [23-daed-on-tvbox.md](23-daed-on-tvbox.md)
@@ -20,7 +18,7 @@
 
 ## 不做的事
 
-- 不修改 IP、网关、DHCP/static 模式、cloud-init 或 netplan 网络形态：Lima 节点的网卡归 Lima/cloud-init，PVE 节点归 cloud-init，这里只写 DNS 与 RA 的 drop-in
+- 不用 DHCP 下发的 DNS：DNS 与 RA 的行为都在 nix-config 里写死
 - 不在主路由全局下发 DHCP DNS：非白名单设备的查询会直连公网，被污染并失去内网解析
 - 不使用 223.5.5.5 作触发地址：旁路由对它直接放行，跳过 DNS 模块
 
@@ -38,7 +36,7 @@ curl -6 -s -o /dev/null -w '%{http_code} %{time_total}s\n' -m 8 https://<DUAL_ST
 预期：
 
 - 默认 IPv4 路由网卡的 DNS 为 `1.1.1.1 8.8.8.8`，没有 IPv6 DNS server
-- Lima 的 NAT 网卡可能仍列出自己的 DNS server，只要 `DNSDefaultRoute=false` 就不会作为默认解析路径
+- Lima 节点的 NAT 网卡（`eth0`）可能仍列出自己的 DNS server，只要 `DNSDefaultRoute=false` 就不会作为默认解析路径
 - `ip -4 route show default` 与 `ip -6 route show default` 分别确认 IPv4 与 IPv6 的默认路由来源，只对齐一边会留下绕过旁路由的出口
 - `ip -6 route show default` 无输出
 - lease 里 `ROUTER=` 是 DHCP option 3、`DNS=` 是 option 6，两者各自独立，网关指向旁路由不代表 DNS 也经旁路由
@@ -47,8 +45,4 @@ curl -6 -s -o /dev/null -w '%{http_code} %{time_total}s\n' -m 8 https://<DUAL_ST
 
 ## 修复
 
-```bash
-ansible-playbook -i ansible/inventory/hosts.ini ansible/playbooks/setup-network.yaml --tags dns
-# 只处理单个节点
-ansible-playbook -i ansible/inventory/hosts.ini ansible/playbooks/setup-network.yaml --tags dns --limit <node>
-```
+改 nix-config 的 `hosts/k8s/common.nix` 后重新 deploy 节点，流程见 nix-config 的 `hosts/k8s/README.md`
