@@ -88,9 +88,3 @@ items:
       name: cluster-secrets
       namespace: storage
     stringData: *values
-  - apiVersion: v1
-    kind: Secret
-    metadata:
-      name: cluster-secrets
-      namespace: system-upgrade
-    stringData: *values

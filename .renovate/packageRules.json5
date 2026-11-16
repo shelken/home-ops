@@ -24,7 +24,6 @@
         "/calciumion/new-api/", // new-api
         "/ollama/ollama/", // ollama
         "/open-webui/open-webui/", // ollama-web
-        "/rancher/system-upgrade-controller/", // system-upgrade-controller
         "/linuxserver/mariadb/", // seafile-db
         "/seafileltd/", // seafile
         "/yourselfhosted/slash/", // slash
