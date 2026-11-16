@@ -4,30 +4,7 @@ Lima 实例配置由 nix-config 声明并生成（`system.build.limaYaml`），�
 
 ## 桥接网络配置
 
-启用物理局域网桥接需预先编译安装 [socket_vmnet](https://lima-vm.io/docs/config/network/vmnet/)：
-
-```bash
-git clone https://github.com/lima-vm/socket_vmnet
-cd socket_vmnet
-# 检出最新 release tag（或参考 https://github.com/lima-vm/socket_vmnet/releases）
-git checkout $(git describe --tags $(git rev-list --tags --max-count=1))
-make
-sudo make PREFIX=/opt/socket_vmnet install.bin
-# Set up the sudoers file for launching socket_vmnet from Lima
-limactl sudoers >etc_sudoers.d_lima
-less etc_sudoers.d_lima  # verify that the file looks correct
-sudo install -o root etc_sudoers.d_lima /etc/sudoers.d/lima
-rm etc_sudoers.d_lima
-```
-
-在 Lima 实例配置中指定桥接网卡与 MAC 地址（由 nix-config 生成）：
-
-```yaml
-networks:
-- lima: bridged
-  interface: eth1
-  macAddress: "52:55:55:37:34:56"
-```
+桥接网卡走 Lima 的非托管模式：宿主用 launchd 常驻 `socket_vmnet`，Lima 实例配置里只写 socket 路径与固定 MAC。宿主不再手工编译 `socket_vmnet`，也不再安装 Lima 的 sudoers。准备、生效顺序与旧手工配置的清理见 nix-config 的「宿主的 socket_vmnet」小节：[`hosts/k8s/README.md`](https://github.com/shelken/nix-config/blob/main/hosts/k8s/README.md#宿主的-socket_vmnet)，原理见 [`modules/features/homelab/socket-vmnet/README.md`](https://github.com/shelken/nix-config/blob/main/modules/features/homelab/socket-vmnet/README.md)
 
 固定 MAC 地址以确保 IP 稳定：节点内按 MAC 命名网卡，路由器按 MAC 做 DHCP 保留
 

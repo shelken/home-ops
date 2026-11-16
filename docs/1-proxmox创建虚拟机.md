@@ -1,6 +1,6 @@
 # Proxmox 创建虚拟机
 
-GPU worker 是 PVE 虚拟机，系统由 nix-config 声明并用 nixos-anywhere 安装，见 nix-config 的 `hosts/k8s/README.md`，不再使用云镜像模板与 cloud-init。PVE 侧只需要准备空虚拟机：UEFI（`--bios ovmf`）、`q35`、`--cpu host`、virtio 网卡与磁盘、`--agent 1`
+GPU worker 是 PVE 虚拟机，系统由 nix-config 声明并用 nixos-anywhere 安装，见 nix-config 的 `hosts/k8s/README.md`，不再使用云镜像模板与 cloud-init。PVE 侧只需要准备空虚拟机：UEFI（`--bios ovmf`）、`q35`、`--cpu host`、virtio 网卡与磁盘、`--agent 1`。EFI 盘不预装 Secure Boot keys（`--efidisk0 <存储>:1,efitype=4m,pre-enrolled-keys=0`），即关闭 Secure Boot：节点用未签名的 systemd-boot，开启后无法启动
 
 ## GPU 直通相关设置
 

@@ -18,4 +18,4 @@ status: accepted
 - 网卡命名由 NixOS 按 MAC 决定，取代 [ADR-0001](./0001-lima-network-ownership.md)
 - 整集群启停没有脚本，按 nix-config 的 `hosts/k8s/README.md` 手动执行
 - `scripts/check-registry-mirror-probes.py` 从 nix-config 的 `main` 分支读取 `registries.yaml`，校验镜像端点与 Gatus 探测清单一一对应；CI 需要能访问 GitHub
-- GPU 节点固定使用 vGPU 17.6 与 6.12 LTS 内核，原因见 nix-config 的 `modules/features/homelab/k3s-nvidia-vgpu/README.md`
+- GPU 节点的 vGPU 驱动与内核版本固定，版本与原因见 nix-config 的 `modules/features/homelab/k3s-nvidia-vgpu/README.md`
