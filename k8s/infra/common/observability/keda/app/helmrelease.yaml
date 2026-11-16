@@ -10,8 +10,8 @@ spec:
     mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
     operation: copy
   ref:
-    tag: 2.20.2
-    digest: sha256:f6a4126b9a760fc85dbc62346aac142223afd0955dc042be574c569119b05998
+    tag: 2.21.1
+    digest: sha256:c0355de9486c09180e2eabf1c5c8f603c12d4dbd52794ab7ba452cd382548f4b
   url: oci://ghcr.io/home-operations/charts-mirror/keda
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
