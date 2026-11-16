@@ -61,6 +61,17 @@ spec:
                   timeoutSeconds: 3
                   failureThreshold: 6
               readiness: *probes
+              # 冷启动要随机读整个 SQLite 统计库，页缓存为空时可达数分钟；给启动留 10 分钟，就绪后再交给 liveness
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: 3001
+                  periodSeconds: 10
+                  timeoutSeconds: 3
+                  failureThreshold: 60
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
