@@ -1,9 +1,11 @@
 ---
 date: 2026-10-04
-status: accepted
+status: superseded
 ---
 
 # K8s 节点 DNS 显式指向外部地址，经旁路由解析
+
+> 已被 [ADR-0012](./0012-k8s-node-dns-bypass-router.md) 取代：节点 DNS 直接填旁路由地址，不再依赖 53 端口劫持。以下为当时的决策记录
 
 K8s 节点的主网卡 DNS 固定为 `1.1.1.1 8.8.8.8` 并忽略 DHCP 下发的 DNS。这两个地址是公网非 CN 地址，查询必须跨三层网关到达旁路由，进入旁路由（决策时为 daed，现为 sing-box）的 DNS 模块按域名分流：境外域名经代理 DoH，境内域名走国内 DNS，内网域名回弹主路由。节点若沿用 DHCP 下发的主路由 DNS，查询经二层直达主路由，不经过旁路由。配置在 nix-config 的 `hosts/k8s/common.nix`，运维见 [dns-settings](../dns-settings.md)
 
