@@ -3,5 +3,7 @@
 serviceMonitor:
   create: true
 web:
+  # 登录配置由 ../web 的 ExternalSecret 生成；Secret 不存在时只是 Web UI 不提供服务，operator 照常运行
+  configSecretName: flux-operator-web-config
   networkPolicy:
     create: false
