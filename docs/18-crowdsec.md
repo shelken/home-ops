@@ -274,7 +274,7 @@ ssh <VPS_HOST> 'systemctl is-active docker-crowdsec-agent docker-crowdsec-firewa
 ssh <VPS_HOST> 'docker ps | grep -E "crowdsec|caddy"'
 ```
 
-更新声明后在 `nix-config` 仓库执行 `just deploy vps-cc` 部署。
+更新声明后在 `nix-config` 仓库执行 `just deploy::run vps-cc` 部署。
 
 ### VPS agent 日志
 
@@ -484,7 +484,7 @@ route {
 生效方式：
 
 - v6：ConfigMap 变更由 reloader 重启 `caddy-external`
-- v4：Caddyfile 由 NixOS 声明挂载进容器，改完要在 `nix-config` 里 `just deploy vps-cc` 重建 `caddy` 容器才生效；容器内 `caddy reload` 读到的仍是旧挂载，不能替代重建
+- v4：Caddyfile 由 NixOS 声明挂载进容器，改完要在 `nix-config` 里 `just deploy::run vps-cc` 重建 `caddy` 容器才生效；容器内 `caddy reload` 读到的仍是旧挂载，不能替代重建
 
 排查时先区分 401、403、429 和 ban：401 死在 AppSec 认证，403 来自业务或 Caddy，429 来自限流，ban 只表现为超时且不一定留下 access log，不要因为 access log 里没有请求就断言请求没发出
 
@@ -512,7 +512,7 @@ route {
 3. 部署（在 `nix-config` 仓库）：
 
    ```bash
-   just deploy vps-cc
+   just deploy::run vps-cc
    ```
 
 4. 验证：
