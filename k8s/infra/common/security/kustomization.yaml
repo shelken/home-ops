@@ -7,7 +7,8 @@ components:
 resources:
   - authelia/ks.yaml
   - crowdsec/ks.yaml
-  - pocket-id/ks.yaml
+  # pocket-id 是备用 IdP，平时停用；kopia 快照保留，重新启用时 PVC 自动从快照恢复，数据库在 Postgres 里不受影响
+  # - pocket-id/ks.yaml
 
 patches:
   # crowdsec 官方镜像以 root (UID 0) 运行且持久卷内文件权限为 0:0 (0600)，
