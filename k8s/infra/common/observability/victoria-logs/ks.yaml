@@ -3,8 +3,15 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: victoria-logs
+  name: &app victoria-logs
 spec:
+  # VictoriaLogs 不做认证；只保护路由，日志写入走的 LoadBalancer 不经网关
+  components:
+    - ../../../../../components/authelia
+  postBuild:
+    substitute:
+      APP: *app
+      AUTHELIA_ROUTE: victoria-logs-server
   dependsOn:
     - name: longhorn
       namespace: longhorn-system
