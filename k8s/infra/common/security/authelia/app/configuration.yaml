@@ -71,6 +71,9 @@ identity_providers:
       # Grafana 从 ID token 取用户名与组（Authelia 官方 Grafana 集成指南）
       grafana:
         id_token: ["email", "name", "groups", "preferred_username"]
+      # Flux Web UI 用 ID token 的 email 与 groups 做 Kubernetes 身份模拟
+      flux-operator:
+        id_token: ["email", "name", "groups"]
     clients:
       # ref: https://www.authelia.com/integration/openid-connect/memos/
       - client_id: memos
@@ -363,6 +366,32 @@ identity_providers:
           - "code"
         grant_types:
           - "authorization_code"
+        access_token_signed_response_alg: "none"
+        userinfo_signed_response_alg: "none"
+        token_endpoint_auth_method: "client_secret_basic"
+      # https://fluxoperator.dev/docs/web-ui/web-config-api/ ：默认请求 offline_access，靠刷新令牌续期会话
+      - client_id: "flux-operator"
+        client_name: "Flux Operator"
+        client_secret: '{{ secret "/config/secret/FLUX_OAUTH_CLIENT_DIGEST" }}'
+        public: false
+        authorization_policy: "two_factor"
+        pre_configured_consent_duration: 1y
+        claims_policy: "flux-operator"
+        require_pkce: true
+        pkce_challenge_method: "S256"
+        redirect_uris:
+          - "https://flux.${INTERNAL_DOMAIN}/oauth2/callback"
+        scopes:
+          - "openid"
+          - "offline_access"
+          - "profile"
+          - "email"
+          - "groups"
+        response_types:
+          - "code"
+        grant_types:
+          - "authorization_code"
+          - "refresh_token"
         access_token_signed_response_alg: "none"
         userinfo_signed_response_alg: "none"
         token_endpoint_auth_method: "client_secret_basic"
