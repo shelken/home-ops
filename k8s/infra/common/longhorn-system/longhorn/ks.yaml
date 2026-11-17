@@ -6,6 +6,12 @@ metadata:
   name: &app longhorn
   namespace: &namespace longhorn-system
 spec:
+  # Longhorn 没有内置认证，UI 与 API 由网关前置 Authelia
+  components:
+    - ../../../../../components/authelia
+  postBuild:
+    substitute:
+      APP: *app
   interval: 1h
   path: ./k8s/infra/common/longhorn-system/longhorn/app
   prune: true
