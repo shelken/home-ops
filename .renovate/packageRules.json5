@@ -23,6 +23,7 @@
         "/n8n-io/", // n8n
         "/calciumion/new-api/", // new-api
         "/ollama/ollama/", // ollama
+        "/pocket-id/pocket-id/", // pocket-id
         "/open-webui/open-webui/", // ollama-web
         "/linuxserver/mariadb/", // seafile-db
         "/seafileltd/", // seafile
