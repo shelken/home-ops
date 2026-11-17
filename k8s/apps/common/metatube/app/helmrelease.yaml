@@ -83,19 +83,3 @@ spec:
         existingClaim: *app
         globalMounts:
           - path: /config
-    route:
-      app:
-        annotations:
-          gethomepage.dev/enabled: "true"
-          gethomepage.dev/group: internal
-          gethomepage.dev/name: metatube
-          gethomepage.dev/icon: kubernetes-dashboard.svg
-          gethomepage.dev/description: ""
-        hostnames: ["{{ .Release.Name }}.${INTERNAL_DOMAIN}"]
-        parentRefs:
-          - name: envoy-internal
-            namespace: network
-        rules:
-          - backendRefs:
-              - identifier: app
-                port: *port
