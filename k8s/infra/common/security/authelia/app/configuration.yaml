@@ -397,6 +397,7 @@ identity_providers:
         token_endpoint_auth_method: "client_secret_basic"
 
 ## docker run --rm authelia/authelia:latest authelia crypto hash generate argon2 --random --random.length 64 --random.charset alphanumeric
+## 无 Docker 时可用 nix run nixpkgs#libargon2 按相同参数生成
 
 storage:
   encryption_key: "{{ .AUTHELIA_STORAGE_ENCRYPTION_KEY }}"
