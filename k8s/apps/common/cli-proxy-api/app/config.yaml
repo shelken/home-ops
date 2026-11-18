@@ -178,12 +178,8 @@ oauth:
     # https://github.com/router-for-me/CLIProxyAPI/issues/7552
     antigravity:
       sensitive-words-replace:
-        # oh-my-pi 标签与 RFC 2119 短语 https://github.com/can1357/oh-my-pi/issues/11699
-        "system-conventions": "conventions"
-        "system_conventions": "conventions"
-        "system-directive": "directive"
-        "system_directive": "directive"
-        "RFC 2119": ""
+        # omp 工具目录页脚 https://github.com/can1357/oh-my-pi/issues/19318
+        "Read xd://<tool> for full docs + JSON schema before first use.": "Consult the tool documentation and JSON schema before first use."
         # pi 系统提示的身份句: 实测只有 "running inside pi" 触发, 加 "the" 即可通过
         "running inside pi": "running inside the pi"
         # pi 系统提示里的 docs 段
