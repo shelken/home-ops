@@ -168,6 +168,14 @@ oauth:
   # Authentication directory (supports ~ for home directory)
   auth-dir: "~/.cli-proxy-api"
 
+  # omp 按同名碰撞内置 catalog 获得思考档位, catalog 里没有 gemini-3.8-flash-high;
+  # fork 保留原名, pi 仍用 gemini-3.8-flash-high
+  model-alias:
+    antigravity:
+      - name: "gemini-3.8-flash-high"
+        alias: "gemini-3.8-flash"
+        fork: true
+
   providers:
     aistudio:
       # When true, enable authentication for the WebSocket API (/v1/ws).
