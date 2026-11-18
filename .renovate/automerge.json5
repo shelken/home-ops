@@ -11,6 +11,17 @@
       ignoreTests: false,
     },
     {
+      // 自己的镜像在发布端已经过 CI 构建与测试，这里再等人工合并只会让基底的安全补丁滞留在集群外
+      description: "Auto-merge own images",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/shelken/**"],
+      // major 可能带不兼容变更（caddy 等版本跟随上游），仍人工合并
+      matchUpdateTypes: ["minor", "patch", "digest"],
+      automerge: true,
+      automergeType: "pr",
+      ignoreTests: false,
+    },
+    {
       // 每次升级都会重启 Prometheus 并让 apiserver 内存短时上升，集中到低峰窗口
       description: "Auto-merge observability charts weekly",
       matchDatasources: ["docker"],
