@@ -15,6 +15,8 @@
       description: "Auto-merge own images",
       matchDatasources: ["docker"],
       matchPackageNames: ["ghcr.io/shelken/**"],
+      // major 可能带不兼容变更（caddy 等版本跟随上游），仍人工合并
+      matchUpdateTypes: ["minor", "patch", "digest"],
       automerge: true,
       automergeType: "pr",
       ignoreTests: false,
