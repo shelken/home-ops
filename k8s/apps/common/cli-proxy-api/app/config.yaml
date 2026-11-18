@@ -188,6 +188,11 @@ oauth:
       sensitive-words-replace:
         # omp 工具目录页脚 https://github.com/can1357/oh-my-pi/issues/19318
         "Read xd://<tool> for full docs + JSON schema before first use.": "Consult the tool documentation and JSON schema before first use."
+        # omp 系统提示: 二分到的最小触发片段, 改写成同义中性说法
+        "You are omp's trusted coding assistant.": "You are omp's coding assistant."
+        "Touch displayed changed lines only;": "Edit only the displayed changed lines;"
+        "Write JSON args as `content`": "Pass JSON args as `content`"
+        "selects only the lines you and your subagents wrote and never touches": "selects only the lines that you and your subagents wrote and never modifies"
         # pi 系统提示的身份句: 实测只有 "running inside pi" 触发, 加 "the" 即可通过
         "running inside pi": "running inside the pi"
         # pi 系统提示里的 docs 段
