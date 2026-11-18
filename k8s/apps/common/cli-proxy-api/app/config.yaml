@@ -116,15 +116,19 @@ routing:
 # (可能)如果不同类型订阅,会因为tools不同导致缓存失效,plus等会加,free不加之后导致auth切换时失效
 disable-image-generation: chat
 
+# 上游 WAF 命中敏感词即回假 429 RESOURCE_EXHAUSTED。
+# 用字面替换而非 sensitive-words 混淆: 上游仍可能识别被混淆的词
+# https://github.com/router-for-me/CLIProxyAPI/issues/7552
 antigravity:
-  sensitive-words:
-    - "system-conventions"
-    - "system_conventions"
-    - "system-directive"
-    - "system_directive"
-    # 上游 WAF 除标签外还匹配 RFC 2119 短语，命中即回假 429 RESOURCE_EXHAUSTED
-    # https://github.com/can1357/oh-my-pi/issues/11699
-    - "RFC 2119"
+  sensitive-words-replace:
+    # oh-my-pi 标签与 RFC 2119 短语 https://github.com/can1357/oh-my-pi/issues/11699
+    "system-conventions": "conventions"
+    "system_conventions": "conventions"
+    "system-directive": "directive"
+    "system_directive": "directive"
+    "RFC 2119": ""
+    # pi 系统提示里的 docs 段
+    "codemode scripts and non-LLM models such as classifiers and image models": "codemode scripts and other tooling"
 
 # xAI provider behavior.
 xai:
