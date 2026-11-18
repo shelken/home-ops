@@ -184,6 +184,8 @@ oauth:
         "system-directive": "directive"
         "system_directive": "directive"
         "RFC 2119": ""
+        # pi 系统提示的身份句: 实测只有 "running inside pi" 触发, 加 "the" 即可通过
+        "running inside pi": "running inside the pi"
         # pi 系统提示里的 docs 段
         "codemode scripts and non-LLM models such as classifiers and image models": "codemode scripts and other tooling"
 
