@@ -28,19 +28,19 @@ spec:
   metricsPath: /metrics
   scrapeInterval: 60s
 
-# ---
-# # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/scrapeconfig_v1alpha1.json
-# apiVersion: monitoring.coreos.com/v1alpha1
-# kind: ScrapeConfig
-# metadata:
-#   name: &name openwrt-mine
-# spec:
-#   staticConfigs:
-#     - targets:
-#         - router-mine.lan:9100
-#       labels:
-#         job: *name
-#   metricsPath: /metrics
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/scrapeconfig_v1alpha1.json
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: &name openwrt-mine
+spec:
+  staticConfigs:
+    - targets:
+        - router-mine.lan:9100
+      labels:
+        job: *name
+  metricsPath: /metrics
 
 # ---
 # # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/scrapeconfig_v1alpha1.json

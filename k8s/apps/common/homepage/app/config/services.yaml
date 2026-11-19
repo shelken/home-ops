@@ -14,18 +14,6 @@
         icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/uPic/2024-01/RdRn6J.png
         href: http://router-mine.lan/cgi-bin/luci/
         description:
-        widgets:
-          - &openwrt-common
-            type: openwrt
-            url: http://router-mine.lan
-            username: "{{HOMEPAGE_VAR_ROUTER_MINE_OPENWRT_USERNAME}}"
-            password: "{{HOMEPAGE_VAR_ROUTER_MINE_OPENWRT_PASSWORD}}"
-          - <<: *openwrt-common
-            interfaceName: wan
-          - <<: *openwrt-common
-            interfaceName: br-lan
-          # - <<: *openwrt-common
-          #   interfaceName: phy0-sta0 # wwan
     # - 家路由:
     #     icon: https://gcore.jsdelivr.net/gh/shelken/picbed@main/uPic/2024-01/AaQpSo.png
     #     href: http://router-home.lan/cgi-bin/luci/
