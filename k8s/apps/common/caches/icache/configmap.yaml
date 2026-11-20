@@ -82,6 +82,10 @@ data:
             # 以下回源与缓存设置由所有代理 location 共用
             proxy_http_version 1.1;
             proxy_ssl_protocols TLSv1.2 TLSv1.3;
+            proxy_ssl_server_name on;
+            proxy_ssl_verify on;
+            proxy_ssl_verify_depth 3;
+            proxy_ssl_trusted_certificate /etc/ssl/certs/ca-certificates.crt;
             proxy_pass_request_headers off;
 
             proxy_cache proxy_cache;
@@ -133,7 +137,6 @@ data:
                 proxy_set_header Host $target_host;
                 proxy_set_header Accept */*;
                 proxy_set_header User-Agent "Mozilla/5.0 (compatible; icache/1.0)";
-                proxy_ssl_server_name on;
                 proxy_ssl_name $target_host;
                 proxy_cache_key $target_host$target_path;
 
@@ -152,13 +155,12 @@ data:
                 proxy_set_header Host $proxy_host;
                 proxy_set_header Accept */*;
                 proxy_set_header User-Agent "Mozilla/5.0 (compatible; icache/1.0)";
-                proxy_ssl_server_name on;
                 proxy_cache_key $target_host$target_path;
             }
 
-            # Homebrew Bottle OCI manifest。只放行按 sha256 寻址的不可变 manifest，可变 tag 落到下面被拒绝。
+            # Homebrew Bottle OCI manifest。仅按 OCI 仓库名语法与 sha256 摘要放行，拒绝可变 tag 与查询串注入。
             # ghcr.io 依赖 Accept 返回对应 OCI 媒体类型（无 Accept 或 */* 会返回 404），透传并纳入缓存键避免 404 污染缓存
-            location ~ "^/ghcr\.io(/v2/homebrew/core/.+/manifests/sha256:[0-9a-f]{64})$" {
+            location ~ "^/ghcr\.io(/v2/homebrew/core/[a-z0-9._-]+(?:/[a-z0-9._-]+)*/manifests/sha256:[0-9a-f]{64})\z" {
                 set $target_host ghcr.io;
                 set $target_path $1;
 
@@ -168,14 +170,13 @@ data:
                 proxy_set_header Authorization "Bearer QQ==";
                 proxy_set_header Accept $http_accept;
                 proxy_set_header User-Agent "Mozilla/5.0 (compatible; icache/1.0)";
-                proxy_ssl_server_name on;
                 proxy_ssl_name $target_host;
                 proxy_cache_key $target_host$target_path|$http_accept;
             }
 
             # Homebrew Bottle 与 portable-ruby 的 OCI blob（按 sha256 寻址，不可变）。
             # ghcr.io 307 到带时效签名的存储地址：nginx 自己跟随，按原始路径缓存，客户端只拿到 200
-            location ~ "^/ghcr\.io(/v2/homebrew/core/.+/blobs/sha256:[0-9a-f]{64})$" {
+            location ~ "^/ghcr\.io(/v2/homebrew/core/[a-z0-9._-]+(?:/[a-z0-9._-]+)*/blobs/sha256:[0-9a-f]{64})\z" {
                 set $target_host ghcr.io;
                 set $target_path $1;
 
@@ -185,7 +186,6 @@ data:
                 proxy_set_header Authorization "Bearer QQ==";
                 proxy_set_header Accept */*;
                 proxy_set_header User-Agent "Mozilla/5.0 (compatible; icache/1.0)";
-                proxy_ssl_server_name on;
                 proxy_ssl_name $target_host;
                 proxy_cache_key $target_host$target_path;
 
@@ -204,7 +204,6 @@ data:
                 proxy_set_header Host $proxy_host;
                 proxy_set_header Accept */*;
                 proxy_set_header User-Agent "Mozilla/5.0 (compatible; icache/1.0)";
-                proxy_ssl_server_name on;
                 proxy_cache_key $target_host$target_path;
             }
 
@@ -222,7 +221,6 @@ data:
                 proxy_set_header Host $target_host;
                 proxy_set_header Accept */*;
                 proxy_set_header User-Agent "Mozilla/5.0 (compatible; icache/1.0)";
-                proxy_ssl_server_name on;
                 proxy_ssl_name $target_host;
                 proxy_cache_key $target_host$target_path$is_args$args;
             }
