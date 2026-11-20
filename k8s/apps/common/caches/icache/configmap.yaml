@@ -62,6 +62,12 @@ data:
             keepalive 16;
         }
 
+        upstream ghcr_io {
+            zone ghcr_io 64k;
+            server ghcr.io:443 resolve;
+            keepalive 16;
+        }
+
         # 白名单：路径里的主机名 -> upstream 块名，空值即拒绝
         map $target_host $backend {
             default "";
@@ -76,6 +82,10 @@ data:
             # 以下回源与缓存设置由所有代理 location 共用
             proxy_http_version 1.1;
             proxy_ssl_protocols TLSv1.2 TLSv1.3;
+            proxy_ssl_server_name on;
+            proxy_ssl_verify on;
+            proxy_ssl_verify_depth 3;
+            proxy_ssl_trusted_certificate /etc/ssl/certs/ca-certificates.crt;
             proxy_pass_request_headers off;
 
             proxy_cache proxy_cache;
@@ -127,7 +137,6 @@ data:
                 proxy_set_header Host $target_host;
                 proxy_set_header Accept */*;
                 proxy_set_header User-Agent "Mozilla/5.0 (compatible; icache/1.0)";
-                proxy_ssl_server_name on;
                 proxy_ssl_name $target_host;
                 proxy_cache_key $target_host$target_path;
 
@@ -146,7 +155,55 @@ data:
                 proxy_set_header Host $proxy_host;
                 proxy_set_header Accept */*;
                 proxy_set_header User-Agent "Mozilla/5.0 (compatible; icache/1.0)";
-                proxy_ssl_server_name on;
+                proxy_cache_key $target_host$target_path;
+            }
+
+            # Homebrew Bottle OCI manifest。仅按 OCI 仓库名语法与 sha256 摘要放行，拒绝可变 tag 与查询串注入。
+            # ghcr.io 依赖 Accept 返回对应 OCI 媒体类型（无 Accept 或 */* 会返回 404），透传并纳入缓存键避免 404 污染缓存
+            location ~ "^/ghcr\.io(/v2/homebrew/core/[a-z0-9._-]+(?:/[a-z0-9._-]+)*/manifests/sha256:[0-9a-f]{64})\z" {
+                set $target_host ghcr.io;
+                set $target_path $1;
+
+                proxy_pass https://ghcr_io$target_path;
+                proxy_set_header Connection "";
+                proxy_set_header Host $target_host;
+                proxy_set_header Authorization "Bearer QQ==";
+                proxy_set_header Accept $http_accept;
+                proxy_set_header User-Agent "Mozilla/5.0 (compatible; icache/1.0)";
+                proxy_ssl_name $target_host;
+                proxy_cache_key $target_host$target_path|$http_accept;
+            }
+
+            # Homebrew Bottle 与 portable-ruby 的 OCI blob（按 sha256 寻址，不可变）。
+            # ghcr.io 307 到带时效签名的存储地址：nginx 自己跟随，按原始路径缓存，客户端只拿到 200
+            location ~ "^/ghcr\.io(/v2/homebrew/core/[a-z0-9._-]+(?:/[a-z0-9._-]+)*/blobs/sha256:[0-9a-f]{64})\z" {
+                set $target_host ghcr.io;
+                set $target_path $1;
+
+                proxy_pass https://ghcr_io$target_path;
+                proxy_set_header Connection "";
+                proxy_set_header Host $target_host;
+                proxy_set_header Authorization "Bearer QQ==";
+                proxy_set_header Accept */*;
+                proxy_set_header User-Agent "Mozilla/5.0 (compatible; icache/1.0)";
+                proxy_ssl_name $target_host;
+                proxy_cache_key $target_host$target_path;
+
+                proxy_intercept_errors on;
+                error_page 301 302 303 307 308 = @ghcr_blob;
+            }
+
+            # 缓存键必须与上面相同，下次请求才能在上面直接命中
+            location @ghcr_blob {
+                set $asset_url $upstream_http_location;
+                if ($asset_url !~ "^https://pkg-containers\.githubusercontent\.com/") {
+                    return 502 "Unexpected redirect target";
+                }
+
+                proxy_pass $asset_url;
+                proxy_set_header Host $proxy_host;
+                proxy_set_header Accept */*;
+                proxy_set_header User-Agent "Mozilla/5.0 (compatible; icache/1.0)";
                 proxy_cache_key $target_host$target_path;
             }
 
@@ -164,7 +221,6 @@ data:
                 proxy_set_header Host $target_host;
                 proxy_set_header Accept */*;
                 proxy_set_header User-Agent "Mozilla/5.0 (compatible; icache/1.0)";
-                proxy_ssl_server_name on;
                 proxy_ssl_name $target_host;
                 proxy_cache_key $target_host$target_path$is_args$args;
             }
