@@ -104,6 +104,111 @@
       "native_capabilities": {
         "web_search": true
       }
+    },
+    {
+      "id": "gemini-4-hydrogen-high",
+      "object": "model",
+      "owned_by": "antigravity",
+      "type": "antigravity",
+      "supports_web_search": true,
+      "display_name": "Gemini 4 Hydrogen (High)",
+      "name": "gemini-4-hydrogen-high",
+      "description": "Gemini 4 Hydrogen (High)",
+      "context_length": 1048576,
+      "max_completion_tokens": 65536,
+      "thinking": {
+        "min": 1,
+        "max": 65535,
+        "dynamic_allowed": true,
+        "levels": [
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+        ]
+      },
+      "supportedInputModalities": [
+        "text",
+        "image",
+        "audio",
+        "video"
+      ],
+      "supportedOutputModalities": [
+        "text"
+      ],
+      "native_capabilities": {
+        "web_search": true
+      }
+    },
+    {
+      "id": "gemini-4-hydrogen-medium",
+      "object": "model",
+      "owned_by": "antigravity",
+      "type": "antigravity",
+      "supports_web_search": true,
+      "display_name": "Gemini 4 Hydrogen (Medium)",
+      "name": "gemini-4-hydrogen-medium",
+      "description": "Gemini 4 Hydrogen (Medium)",
+      "context_length": 1048576,
+      "max_completion_tokens": 65536,
+      "thinking": {
+        "min": 1,
+        "max": 65535,
+        "dynamic_allowed": true,
+        "levels": [
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+        ]
+      },
+      "supportedInputModalities": [
+        "text",
+        "image",
+        "audio",
+        "video"
+      ],
+      "supportedOutputModalities": [
+        "text"
+      ],
+      "native_capabilities": {
+        "web_search": true
+      }
+    },
+    {
+      "id": "gemini-4-hydrogen-low",
+      "object": "model",
+      "owned_by": "antigravity",
+      "type": "antigravity",
+      "supports_web_search": true,
+      "display_name": "Gemini 4 Hydrogen (Low)",
+      "name": "gemini-4-hydrogen-low",
+      "description": "Gemini 4 Hydrogen (Low)",
+      "context_length": 1048576,
+      "max_completion_tokens": 65536,
+      "thinking": {
+        "min": 1,
+        "max": 65535,
+        "dynamic_allowed": true,
+        "levels": [
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+        ]
+      },
+      "supportedInputModalities": [
+        "text",
+        "image",
+        "audio",
+        "video"
+      ],
+      "supportedOutputModalities": [
+        "text"
+      ],
+      "native_capabilities": {
+        "web_search": true
+      }
     }
   ]
 }
