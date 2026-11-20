@@ -34,7 +34,7 @@ spec:
           # 管理面板跟随上游最新 Release, 新版本可能要求更高的后端管理接口 (v1.25.0 起强制 v8);
           # 固定种子版本 + config.yaml disable-auto-update-panel, 面板版本与后端镜像经 renovate 分组联动升级
           seed-panel:
-            image:
+            image: &curl-image
               repository: docker.io/curlimages/curl
               tag: 8.23.0@sha256:3fb7e13e5d179a845c97d78204f3f1064d1907037f26a3ebf91710571151fd93
             command:
@@ -42,6 +42,30 @@ spec:
               - -c
               # renovate: datasource=github-releases depName=router-for-me/Cli-Proxy-API-Management-Center
               - curl -fsSL --retry 3 -o /CLIProxyAPI/management/management.html https://github.com/router-for-me/Cli-Proxy-API-Management-Center/releases/download/v1.28.3/management.html || echo 'seed-panel download failed, panel falls back to latest on first access'
+            securityContext:
+              runAsUser: 1000
+              runAsGroup: 1000
+          fetch-models:
+            image: *curl-image
+            command:
+              - sh
+              - -c
+              - (curl -fsSL --retry 3 -o /CLIProxyAPI/catalog/models.json.tmp https://models.router-for.me/models.json || curl -fsSL --retry 3 -o /CLIProxyAPI/catalog/models.json.tmp https://raw.githubusercontent.com/router-for-me/models/refs/heads/main/models.json) && mv /CLIProxyAPI/catalog/models.json.tmp /CLIProxyAPI/catalog/models.json || rm -f /CLIProxyAPI/catalog/models.json.tmp
+            securityContext:
+              runAsUser: 1000
+              runAsGroup: 1000
+          sync-models:
+            dependsOn: fetch-models
+            image:
+              repository: docker.io/mikefarah/yq
+              tag: 4.54.3@sha256:7834187596ad56fd5a81436114e0b0b9dd54c91bb43946d1f7145b2be5f9c3d2
+            args:
+              - eval-all
+              - -i
+              - -o=json
+              - "select(fileIndex == 0) *+ select(fileIndex == 1) | .antigravity |= unique_by(.id)"
+              - /CLIProxyAPI/catalog/models.json
+              - /scripts/models-extra.json
             securityContext:
               runAsUser: 1000
               runAsGroup: 1000
@@ -193,6 +217,9 @@ spec:
             app:
               - path: /scripts
                 readOnly: true
+            sync-models:
+              - path: /scripts
+                readOnly: true
       auths:
         existingClaim: cli-proxy-api
         advancedMounts:
@@ -204,6 +231,15 @@ spec:
                 subPath: for-run
               - path: /CLIProxyAPI/plugins
                 subPath: plugins
+              - path: /CLIProxyAPI/catalog
+                subPath: catalog
+                readOnly: true
+            fetch-models:
+              - path: /CLIProxyAPI/catalog
+                subPath: catalog
+            sync-models:
+              - path: /CLIProxyAPI/catalog
+                subPath: catalog
       config-file:
         type: secret
         name: cli-proxy-api-secret
