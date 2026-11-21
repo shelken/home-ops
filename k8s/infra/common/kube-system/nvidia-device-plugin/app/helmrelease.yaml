@@ -10,8 +10,8 @@ spec:
     mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
     operation: copy
   ref:
-    tag: 0.20.1
-    digest: sha256:6f0057e98a90adf8827fcb4b7c6f843c6d59c678ea6a96bd73975ac3cba6f9f7
+    tag: 0.20.2
+    digest: sha256:7b494a59fffe4fa66ac6c8b45d12660c1a69d09b1267abd2d2a8a0948704fd10
   url: oci://ghcr.io/home-operations/charts-mirror/nvidia-device-plugin
   # verify:
   #   provider: cosign
