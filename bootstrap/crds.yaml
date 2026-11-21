@@ -47,7 +47,7 @@ releases:
   - name: plugin-barman-cloud
     namespace: database
     chart: oci://ghcr.io/cloudnative-pg/charts/plugin-barman-cloud
-    version: 0.8.1
+    version: 0.9.0
 
   - name: dragonfly-operator
     namespace: database
