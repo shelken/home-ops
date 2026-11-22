@@ -177,23 +177,13 @@ spec:
           path: /
           appsec_configs:
             - crowdsecurity/appsec-default
-            - crowdsecurity/crs
-            - local/jellyfin-exclusions
           labels:
             type: appsec
-      configs:
-        jellyfin-exclusions.yaml: |
-          name: local/jellyfin-exclusions
-          pre_eval:
-            - filter: IsOutBand == true && req.URL.Path == "/Sessions/Playing/Progress"
-              apply:
-                - RemoveOutBandRuleByID(932370)
       env:
         - name: COLLECTIONS
           value: >-
             crowdsecurity/appsec-virtual-patching
             crowdsecurity/appsec-generic-rules
-            crowdsecurity/appsec-crs
     agent:
       enabled: false
       # acquisition:
