@@ -22,8 +22,6 @@ spec:
       APP: *app
       KOPIUR_CAPACITY: 1Gi
       KOPIUR_CACHE_CAPACITY: 3Gi
-      KOPIUR_PUID: "65532"
-      KOPIUR_PGID: "65532"
       AUTHELIA_ROUTE: magpie-web
   interval: 1h
   path: ./k8s/apps/common/magpie/app
