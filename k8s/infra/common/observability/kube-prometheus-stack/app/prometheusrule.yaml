@@ -55,7 +55,7 @@ spec:
               控制面宿主机压缩内存占比已达 {{ $value | humanizePercentage }}（> 35%），
               存在触发内存压力与拖慢 VM 内 etcd 的风险
           labels:
-            severity: warning
+            severity: critical
         # 宿主机 Swap 实际占用超过 4 GiB，说明物理内存已无法容纳活跃工作集
         - alert: SakamotoHostSwapUsedHigh
           expr: |
@@ -66,7 +66,7 @@ spec:
               控制面宿主机 Swap 占用已达 {{ $value | humanize1024 }}B（> 4 GiB），
               需及时核查宿主机与 VM 内存负载
           labels:
-            severity: warning
+            severity: critical
 
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
