@@ -34,7 +34,7 @@ spec:
           # 管理面板跟随上游最新 Release, 新版本可能要求更高的后端管理接口 (v1.25.0 起强制 v8);
           # 固定种子版本 + config.yaml disable-auto-update-panel, 面板版本与后端镜像经 renovate 分组联动升级
           seed-panel:
-            image: &curl-image
+            image:
               repository: docker.io/curlimages/curl
               tag: 8.23.0@sha256:3fb7e13e5d179a845c97d78204f3f1064d1907037f26a3ebf91710571151fd93
             command:
@@ -193,9 +193,6 @@ spec:
             app:
               - path: /scripts
                 readOnly: true
-            sync-models:
-              - path: /scripts
-                readOnly: true
       auths:
         existingClaim: cli-proxy-api
         advancedMounts:
@@ -207,15 +204,6 @@ spec:
                 subPath: for-run
               - path: /CLIProxyAPI/plugins
                 subPath: plugins
-              - path: /CLIProxyAPI/catalog
-                subPath: catalog
-                readOnly: true
-            fetch-models:
-              - path: /CLIProxyAPI/catalog
-                subPath: catalog
-            sync-models:
-              - path: /CLIProxyAPI/catalog
-                subPath: catalog
       config-file:
         type: secret
         name: cli-proxy-api-secret
