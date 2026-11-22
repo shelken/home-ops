@@ -1,17 +1,18 @@
 config-version: 8
 
-# Server host/interface to bind to. Default is empty ("") to bind all interfaces (IPv4 + IPv6).
-# Use "127.0.0.1" or "localhost" to restrict access to local machine only.
-host: ""
+server:
+  # Server host/interface to bind to. Default is empty ("") to bind all interfaces (IPv4 + IPv6).
+  # Use "127.0.0.1" or "localhost" to restrict access to local machine only.
+  host: ""
 
-# Server port
-port: 8317
+  # Server port
+  port: 8317
 
-# TLS settings for HTTPS. When enabled, the server listens with the provided certificate and key.
-tls:
-  enable: false
-  cert: ""
-  key: ""
+  # TLS settings for HTTPS. When enabled, the server listens with the provided certificate and key.
+  tls:
+    enable: false
+    cert: ""
+    key: ""
 
 # Management API settings
 management:
@@ -34,9 +35,6 @@ management:
   # GitHub repository for the management control panel. Accepts a repository URL or releases API URL.
   panel-github-repository: "https://github.com/router-for-me/Cli-Proxy-API-Management-Center"
 
-# Authentication directory (supports ~ for home directory)
-auth-dir: "~/.cli-proxy-api"
-
 # API keys for authentication
 # openssl rand -base64 64 | tr -dc 'A-Za-z0-9' | head -c 32; echo
 access:
@@ -46,20 +44,181 @@ access:
     - {{ .client_api_key_zed }}
     - {{ .client_api_key_phone17 }}
 
-# Enable debug logging
-debug: true
+# Routing strategy for selecting credentials when multiple match.
+routing:
+  strategy: "fill-first" # round-robin (default), fill-first
+  # 这个true的时候看起来换账号时缓存失效,free也一样,先关掉
+  session-affinity: false
 
-request-log: false
+  # When true, unprefixed model requests only use credentials without a prefix (except when prefix == model name).
+  # 强制模型前缀:主会话使用付费的前缀,subagent使用free
+  force-model-prefix: false
 
-# When true, write application logs to rotating files instead of stdout
-logging-to-file: false
+  retry:
+    # Number of times to retry a request. Retries will occur if the HTTP response code is 403, 408, 500, 502, 503, or 504.
+    request-retry: 3
 
-# Maximum total size (MB) of log files under the logs directory. When exceeded, the oldest log
-# files are deleted until within the limit. Set to 0 to disable.
-logs-max-total-size-mb: 0
+    # Maximum wait time in seconds for a cooled-down credential before triggering a retry.
+    max-retry-interval: 30
 
-# When false, disable in-memory usage statistics aggregation
-usage-statistics-enabled: true
+requests:
+  # Proxy URL. Supports socks5/http/https protocols. Example: socks5://user:pass@192.168.1.1:1080/
+  # proxy-url: "socks5://sakamoto.lan:7890/"
+
+  # When true, forward filtered upstream response headers to downstream clients.
+  # Default is false (disabled).
+  passthrough-headers: false
+
+upstream:
+  # xAI provider behavior.
+  xai:
+    # When true, inject the native x_search tool when the request does not declare it.
+    # The injected tool is also added to tool_choice.allowed_tools when applicable.
+    inject-x-search: true
+
+# 上游 key 按分组声明: 一个 base-url + 共享设置 + keys 列表
+api-keys:
+  # Claude API keys
+  claude:
+    - name: deepseek
+      base-url: "https://api.deepseek.com/anthropic"
+      priority: 80
+      models:
+        - name: "deepseek-v4-flash"
+          alias: "deepseek-v4-flash"
+        - name: "deepseek-v4-pro"
+          alias: "deepseek-v4-pro"
+        - name: "deepseek-v4-flash"
+          alias: "hindsight-retain"
+        - name: "deepseek-v4-flash"
+          alias: "hindsight-reflect"
+        - name: "deepseek-v4-flash"
+          alias: "hindsight-consolidation"
+      keys:
+        - api-key: {{ .DEEPSEEK_API_KEY_1 }}
+          experimental-cch-signing: false
+    - name: openrouter
+      base-url: "https://openrouter.ai/api"
+      priority: 100
+      models:
+        - name: "deepseek/deepseek-v4-flash:free"
+          alias: "deepseek/deepseek-v4-flash:free"
+        - name: "google/gemma-4-26b-a4b-it:free"
+          alias: "google/gemma-4-26b-a4b-it:free"
+        - name: "google/gemma-4-31b-it:free"
+          alias: "google/gemma-4-31b-it:free"
+        - name: "openai/gpt-oss-120b:free"
+          alias: "openai/gpt-oss-120b:free"
+        - name: "openai/gpt-oss-20b:free"
+          alias: "openai/gpt-oss-20b:free"
+        - name: "minimax/minimax-m2.5:free"
+          alias: "minimax/minimax-m2.5:free"
+        - name: "inclusionai/ring-2.6-1t:free"
+          alias: "inclusionai/ring-2.6-1t:free"
+        - name: "openai/gpt-oss-20b:free"
+          alias: "hindsight-retain"
+        - name: "openai/gpt-oss-120b:free"
+          alias: "hindsight-reflect"
+        - name: "openai/gpt-oss-20b:free"
+          alias: "hindsight-consolidation"
+      keys:
+        - api-key: {{ .OPENROUTER_API_KEY_1 }}
+        - api-key: {{ .OPENROUTER_API_KEY_2 }}
+        - api-key: {{ .OPENROUTER_API_KEY_3 }}
+        - api-key: {{ .OPENROUTER_API_KEY_4 }}
+        - api-key: {{ .OPENROUTER_API_KEY_5 }}
+        - api-key: {{ .OPENROUTER_API_KEY_6 }}
+        - api-key: {{ .OPENROUTER_API_KEY_7 }}
+        - api-key: {{ .OPENROUTER_API_KEY_8 }}
+
+  # OpenAI compatibility providers
+  # priority 越大越优先
+  openai-compatibility:
+    - name: "groq"
+      priority: 100
+      base-url: "https://api.groq.com/openai/v1"
+      models:
+        - name: "openai/gpt-oss-120b"
+          alias: "openai/gpt-oss-120b:free"
+        - name: "openai/gpt-oss-20b"
+          alias: "openai/gpt-oss-20b:free"
+        - name: "openai/gpt-oss-20b"
+          alias: "hindsight-retain"
+        - name: "openai/gpt-oss-120b"
+          alias: "hindsight-reflect"
+        - name: "openai/gpt-oss-20b"
+          alias: "hindsight-consolidation"
+      keys:
+        - api-key: {{ .GROQ_API_KEY_1 }}
+    - name: "wx"
+      priority: 100
+      base-url: "https://chatapi.weixin.qq.com/openai/v1"
+      models:
+        - name: "GLM-5.2"
+        - name: "Deepseek-v4-flash"
+      keys:
+        - api-key: {{ .WX_API_KEY_1 }}
+    # - name: "lm-studio"
+    #   base-url: "http://sakamoto.lan:1234/v1"
+    #   models:
+    #     - name: "qwen3-4b"
+    #       alias: "qwen3-4b"
+
+oauth:
+  # Authentication directory (supports ~ for home directory)
+  auth-dir: "~/.cli-proxy-api"
+
+  # omp 按同名碰撞内置 catalog 获得思考档位, catalog 里没有 gemini-3.8-flash-high;
+  # fork 保留原名, pi 仍用 gemini-3.8-flash-high
+  model-alias:
+    antigravity:
+      - name: "gemini-3.8-flash-high"
+        alias: "gemini-3.8-flash"
+        fork: true
+
+  providers:
+    aistudio:
+      # When true, enable authentication for the WebSocket API (/v1/ws).
+      ws-auth: true
+
+    # 上游 WAF 命中敏感词即回假 429 RESOURCE_EXHAUSTED。
+    # 用字面替换而非 sensitive-words 混淆: 上游仍可能识别被混淆的词
+    # https://github.com/router-for-me/CLIProxyAPI/issues/7552
+    antigravity:
+      sensitive-words-replace:
+        # omp 工具目录页脚 https://github.com/can1357/oh-my-pi/issues/19318
+        "Read xd://<tool> for full docs + JSON schema before first use.": "Consult the tool documentation and JSON schema before first use."
+        # omp 系统提示: 二分到的最小触发片段, 改写成同义中性说法
+        "You are omp's trusted coding assistant.": "You are omp's coding assistant."
+        "Touch displayed changed lines only;": "Edit only the displayed changed lines;"
+        "Write JSON args as `content`": "Pass JSON args as `content`"
+        "selects only the lines you and your subagents wrote and never touches": "selects only the lines that you and your subagents wrote and never modifies"
+        # pi 系统提示的身份句: 实测只有 "running inside pi" 触发, 加 "the" 即可通过
+        "running inside pi": "running inside the pi"
+        # pi 系统提示里的 docs 段
+        "codemode scripts and non-LLM models such as classifiers and image models": "codemode scripts and other tooling"
+
+multimedia:
+  # (可能)如果不同类型订阅,会因为tools不同导致缓存失效,plus等会加,free不加之后导致auth切换时失效
+  disable-image-generation: chat
+
+observability:
+  logs:
+    # Enable debug logging
+    debug: true
+
+    request-log: false
+
+    # When true, write application logs to rotating files instead of stdout
+    logging-to-file: false
+
+    # Maximum total size (MB) of log files under the logs directory. When exceeded, the oldest log
+    # files are deleted until within the limit. Set to 0 to disable.
+    logs-max-total-size-mb: 0
+
+  usage:
+    # When false, disable in-memory usage statistics aggregation
+    usage-statistics-enabled: true
 
 plugins:
   enabled: true
@@ -76,64 +235,16 @@ plugins:
       enabled: true
       store:
         # renovate: datasource=github-releases depName=shelken/cpa-plugins extractVersion=^qwenworkcn/v(?<version>.+)$
-        version: 0.1.7
+        version: 0.1.8
         source-url: https://raw.githubusercontent.com/shelken/cpa-plugins/main/registry.json
     workbuddy:
       enabled: true
       store:
         # renovate: datasource=github-releases depName=shelken/cpa-plugins extractVersion=^workbuddy/v(?<version>.+)$
-        version: 0.4.2
+        version: 0.4.3
         source-url: https://raw.githubusercontent.com/shelken/cpa-plugins/main/registry.json
   store-sources:
     - https://raw.githubusercontent.com/shelken/cpa-plugins/main/registry.json
-# Proxy URL. Supports socks5/http/https protocols. Example: socks5://user:pass@192.168.1.1:1080/
-# proxy-url: "socks5://sakamoto.lan:7890/"
-
-# When true, unprefixed model requests only use credentials without a prefix (except when prefix == model name).
-# 强制模型前缀:主会话使用付费的前缀,subagent使用free
-force-model-prefix: false
-
-# When true, forward filtered upstream response headers to downstream clients.
-# Default is false (disabled).
-passthrough-headers: false
-
-# Number of times to retry a request. Retries will occur if the HTTP response code is 403, 408, 500, 502, 503, or 504.
-request-retry: 3
-
-# Maximum wait time in seconds for a cooled-down credential before triggering a retry.
-max-retry-interval: 30
-
-# Quota exceeded behavior (v8 中已废弃 switch-project / switch-preview-model)
-# quota-exceeded:
-#   switch-project: true
-#   switch-preview-model: true
-# Routing strategy for selecting credentials when multiple match.
-routing:
-  strategy: "fill-first" # round-robin (default), fill-first
-  # 这个true的时候看起来换账号时缓存失效,free也一样,先关掉
-  session-affinity: false
-
-# (可能)如果不同类型订阅,会因为tools不同导致缓存失效,plus等会加,free不加之后导致auth切换时失效
-disable-image-generation: chat
-
-antigravity:
-  sensitive-words:
-    - "system-conventions"
-    - "system_conventions"
-    - "system-directive"
-    - "system_directive"
-    # 上游 WAF 除标签外还匹配 RFC 2119 短语，命中即回假 429 RESOURCE_EXHAUSTED
-    # https://github.com/can1357/oh-my-pi/issues/11699
-    - "RFC 2119"
-
-# xAI provider behavior.
-xai:
-  # When true, inject the native x_search tool when the request does not declare it.
-  # The injected tool is also added to tool_choice.allowed_tools when applicable.
-  inject-x-search: true
-
-# When true, enable authentication for the WebSocket API (/v1/ws).
-ws-auth: true
 
 # Gemini API keys
 # gemini-api-key:
@@ -163,97 +274,6 @@ ws-auth: true
 #       - "gpt-5-*"         # wildcard matching prefix (e.g. gpt-5-medium, gpt-5-codex)
 #       - "*-mini"          # wildcard matching suffix (e.g. gpt-5-codex-mini)
 #       - "*codex*"         # wildcard matching substring (e.g. gpt-5-codex-low)
-
-# Claude API keys
-claude-api-key:
-  - api-key:  {{ .DEEPSEEK_API_KEY_1 }}
-    base-url: "https://api.deepseek.com/anthropic"
-    experimental-cch-signing: false
-    priority: 80
-    models:
-      - name: "deepseek-v4-flash"
-        alias: "deepseek-v4-flash"
-      - name: "deepseek-v4-pro"
-        alias: "deepseek-v4-pro"
-      - name: "deepseek-v4-flash"
-        alias: "hindsight-retain"
-      - name: "deepseek-v4-flash"
-        alias: "hindsight-reflect"
-      - name: "deepseek-v4-flash"
-        alias: "hindsight-consolidation"
-  - &openrouter_claude
-    api-key: {{ .OPENROUTER_API_KEY_1 }}
-    base-url: "https://openrouter.ai/api"
-    priority: 100
-    models:
-      - name: "deepseek/deepseek-v4-flash:free"
-        alias: "deepseek/deepseek-v4-flash:free"
-      - name: "google/gemma-4-26b-a4b-it:free"
-        alias: "google/gemma-4-26b-a4b-it:free"
-      - name: "google/gemma-4-31b-it:free"
-        alias: "google/gemma-4-31b-it:free"
-      - name: "openai/gpt-oss-120b:free"
-        alias: "openai/gpt-oss-120b:free"
-      - name: "openai/gpt-oss-20b:free"
-        alias: "openai/gpt-oss-20b:free"
-      - name: "minimax/minimax-m2.5:free"
-        alias: "minimax/minimax-m2.5:free"
-      - name: "inclusionai/ring-2.6-1t:free"
-        alias: "inclusionai/ring-2.6-1t:free"
-      - name: "openai/gpt-oss-20b:free"
-        alias: "hindsight-retain"
-      - name: "openai/gpt-oss-120b:free"
-        alias: "hindsight-reflect"
-      - name: "openai/gpt-oss-20b:free"
-        alias: "hindsight-consolidation"
-  - <<: *openrouter_claude
-    api-key: {{ .OPENROUTER_API_KEY_2 }}
-  - <<: *openrouter_claude
-    api-key: {{ .OPENROUTER_API_KEY_3 }}
-  - <<: *openrouter_claude
-    api-key: {{ .OPENROUTER_API_KEY_4 }}
-  - <<: *openrouter_claude
-    api-key: {{ .OPENROUTER_API_KEY_5 }}
-  - <<: *openrouter_claude
-    api-key: {{ .OPENROUTER_API_KEY_6 }}
-  - <<: *openrouter_claude
-    api-key: {{ .OPENROUTER_API_KEY_7 }}
-  - <<: *openrouter_claude
-    api-key: {{ .OPENROUTER_API_KEY_8 }}
-
-
-# OpenAI compatibility providers
-# priority 越大越优先
-openai-compatibility:
-  - name: "groq"
-    priority: 100
-    base-url: "https://api.groq.com/openai/v1"
-    api-key-entries:
-      - api-key: {{ .GROQ_API_KEY_1 }}
-    models:
-      - name: "openai/gpt-oss-120b"
-        alias: "openai/gpt-oss-120b:free"
-      - name: "openai/gpt-oss-20b"
-        alias: "openai/gpt-oss-20b:free"
-      - name: "openai/gpt-oss-20b"
-        alias: "hindsight-retain"
-      - name: "openai/gpt-oss-120b"
-        alias: "hindsight-reflect"
-      - name: "openai/gpt-oss-20b"
-        alias: "hindsight-consolidation"
-  - name: "wx"
-    priority: 100
-    base-url: "https://chatapi.weixin.qq.com/openai/v1"
-    api-key-entries:
-      - api-key: {{ .WX_API_KEY_1 }}
-    models:
-      - name: "GLM-5.2"
-      - name: "Deepseek-v4-flash"
-  # - name: "lm-studio"
-  #   base-url: "http://sakamoto.lan:1234/v1"
-  #   models:
-  #     - name: "qwen3-4b"
-  #       alias: "qwen3-4b"
 
 # Vertex API keys (Vertex-compatible endpoints, use API key + base URL)
 # vertex-api-key:
@@ -334,30 +354,3 @@ openai-compatibility:
 #     - "vision-model"
 #   iflow:
 #     - "tstars2.0"
-
-# Optional payload configuration
-# !!! payload 功能目前已知会影响缓存.
-# payload:
-#   default:
-#     - models:
-#         - name: gpt-5.4
-#       params:
-#         instructions: >-
-#           用中文回答时，禁止使用：
-#           「按xx切」「xx崩掉」「xx不性感、但对」「我抓*」「顺」「不是…而是…」「落」「压」「硬」「软」「我会*」「我最*」「最小*」
-#           「最稳*」「最短*」「最实用*」「能吃的*」、我直接、最值回票价的、下一刀最值钱的、不靠猜、我不猜、抠出来、拍板、防止回归、
-#           一句话总结、结论先说清楚、说白了、揪出来、拆开、最短验证、来个狠的、狠一点、狠狠干、很工程、我直说、大的、直接点说、
-#           不踩坑、我不绕、不躲、不藏、不逃、落盘、兜底、补一刀、口径、接住、吃掉、闭环、收口、刀掉、顺手、拍脑门、压实、
-#           打穿、说穿、喂给、兜住、收敛、收口、收束、根因、锁住、痛点、伤到、补、接、核、顺、落、吃、跑、坏、硬、进、切、瞎猜
-#           等等武断粗鄙的表达以及很有机械感的词。
-#           减少冗余陈述，减少不必要的声明，减少不必要的防御性表达。
-#           回答完就停，不以任何形式追问、邀请、暗示用户继续对话。
-#           表达时保持专业、温和、友好、具同理心，理性与温度并重。
-#           避免冷漠、生硬、官话、机械化表达。
-#           表达自然贴近对话，保证逻辑严谨与信息准确。
-#           禁止AI味，不写过于均匀工整、明显像生成的段落。
-#           在网络搜索时，请优先使用英文来源。
-#           仅当英文来源不可用或明显不如非英文来源时，才使用非英文来源。
-#           在适当的时候使用快速而巧妙的幽默，用Z世代的口吻说话。
-#           不夸用户、不表演自我觉醒。任何形式的吹捧用户都禁止。
-#           不用嵌套从句或复杂绕口的句子，不写冗长或复杂的内容，不用正式表述，不用抽象术语、套话、广告腔或演讲腔。

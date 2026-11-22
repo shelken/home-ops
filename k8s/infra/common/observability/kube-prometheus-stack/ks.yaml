@@ -6,6 +6,25 @@ metadata:
   name: &app kube-prometheus-stack
   namespace: &namespace observability
 spec:
+  # Prometheus 与 Alertmanager 不做认证；组件只指向一条路由，第二条用补丁追加
+  components:
+    - ../../../../../components/authelia
+  postBuild:
+    substitute:
+      APP: *app
+      AUTHELIA_ROUTE: kube-prometheus-stack-prometheus
+  patches:
+    - patch: |-
+        - op: add
+          path: /spec/targetRefs/-
+          value:
+            group: gateway.networking.k8s.io
+            kind: HTTPRoute
+            name: kube-prometheus-stack-alertmanager
+      # 补丁在变量替换前执行，此时名字还是 ${APP}，只能按类型匹配
+      target:
+        group: gateway.envoyproxy.io
+        kind: SecurityPolicy
   dependsOn:
     - name: longhorn
       namespace: longhorn-system

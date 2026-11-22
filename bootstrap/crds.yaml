@@ -17,7 +17,7 @@ releases:
   - name: external-dns-cloudflare
     namespace: network
     chart: oci://ghcr.io/home-operations/charts-mirror/external-dns
-    version: 1.23.0
+    version: 1.24.0
 
   - name: external-secrets
     namespace: external-secrets
@@ -42,14 +42,14 @@ releases:
   - name: kube-prometheus-stack
     namespace: observability
     chart: oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack
-    version: 92.22.0
+    version: 93.7.0
 
   - name: plugin-barman-cloud
     namespace: database
     chart: oci://ghcr.io/cloudnative-pg/charts/plugin-barman-cloud
-    version: 0.8.1
+    version: 0.9.0
 
   - name: dragonfly-operator
     namespace: database
     chart: oci://ghcr.io/dragonflydb/dragonfly-operator/helm/dragonfly-operator
-    version: v1.7.1
+    version: v1.8.0

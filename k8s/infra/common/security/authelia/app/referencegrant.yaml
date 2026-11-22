@@ -12,6 +12,12 @@ spec:
     - group: gateway.envoyproxy.io
       kind: SecurityPolicy
       namespace: kopiur-system
+    - group: gateway.envoyproxy.io
+      kind: SecurityPolicy
+      namespace: longhorn-system
+    - group: gateway.envoyproxy.io
+      kind: SecurityPolicy
+      namespace: observability
   to:
     - group: ""
       kind: Service

@@ -26,7 +26,7 @@ spec:
           app:
             image:
               repository: ghcr.io/shelken/zte-mifi-exporter
-              tag: 0.6.2@sha256:8418a3670f9fc1177c62a7ab8ce5b49cbd353a84b24531f0e0400e6e6f42f3e8
+              tag: 0.6.3@sha256:9b2abdd2ada8295f9fdce00b3b8b8f9885763756b64ca27381bbe718ecec9d99
             env:
               TZ: ${TIMEZONE}
               ZTE_HOST:

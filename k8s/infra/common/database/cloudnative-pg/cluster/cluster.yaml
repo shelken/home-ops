@@ -18,6 +18,7 @@ spec:
   instances: 2
   imageName: ghcr.io/cloudnative-pg/postgresql:${POSTGRESQL_VERSION}
   primaryUpdateStrategy: unsupervised
+  primaryUpdateMethod: switchover
   storage:
     size: 20Gi
     storageClass: longhorn

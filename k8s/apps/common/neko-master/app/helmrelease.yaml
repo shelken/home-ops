@@ -40,6 +40,13 @@ spec:
             env:
               TZ: ${TIMEZONE}
               DB_PATH: /app/data/stats.db
+              # 取值同上游默认；环境变量优先于界面里的保留设置，调整只改这里
+              # 分钟表是体积大头；超过分钟保留期的 6 小时内窗口改读小时表，2 小时内的窗口会变空
+              SQLITE_RETENTION_MINUTE_DAYS: "7"
+              # 超过小时保留期的范围查不到数据（30d 视图受它限制）；域名/IP/规则的累计表不受保留期影响
+              SQLITE_RETENTION_HOURLY_DAYS: "30"
+              SQLITE_RETENTION_HEALTH_LOG_DAYS: "30"
+              SQLITE_CACHE_MB: "64"
               # 默认 online 会把目标 IP 发给第三方接口
               GEOIP_LOOKUP_PROVIDER: local
               GEOIP_MMDB_DIR: /app/data/geoip

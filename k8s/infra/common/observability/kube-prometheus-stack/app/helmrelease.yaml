@@ -10,8 +10,8 @@ spec:
     mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
     operation: copy
   ref:
-    tag: 92.22.0
-    digest: sha256:f3987a327638427f4a4a514f2dd2f1065b8c1f89669ea8517627b67a56790601
+    tag: 93.7.0
+    digest: sha256:7c7516ee7ea4596e0a3b18c76e2405bfef2aae840601941c6c4028bbe67e1280
   url: oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
@@ -68,7 +68,7 @@ spec:
             memory: 64Mi
         containers:
           - name: wechatrobot
-            image: ghcr.io/shelken/alertmanager-wechatrobot:0.1.7@sha256:b0c362eba16fe1f478e77a0d0d1768a0c6eeda7d67cd6739848d1d7570eb2f7e
+            image: ghcr.io/shelken/alertmanager-wechatrobot:0.1.9@sha256:d5aa367c66ae3fe1c1ec60c4bda1469c3b3f0a2ccfe7c4b3b76887db5b70ca05
             ports:
               - containerPort: 8060
             env:
