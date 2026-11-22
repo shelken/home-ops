@@ -18,6 +18,21 @@ spec:
 apiVersion: monitoring.coreos.com/v1alpha1
 kind: ScrapeConfig
 metadata:
+  name: &name sakamoto-host
+spec:
+  staticConfigs:
+    - targets:
+        - sakamoto.lan:9100
+      labels:
+        job: *name
+  metricsPath: /metrics
+  scrapeInterval: 30s
+
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/scrapeconfig_v1alpha1.json
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
   name: &name caddy-vps-cc
 spec:
   staticConfigs:
