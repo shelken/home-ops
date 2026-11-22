@@ -1,8 +1,5 @@
 config-version: 8
 
-models:
-  catalog: "/CLIProxyAPI/catalog/models.json"
-
 server:
   # Server host/interface to bind to. Default is empty ("") to bind all interfaces (IPv4 + IPv6).
   # Use "127.0.0.1" or "localhost" to restrict access to local machine only.

@@ -14,4 +14,3 @@ configMapGenerator:
   - name: cli-proxy-api-scripts
     files:
       - plugin-sync.pl=./resources/plugin-sync.pl
-      - models-extra.json=./resources/models-extra.json
