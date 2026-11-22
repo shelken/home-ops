@@ -45,30 +45,6 @@ spec:
             securityContext:
               runAsUser: 1000
               runAsGroup: 1000
-          fetch-models:
-            image: *curl-image
-            command:
-              - sh
-              - -c
-              - (curl -fsSL --retry 3 -o /CLIProxyAPI/catalog/models.json.tmp https://models.router-for.me/models.json || curl -fsSL --retry 3 -o /CLIProxyAPI/catalog/models.json.tmp https://raw.githubusercontent.com/router-for-me/models/refs/heads/main/models.json) && mv /CLIProxyAPI/catalog/models.json.tmp /CLIProxyAPI/catalog/models.json || rm -f /CLIProxyAPI/catalog/models.json.tmp
-            securityContext:
-              runAsUser: 1000
-              runAsGroup: 1000
-          sync-models:
-            dependsOn: fetch-models
-            image:
-              repository: docker.io/mikefarah/yq
-              tag: 4.54.3@sha256:7834187596ad56fd5a81436114e0b0b9dd54c91bb43946d1f7145b2be5f9c3d2
-            args:
-              - eval-all
-              - -i
-              - -o=json
-              - "select(fileIndex == 0) *+ select(fileIndex == 1) | .antigravity |= unique_by(.id)"
-              - /CLIProxyAPI/catalog/models.json
-              - /scripts/models-extra.json
-            securityContext:
-              runAsUser: 1000
-              runAsGroup: 1000
         containers:
           app:
             image: *image
