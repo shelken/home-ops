@@ -121,6 +121,8 @@ spec:
         globalMounts:
           - path: /config/magpie
             subPath: magpie
+          - path: /config/home
+            subPath: home
       tmp:
         type: emptyDir
         globalMounts:
