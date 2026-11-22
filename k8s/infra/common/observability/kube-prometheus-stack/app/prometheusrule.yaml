@@ -10,7 +10,7 @@ spec:
       rules:
         # 2026-09-24 控制面 VM 宿主（macOS）内存压缩/换页风暴导致 etcd fsync
         # 延迟飙至 26s，全集群控制器 leader election 失败集体重启。
-        # 宿主不在集群内无法直接观测，fsync 延迟是其最可靠的下游代理信号。
+        # 宿主机指标由 `sakamoto-host` 直接采集，fsync 延迟作为下游联合验证信号。
         - alert: ControlPlaneEtcdWalFsyncSlow
           expr: |
             histogram_quantile(0.99, sum by(le, instance) (rate(etcd_disk_wal_fsync_duration_seconds_bucket{job="kube-etcd-nodes"}[5m]))) > 2
@@ -20,7 +20,7 @@ spec:
               etcd WAL fsync p99 on {{ $labels.instance }} 为 {{ $value | printf "%.2f" }}s；
               疑似 VM 宿主内存压力或磁盘争用，控制器即将发生 leader election 失败
           labels:
-            severity: warning
+            severity: critical
         # 集群节点都未启用 swap，内存吃紧时直接进入 OOM，swap 用量永远是 0；
         # 改看 PSI：有任务因等待内存而停顿的时间占比，是 OOM 与控制面卡顿的前兆
         - alert: NodeMemoryPressure
@@ -32,7 +32,7 @@ spec:
               节点 {{ $labels.kubernetes_node }} 有 {{ $value | humanizePercentage }} 的时间
               因等待内存而停顿；节点内存预算过紧
           labels:
-            severity: warning
+            severity: critical
         # kubelet image GC 高水位阈值为 80%，超限且无法释放时意味着结构性磁盘不足；
         # 镜像存放在根盘，只看根挂载点，避免把 /boot 或 Longhorn 数据盘误当镜像盘
         - alert: NodeImageFilesystemOverKubeletThreshold
@@ -44,7 +44,29 @@ spec:
               节点 {{ $labels.kubernetes_node }} 根盘使用率 {{ $value | printf "%.1f" }}%
               已超过 kubelet image GC 阈值 80%
           labels:
-            severity: warning
+            severity: critical
+        # 控制面 macOS 宿主机压缩内存占比持续过高时，物理内存余量收窄，可能引发磁盘争用并拖慢 VM 内 etcd
+        - alert: SakamotoHostMemoryCompressedHigh
+          expr: |
+            node_memory_compressed_bytes{job="sakamoto-host"} / node_memory_total_bytes{job="sakamoto-host"} > 0.35
+          for: 5m
+          annotations:
+            summary: >-
+              控制面宿主机压缩内存占比已达 {{ $value | humanizePercentage }}（> 35%），
+              存在触发内存压力与拖慢 VM 内 etcd 的风险
+          labels:
+            severity: critical
+        # 宿主机 Swap 实际占用超过 4 GiB，说明物理内存已无法容纳活跃工作集
+        - alert: SakamotoHostSwapUsedHigh
+          expr: |
+            node_memory_swap_used_bytes{job="sakamoto-host"} > 4 * 1024 * 1024 * 1024
+          for: 5m
+          annotations:
+            summary: >-
+              控制面宿主机 Swap 占用已达 {{ $value | humanize1024 }}B（> 4 GiB），
+              需及时核查宿主机与 VM 内存负载
+          labels:
+            severity: critical
 
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json

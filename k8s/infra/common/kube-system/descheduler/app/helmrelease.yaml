@@ -89,6 +89,8 @@ spec:
                   - requiredDuringSchedulingIgnoredDuringExecution
                   - preferredDuringSchedulingIgnoredDuringExecution
             - name: RemovePodsViolatingNodeTaints
+              args:
+                includePreferNoSchedule: true
             - name: RemovePodsViolatingTopologySpreadConstraint
           plugins:
             balance:
