@@ -1,0 +1,152 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app magpie
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      magpie:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          annotations:
+            fluentbit.io/exclude: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/yetone/magpie
+              tag: 0.1.4684@sha256:9727abcd6047c8663dc2beb6a24ecf2dc6b48bbcac900e1cc0f866ac3515a7af
+            args:
+              - web
+              - --addr
+              - 0.0.0.0:3430
+              - --no-open
+            env:
+              TZ: ${TIMEZONE}
+              MAGPIE_PUBLIC_URL: https://magpie.${INTERNAL_DOMAIN}
+              MAGPIE_WEB_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: magpie-secret
+                    key: MAGPIE_WEB_KEY
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command:
+                      - /magpie
+                      - healthcheck
+                  initialDelaySeconds: 10
+                  periodSeconds: 15
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command:
+                      - /magpie
+                      - healthcheck
+                  periodSeconds: 5
+                  timeoutSeconds: 5
+                  failureThreshold: 30
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 50m
+                memory: 256Mi
+              limits:
+                memory: 2Gi
+    defaultPodOptions:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: node-type
+                    operator: In
+                    values: [lightweight]
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
+    service:
+      app:
+        controller: magpie
+        forceRename: magpie-gateway
+        ports:
+          api:
+            port: &port 3425
+            appProtocol: http
+          web:
+            port: &webPort 3430
+            appProtocol: http
+    persistence:
+      cache:
+        type: persistentVolumeClaim
+        forceRename: magpie-cache
+        storageClass: longhorn-cache
+        accessMode: ReadWriteOnce
+        size: 5Gi
+        globalMounts:
+          - path: /config
+            subPath: config
+      config:
+        existingClaim: *app
+        globalMounts:
+          - path: /config/magpie
+            subPath: magpie
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
+    route:
+      app:
+        hostnames: ["magpie.${INTERNAL_DOMAIN}"]
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
+      web:
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: internal
+          gethomepage.dev/name: Magpie
+          gethomepage.dev/icon: kubernetes-dashboard.svg
+          gethomepage.dev/app: *app
+        hostnames: ["magpie-ui.${INTERNAL_DOMAIN}"]
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *webPort
