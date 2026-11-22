@@ -9,7 +9,7 @@ spec:
     groupBy: ["alertname", "job"]
     groupInterval: 10m
     groupWait: 1m
-    receiver: alert
+    receiver: "null"
     repeatInterval: 12h
     routes:
       - receiver: "null"
@@ -41,11 +41,12 @@ spec:
           - name: action
             value: f50-disconnect-cellular
             matchType: =
+      # Flux notification-controller 发往 Alertmanager 的错误事件固定带 severity=error
       - receiver: alert
         matchers:
           - name: severity
-            value: critical
-            matchType: =
+            value: critical|error
+            matchType: =~
   inhibitRules:
     - equal: ["alertname", "namespace"]
       sourceMatch:

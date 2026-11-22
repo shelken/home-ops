@@ -16,4 +16,4 @@ spec:
             summary: ExternalSecret 同步持续失败
             description: External Secrets 在最近 10 分钟持续出现同步错误，请检查 ESO 日志和对应 ExternalSecret 状态。
           labels:
-            severity: warning
+            severity: critical
