@@ -116,11 +116,12 @@ spec:
     kubelet:
       serviceMonitor:
         metricRelabelings:
-          # 控制面 kubelet /metrics 会重复输出已由 apiserver 采集的指标；
-          # agent 节点不产生这两族，cadvisor/probes 也不经过此规则。
-          - action: drop
+          # k3s 控制面进程共享全局 metrics registry，黑名单容易漏掉 scheduler/workqueue/
+          # apiextensions/watch_cache 等共享指标族；改为白名单仅保留 kubelet 自身及告警/仪表盘
+          # 依赖的指标族，其余内置组件统一由 apiserver 端点采集（cadvisor/probes 不经过此规则）。
+          - action: keep
             sourceLabels: [__name__]
-            regex: apiserver_.*|etcd_.*
+            regex: (kubelet|storage_operation|volume_manager|csi_operations|rest_client|process|go)_.*
     prometheus:
       route:
         main:
