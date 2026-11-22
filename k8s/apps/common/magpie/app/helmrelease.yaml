@@ -107,13 +107,6 @@ spec:
             port: &webPort 3430
             appProtocol: http
     persistence:
-      config:
-        existingClaim: *app
-        globalMounts:
-          - path: /config/magpie
-            subPath: magpie
-          - path: /config/home
-            subPath: home
       cache:
         type: persistentVolumeClaim
         forceRename: magpie-cache
@@ -121,28 +114,13 @@ spec:
         accessMode: ReadWriteOnce
         size: 5Gi
         globalMounts:
-          - path: /config/cache
-            subPath: cache
-          - path: /config/data
-            subPath: data
-          - path: /config/state
-            subPath: state
-          - path: /config/magpie/plugins
-            subPath: magpie-plugins
-          - path: /config/magpie/our-free-model
-            subPath: magpie-our-free-model
-          - path: /config/magpie/icons
-            subPath: magpie-icons
-          - path: /config/magpie/routing
-            subPath: magpie-routing
-          - path: /config/magpie/masking
-            subPath: magpie-masking
-          - path: /config/magpie/gemini-signatures
-            subPath: magpie-gemini-signatures
-          - path: /config/magpie/request-archive
-            subPath: magpie-request-archive
-          - path: /config/magpie/usage-others
-            subPath: magpie-usage-others
+          - path: /config
+            subPath: config
+      config:
+        existingClaim: *app
+        globalMounts:
+          - path: /config/magpie
+            subPath: magpie
       tmp:
         type: emptyDir
         globalMounts:

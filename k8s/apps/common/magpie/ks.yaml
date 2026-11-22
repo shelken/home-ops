@@ -20,7 +20,7 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      KOPIUR_CAPACITY: 1Gi
+      KOPIUR_CAPACITY: 3Gi
       KOPIUR_CACHE_CAPACITY: 3Gi
       AUTHELIA_ROUTE: magpie-web
   interval: 1h
