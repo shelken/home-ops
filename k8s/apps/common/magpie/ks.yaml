@@ -1,0 +1,37 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app magpie
+  namespace: &namespace default
+spec:
+  targetNamespace: *namespace
+  components:
+    - ../../../../components/kopiur/backup
+    - ../../../../components/authelia
+  dependsOn:
+    - name: cilium
+      namespace: kube-system
+    - name: bitwarden-store
+      namespace: external-secrets
+    - name: kopiur-repository
+      namespace: kopiur-system
+  postBuild:
+    substitute:
+      APP: *app
+      KOPIUR_CAPACITY: 1Gi
+      KOPIUR_CACHE_CAPACITY: 3Gi
+      KOPIUR_PUID: "65532"
+      KOPIUR_PGID: "65532"
+      AUTHELIA_ROUTE: magpie-web
+  interval: 1h
+  path: ./k8s/apps/common/magpie/app
+  prune: true
+  retryInterval: 2m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  timeout: 5m
+  wait: false
