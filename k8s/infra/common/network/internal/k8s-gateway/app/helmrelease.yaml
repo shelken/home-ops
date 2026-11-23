@@ -39,7 +39,7 @@ spec:
         memory: 32Mi
       limits:
         cpu: null # 4.x 默认带 100m CPU limit，保持原先不限 CPU
-        memory: 64Mi
+        memory: 128Mi
     # ref：https://codeberg.org/k8s-gateway/k8s_gateway/src/branch/master/charts/k8s-gateway/values.yaml
     fullnameOverride: k8s-gateway
     # 单副本升级时先起新 Pod 再停旧 Pod，避免 DNS 短暂断档
