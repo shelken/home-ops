@@ -25,11 +25,22 @@ spec:
         pod:
           annotations:
             fluentbit.io/exclude: "true"
-        containers:
-          app:
-            image:
+        initContainers:
+          fix-permissions:
+            image: &image
               repository: ghcr.io/yetone/magpie
               tag: 0.1.4684@sha256:9727abcd6047c8663dc2beb6a24ecf2dc6b48bbcac900e1cc0f866ac3515a7af
+            command:
+              - sh
+              - -c
+              - chown -R 65532:65532 /config /config/magpie /config/home
+            securityContext:
+              runAsNonRoot: false
+              runAsUser: 0
+              runAsGroup: 0
+        containers:
+          app:
+            image: *image
             args:
               - web
               - --addr
@@ -90,9 +101,9 @@ spec:
                     values: [lightweight]
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
         fsGroupChangePolicy: OnRootMismatch
         seccompProfile: { type: RuntimeDefault }
     service:
