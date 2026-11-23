@@ -25,22 +25,11 @@ spec:
         pod:
           annotations:
             fluentbit.io/exclude: "true"
-        initContainers:
-          fix-permissions:
-            image: &image
-              repository: ghcr.io/yetone/magpie
-              tag: 0.1.4684@sha256:9727abcd6047c8663dc2beb6a24ecf2dc6b48bbcac900e1cc0f866ac3515a7af
-            command:
-              - sh
-              - -c
-              - chown -R 65532:65532 /config /config/magpie /config/home
-            securityContext:
-              runAsNonRoot: false
-              runAsUser: 0
-              runAsGroup: 0
         containers:
           app:
-            image: *image
+            image:
+              repository: ghcr.io/yetone/magpie
+              tag: 0.1.4684@sha256:9727abcd6047c8663dc2beb6a24ecf2dc6b48bbcac900e1cc0f866ac3515a7af
             args:
               - web
               - --addr
