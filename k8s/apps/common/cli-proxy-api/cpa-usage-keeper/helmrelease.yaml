@@ -26,7 +26,7 @@ spec:
           app:
             image:
               repository: ghcr.io/willxup/cpa-usage-keeper
-              tag: v2.1.1@sha256:2bd0017ce8d0696fe6982ee71c0a272f3ffe09386a9fae12d445023a42d2fbc5
+              tag: v2.1.2@sha256:9a550f7504f7e9bcc5f92879c207ed7e2d473ff2add682eb196ac3e7818c8415
             command: ["/app/cpa-usage-keeper"]
             env:
               TZ: ${TIMEZONE}
