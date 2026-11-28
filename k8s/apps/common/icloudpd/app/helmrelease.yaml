@@ -26,7 +26,7 @@ spec:
           app:
             image:
               repository: docker.io/icloudpd/icloudpd
-              tag: 1.33.0@sha256:086e191b031bc779bcd9e698e6704264efab3bd5ee7bebd1ac029ea9899b6b38
+              tag: 1.35.0@sha256:ea674c058a416d2d35d93d58616ee9ce0bfd1f64df1a24aa1f4d0bd4e98bb487
             env:
               TZ: ${TIMEZONE}
             envFrom:
